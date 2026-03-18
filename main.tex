@@ -101,105 +101,143 @@ The source code, data, and/or other artifacts have been made available at \url{\
 %%% VLDB block end %%%
 
 \section{Introduction}
+\label{sec:intro}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse a arcu quis arcu malesuada ultricies vitae in felis. Curabitur porta lacus at felis viverra hendrerit in non eros. Nam tempus tincidunt metus vitae fermentum. Donec sed risus felis. Cras luctus massa elementum, semper urna vel, efficitur ipsum. Morbi at tellus libero.
+The rapid adoption of large-scale vision-language foundation models has elevated image retrieval
+from a narrow computer vision task to a central infrastructure challenge.
+Models such as CLIP~\cite{radford2021clip} and DINOv2~\cite{oquab2024dinov2} produce rich
+semantic embeddings that encode not only visual appearance but also object identity and
+compositional scene understanding.
+Deployed over vector databases with Approximate Nearest Neighbor (ANN) indexing, these embeddings
+enable sub-second similarity search over collections of tens of millions of images --- a
+capability now integral to e-commerce product discovery, medical image retrieval, and multimodal
+AI assistants~\cite{pan2023vdms,aguerrebere2023locally}.
+Yet while the database community has invested heavily in the efficiency of ANN
+search~\cite{malkov2018hnsw,johnson2019billion}, far less attention has been paid to the
+depth of semantic expressiveness that retrieval benchmarks actually demand.
+Most existing benchmarks test retrieval of visually similar images or single objects; none
+probe whether a system can distinguish 600 fine-grained human activities from natural language.
 
-Praesent imperdiet, lacus nec varius placerat, est ex eleifend justo, a vulputate leo massa consectetur nunc. Donec posuere in mi ut tempus. Pellentesque sem odio, faucibus non mi in, laoreet maximus arcu. In hac habitasse platea dictumst. Nunc euismod neque eu urna accumsan, vitae vehicula metus tincidunt. Maecenas congue tortor nec varius pellentesque. Pellentesque bibendum libero ac dignissim euismod. Aliquam justo ante, pretium vel mollis sed, consectetur accumsan nibh. Nulla sit amet sollicitudin est. 
+Human-Object Interaction (HOI) recognition captures one of the richest forms of compositional
+visual semantics available in any public benchmark.
+HICO-DET~\cite{chao2018hico}, the largest HOI benchmark, annotates 47{,}776 images across
+600 fine-grained interaction categories structured as \textit{verb--object} pairs --- \textit{person
+riding horse}, \textit{person cutting cake}, \textit{person throwing frisbee} --- spanning
+80 object classes and 117 action verbs.
+Despite this semantic richness, every published use of HICO-DET has been restricted to the
+\emph{detection} paradigm: predicting bounding boxes and interaction class labels from a given
+image.
+The \emph{retrieval} direction --- in which a natural-language query such as
+\emph{``a person riding a horse''} should rank all 47{,}776 images by relevance --- has never been
+explored.
+This is a significant missed opportunity: the same compositional label structure that makes
+HOI detection challenging makes HOI retrieval a uniquely demanding test of cross-modal alignment
+between language and visual content, providing a far more discriminative evaluation signal
+than scene-level or object-level benchmarks.
 
-\section{Core Structural Elements}
+Establishing HOI retrieval as a benchmark task immediately surfaces two open technical problems.
+First, practitioners must decide between two query modalities: a natural-language description
+or a reference image.
+The relative merits of text versus image queries on a compositionally structured dataset have
+not been quantified, and the underlying geometric reason for any observed difference has not
+been articulated.
+Second, once embeddings are stored in a vector database, the ANN index
+hyperparameters --- graph connectivity ($M$), search depth (\textit{efSearch}), candidate
+pool size ($k$), and the fusion weight $\alpha$ blending ANN retrieval scores with visual
+reranking signals --- jointly determine the accuracy--throughput trade-off in ways that
+interact non-linearly and depend on the data distribution.
+Current practice resorts to grid search or random search: \emph{blind} procedures that
+evaluate configurations independently of all previously measured outcomes.
+As vector database collections scale to tens of millions of vectors, this sample-inefficient
+approach wastes substantial compute and fails to exploit the structured, measurable feedback
+that each evaluated configuration already provides.
 
-Nulla placerat feugiat augue, id blandit urna pretium nec. Nulla velit sem, tempor vel mauris ut, porta commodo quam. Donec lectus erat, sodales eu mauris eu, fringilla vestibulum nisl. Morbi viverra tellus id lorem faucibus cursus. Quisque et orci in est faucibus semper vel a turpis. Vivamus posuere sed ligula et. 
+We address both problems with a unified system.
+For retrieval, we propose a two-stage pipeline: in the first stage, CLIP ViT-L/14 text
+embeddings drive ANN search over a VDMS vector database~\cite{pan2023vdms}, returning a
+ranked candidate pool; in the second stage, DINOv2 ViT-L/14-reg4 visual embeddings rerank
+the candidate pool using a weighted fusion of normalized distances --- requiring only
+\emph{one} ANN index at deployment, with zero additional indexing cost for the reranker.
+For modality selection, we show geometrically that a CLIP text embedding lies at the
+\emph{semantic centroid} of all images sharing a given HOI category, while a reference image
+is a single noisy point displaced from that centroid in the same embedding space; this
+centroid argument directly predicts the 70.2\% mAP advantage of text queries over image
+queries that we observe empirically.
+For hyperparameter optimization, we present an LLM agent that, at each iteration, observes
+the measured Score ($= \text{mAP} \times \text{QPS}$) of every previously evaluated
+configuration and reasons over the full history to propose the next configuration --- a
+strategy fundamentally different from blind grid and random search because it conditions
+each new proposal on empirical outcomes.
 
-\subsection{Figures}
-
-Aliquam justo ante, pretium vel mollis sed, consectetur accumsan nibh. Nulla sit amet sollicitudin est. Etiam ullamcorper diam a sapien lacinia faucibus. Duis vulputate, nisl nec tincidunt volutpat, erat orci eleifend diam, eget semper risus est eget nisl. Donec non odio id neque pharetra ultrices sit amet id purus. Nulla non dictum tellus, id ullamcorper libero. Curabitur vitae nulla dapibus, ornare dolor in, efficitur enim. Cras fermentum facilisis elit vitae egestas. Nam vulputate est non tellus efficitur pharetra. Vestibulum ligula est, varius in suscipit vel, porttitor id massa. Nulla placerat feugiat augue, id blandit urna pretium nec. Nulla velit sem, tempor vel mauris ut, porta commodo quam \autoref{fig:duck}.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{figures/duck}
-  \caption{An illustration of a Mallard Duck. Picture from Mabel Osgood Wright, \textit{Birdcraft}, published 1897.}
-  \label{fig:duck}
-\end{figure}
-
-\begin{table*}[t]
-  \caption{A double column table.}
-  \label{tab:commands}
-  \begin{tabular}{ccl}
-    \toprule
-    A Wide Command Column & A Random Number & Comments\\
-    \midrule
-    \verb|\tabular| & 100& The content of a table \\
-    \verb|\table|  & 300 & For floating tables within a single column\\
-    \verb|\table*| & 400 & For wider floating tables that span two columns\\
-    \bottomrule
-  \end{tabular}
-\end{table*}
-
-\subsection{Tables}
-
-Curabitur vitae nulla dapibus, ornare dolor in, efficitur enim. Cras fermentum facilisis elit vitae egestas. Mauris porta, neque non rutrum efficitur, odio odio faucibus tortor, vitae imperdiet metus quam vitae eros. Proin porta dictum accumsan \autoref{tab:commands}.
-
-Duis cursus maximus facilisis. Integer euismod, purus et condimentum suscipit, augue turpis euismod libero, ac porttitor tellus neque eu enim. Nam vulputate est non tellus efficitur pharetra. Aenean molestie tristique venenatis. Nam congue pulvinar vehicula. Duis lacinia mollis purus, ac aliquet arcu dignissim ac \autoref{tab:freq}. 
-
-\begin{table}[hb]% h asks to places the floating element [h]ere.
-  \caption{Frequency of Special Characters}
-  \label{tab:freq}
-  \begin{tabular}{ccl}
-    \toprule
-    Non-English or Math & Frequency & Comments\\
-    \midrule
-    \O & 1 in 1000& For Swedish names\\
-    $\pi$ & 1 in 5 & Common in math\\
-    \$ & 4 in 5 & Used in business\\
-    $\Psi^2_1$ & 1 in 40\,000 & Unexplained usage\\
-  \bottomrule
-\end{tabular}
-\end{table}
-
-Nulla sit amet enim tortor. Ut non felis lectus. Aenean quis felis faucibus, efficitur magna vitae. Curabitur ut mauris vel augue tempor suscipit eget eget lacus. Sed pulvinar lobortis dictum. Aliquam dapibus a velit.
-
-\subsection{Listings and Styles}
-
-Aenean malesuada fringilla felis, vel hendrerit enim feugiat et. Proin dictum ante nec tortor bibendum viverra. Curabitur non nibh ut mauris egestas ultrices consequat non odio.
+\smallskip
+\noindent\textbf{Contributions.} This paper makes four contributions:
 
 \begin{itemize}
-\item Duis lacinia mollis purus, ac aliquet arcu dignissim ac. Vivamus accumsan sollicitudin dui, sed porta sem consequat.
-\item Curabitur ut mauris vel augue tempor suscipit eget eget lacus. Sed pulvinar lobortis dictum. Aliquam dapibus a velit.
-\item Curabitur vitae nulla dapibus, ornare dolor in, efficitur enim.
+  \item \textbf{The first HOI retrieval benchmark.}
+    We introduce a text-query image retrieval benchmark derived from HICO-DET
+    (47{,}776 images, 600 HOI categories), including ground-truth construction,
+    evaluation protocol, and baselines that the community can build upon.
+
+  \item \textbf{A deployment-efficient two-stage retrieval pipeline.}
+    We propose combining CLIP ViT-L/14 ANN retrieval with zero-index-cost
+    DINOv2 ViT-L/14-reg4 visual reranking, achieving a 6.2\% mAP improvement
+    ($p < 10^{-34}$) at less than 3\% additional query latency over ANN-only
+    retrieval using a single index.
+
+  \item \textbf{A geometric explanation of query modality superiority.}
+    We quantify and formally explain why text queries outperform image queries
+    by 70.2\% mAP on HOI retrieval, grounding the result in the centroid geometry
+    of CLIP's joint vision-language embedding space.
+
+  \item \textbf{The first LLM agent for ANN index hyperparameter optimization.}
+    Our agent iteratively reasons over measured outcomes to select engine type,
+    graph connectivity, search depth, candidate pool size, and fusion weight,
+    converging to near-optimal configurations within 7 iterations and achieving
+    a $2.6\times$ higher Score ($\text{mAP} \times \text{QPS}$) than the
+    UniIR ECCV 2024 Oral baseline~\cite{wei2023uniir}, while substantially
+    outpacing grid and random search in sample efficiency.
 \end{itemize}
 
-Ut sagittis, massa nec rhoncus dignissim, urna ipsum vestibulum odio, ac dapibus massa lorem a dui. Nulla sit amet enim tortor. Ut non felis lectus. Aenean quis felis faucibus, efficitur magna vitae. 
+\smallskip
+The remainder of this paper is organized as follows.
+Section~\ref{sec:related} reviews related work on HOI understanding, image retrieval,
+vector database systems, and hyperparameter optimization.
+Section~\ref{sec:benchmark} describes the construction of the HICO-DET retrieval benchmark.
+Section~\ref{sec:pipeline} presents the two-stage retrieval pipeline and the embedding
+geometry analysis.
+Section~\ref{sec:optimizer} details the LLM-guided ANN hyperparameter optimizer.
+Section~\ref{sec:experiments} reports experimental results and ablations.
+Section~\ref{sec:conclusion} concludes.
 
-\begin{enumerate}
-\item Duis lacinia mollis purus, ac aliquet arcu dignissim ac. Vivamus accumsan sollicitudin dui, sed porta sem consequat.
-\item Curabitur ut mauris vel augue tempor suscipit eget eget lacus. Sed pulvinar lobortis dictum. Aliquam dapibus a velit.
-\item Curabitur vitae nulla dapibus, ornare dolor in, efficitur enim.
-\end{enumerate}
+\section{Related Work}
+\label{sec:related}
 
-Cras fermentum facilisis elit vitae egestas. Mauris porta, neque non rutrum efficitur, odio odio faucibus tortor, vitae imperdiet metus quam vitae eros. Proin porta dictum accumsan. Aliquam dapibus a velit. Curabitur vitae nulla dapibus, ornare dolor in, efficitur enim. Ut maximus mi id arcu ultricies feugiat. Phasellus facilisis purus ac ipsum varius bibendum.
+% TODO: fill in related work
 
-\subsection{Math and Equations}
+\section{The HICO-DET Retrieval Benchmark}
+\label{sec:benchmark}
 
-Curabitur vitae nulla dapibus, ornare dolor in, efficitur enim. Cras fermentum facilisis elit vitae egestas. Nam vulputate est non tellus efficitur pharetra. Vestibulum ligula est, varius in suscipit vel, porttitor id massa. Cras facilisis suscipit orci, ac tincidunt erat.
-\begin{equation}
-  \lim_{n\rightarrow \infty}x=0
-\end{equation}
+% TODO: fill in benchmark construction
 
-Sed pulvinar lobortis dictum. Aliquam dapibus a velit porttitor ultrices. Ut maximus mi id arcu ultricies feugiat. Phasellus facilisis purus ac ipsum varius bibendum. Aenean a quam at massa efficitur tincidunt facilisis sit amet felis. 
-\begin{displaymath}
-  \sum_{i=0}^{\infty} x + 1
-\end{displaymath}
+\section{Two-Stage Retrieval Pipeline}
+\label{sec:pipeline}
 
-Suspendisse molestie ultricies tincidunt. Praesent metus ex, tempus quis gravida nec, consequat id arcu. Donec maximus fermentum nulla quis maximus.
-\begin{equation}
-  \sum_{i=0}^{\infty}x_i=\int_{0}^{\pi+2} f
-\end{equation}
+% TODO: fill in pipeline description and embedding geometry analysis
 
-Curabitur vitae nulla dapibus, ornare dolor in, efficitur enim. Cras fermentum facilisis elit vitae egestas. Nam vulputate est non tellus efficitur pharetra. Vestibulum ligula est, varius in suscipit vel, porttitor id massa. Cras facilisis suscipit orci, ac tincidunt erat.
+\section{LLM-Guided ANN Hyperparameter Optimization}
+\label{sec:optimizer}
 
-\section{Citations}
+% TODO: fill in LLM agent description
 
-Some examples of references. A paginated journal article~\cite{Abril07}, an enumerated journal article~\cite{Cohen07}, a reference to an entire issue~\cite{JCohen96}, a monograph (whole book) ~\cite{Kosiur01}, a monograph/whole book in a series (see 2a in spec. document)~\cite{Harel79}, a divisible-book such as an anthology or compilation~\cite{Editor00} followed by the same example, however we only output the series if the volume number is given~\cite{Editor00a} (so Editor00a's series should NOT be present since it has no vol. no.), a chapter in a divisible book~\cite{Spector90}, a chapter in a divisible book in a series~\cite{Douglass98}, a multi-volume work as book~\cite{Knuth97}, an article in a proceedings (of a conference, symposium, workshop for example) (paginated proceedings article)~\cite{Andler79}, a proceedings article with all possible elements~\cite{Smith10}, an example of an enumerated proceedings article~\cite{VanGundy07}, an informally published work~\cite{Harel78}, a doctoral dissertation~\cite{Clarkson85}, a master's thesis~\cite{anisi03}, an finally two online documents or world wide web resources~\cite{Thornburg01, Ablamowicz07}.
+\section{Experiments}
+\label{sec:experiments}
+
+% TODO: fill in experimental results
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+% TODO: fill in conclusion
 
 \begin{acks}
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
