@@ -319,9 +319,9 @@ Only adaptive methods --- the LLM Agent and Optuna TPE --- receive the score sig
 feedback to inform subsequent proposals; Grid Search and Random Search are non-adaptive
 baselines that do not condition on observed outcomes.
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\linewidth]{figures/workflow.pdf}
+  \includegraphics[width=\textwidth]{figures/workflow.pdf}
   \caption{Overview of the Agentic VDMS optimization framework.
     Four methods --- \textbf{LLM Agent} (phase-aware, adaptive) and \textbf{Optuna TPE}
     (Bayesian, adaptive) vs.\ \textbf{Grid Search} and \textbf{Random Search}
@@ -331,7 +331,7 @@ baselines that do not condition on observed outcomes.
     $\text{mAP} \times \text{QPS}$ (HICO-DET).
     Red dashed arrows indicate score feedback; only adaptive methods receive it.}
   \label{fig:workflow}
-\end{figure}
+\end{figure*}
 
 % TODO: fill in LLM agent description
 
