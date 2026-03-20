@@ -618,7 +618,62 @@ baselines that do not condition on observed outcomes.
   \label{fig:prompts}
 \end{figure*}
 
-% TODO: fill in LLM agent description
+\subsection{Agent Design}
+
+The LLM agent operates as a closed-loop optimizer over a mixed-type search space of
+approximately $102{,}000$ configurations, defined by three engines with
+engine-conditional parameters ($M \in \{8,16,32,48,64\}$ and
+$\mathit{efSearch} \in \{32,64,100,150,200,300,500\}$ for FaissHNSWFlat;
+$\mathit{nlist} \in \{64,128,256,512\}$ and $\mathit{nprobe} \in \{4,8,16,32,64\}$
+for FaissIVFFlat), pool size $k \in \{50,\ldots,1000\}$, fusion weight
+$\alpha \in \{0.0, 0.05, \ldots, 0.90\}$, reference count
+$n_r \in \{1,3,5,10\}$, and reference strategy $\in \{\text{first, centroid, diverse}\}$.
+
+\smallskip
+\noindent\textbf{Prompt structure.}
+At each iteration $t$, the agent receives a single prompt containing:
+(i) a description of the VDMS two-stage pipeline architecture and per-engine parameter
+physics --- including the known dependency that $\mathit{efSearch}$ and $M$ must be
+co-tuned, and that \textit{efSearch} $\ll k$ accepts ANN approximation error in exchange
+for throughput;
+(ii) a \emph{per-iteration diagnostic} derived from the observed Score relative to the
+running best, selecting one of five feedback classes
+(\textit{excellent}, \textit{explore\_more}, \textit{low\_mAP}, \textit{low\_QPS},
+or \textit{moderate}) and providing targeted guidance on which parameter axis to adjust;
+(iii) the complete ordered history of all $t{-}1$ evaluated
+(configuration, Score, mAP, QPS) tuples;
+(iv) a dynamically computed list of untried $\alpha$ values and untried
+$(n_r, \text{ref\_strategy})$ pairs, derived at inference time from the history;
+and (v) seven decision rules governing structural diversity, stagnation escape, and
+an anti-collapse constraint that prohibits consecutive iterations that vary only
+$\alpha$ without any structural change.
+The agent responds with a structured JSON object specifying the next configuration
+and a \textit{reasoning} field articulating its rationale.
+Figure~\ref{fig:prompts} illustrates the prompt template.
+
+\smallskip
+\noindent\textbf{Phase-aware strategy.}
+The $N$-iteration budget is partitioned into three phases whose boundaries scale with $N$:
+\textbf{Exploration} (iterations $1$--$\lfloor 0.4N \rfloor$) broadly varies engine,
+$M$, and $k$ across structurally distinct regions to map the Score landscape;
+\textbf{Exploitation} (iterations $\lfloor 0.4N \rfloor{+}1$--$\lfloor 0.75N \rfloor$)
+refines the most promising engine--$M$ combination found during exploration, focusing
+on $\alpha$, $n_r$, and reference strategy;
+and \textbf{Fine-tuning} (iterations $\lfloor 0.75N \rfloor{+}1$--$N$) performs
+narrow coordinate refinement of $\alpha$ and reference strategy around the current best.
+This schedule encodes the domain insight that structural choices (engine, $M$) determine
+the achievable QPS ceiling and must be resolved before continuous choices ($\alpha$, $n_r$)
+are optimized --- a conditional dependency between parameters that Optuna TPE, which models
+each parameter independently via univariate kernel density estimation, cannot exploit.
+
+\smallskip
+\noindent\textbf{Duplicate avoidance.}
+Each proposal is checked against the complete evaluation history.
+If a duplicate configuration is detected, the prompt is resubmitted with an explicit
+rejection notice listing the already-evaluated configuration and its score.
+Up to four retries are attempted; after four consecutive duplicates, a uniformly random
+valid configuration is selected as a fallback, ensuring the optimization loop continues
+without stalling.
 
 \section{Experiments}
 \label{sec:experiments}
@@ -672,24 +727,35 @@ Each iteration builds a full ANN index and issues 600 queries, taking approximat
   \includegraphics[width=\textwidth]{figures/convergence_hico_det.pdf}
   \caption{Convergence of optimization methods on HICO-DET over 30 iterations.
     Best Score ($\text{mAP} \times \text{QPS}$) achieved so far is plotted at
-    each iteration. The LLM agent reaches near-optimal performance within 7
-    iterations, outpacing Grid Search, Random Search, and Optuna TPE in
-    sample efficiency.}
+    each iteration.
+    The LLM agent reaches Score $= 3.86$ by iteration~5 --- a level that
+    Optuna TPE first matches at iteration~9 and Random Search first matches at
+    iteration~28 --- and continues improving to Score $= 4.34$ at iteration~30
+    through its phase-aware exploitation strategy.
+    Grid Search early-stops at iteration~12 after failing to improve for five
+    consecutive iterations.}
   \label{fig:convergence}
 \end{figure*}
 
-Table~\ref{tab:baselines} reveals three properties of the benchmark.
-First, the task is \emph{compositionally difficult}: the best exact-search system
-(CLIP$+$DINOv2, FaissFlat) achieves mAP $= 0.276$, because many HOI categories share
-the same object class and differ only in a fine-grained action verb
-(e.g., \textit{ride}, \textit{sit\_on}, and \textit{straddle}).
-Second, the relevant-set sizes are \emph{long-tailed}: they range from 6 to 1{,}844
-images per query (mean 151, median 48), reflecting the natural distribution of human
-activities in the dataset.
-Third, the setting is \emph{zero-shot cross-modal}: queries are text, the corpus is
-images, and no fine-tuning is performed, making mAP sensitive to the quality of the
-shared CLIP embedding space.
+\subsection{System Baselines}
 
+Table~\ref{tab:baselines} characterizes three fundamental properties of the benchmark.
+\textbf{Compositional difficulty:} even exact-search CLIP$+$DINOv2 achieves only
+mAP $= 0.276$, because fine-grained HOI categories share the same object class but
+differ only in action verb (e.g., \textit{ride}, \textit{sit\_on}, and \textit{straddle}
+applied to horse); CLIP's shared embedding space partially conflates these categories,
+making high mAP structurally hard to achieve.
+\textbf{Modality gap:} DINOv2 alone (mAP $= 0.217$, Score $= 0.250$) underperforms
+CLIP alone at equal $k{=}2000$ (mAP $= 0.240$, Score $= 0.280$), confirming
+that semantic language alignment is essential for compositional HOI retrieval and that
+visual appearance alone is insufficient.
+\textbf{ANN efficiency vs accuracy:} reducing $k$ from 2000 to 500 in CLIP-only
+retrieval raises QPS by $7.0\times$ (8.21 vs.\ 1.17) and Score by $6.1\times$
+(1.707 vs.\ 0.280), but costs 3.2 percentage points of mAP (0.208 vs.\ 0.240),
+illustrating the sharp accuracy--throughput trade-off that Score $= \text{mAP} \times \text{QPS}$
+is designed to navigate jointly.
+
+\subsection{Optimizer Comparison and Sample Efficiency}
 
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
@@ -719,7 +785,72 @@ Optuna TPE
 \end{tabular}
 \end{table*}
 
-% TODO: fill in experimental results
+\noindent\textbf{Overall performance.}
+Table~\ref{tab:optimizer} and Figure~\ref{fig:convergence} report the results of all four
+optimization methods over 30 iterations.
+The LLM agent achieves the highest Score $= 4.337$, a $\mathbf{2.5\times}$ improvement
+over the CLIP FaissFlat baseline (Score $= 1.707$) and $\mathbf{13.6\times}$ over
+brute-force CLIP$+$DINOv2 reranking (Score $= 0.319$).
+At its optimal configuration --- FaissHNSWFlat with $M{=}48$,
+$\mathit{efSearch}{=}64$, $k{=}200$, $\alpha{=}0.80$, $n_r{=}10$,
+and \textit{centroid} reference selection --- the pipeline achieves
+mAP $= 0.255$ and QPS $= 16.98$, representing a $14.7\times$ throughput gain
+over brute-force CLIP$+$DINOv2 (QPS $= 1.15$) at a cost of only 2.1 percentage points
+of mAP (0.255 vs.\ 0.276).
+Optuna TPE (Score $= 4.113$) and Random Search (Score $= 4.095$) reach comparable final
+scores, both trailing the LLM agent by approximately 5--6\%.
+Grid Search (Score $= 3.027$) performs substantially worse, early-stopping at
+iteration~12 after failing to improve for five consecutive iterations.
+
+\smallskip
+\noindent\textbf{Sample efficiency.}
+The LLM agent's key advantage is \emph{sample efficiency}: it reaches Score $= 3.86$
+by iteration~5, already exceeding Grid Search's final best (Score $= 3.027$) and
+surpassing both Optuna TPE (Score $= 3.142$ at iteration~10) and Random Search
+(Score $= 2.294$ at iteration~10).
+Optuna TPE first exceeds the LLM agent's iteration-5 performance at iteration~9
+(Score $= 3.905$); Random Search does not match it until iteration~28 (Score $= 4.095$).
+At ${\approx}7$--$8$ minutes of wall-clock time per evaluation, this translates
+to concrete savings: the LLM agent reaches Score~$\geq 3.86$ roughly 30 minutes
+before Optuna TPE (four fewer evaluations) and over 2.5 hours before Random Search
+(23 fewer evaluations).
+This sample efficiency directly follows from the agent conditioning each new proposal
+on the full empirical history, rather than sampling blindly or relying on parameter-independent
+density estimates.
+
+\smallskip
+\noindent\textbf{Configuration insight.}
+The optimal configuration discovered by the LLM agent reveals a non-obvious accuracy--throughput
+operating point.
+The agent sets $\mathit{efSearch}{=}64$ --- well below the conventional HNSW heuristic
+of $\mathit{efSearch} \geq k$~\cite{malkov2018hnsw} --- accepting higher ANN approximation
+error in exchange for greater query throughput.
+This approximation is compensated downstream by the DINOv2 reranker with $\alpha{=}0.80$,
+which reassigns 80\% of the final score weight to visual similarity over the
+top-$k{=}200$ pool.
+The agent further discovers that $n_r{=}10$ centrally-selected reference images
+substantially outperform $n_r{=}1$: the mean DINOv2 embedding of ten images nearest
+the class centroid is a far more stable proxy for the HOI class distribution than any
+single image, reducing the bias term $\varepsilon_j^2$ in Eq.~\eqref{eq:imagequery}.
+This three-way interaction among $\mathit{efSearch}$, $k$, and $\alpha$ is the key
+region that non-adaptive baselines fail to locate.
+
+\smallskip
+\noindent\textbf{Failure modes of non-adaptive methods.}
+Grid Search's poor performance is a direct consequence of its one-dimensional sweep
+design: it sweeps $k$ while holding $M{=}32$ and $\alpha{=}0.30$ fixed, never
+testing $M{=}48$ (the LLM's optimal value) and never exploring $\alpha > 0.30$
+(vs.\ the optimal $\alpha{=}0.80$).
+The lexicographic enumeration order ensures that the joint optimum of
+$(M, k, \alpha, n_r, \text{ref\_strategy})$ is never evaluated.
+Optuna TPE exhibits premature convergence: at iterations~11--13, all three evaluations
+produce configurations with identical mAP $= 0.169$ and QPS $= 18.6$, reflecting
+the difficulty of TPE's univariate density estimator on a search space with hard
+structural dependencies between engine type and its valid parameters.
+The TPE sampler, lacking any representation of the conditional relationship between
+engine and its hyperparameters, wastes evaluations on repeatedly sampling
+the same low-scoring FaissIVFFlat region before eventually discovering the optimal
+configuration at iteration~27.
 
 \section{Conclusion}
 \label{sec:conclusion}
