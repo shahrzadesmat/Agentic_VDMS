@@ -372,6 +372,54 @@ baselines that do not condition on observed outcomes.
   \label{fig:convergence}
 \end{figure*}
 
+% ── Table 1: System baselines ─────────────────────────────────────────────────
+\begin{table}[t]
+\centering
+\caption{System baselines on HICO-DET (brute-force FaissFlat, 47,776 images).
+  Score $= \text{mAP} \times \text{QPS}$.
+  $\alpha$ is the DINOv2 reranking weight; $\alpha{=}0$ is CLIP alone.}
+\label{tab:baselines}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{$k$} & \textbf{mAP} & \textbf{QPS} & \textbf{Score} \\
+\midrule
+UniIR~\cite{uniir} (CLIP ViT-L/14)        & 10    & 0.2461 & ---  & ---   \\
+CLIP ViT-L/14 (FaissFlat)                  & 500   & 0.2079 & 8.21 & 1.706 \\
+CLIP ViT-L/14 (FaissFlat)                  & 2000  & 0.2398 & 1.17 & 0.280 \\
+DINOv2 ViT-L/14-reg4 ($\alpha{=}1.0$)     & 2000  & 0.2165 & 1.16 & 0.250 \\
+CLIP + DINOv2 rerank ($\alpha{=}0.5$)      & 2000  & \textbf{0.2796} & 1.15 & 0.319 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ── Table 2: Optimizer comparison ─────────────────────────────────────────────
+\begin{table*}[t]
+\centering
+\caption{Comparison of ANN index optimization methods on HICO-DET over 30 iterations.
+  Score $= \text{mAP} \times \text{QPS}$.
+  Iters$\to$Best: iteration at which the best score was first achieved.
+  $\dagger$~Grid Search early-stopped at iteration 12 (patience$=$5).}
+\label{tab:optimizer}
+\begin{tabular}{lccccl}
+\toprule
+\textbf{Method} & \textbf{Score} & \textbf{mAP} & \textbf{QPS} & \textbf{Iters$\to$Best} & \textbf{Best Config} \\
+\midrule
+Grid Search$^\dagger$
+  & 3.027 & 0.1477 & 20.49 & 7/12
+  & HNSW $M{=}32$, efS$=200$, $k{=}100$, $\alpha{=}0.30$ \\
+Random Search (seed 78)
+  & 4.095 & 0.2001 & 20.47 & 28/30
+  & HNSW $M{=}16$, efS$=300$, $k{=}100$, $\alpha{=}0.65$ \\
+Optuna TPE
+  & 4.113 & 0.2576 & 15.97 & 27/30
+  & IVFFlat nlist$=256$, $k{=}150$, $\alpha{=}0.85$ \\
+\textbf{LLM Agent (Ours)}
+  & \textbf{4.337} & 0.2554 & 16.98 & \textbf{7/30}
+  & HNSW $M{=}48$, efS$=64$, $k{=}200$, $\alpha{=}0.80$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 % TODO: fill in experimental results
 
 \section{Conclusion}
