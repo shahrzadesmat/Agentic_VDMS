@@ -434,13 +434,14 @@ weights and stored in VDMS as a 768-dimensional L2 DescriptorSet.
 At query time, $q$ is encoded by the frozen CLIP text encoder and the resulting
 $\mathbf{q}_c$ is submitted to VDMS as a \texttt{FindDescriptor} request.
 VDMS returns the top-$k$ candidate identifiers with their L2 distances
-$\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$, forming the candidate pool
+$\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$; the candidate pool is formally
 \begin{equation}
-  \mathcal{T}_k(q) = \operatorname{argtop\text{-}}k_{j \in [N]}\;
-  \|\mathbf{c}_j - \mathbf{q}_c\|_2 ,
+  \mathcal{T}_k(q) = \bigl\{j \in [N] : \|\mathbf{c}_j - \mathbf{q}_c\|_2 \leq \delta^{(k)}\bigr\} ,
   \label{eq:stage1}
 \end{equation}
-sorted in ascending order of L2 distance.
+where $\delta^{(k)}$ is the $k$-th smallest L2 distance to $\mathbf{q}_c$ across the full corpus.
+For FaissFlat this set is exact; for FaissHNSWFlat and FaissIVFFlat, VDMS returns a
+high-recall approximation.
 Three ANN engines are available, each exposing a different accuracy--throughput
 operating point:
 \begin{itemize}[noitemsep,topsep=2pt]
@@ -459,8 +460,9 @@ with the engine parameters.
 \subsection{Stage 2: DINOv2 Reranking}
 
 \noindent\textbf{Reference vector.}
-DINOv2 ViT-L/14-reg4 encodes low-level visual geometry --- body pose, object shape,
-and spatial arrangement --- that is complementary to CLIP's semantic alignment.
+DINOv2 ViT-L/14-reg4 is a self-supervised visual encoder that captures fine-grained
+appearance features --- object identity, texture, and spatial structure ---
+complementary to CLIP's language-aligned semantic embeddings.
 We represent each HOI class $h$ by a reference vector
 $\mathbf{r}_h \in \mathbb{R}^{1024}$, computed once at initialization as the mean
 DINOv2 embedding of a selected subset $\mathcal{S}_h \subseteq \mathcal{I}_h$ of
@@ -542,11 +544,12 @@ member $\mathbf{c}_i$ ($i \sim \mathcal{I}_h$) is:
 The variance term $\sigma_h^2$ is fixed by the data; only the bias term
 $\|\mathbf{q}' - \boldsymbol{\mu}_h^c\|_2^2$ depends on the choice of query.
 
-CLIP's contrastive training objective pulls the text embedding of any category label
-toward the mean visual embedding of all matching images~\cite{radford2021clip}.
-On a compositionally structured label such as \textit{``a person riding a horse''} ---
-which aggregates images spanning diverse viewpoints, backgrounds, and subjects --- this
-means $\mathbf{q}_c \approx \boldsymbol{\mu}_h^c$, making the bias term in
+CLIP's contrastive training aligns the text embedding of a category description with the
+visual embeddings of matching images~\cite{radford2021clip}.
+For a compositionally structured category such as \textit{``a person riding a horse''} ---
+which spans diverse viewpoints, backgrounds, and subjects --- the text embedding aggregates
+signals from many matched images and therefore lies near the visual centroid of the class:
+$\mathbf{q}_c \approx \boldsymbol{\mu}_h^c$, making the bias term in
 Eq.~\eqref{eq:biasvar} approximately zero:
 \begin{equation}
   \mathbb{E}_{i}\bigl[\|\mathbf{q}_c - \mathbf{c}_i\|_2^2\bigr]
@@ -564,11 +567,10 @@ the centroid, contributing a positive bias term:
 \end{equation}
 The text query therefore achieves lower expected squared distance to every class member
 than any individual reference image, by a margin of $\varepsilon_j^2$.
-This advantage grows with the compositional difficulty of the category: when many HOI
-categories share the same object class (e.g., \textit{ride}, \textit{sit\_on},
-\textit{straddle} applied to the same objects), the intra-class variance $\sigma_h^2$
-is large and reference-image displacement $\varepsilon_j$ is substantial relative to
-inter-category distance, further penalizing image queries.
+This advantage is largest for visually diverse categories: for an HOI class spanning many
+viewpoints and subjects (e.g., \textit{ride horse}), any single reference image lies far
+from the centroid ($\varepsilon_j$ large) and provides a poor proxy for the full category
+distribution, amplifying the margin over a text query.
 Under L2-based ANN retrieval, lower expected distance to class members translates
 directly to higher recall at any fixed $k$, and therefore to higher mAP.
 
@@ -621,7 +623,7 @@ baselines that do not condition on observed outcomes.
 We evaluate on the HICO-DET retrieval benchmark introduced in
 Section~\ref{sec:benchmark}: 47{,}776 images, 600 text queries, and 90{,}641
 ground-truth positive pairs.
-All image embeddings are 512-dimensional CLIP ViT-L/14 vectors stored in VDMS.
+All image embeddings are 768-dimensional CLIP ViT-L/14 vectors stored in VDMS.
 
 \noindent\textbf{Compared Methods.}
 We compare four optimization strategies, each run for $N{=}30$ iterations:
