@@ -5,7 +5,6 @@
 
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
-\usepackage{afterpage}
 % ── Float placement tuning ───────────────────────────────────────────────────
 % pipeline_figure.pdf has a full-page bounding box (~93% of textheight when
 % scaled to textwidth). Default \dbltopfraction=0.7 rejects it every page and
@@ -21,6 +20,8 @@
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{6}
 \setcounter{dbltopnumber}{4}
+
+\raggedbottom
 
 %% The following content must be adapted for the final version
 % paper-specific
@@ -185,7 +186,6 @@ configuration and reasons over the full history to propose the next configuratio
 strategy fundamentally different from blind grid and random search because it conditions
 each new proposal on empirical outcomes.
 
-\smallskip
 \noindent\textbf{Contributions.} This paper makes four contributions:
 
 \begin{itemize}
@@ -217,7 +217,6 @@ each new proposal on empirical outcomes.
     over brute-force CLIP$+$DINOv2 reranking~\cite{wei2023uniir}.
 \end{itemize}
 
-\smallskip
 The remainder of this paper is organized as follows.
 Section~\ref{sec:related} reviews related work on HOI understanding, image retrieval,
 vector database systems, and hyperparameter optimization.
@@ -376,13 +375,12 @@ encodes the accuracy--throughput trade-off as a single scalar: a configuration t
 doubles QPS at half the mAP is penalized equally to one that halves QPS at double the
 mAP, preserving the symmetry expected of a production deployment objective.
 
-\afterpage{\clearpage}
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
 
 \begin{figure*}[!t]
   \centering
-  \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{figures/pipeline_figure.pdf}
+    \includegraphics[width=\textwidth, trim=0 12cm 0 0, clip]{figures/pipeline_figure.pdf}
   \caption{Two-stage HOI retrieval pipeline.
     Stage~1: a CLIP ViT-L/14 text embedding drives ANN search in VDMS,
     returning a top-$k$ candidate pool via a configurable ANN index
@@ -564,7 +562,6 @@ distribution, amplifying the margin over a text query.
 Under L2-based ANN retrieval, lower expected distance to class members translates
 directly to higher recall at any fixed $k$, and therefore to higher mAP.
 
-\afterpage{\clearpage}
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
 
@@ -582,7 +579,7 @@ baselines that do not condition on observed outcomes.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figures/workflow.pdf}
+    {\includegraphics[width=\textwidth]{figures/workflow.pdf}}
   \caption{Overview of the Agentic VDMS optimization framework.
     Four methods --- \textbf{LLM Agent} (phase-aware, adaptive) and \textbf{Optuna TPE}
     (Bayesian, adaptive) vs.\ \textbf{Grid Search} and \textbf{Random Search}
@@ -605,7 +602,6 @@ for FaissIVFFlat), pool size $k \in \{50,\ldots,1000\}$, fusion weight
 $\alpha \in \{0.0, 0.05, \ldots, 0.90\}$, reference count
 $n_r \in \{1,3,5,10\}$, and reference strategy $\in \{\text{first, centroid, diverse}\}$.
 
-\smallskip
 \noindent\textbf{Prompt structure.}
 At each iteration $t$, the agent receives a single prompt containing:
 (i) a description of the VDMS two-stage pipeline architecture and per-engine parameter
@@ -637,7 +633,6 @@ Figure~\ref{fig:prompts} illustrates the prompt template.
   \label{fig:prompts}
 \end{figure*}
 
-\smallskip
 \noindent\textbf{Phase-aware strategy.}
 The $N$-iteration budget is partitioned into three phases whose boundaries scale with $N$:
 \textbf{Exploration} (iterations $1$--$\lfloor 0.4N \rfloor$) broadly varies engine,
@@ -652,7 +647,6 @@ the achievable QPS ceiling and must be resolved before continuous choices ($\alp
 are optimized --- a conditional dependency between parameters that Optuna TPE, which models
 each parameter independently via univariate kernel density estimation, cannot exploit.
 
-\smallskip
 \noindent\textbf{Duplicate avoidance.}
 Each proposal is checked against the complete evaluation history.
 If a duplicate configuration is detected, the prompt is resubmitted with an explicit
@@ -661,7 +655,6 @@ Up to four retries are attempted; after four consecutive duplicates, a uniformly
 valid configuration is selected as a fallback, ensuring the optimization loop continues
 without stalling.
 
-\afterpage{\clearpage}
 \section{Experiments}
 \label{sec:experiments}
 
@@ -731,17 +724,17 @@ configuration --- a practically meaningful criterion.
   $+$3.65\,pp over CLIP alone ($0.2763$ vs.\ $0.2398$).
   $^*$UniIR throughput was not measured in our setup.}
 \label{tab:baselines}
-\footnotesize
-\setlength{\tabcolsep}{5pt}
-\begin{tabular}{llcccccccccc}
+\normalsize % <--- Matches your main paragraph text size
+\setlength{\tabcolsep}{2pt} % <--- Maximum squish to fit the large font
+\begin{tabular}{p{3.8cm}lcccccccccc}
 \toprule
-\textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{NDCG@10} & \textbf{R@10} & \textbf{QPS} & \textbf{Build (s)} & \textbf{CLIP (ms)} & \textbf{DINOv2 (ms)} & \textbf{Score} \\
+\textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{NDCG@10} & \textbf{R@10} & \textbf{QPS} & \textbf{Build (s)} & \textbf{CLIP (ms)} & \textbf{DINO (ms)} & \textbf{Score} \\
 \midrule
-UniIR~\cite{wei2023uniir} (CLIP ViT-L/14)$^*$   & 0.0 & 10   & 0.2461 & 0.3370 & 0.3686 & 0.0967 & ---  & ---   & ---   & ---  & ---   \\
+UniIR~\cite{wei2023uniir} (CLIP)$^*$      & 0.0 & 10   & 0.2461 & 0.3370 & 0.3686 & 0.0967 & ---  & ---   & ---   & ---  & ---   \\
 CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 500  & 0.2079 & 0.3370 & 0.3686 & 0.0967 & 8.21 & 433.3 & 121.0 & 0.03 & 1.707 \\
 CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 2000 & 0.2398 & 0.3370 & 0.3686 & 0.0967 & 1.17 & 431.2 & 850.0 & 0.09 & 0.280 \\
-DINOv2 ViT-L/14-reg4 (FaissFlat)         & 1.0 & 2000 & 0.2165 & 0.3232 & 0.3472 & 0.0800 & 1.16 & 432.9 & 851.6 & 5.18 & 0.250 \\
-CLIP + DINOv2 rerank (FaissFlat)          & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.4150} & \textbf{0.1138} & 1.15 & 430.1 & 855.2 & 4.82 & 0.319 \\
+DINOv2 ViT-L/14-reg4 (Flat)               & 1.0 & 2000 & 0.2165 & 0.3232 & 0.3472 & 0.0800 & 1.16 & 432.9 & 851.6 & 5.18 & 0.250 \\
+CLIP + DINOv2 rerank (Flat)               & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.4150} & \textbf{0.1138} & 1.15 & 430.1 & 855.2 & 4.82 & 0.319 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -811,18 +804,18 @@ on the full history of observed outcomes.
   Score $= \text{mAP} \times \text{QPS}$.
   Build: index construction time. CLIP / DINOv2: per-query inference time.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.
-  $\dagger$~Grid Search early-stopped at iteration 12 (patience$=$5).
+  $^\dagger$~Grid Search early-stopped at iteration 12 (patience$=$5).
   The LLM agent achieves the highest Score and reaches Score $= 3.86$ within 5 iterations ---
   a level requiring 9 iterations for Optuna TPE and 28 for Random Search.}
 \label{tab:optimizer}
-\footnotesize
-\setlength{\tabcolsep}{4.5pt}
-\begin{tabular}{lccccccccccc}
+\normalsize % Keeps your large, readable text
+\setlength{\tabcolsep}{2pt} % Keeps columns snug
+\begin{tabular}{lccccccccccc} % <--- Changed p{3.8cm} back to 'l' so it hugs the text tightly!
 \toprule
-\textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{NDCG@10}$\uparrow$ & \textbf{R@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Build (s)}$\downarrow$ & \textbf{CLIP (ms)}$\downarrow$ & \textbf{DINOv2 (ms)}$\downarrow$ & \textbf{Total Lat.\ (ms)}$\downarrow$ & \textbf{Iters$\to$Best} \\
+\textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{NDCG@10}$\uparrow$ & \textbf{R@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Build(s)}$\downarrow$ & \textbf{CLIP(ms)}$\downarrow$ & \textbf{DINO(ms)}$\downarrow$ & \textbf{Lat(ms)}$\downarrow$ & \textbf{Iters} \\
 \midrule
 Grid Search$^\dagger$
-  & 3.027 & 0.148 & ---   & ---    & ---    & 20.49 & $\sim$445 & --- & --- & --- & 7/12 \\
+  & 3.027 & 0.148 & ---    & ---     & ---    & 20.49 & $\sim$445 & --- & --- & --- & 7/12 \\
 Random Search
   & 4.095 & 0.200 & 0.449 & 0.509  & 0.148  & 20.47 & 444.3 & 48.3 & 0.32 & 48.9 & 28/30 \\
 Optuna TPE
@@ -832,7 +825,6 @@ Optuna TPE
 \bottomrule
 \end{tabular}
 \end{table*}
-
 \noindent\textbf{Overall performance.}
 Table~\ref{tab:optimizer} and Figure~\ref{fig:convergence} report the results of all four
 optimization methods over 30 iterations on HICO-DET.
@@ -850,7 +842,6 @@ Grid Search (Score $= 3.027$) performs substantially worse, early-stopping at
 iteration~12 and achieving mAP only $0.148$ --- less than half the CLIP-only exact-search
 baseline at $k{=}2000$.
 
-\smallskip
 \noindent\textbf{Sample efficiency.}
 The LLM agent's primary advantage lies in \emph{sample efficiency}: it reaches Score $= 3.86$
 by iteration~5, already exceeding Grid Search's final best (Score $= 3.027$) and
@@ -867,7 +858,6 @@ on the full empirical history and its phase-aware schedule that resolves structu
 (engine, $M$) before continuous choices ($\alpha$, $n_r$) --- a conditional dependency
 structure that neither independent density estimators nor blind sampling can exploit.
 
-\smallskip
 \noindent\textbf{Configuration insight.}
 The LLM agent's optimal configuration reveals a non-obvious operating point that would be
 unlikely to emerge from unguided search within 30 iterations.
@@ -886,7 +876,6 @@ The three-way interaction among $\mathit{efSearch}$, $k$, and $\alpha$ is the jo
 optimum region that non-adaptive and parameter-independent methods systematically fail
 to locate within a 30-iteration budget.
 
-\smallskip
 \noindent\textbf{Failure modes of non-adaptive methods.}
 Grid Search's poor performance is a direct consequence of its one-dimensional sweep
 structure: it sweeps $k$ while holding $M{=}32$ and $\alpha{=}0.30$ fixed, never
@@ -911,7 +900,6 @@ We isolate the contribution of individual pipeline decisions by comparing perfor
 across systematically varied configurations, using exact-search baselines (Table~\ref{tab:baselines})
 to control for ANN approximation.
 
-\smallskip
 \noindent\textbf{DINOv2 reranking weight ($\alpha$).}
 Table~\ref{tab:baselines} provides a controlled three-point ablation of $\alpha$ under
 FaissFlat exact search at $k{=}2000$, where approximation error does not confound the comparison.
@@ -929,7 +917,6 @@ corrector} for Stage-1 approximation: at $\mathit{efSearch}{=}64 < k{=}200$, HNS
 necessarily misses some relevant neighbors, and increasing $\alpha$ compensates by
 weighting fine-grained visual reranking more heavily over the returned pool.
 
-\smallskip
 \noindent\textbf{Candidate pool size ($k$).}
 Pool size $k$ controls how many items the DINOv2 reranker sees, trading Stage-1 recall
 coverage against Stage-2 reranking latency.
@@ -946,7 +933,6 @@ The LLM agent selects $k{=}200$ --- smaller than any of the exact-search baselin
 ($\alpha{=}0.80$) compensate for the narrower initial pool, maintaining mAP $= 0.255$
 while preserving the throughput advantage that Score rewards.
 
-\smallskip
 \noindent\textbf{Reference selection strategy and count ($n_r$, ref\_strategy).}
 The DINOv2 reranker constructs a class reference vector from $n_r$ corpus images via one
 of three strategies: \textit{first} (top-1 CLIP-ranked image), \textit{centroid} (mean
@@ -964,7 +950,6 @@ reference vector that spans the class but does not minimize bias.
 Averaging $n_r{=}10$ centroid-proximal images produces a reference that is simultaneously
 low-bias and low-variance, making it the most reliable proxy for the category distribution.
 
-\smallskip
 \noindent\textbf{ANN engine selection.}
 Both the LLM agent and Optuna TPE converge to FaissHNSWFlat as the optimal engine.
 HNSW's graph-based traversal achieves QPS $= 16.98$--$15.97$ for the two best
@@ -992,7 +977,6 @@ The advantage is expected to be largest for visually diverse HOI categories (lar
 $\varepsilon_j$), where any single reference image is a poor proxy for the class distribution
 --- precisely the setting that dominates HICO-DET's long-tailed structure.
 
-\smallskip
 \noindent\textbf{LLM architectural reasoning.}
 Beyond sample efficiency, the LLM agent demonstrates a qualitatively different form of
 reasoning from Bayesian and non-adaptive baselines: it explicitly reasons about the
@@ -1008,7 +992,6 @@ are both structurally incapable of encoding this dependency, explaining why both
 identify high-QPS configurations with weaker reranking (QPS $= 20.47$, mAP $= 0.200$ for
 Random's best) rather than the balanced operating point the LLM discovers.
 
-\smallskip
 \noindent\textbf{Limitations.}
 The present evaluation is conducted on a single benchmark (HICO-DET) with a corpus of
 $47{,}776$ images --- a scale appropriate for a proof-of-concept study of the optimization
