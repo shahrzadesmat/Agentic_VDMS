@@ -5,7 +5,6 @@
 
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
-\usepackage{dblfloatfix}  % correct placement of figure* in two-column layout
 
 %% The following content must be adapted for the final version
 % paper-specific
@@ -386,6 +385,7 @@ CLIP + DINOv2 rerank (FaissFlat)          & 0.5 & 2000 & \textbf{0.2763} & \text
 \end{tabular}
 \end{table*}
 
+\clearpage
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
 
@@ -400,7 +400,7 @@ image set.
 Given a text query $q$ (e.g., \textit{``a person riding a horse''}), the pipeline
 proceeds in two stages, as illustrated in Figure~\ref{fig:pipeline}.
 
-\begin{figure*}[!ht]
+\begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/pipeline_figure.pdf}
   \caption{Two-stage HOI retrieval pipeline.
