@@ -724,9 +724,9 @@ configuration --- a practically meaningful criterion.
   $+$3.65\,pp over CLIP alone ($0.2763$ vs.\ $0.2398$).
   $^*$UniIR throughput was not measured in our setup.}
 \label{tab:baselines}
-\normalsize % <--- Matches your main paragraph text size
-\setlength{\tabcolsep}{2pt} % <--- Maximum squish to fit the large font
-\begin{tabular}{p{3.8cm}lcccccccccc}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{3.5cm}lcccccccccc}
 \toprule
 \textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{NDCG@10} & \textbf{R@10} & \textbf{QPS} & \textbf{Build (s)} & \textbf{CLIP (ms)} & \textbf{DINO (ms)} & \textbf{Score} \\
 \midrule
@@ -808,9 +808,9 @@ on the full history of observed outcomes.
   The LLM agent achieves the highest Score and reaches Score $= 3.86$ within 5 iterations ---
   a level requiring 9 iterations for Optuna TPE and 28 for Random Search.}
 \label{tab:optimizer}
-\normalsize % Keeps your large, readable text
-\setlength{\tabcolsep}{2pt} % Keeps columns snug
-\begin{tabular}{lccccccccccc} % <--- Changed p{3.8cm} back to 'l' so it hugs the text tightly!
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccccccc}
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{NDCG@10}$\uparrow$ & \textbf{R@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Build(s)}$\downarrow$ & \textbf{CLIP(ms)}$\downarrow$ & \textbf{DINO(ms)}$\downarrow$ & \textbf{Lat(ms)}$\downarrow$ & \textbf{Iters} \\
 \midrule
