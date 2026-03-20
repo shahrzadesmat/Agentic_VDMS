@@ -244,9 +244,10 @@ with substantially fewer trainable parameters.
 UniIR~\cite{wei2023uniir}, an ECCV 2024 Oral, unified eight multimodal retrieval tasks within
 a single model and constructed the M-BEIR benchmark spanning 1.5M queries over 10 datasets;
 we adopt UniIR as our primary baseline.
-No prior work has constructed a retrieval benchmark from HOI annotations, nor studied whether
-text queries or image queries are better suited to compositionally structured datasets.
-Our centroid geometry analysis provides the first principled explanation of this modality gap.
+No prior work has constructed a retrieval benchmark from HOI annotations or analyzed
+the relative merits of text versus image queries on compositionally structured datasets.
+We fill both gaps: we introduce the first HOI retrieval benchmark and provide a principled
+geometric explanation of why text queries are better suited to this task.
 
 \subsection{Approximate Nearest Neighbor Search and Vector Databases}
 ANN index research has produced a rich family of scalable methods: graph-based indices
@@ -279,6 +280,12 @@ parameters ($M$, \textit{efSearch}, \textit{nlist}, $k$), and continuous paramet
 Gaussian process surrogates assume stationarity over a continuous space, making them poorly
 suited to this setting; Bayesian methods also typically require warm-start priors that are
 unavailable for new embedding modalities.
+Tree-structured Parzen Estimators (TPE), as implemented in Optuna~\cite{akiba2019optuna},
+handle mixed-type spaces more gracefully by modeling the density of good and bad
+configurations separately, but they treat each parameter independently and cannot exploit
+architectural knowledge about ANN indices (e.g., that $M$ and \textit{efSearch} must be
+co-tuned, or that IVFFlat is preferable when $n$-probe covers a large fraction of the
+cluster count).
 
 \subsection{LLM Agents for Optimization}
 Recent work has demonstrated that large language models can act as black-box optimizers by
@@ -295,6 +302,10 @@ configuration of a production vector database ANN index, where the search space 
 mixed-type, the objective ($\text{Score} = \text{mAP} \times \text{QPS}$) couples retrieval
 accuracy with systems-level throughput, and the agent must reason about index architecture
 trade-offs from first principles.
+Critically, each function evaluation requires building a full ANN index and running 600
+benchmark queries --- roughly 7--8 minutes of wall-clock time per iteration --- making
+sample efficiency far more important than in standard HPO settings where evaluations take
+seconds.
 To our knowledge, this is the first application of LLM-guided optimization to vector
 database index configuration.
 
@@ -391,7 +402,7 @@ baselines that do not condition on observed outcomes.
 \toprule
 \textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{NDCG@10} & \textbf{R@10} & \textbf{QPS} & \textbf{Build (s)} & \textbf{CLIP (ms)} & \textbf{DINOv2 (ms)} & \textbf{Score} \\
 \midrule
-UniIR~\cite{uniir} (CLIP ViT-L/14)$^*$   & 0.0 & 10   & 0.2461 & 0.3370 & 0.3686 & 0.0967 & ---  & ---   & ---   & ---  & ---   \\
+UniIR~\cite{wei2023uniir} (CLIP ViT-L/14)$^*$   & 0.0 & 10   & 0.2461 & 0.3370 & 0.3686 & 0.0967 & ---  & ---   & ---   & ---  & ---   \\
 CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 500  & 0.2079 & 0.3370 & 0.3686 & 0.0967 & 8.21 & 433.3 & 121.0 & 0.03 & 1.707 \\
 CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 2000 & 0.2398 & 0.3370 & 0.3686 & 0.0967 & 1.17 & 431.2 & 850.0 & 0.09 & 0.280 \\
 DINOv2 ViT-L/14-reg4 (FaissFlat)         & 1.0 & 2000 & 0.2165 & 0.3232 & 0.3472 & 0.0800 & 1.16 & 432.9 & 851.6 & 5.18 & 0.250 \\
