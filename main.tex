@@ -388,9 +388,18 @@ CLIP + DINOv2 rerank (FaissFlat)          & 0.5 & 2000 & \textbf{0.2763} & \text
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
 
-Figure~\ref{fig:pipeline} illustrates the two-stage retrieval pipeline.
+\subsection{Overview}
 
-\begin{figure*}[t]
+Let $\mathcal{C} = \{(\mathbf{c}_i,\,\mathbf{d}_i)\}_{i=1}^{N}$ denote the corpus
+of $N{=}47{,}776$ images, where $\mathbf{c}_i \in \mathbb{R}^{768}$ is the
+unit-normalized CLIP ViT-L/14 embedding and $\mathbf{d}_i \in \mathbb{R}^{1024}$
+is the unit-normalized DINOv2 ViT-L/14-reg4 embedding of image $i$.
+For HOI class $h$, let $\mathcal{I}_h \subseteq [N]$ denote the annotated relevant
+image set.
+Given a text query $q$ (e.g., \textit{``a person riding a horse''}), the pipeline
+proceeds in two stages, as illustrated in Figure~\ref{fig:pipeline}.
+
+\begin{figure*}[!t]
   \centering
   \includegraphics[width=\textwidth]{figures/pipeline_figure.pdf}
   \caption{Two-stage HOI retrieval pipeline.
@@ -402,17 +411,6 @@ Figure~\ref{fig:pipeline} illustrates the two-stage retrieval pipeline.
     at deployment.}
   \label{fig:pipeline}
 \end{figure*}
-
-\subsection{Overview}
-
-Let $\mathcal{C} = \{(\mathbf{c}_i,\,\mathbf{d}_i)\}_{i=1}^{N}$ denote the corpus
-of $N{=}47{,}776$ images, where $\mathbf{c}_i \in \mathbb{R}^{768}$ is the
-unit-normalized CLIP ViT-L/14 embedding and $\mathbf{d}_i \in \mathbb{R}^{1024}$
-is the unit-normalized DINOv2 ViT-L/14-reg4 embedding of image $i$.
-For HOI class $h$, let $\mathcal{I}_h \subseteq [N]$ denote the annotated relevant
-image set.
-Given a text query $q$ (e.g., \textit{``a person riding a horse''}), the pipeline
-proceeds in two stages, as shown in Figure~\ref{fig:pipeline}.
 
 \textbf{Stage~1} encodes $q$ into a 768-dimensional unit-norm query vector
 $\mathbf{q}_c \in \mathbb{R}^{768}$ using the CLIP ViT-L/14 text encoder and
