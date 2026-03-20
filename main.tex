@@ -160,9 +160,9 @@ the candidate pool using a weighted fusion of normalized distances --- requiring
 \emph{one} ANN index at deployment, with zero additional indexing cost for the reranker.
 For modality selection, we show geometrically that a CLIP text embedding lies at the
 \emph{semantic centroid} of all images sharing a given HOI category, while a reference image
-is a single noisy point displaced from that centroid in the same embedding space; this
-centroid argument directly predicts the 70.2\% mAP advantage of text queries over image
-queries that we observe empirically.
+is a single noisy point displaced from that centroid in the same embedding space --- a
+structural difference that predicts a systematic mAP advantage for text queries on
+compositionally structured datasets such as HICO-DET.
 For hyperparameter optimization, we present an LLM agent that, at each iteration, observes
 the measured Score ($= \text{mAP} \times \text{QPS}$) of every previously evaluated
 configuration and reasons over the full history to propose the next configuration --- a
@@ -180,22 +180,25 @@ each new proposal on empirical outcomes.
 
   \item \textbf{A deployment-efficient two-stage retrieval pipeline.}
     We propose combining CLIP ViT-L/14 ANN retrieval with zero-index-cost
-    DINOv2 ViT-L/14-reg4 visual reranking, achieving a 6.2\% mAP improvement
-    ($p < 10^{-34}$) at less than 3\% additional query latency over ANN-only
-    retrieval using a single index.
+    DINOv2 ViT-L/14-reg4 visual reranking, achieving a $+$3.65 percentage-point
+    mAP improvement ($+$15.2\% relative) at under 1\% additional query latency
+    over ANN-only retrieval --- requiring only a single index at deployment.
 
-  \item \textbf{A geometric explanation of query modality superiority.}
-    We quantify and formally explain why text queries outperform image queries
-    by 70.2\% mAP on HOI retrieval, grounding the result in the centroid geometry
-    of CLIP's joint vision-language embedding space.
+  \item \textbf{A geometric explanation of text query superiority.}
+    We formally characterize why text queries outperform image queries on HOI
+    retrieval by grounding the result in the centroid geometry of CLIP's joint
+    vision-language embedding space: a text embedding is the semantic centroid
+    of its category, while a reference image is a single, noisy sample displaced
+    from that centroid.
 
   \item \textbf{The first LLM agent for ANN index hyperparameter optimization.}
     Our agent iteratively reasons over measured outcomes to select engine type,
     graph connectivity, search depth, candidate pool size, and fusion weight,
-    converging to near-optimal configurations within 7 iterations and achieving
-    a $2.6\times$ higher Score ($\text{mAP} \times \text{QPS}$) than the
-    UniIR ECCV 2024 Oral baseline~\cite{wei2023uniir}, while substantially
-    outpacing grid and random search in sample efficiency.
+    reaching competitive performance within 5 iterations --- a level that requires
+    9 iterations for Optuna TPE and 28 for Random Search.
+    The optimized pipeline achieves Score $= 4.34$ ($\text{mAP} \times \text{QPS}$),
+    a $2.5\times$ improvement over the CLIP FaissFlat baseline and $13.6\times$
+    over brute-force CLIP$+$DINOv2 reranking~\cite{wei2023uniir}.
 \end{itemize}
 
 \smallskip
