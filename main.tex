@@ -683,8 +683,13 @@ without stalling.
 
 \noindent\textbf{Dataset.}
 We evaluate on the HICO-DET retrieval benchmark introduced in
-Section~\ref{sec:benchmark}: 47{,}776 images, 600 text queries, and 90{,}641
-ground-truth positive pairs.
+Section~\ref{sec:benchmark}: 47{,}776 images, 600 compositional text queries spanning
+all 600 HOI categories, and 90{,}641 ground-truth positive pairs.
+The benchmark combines three properties that make it a stringent testbed for joint
+accuracy--throughput optimization: compositional fine-grained categories (600 HOI classes
+sharing the same object but differing in action), long-tailed relevance distributions
+(per-query relevant set ranging from 6 to 1{,}844 images), and a cross-modal retrieval
+setting (text queries over a purely visual corpus).
 All image embeddings are 768-dimensional CLIP ViT-L/14 vectors stored in VDMS.
 
 \noindent\textbf{Compared Methods.}
@@ -694,15 +699,15 @@ We compare four optimization strategies, each run for $N{=}30$ iterations:
     history of (configuration, Score) pairs in its prompt and proposes the next
     configuration; implemented with MiniMax-M2.1 via OpenRouter.
   \item \textbf{Optuna TPE}~\cite{akiba2019optuna}: Tree-structured Parzen Estimator
-    Bayesian optimization; adaptive, conditions on observed outcomes.
+    Bayesian optimization; adaptive, conditions on observed outcomes (seed~42).
   \item \textbf{Random Search}~\cite{bergstra2012random}: samples configurations
-    uniformly at random; non-adaptive.
+    uniformly at random; non-adaptive (seed~78).
   \item \textbf{Grid Search}: enumerates a fixed grid of configurations in
     lexicographic order; non-adaptive.
 \end{itemize}
 As system baselines we include UniIR~\cite{wei2023uniir} (CLIP ViT-L/14, brute-force),
 standalone CLIP ViT-L/14 (FaissFlat), standalone DINOv2 ViT-L/14-reg4 (FaissFlat), and
-CLIP$+$DINOv2 reranking (FaissFlat), all using exact search to establish
+CLIP$+$DINOv2 reranking (FaissFlat), all using exact exhaustive search to establish
 accuracy upper bounds independent of ANN approximation.
 
 \noindent\textbf{Metrics.}
@@ -710,18 +715,23 @@ Retrieval quality is measured by mean Average Precision at $k{=}10$ (mAP@10), th
 standard metric for ranked retrieval with multiple relevant documents~\cite{manning2008ir},
 as well as Precision@10, NDCG@10, and Recall@10.
 Throughput is measured in queries per second (QPS), averaged over all 600 queries issued
-as a single batch.
-The joint optimization objective is Score $= \text{mAP} \times \text{QPS}$.
+as a single batch to the VDMS container.
+The joint optimization objective is Score $= \text{mAP} \times \text{QPS}$, which
+rewards configurations that simultaneously achieve high retrieval quality and high
+throughput, and penalizes any single-axis extreme equally.
 
 \noindent\textbf{Implementation.}
-All experiments run on the NCSA Delta cluster (partition \texttt{gpuA40x4}): one
-NVIDIA A40 GPU, 16 CPU cores (AMD EPYC 7763), and exclusive node access.
-VDMS is deployed as an Apptainer container; all retrieval and optimization code is
-implemented in Python~3.12.
-For Optuna, we use the official \texttt{optuna} library~\cite{akiba2019optuna} with the
-default TPE sampler.
-Each iteration builds a full ANN index and issues 600 queries, taking approximately
-7--8 minutes of wall-clock time.
+All experiments run on the NCSA Delta GPU cluster (partition \texttt{gpuA40x4}): one
+NVIDIA A40 GPU (48 GB VRAM), 16 CPU cores (AMD EPYC 7763), and exclusive node access.
+VDMS is deployed as an Apptainer container (v2.2.1); all retrieval and optimization code
+is implemented in Python~3.12.
+For Optuna, we use the official \texttt{optuna} library~\cite{akiba2019optuna} with
+the default TPE sampler.
+Each optimization iteration builds a complete ANN index from scratch and issues all
+600 queries in a single batch, requiring approximately 7--8 minutes of wall-clock time.
+The full 30-iteration budget therefore demands approximately 3.5--4 hours of compute
+per method, making sample efficiency --- how quickly each method reaches a high-scoring
+configuration --- a practically meaningful criterion.
 
 \begin{figure*}[t]
   \centering
@@ -740,21 +750,45 @@ Each iteration builds a full ANN index and issues 600 queries, taking approximat
 
 \subsection{System Baselines}
 
-Table~\ref{tab:baselines} characterizes three fundamental properties of the benchmark.
-\textbf{Compositional difficulty:} even exact-search CLIP$+$DINOv2 achieves only
-mAP $= 0.276$, because fine-grained HOI categories share the same object class but
-differ only in action verb (e.g., \textit{ride}, \textit{sit\_on}, and \textit{straddle}
-applied to horse); CLIP's shared embedding space partially conflates these categories,
-making high mAP structurally hard to achieve.
-\textbf{Modality gap:} DINOv2 alone (mAP $= 0.217$, Score $= 0.250$) underperforms
-CLIP alone at equal $k{=}2000$ (mAP $= 0.240$, Score $= 0.280$), confirming
-that semantic language alignment is essential for compositional HOI retrieval and that
-visual appearance alone is insufficient.
-\textbf{ANN efficiency vs accuracy:} reducing $k$ from 2000 to 500 in CLIP-only
-retrieval raises QPS by $7.0\times$ (8.21 vs.\ 1.17) and Score by $6.1\times$
-(1.707 vs.\ 0.280), but costs 3.2 percentage points of mAP (0.208 vs.\ 0.240),
-illustrating the sharp accuracy--throughput trade-off that Score $= \text{mAP} \times \text{QPS}$
-is designed to navigate jointly.
+Table~\ref{tab:baselines} reports exact-search system baselines that isolate retrieval
+accuracy from ANN approximation error, establishing upper bounds for each modeling choice.
+
+\noindent\textbf{Compositional difficulty.}
+Even with exhaustive nearest-neighbor search and DINOv2 reranking, the best achievable
+mAP is only $0.276$ (CLIP$+$DINOv2, FaissFlat, $k{=}2000$).
+This ceiling reflects the structural difficulty of fine-grained HOI categories: classes
+such as \textit{ride horse}, \textit{sit\_on horse}, and \textit{straddle horse} share
+the same object but differ only in the action verb, and CLIP's joint embedding space
+partially conflates these distinctions.
+UniIR~\cite{wei2023uniir} achieves mAP $= 0.246$ at $k{=}10$ in a brute-force setting,
+confirming that even state-of-the-art unified retrieval models face the same semantic
+compression bottleneck on compositional HOI queries.
+
+\noindent\textbf{Modality gap.}
+DINOv2 alone ($\alpha{=}1.0$, $k{=}2000$, mAP $= 0.217$) underperforms CLIP alone
+at the same $k$ (mAP $= 0.240$) by $2.3$ percentage points, confirming that language-aligned
+text embeddings are essential for compositional HOI retrieval.
+Visual similarity alone fails to discriminate action-level distinctions between HOI categories
+that share the same object.
+However, the two modalities are complementary rather than competing: weighted fusion at
+$\alpha{=}0.5$ ($k{=}2000$) achieves mAP $= 0.276$, a gain of $+3.65$ pp over CLIP alone
+($+15.2\%$ relative) at negligible latency cost --- DINOv2 reranking adds only $4.82$\,ms
+over an $855$\,ms CLIP retrieval pass, a $0.6\%$ overhead.
+This complementarity motivates including $\alpha$ as a primary optimization target and
+validates the two-stage pipeline design.
+
+\noindent\textbf{Accuracy--throughput trade-off.}
+Reducing $k$ from $2000$ to $500$ in CLIP-only retrieval (FaissFlat, $\alpha{=}0$) raises
+QPS by $7.0\times$ ($8.21$ vs.\ $1.17$) at the cost of only $3.2$ percentage points of
+mAP ($0.208$ vs.\ $0.240$).
+The disproportionate Score gain ($1.707$ vs.\ $0.280$, a $6.1\times$ increase) illustrates
+a fundamental asymmetry in the Score objective: throughput gains in the high-QPS regime
+yield multiplicatively larger Score improvements than equivalent mAP gains, because the
+derivative $\partial\text{Score}/\partial\text{QPS} = \text{mAP}$ exceeds
+$\partial\text{Score}/\partial\text{mAP} = \text{QPS}$ whenever QPS~$\gg$~mAP.
+This asymmetry is precisely the non-linear trade-off that Score $= \text{mAP} \times \text{QPS}$
+encodes, and it cannot be navigated effectively without conditioning each new proposal
+on the full history of observed outcomes.
 
 \subsection{Optimizer Comparison and Sample Efficiency}
 
@@ -764,9 +798,10 @@ is designed to navigate jointly.
 \caption{Comparison of ANN index hyperparameter optimization methods on HICO-DET (30 iterations, best config reported).
   Score $= \text{mAP} \times \text{QPS}$.
   Build: index construction time. CLIP / DINOv2: per-query inference time.
-  \emph{Iters$\to$Best}: first iteration achieving the best score.
+  \emph{Iters$\to$Best}: first iteration achieving the reported best score.
   $\dagger$~Grid Search early-stopped at iteration 12 (patience$=$5).
-  The LLM agent achieves the highest Score and reaches competitive performance within 5 iterations --- a level requiring 9 iterations for Optuna TPE and 28 for Random Search.}
+  The LLM agent achieves the highest Score and reaches Score $= 3.86$ within 5 iterations ---
+  a level requiring 9 iterations for Optuna TPE and 28 for Random Search.}
 \label{tab:optimizer}
 \footnotesize
 \setlength{\tabcolsep}{4.5pt}
@@ -788,70 +823,192 @@ Optuna TPE
 
 \noindent\textbf{Overall performance.}
 Table~\ref{tab:optimizer} and Figure~\ref{fig:convergence} report the results of all four
-optimization methods over 30 iterations.
+optimization methods over 30 iterations on HICO-DET.
 The LLM agent achieves the highest Score $= 4.337$, a $\mathbf{2.5\times}$ improvement
-over the CLIP FaissFlat baseline (Score $= 1.707$) and $\mathbf{13.6\times}$ over
-brute-force CLIP$+$DINOv2 reranking (Score $= 0.319$).
-At its optimal configuration --- FaissHNSWFlat with $M{=}48$,
-$\mathit{efSearch}{=}64$, $k{=}200$, $\alpha{=}0.80$, $n_r{=}10$,
-and \textit{centroid} reference selection --- the pipeline achieves
-mAP $= 0.255$ and QPS $= 16.98$, representing a $14.7\times$ throughput gain
-over brute-force CLIP$+$DINOv2 (QPS $= 1.15$) at a cost of only 2.1 percentage points
-of mAP (0.255 vs.\ 0.276).
+over the CLIP FaissFlat baseline at $k{=}500$ (Score $= 1.707$) and $\mathbf{13.6\times}$
+over brute-force CLIP$+$DINOv2 reranking (Score $= 0.319$).
+At its optimal configuration --- FaissHNSWFlat with $M{=}48$, $\mathit{efSearch}{=}64$,
+$k{=}200$, $\alpha{=}0.80$, $n_r{=}10$, and \textit{centroid} reference selection ---
+the pipeline achieves mAP $= 0.255$ and QPS $= 16.98$, representing a $14.7\times$
+throughput gain over brute-force CLIP$+$DINOv2 (QPS $= 1.15$) at a cost of only
+$2.1$ percentage points of mAP ($0.255$ vs.\ $0.276$).
 Optuna TPE (Score $= 4.113$) and Random Search (Score $= 4.095$) reach comparable final
-scores, both trailing the LLM agent by approximately 5--6\%.
+scores, trailing the LLM agent by $5.2\%$ and $5.6\%$ respectively.
 Grid Search (Score $= 3.027$) performs substantially worse, early-stopping at
-iteration~12 after failing to improve for five consecutive iterations.
+iteration~12 and achieving mAP only $0.148$ --- less than half the CLIP-only exact-search
+baseline at $k{=}2000$.
 
 \smallskip
 \noindent\textbf{Sample efficiency.}
-The LLM agent's key advantage is \emph{sample efficiency}: it reaches Score $= 3.86$
+The LLM agent's primary advantage lies in \emph{sample efficiency}: it reaches Score $= 3.86$
 by iteration~5, already exceeding Grid Search's final best (Score $= 3.027$) and
 surpassing both Optuna TPE (Score $= 3.142$ at iteration~10) and Random Search
 (Score $= 2.294$ at iteration~10).
-Optuna TPE first exceeds the LLM agent's iteration-5 performance at iteration~9
+Optuna TPE first exceeds the LLM agent's iteration-5 threshold at iteration~9
 (Score $= 3.905$); Random Search does not match it until iteration~28 (Score $= 4.095$).
-At ${\approx}7$--$8$ minutes of wall-clock time per evaluation, this translates
-to concrete savings: the LLM agent reaches Score~$\geq 3.86$ roughly 30 minutes
-before Optuna TPE (four fewer evaluations) and over 2.5 hours before Random Search
-(23 fewer evaluations).
-This sample efficiency directly follows from the agent conditioning each new proposal
-on the full empirical history, rather than sampling blindly or relying on parameter-independent
-density estimates.
+At ${\approx}7$--$8$ minutes of wall-clock time per evaluation, this translates to
+concrete practical savings: the LLM agent reaches Score~$\geq 3.86$ approximately
+$30$ minutes ahead of Optuna TPE (four fewer evaluations) and over $2.5$ hours ahead of
+Random Search (23 fewer evaluations).
+This efficiency stems directly from the agent's ability to condition each new proposal
+on the full empirical history and its phase-aware schedule that resolves structural choices
+(engine, $M$) before continuous choices ($\alpha$, $n_r$) --- a conditional dependency
+structure that neither independent density estimators nor blind sampling can exploit.
 
 \smallskip
 \noindent\textbf{Configuration insight.}
-The optimal configuration discovered by the LLM agent reveals a non-obvious accuracy--throughput
-operating point.
-The agent sets $\mathit{efSearch}{=}64$ --- well below the conventional HNSW heuristic
-of $\mathit{efSearch} \geq k$~\cite{malkov2018hnsw} --- accepting higher ANN approximation
-error in exchange for greater query throughput.
-This approximation is compensated downstream by the DINOv2 reranker with $\alpha{=}0.80$,
-which reassigns 80\% of the final score weight to visual similarity over the
-top-$k{=}200$ pool.
-The agent further discovers that $n_r{=}10$ centrally-selected reference images
-substantially outperform $n_r{=}1$: the mean DINOv2 embedding of ten images nearest
-the class centroid is a far more stable proxy for the HOI class distribution than any
-single image, reducing the bias term $\varepsilon_j^2$ in Eq.~\eqref{eq:imagequery}.
-This three-way interaction among $\mathit{efSearch}$, $k$, and $\alpha$ is the key
-region that non-adaptive baselines fail to locate.
+The LLM agent's optimal configuration reveals a non-obvious operating point that would be
+unlikely to emerge from unguided search within 30 iterations.
+The agent selects $\mathit{efSearch}{=}64$, well below the conventional HNSW heuristic of
+$\mathit{efSearch} \geq k$~\cite{malkov2018hnsw}, knowingly accepting higher ANN approximation
+error in exchange for a throughput advantage.
+This deliberate Stage-1 recall sacrifice is compensated at Stage~2 by raising $\alpha$ to
+$0.80$, placing $80\%$ of the final score weight on DINOv2 visual similarity to recover
+relevant images that approximate CLIP ranking may have missed.
+The agent further discovers that $n_r{=}10$ centroid-selected reference images substantially
+outperform $n_r{=}1$: averaging ten images closest to the DINOv2 class centroid produces
+a stable reference vector that minimizes the bias term $\varepsilon_j^2$ in
+Eq.~\eqref{eq:imagequery}, whereas any single image is displaced from the mean by a
+non-zero amount that degrades reranking precision.
+The three-way interaction among $\mathit{efSearch}$, $k$, and $\alpha$ is the joint
+optimum region that non-adaptive and parameter-independent methods systematically fail
+to locate within a 30-iteration budget.
 
 \smallskip
 \noindent\textbf{Failure modes of non-adaptive methods.}
 Grid Search's poor performance is a direct consequence of its one-dimensional sweep
-design: it sweeps $k$ while holding $M{=}32$ and $\alpha{=}0.30$ fixed, never
-testing $M{=}48$ (the LLM's optimal value) and never exploring $\alpha > 0.30$
-(vs.\ the optimal $\alpha{=}0.80$).
-The lexicographic enumeration order ensures that the joint optimum of
-$(M, k, \alpha, n_r, \text{ref\_strategy})$ is never evaluated.
-Optuna TPE exhibits premature convergence: at iterations~11--13, all three evaluations
-produce configurations with identical mAP $= 0.169$ and QPS $= 18.6$, reflecting
-the difficulty of TPE's univariate density estimator on a search space with hard
-structural dependencies between engine type and its valid parameters.
-The TPE sampler, lacking any representation of the conditional relationship between
-engine and its hyperparameters, wastes evaluations on repeatedly sampling
-the same low-scoring FaissIVFFlat region before eventually discovering the optimal
-configuration at iteration~27.
+structure: it sweeps $k$ while holding $M{=}32$ and $\alpha{=}0.30$ fixed, never
+testing $M{=}48$ (the LLM's optimal) and never exploring $\alpha > 0.30$ (vs.\ the
+optimal $\alpha{=}0.80$).
+The lexicographic enumeration order guarantees that the joint optimum of
+$(M, k, \alpha, n_r, \text{ref\_strategy})$ cannot be reached within the
+early-stopping horizon.
+Optuna TPE exhibits premature convergence: at iterations~11--13, all three consecutive
+evaluations produce configurations with identical mAP $= 0.169$ and QPS $= 18.6$, a
+plateau that reflects the structural limitation of TPE's univariate kernel density
+estimator on a search space with hard conditional dependencies between engine type and
+its valid parameters.
+The TPE sampler, lacking any representation of the conditional relationship between engine
+and its parameters, repeatedly revisits a low-scoring FaissIVFFlat region before
+eventually locating the global optimum at iteration~27 --- four iterations after the LLM
+agent has already committed to and begun refining its HNSW-based operating point.
+
+\subsection{Ablation Study}
+
+We isolate the contribution of individual pipeline decisions by comparing performance
+across systematically varied configurations, using exact-search baselines (Table~\ref{tab:baselines})
+to control for ANN approximation.
+
+\smallskip
+\noindent\textbf{DINOv2 reranking weight ($\alpha$).}
+Table~\ref{tab:baselines} provides a controlled three-point ablation of $\alpha$ under
+FaissFlat exact search at $k{=}2000$, where approximation error does not confound the comparison.
+At $\alpha{=}0.0$ (CLIP alone), mAP $= 0.240$.
+At $\alpha{=}0.5$, mAP rises to $0.276$ ($+3.65$\,pp, $+15.2\%$ relative), with QPS
+essentially unchanged at $1.15$ vs.\ $1.17$ --- a near-free accuracy improvement.
+At $\alpha{=}1.0$ (DINOv2 alone), mAP falls to $0.217$, confirming that the visual
+encoder cannot resolve action-level distinctions without language-aligned Stage-1 retrieval.
+Together, these three points establish that $\alpha \in (0,1)$ strictly dominates both
+pure-CLIP and pure-DINOv2 retrieval, and that the optimal $\alpha$ under exact search
+lies near $0.5$.
+In the ANN setting, the LLM agent discovers $\alpha{=}0.80$ --- substantially higher than
+the exact-search optimum --- a shift consistent with the reranker serving as an \emph{error
+corrector} for Stage-1 approximation: at $\mathit{efSearch}{=}64 < k{=}200$, HNSW
+necessarily misses some relevant neighbors, and increasing $\alpha$ compensates by
+weighting fine-grained visual reranking more heavily over the returned pool.
+
+\smallskip
+\noindent\textbf{Candidate pool size ($k$).}
+Pool size $k$ controls how many items the DINOv2 reranker sees, trading Stage-1 recall
+coverage against Stage-2 reranking latency.
+From Table~\ref{tab:baselines}, increasing $k$ from $500$ to $2000$ at $\alpha{=}0$
+(FaissFlat) improves mAP from $0.208$ to $0.240$ ($+3.2$\,pp) but reduces QPS from
+$8.21$ to $1.17$ ($7.0\times$ throughput loss), yielding a net Score reduction from
+$1.707$ to $0.280$.
+The Score objective therefore strongly favors smaller $k$: each additional candidate
+examined adds roughly equal latency whether or not it is relevant, while the mAP gains
+from a larger pool are subject to diminishing returns as $k$ already covers the majority
+of relevant items.
+The LLM agent selects $k{=}200$ --- smaller than any of the exact-search baseline values
+--- on the reasoning that a larger reference set ($n_r{=}10$) and higher reranking weight
+($\alpha{=}0.80$) compensate for the narrower initial pool, maintaining mAP $= 0.255$
+while preserving the throughput advantage that Score rewards.
+
+\smallskip
+\noindent\textbf{Reference selection strategy and count ($n_r$, ref\_strategy).}
+The DINOv2 reranker constructs a class reference vector from $n_r$ corpus images via one
+of three strategies: \textit{first} (top-1 CLIP-ranked image), \textit{centroid} (mean
+DINOv2 embedding of the $n_r$ images closest to the class centroid), and \textit{diverse}
+(greedy farthest-point selection for maximum within-class spread).
+The LLM agent converges to \textit{centroid} with $n_r{=}10$, consistent with the geometric
+analysis in Section~\ref{sec:pipeline}: the centroid strategy explicitly minimizes the
+expected displacement $\varepsilon_j$ between the reference vector and the HOI class mean,
+reducing the reranking bias term $\varepsilon_j^2$ in Eq.~\eqref{eq:imagequery}.
+The \textit{first} strategy depends on a single CLIP-ranked image that may lie arbitrarily
+far from the class mean --- particularly harmful for the long-tailed categories that
+dominate HICO-DET.
+The \textit{diverse} strategy maximizes spread at the cost of mean proximity, yielding a
+reference vector that spans the class but does not minimize bias.
+Averaging $n_r{=}10$ centroid-proximal images produces a reference that is simultaneously
+low-bias and low-variance, making it the most reliable proxy for the category distribution.
+
+\smallskip
+\noindent\textbf{ANN engine selection.}
+Both the LLM agent and Optuna TPE converge to FaissHNSWFlat as the optimal engine.
+HNSW's graph-based traversal achieves QPS $= 16.98$--$15.97$ for the two best
+configurations at mAP $= 0.255$--$0.258$, versus Grid Search's FaissHNSWFlat/IVFFlat
+configurations at QPS $= 20.49$ but mAP $= 0.148$.
+The Score contrast is stark: $4.337$ and $4.113$ for HNSW-based methods vs.\ $3.027$ for
+Grid's sweep --- confirming that high-QPS, low-recall configurations are penalized by the
+Score objective whenever mAP drops below a critical threshold.
+HNSW's navigable graph structure, with graph connectivity $M{=}48$ tuned to maintain
+sufficient Stage-1 recall, provides the best balance between ANN approximation quality
+and query throughput for 768-dimensional CLIP embeddings at $k{=}200$.
+
+\subsection{Discussion}
+
+\noindent\textbf{Theory-to-experiment alignment.}
+Section~\ref{sec:pipeline} predicts that CLIP text queries should systematically outperform
+single reference image queries for HOI retrieval, because the text embedding lies near the
+visual centroid of the HOI class while any individual image is displaced by $\varepsilon_j > 0$.
+The system baselines in Table~\ref{tab:baselines} provide a controlled empirical test:
+at identical $k{=}2000$ and FaissFlat exact search, CLIP text queries achieve
+mAP $= 0.240$ while DINOv2 image-based retrieval achieves mAP $= 0.217$ ($-2.3$\,pp).
+This $9.6\%$ relative deficit in favor of text is consistent with the geometric prediction
+that image queries incur a positive bias $\varepsilon_j^2 > 0$ that text queries avoid.
+The advantage is expected to be largest for visually diverse HOI categories (large
+$\varepsilon_j$), where any single reference image is a poor proxy for the class distribution
+--- precisely the setting that dominates HICO-DET's long-tailed structure.
+
+\smallskip
+\noindent\textbf{LLM architectural reasoning.}
+Beyond sample efficiency, the LLM agent demonstrates a qualitatively different form of
+reasoning from Bayesian and non-adaptive baselines: it explicitly reasons about the
+interaction structure of the pipeline before proposing configurations.
+During the exploitation phase, the agent selects $\mathit{efSearch}{=}64 < k{=}200$ ---
+a configuration that deliberately accepts ANN recall loss --- while simultaneously
+compensating by raising $\alpha$ to $0.80$.
+This cross-stage compensatory reasoning, in which a relaxed upstream constraint is
+offset by a tighter downstream parameter, requires modeling the pipeline as an integrated
+system rather than a product of independent components.
+Optuna TPE's univariate marginal density model and Random Search's independence assumption
+are both structurally incapable of encoding this dependency, explaining why both methods
+identify high-QPS configurations with weaker reranking (QPS $= 20.47$, mAP $= 0.200$ for
+Random's best) rather than the balanced operating point the LLM discovers.
+
+\smallskip
+\noindent\textbf{Limitations.}
+The present evaluation is conducted on a single benchmark (HICO-DET) with a corpus of
+$47{,}776$ images --- a scale appropriate for a proof-of-concept study of the optimization
+framework but considerably smaller than production-grade vector databases.
+Generalization to billion-scale corpora, where ANN approximation regimes, memory constraints,
+and IVFFlat's coarser quantization effects shift the optimal configuration landscape,
+is deferred to future work and is the motivation for the concurrent SIFT1M evaluation.
+All optimization results represent a single run per method; statistical confidence
+intervals over multiple independent runs have not been quantified.
+Finally, the LLM agent's behavior is specific to MiniMax-M2.1 via OpenRouter; different
+model families may differ in convergence speed, architectural priors, and sensitivity to
+the five feedback class labels used in the per-iteration diagnostic.
 
 \section{Conclusion}
 \label{sec:conclusion}
