@@ -393,15 +393,184 @@ Figure~\ref{fig:pipeline} illustrates the two-stage retrieval pipeline.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/pipeline_figure.pdf}
-  \caption{Two-stage HOI retrieval pipeline. CLIP ViT-L/14 encodes both the
-    text query and the indexed images; approximate nearest-neighbor search in
-    VDMS (HNSW index, CLIP vectors only) retrieves a top-$k$ candidate pool.
-    DINOv2 ViT-L/14-reg4 then reranks the candidates on-the-fly --- no
-    additional index required --- to produce the final ranked list.}
+  \caption{Two-stage HOI retrieval pipeline.
+    Stage~1: a CLIP ViT-L/14 text embedding drives ANN search in VDMS,
+    returning a top-$k$ candidate pool via a configurable ANN index
+    (FaissFlat, FaissHNSWFlat, or FaissIVFFlat).
+    Stage~2: DINOv2 ViT-L/14-reg4 visual distances rerank the pool
+    on-the-fly via weighted score fusion --- no additional index is required
+    at deployment.}
   \label{fig:pipeline}
 \end{figure*}
 
-% TODO: fill in pipeline description and embedding geometry analysis
+\subsection{Overview}
+
+Let $\mathcal{C} = \{(\mathbf{c}_i,\,\mathbf{d}_i)\}_{i=1}^{N}$ denote the corpus
+of $N{=}47{,}776$ images, where $\mathbf{c}_i \in \mathbb{R}^{768}$ is the
+unit-normalized CLIP ViT-L/14 embedding and $\mathbf{d}_i \in \mathbb{R}^{1024}$
+is the unit-normalized DINOv2 ViT-L/14-reg4 embedding of image $i$.
+For HOI class $h$, let $\mathcal{I}_h \subseteq [N]$ denote the annotated relevant
+image set.
+Given a text query $q$ (e.g., \textit{``a person riding a horse''}), the pipeline
+proceeds in two stages, as shown in Figure~\ref{fig:pipeline}.
+
+\textbf{Stage~1} encodes $q$ into a 768-dimensional unit-norm query vector
+$\mathbf{q}_c \in \mathbb{R}^{768}$ using the CLIP ViT-L/14 text encoder and
+issues an ANN search over the VDMS CLIP DescriptorSet to retrieve a top-$k$ candidate
+pool $\mathcal{T}_k(q)$.
+\textbf{Stage~2} reranks $\mathcal{T}_k(q)$ using DINOv2 visual distances without
+requiring any additional index: a per-class reference vector $\mathbf{r}_h$ is
+computed once at initialization from the DINOv2 embeddings of a small representative
+subset of $\mathcal{I}_h$, and the CLIP and DINOv2 distances of each candidate are
+fused into a single score.
+The five configuration parameters $\{$engine, $M$ or \textit{nlist}, \textit{efSearch}
+or \textit{nprobe}, $k$, $\alpha\}$ jointly govern the accuracy--throughput trade-off
+and are selected by the LLM optimizer described in Section~\ref{sec:optimizer}.
+
+\subsection{Stage 1: CLIP-Based ANN Retrieval}
+
+All 47{,}776 CLIP ViT-L/14 image embeddings are pre-computed offline using the OpenAI
+weights and stored in VDMS as a 768-dimensional L2 DescriptorSet.
+At query time, $q$ is encoded by the frozen CLIP text encoder and the resulting
+$\mathbf{q}_c$ is submitted to VDMS as a \texttt{FindDescriptor} request.
+VDMS returns the top-$k$ candidate identifiers with their L2 distances
+$\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$, forming the candidate pool
+\begin{equation}
+  \mathcal{T}_k(q) = \operatorname{argtop\text{-}}k_{j \in [N]}\;
+  \|\mathbf{c}_j - \mathbf{q}_c\|_2 ,
+  \label{eq:stage1}
+\end{equation}
+sorted in ascending order of L2 distance.
+Three ANN engines are available, each exposing a different accuracy--throughput
+operating point:
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{FaissFlat}: exact exhaustive search; highest recall, lowest QPS.
+  \item \textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: graph-based ANN index;
+    accuracy controlled by graph connectivity $M \in \{8, 16, 32, 48, 64\}$
+    and search beam width $\mathit{efSearch} \in \{32, 64, 100, 150, 200, 300, 500\}$.
+  \item \textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file ANN index;
+    accuracy controlled by $\mathit{nlist} \in \{64, 128, 256, 512\}$ clusters
+    and $\mathit{nprobe} \in \{4, 8, 16, 32, 64\}$ probed clusters.
+\end{itemize}
+Increasing $k$ improves Stage~2 recall at the cost of higher reranking latency;
+the optimal $k \in \{50, 100, 150, 200, 300, 500, 750, 1000\}$ is jointly selected
+with the engine parameters.
+
+\subsection{Stage 2: DINOv2 Reranking}
+
+\noindent\textbf{Reference vector.}
+DINOv2 ViT-L/14-reg4 encodes low-level visual geometry --- body pose, object shape,
+and spatial arrangement --- that is complementary to CLIP's semantic alignment.
+We represent each HOI class $h$ by a reference vector
+$\mathbf{r}_h \in \mathbb{R}^{1024}$, computed once at initialization as the mean
+DINOv2 embedding of a selected subset $\mathcal{S}_h \subseteq \mathcal{I}_h$ of
+$n_r \in \{1, 3, 5, 10\}$ images:
+\begin{equation}
+  \mathbf{r}_h \;=\; \frac{1}{n_r} \sum_{i \in \mathcal{S}_h} \mathbf{d}_i .
+  \label{eq:refvec}
+\end{equation}
+Three strategies select $\mathcal{S}_h$: \textbf{first} takes the first $n_r$ images
+in dataset order; \textbf{centroid} selects the $n_r$ images closest to the class mean
+$\boldsymbol{\mu}_h^d = \frac{1}{|\mathcal{I}_h|}\sum_{i \in \mathcal{I}_h}\mathbf{d}_i$;
+\textbf{diverse} applies greedy farthest-point sampling, seeding from the most central
+image and iteratively adding the image furthest from the already-selected set to maximize
+intra-subset spread.
+Reference vector construction is a one-time cost ($<$1\,ms per class in numpy) and
+imposes no per-query overhead.
+
+\noindent\textbf{Distance normalization.}
+CLIP and DINOv2 distances operate at different absolute scales and cannot be directly
+combined.
+We apply min-max normalization \emph{within} $\mathcal{T}_k(q)$ to map both onto
+$[0,\,1]$:
+\begin{equation}
+  \hat{c}_j =
+    \frac{\delta_j^c - \min_{i \in \mathcal{T}_k}\delta_i^c}
+         {\max_{i \in \mathcal{T}_k}\delta_i^c
+          - \min_{i \in \mathcal{T}_k}\delta_i^c + \varepsilon} ,
+  \label{eq:clipnorm}
+\end{equation}
+\begin{equation}
+  \hat{d}_j =
+    \frac{\delta_j^d - \min_{i \in \mathcal{T}_k}\delta_i^d}
+         {\max_{i \in \mathcal{T}_k}\delta_i^d
+          - \min_{i \in \mathcal{T}_k}\delta_i^d + \varepsilon} ,
+  \label{eq:dinonorm}
+\end{equation}
+where $\delta_j^d = \|\mathbf{d}_j - \mathbf{r}_h\|_2$ is the DINOv2 distance of
+candidate $j$ to the class reference vector and $\varepsilon = 10^{-10}$ prevents
+division by zero.
+Normalizing within the candidate pool --- rather than globally across the corpus ---
+ensures the two scores remain commensurate regardless of the per-query scale of
+retrieved distances.
+
+\noindent\textbf{Fusion and final ranking.}
+The fusion score for candidate $j \in \mathcal{T}_k(q)$ is the convex combination
+\begin{equation}
+  s_j \;=\; (1-\alpha)\,\hat{c}_j \;+\; \alpha\,\hat{d}_j ,
+  \label{eq:fusion}
+\end{equation}
+where $\alpha \in \{0.0, 0.05, \ldots, 0.90\}$ governs the DINOv2 contribution.
+Lower $s_j$ indicates higher relevance.
+The final ranked list is $\mathcal{T}_k(q)$ sorted by $s_j$ in ascending order.
+Setting $\alpha{=}0$ reduces the system to CLIP-only ranking; $\alpha{=}1$ reduces it
+to DINOv2-only ranking.
+The optimal $\alpha$ is data-dependent and is selected jointly with the ANN engine
+configuration by the optimizer in Section~\ref{sec:optimizer}.
+
+\subsection{Why Text Queries Outperform Image Queries: Centroid Geometry}
+
+We formalize why a text query systematically outperforms a single reference image on
+compositionally structured HOI categories, grounding the argument in the geometry of
+CLIP's joint embedding space.
+
+Let $\boldsymbol{\mu}_h^c = \frac{1}{|\mathcal{I}_h|}\sum_{i\in\mathcal{I}_h}\mathbf{c}_i$
+denote the visual centroid of class $h$ in CLIP space, and let
+$\sigma_h^2 = \frac{1}{|\mathcal{I}_h|}\sum_{i \in \mathcal{I}_h}
+\|\mathbf{c}_i - \boldsymbol{\mu}_h^c\|_2^2$ be the intra-class variance.
+For any query vector $\mathbf{q}' \in \mathbb{R}^{768}$, the bias--variance
+decomposition of the expected squared L2 distance to a uniformly sampled class
+member $\mathbf{c}_i$ ($i \sim \mathcal{I}_h$) is:
+\begin{equation}
+  \mathbb{E}_{i}\bigl[\|\mathbf{q}' - \mathbf{c}_i\|_2^2\bigr]
+  \;=\;
+  \underbrace{\|\mathbf{q}' - \boldsymbol{\mu}_h^c\|_2^2}_{\text{bias}^2}
+  \;+\;
+  \underbrace{\sigma_h^2}_{\text{variance}} .
+  \label{eq:biasvar}
+\end{equation}
+The variance term $\sigma_h^2$ is fixed by the data; only the bias term
+$\|\mathbf{q}' - \boldsymbol{\mu}_h^c\|_2^2$ depends on the choice of query.
+
+CLIP's contrastive training objective pulls the text embedding of any category label
+toward the mean visual embedding of all matching images~\cite{radford2021clip}.
+On a compositionally structured label such as \textit{``a person riding a horse''} ---
+which aggregates images spanning diverse viewpoints, backgrounds, and subjects --- this
+means $\mathbf{q}_c \approx \boldsymbol{\mu}_h^c$, making the bias term in
+Eq.~\eqref{eq:biasvar} approximately zero:
+\begin{equation}
+  \mathbb{E}_{i}\bigl[\|\mathbf{q}_c - \mathbf{c}_i\|_2^2\bigr]
+  \;\approx\; \sigma_h^2 .
+  \label{eq:textquery}
+\end{equation}
+In contrast, a reference image $\mathbf{c}_j$ ($j \in \mathcal{I}_h$) lies at
+displacement $\varepsilon_j = \|\mathbf{c}_j - \boldsymbol{\mu}_h^c\|_2 > 0$ from
+the centroid, contributing a positive bias term:
+\begin{equation}
+  \mathbb{E}_{i}\bigl[\|\mathbf{c}_j - \mathbf{c}_i\|_2^2\bigr]
+  \;=\; \varepsilon_j^2 + \sigma_h^2
+  \;>\; \sigma_h^2 .
+  \label{eq:imagequery}
+\end{equation}
+The text query therefore achieves lower expected squared distance to every class member
+than any individual reference image, by a margin of $\varepsilon_j^2$.
+This advantage grows with the compositional difficulty of the category: when many HOI
+categories share the same object class (e.g., \textit{ride}, \textit{sit\_on},
+\textit{straddle} applied to the same objects), the intra-class variance $\sigma_h^2$
+is large and reference-image displacement $\varepsilon_j$ is substantial relative to
+inter-category distance, further penalizing image queries.
+Under L2-based ANN retrieval, lower expected distance to class members translates
+directly to higher recall at any fixed $k$, and therefore to higher mAP.
 
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
