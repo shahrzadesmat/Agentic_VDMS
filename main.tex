@@ -367,31 +367,6 @@ encodes the accuracy--throughput trade-off as a single scalar: a configuration t
 doubles QPS at half the mAP is penalized equally to one that halves QPS at double the
 mAP, preserving the symmetry expected of a production deployment objective.
 
-% ── Table 1: System baselines ─────────────────────────────────────────────────
-\begin{table*}[t]
-\centering
-\caption{System baselines on HICO-DET (47{,}776 images, FaissFlat exact search).
-  Score $= \text{mAP} \times \text{QPS}$.
-  $\alpha$ is the DINOv2 reranking weight ($\alpha{=}0$: CLIP only; $\alpha{=}1$: DINOv2 only).
-  At equal $k{=}2000$, DINOv2 reranking adds $<$5\,ms latency and improves mAP by
-  $+$3.65\,pp over CLIP alone ($0.2763$ vs.\ $0.2398$).
-  $^*$UniIR throughput was not measured in our setup.}
-\label{tab:baselines}
-\footnotesize
-\setlength{\tabcolsep}{5pt}
-\begin{tabular}{llcccccccccc}
-\toprule
-\textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{NDCG@10} & \textbf{R@10} & \textbf{QPS} & \textbf{Build (s)} & \textbf{CLIP (ms)} & \textbf{DINOv2 (ms)} & \textbf{Score} \\
-\midrule
-UniIR~\cite{wei2023uniir} (CLIP ViT-L/14)$^*$   & 0.0 & 10   & 0.2461 & 0.3370 & 0.3686 & 0.0967 & ---  & ---   & ---   & ---  & ---   \\
-CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 500  & 0.2079 & 0.3370 & 0.3686 & 0.0967 & 8.21 & 433.3 & 121.0 & 0.03 & 1.707 \\
-CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 2000 & 0.2398 & 0.3370 & 0.3686 & 0.0967 & 1.17 & 431.2 & 850.0 & 0.09 & 0.280 \\
-DINOv2 ViT-L/14-reg4 (FaissFlat)         & 1.0 & 2000 & 0.2165 & 0.3232 & 0.3472 & 0.0800 & 1.16 & 432.9 & 851.6 & 5.18 & 0.250 \\
-CLIP + DINOv2 rerank (FaissFlat)          & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.4150} & \textbf{0.1138} & 1.15 & 430.1 & 855.2 & 4.82 & 0.319 \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
 \clearpage
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
@@ -609,16 +584,6 @@ baselines that do not condition on observed outcomes.
   \label{fig:workflow}
 \end{figure*}
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/prompts.pdf}
-  \caption{LLM prompt structure used by the agent for ANN index hyperparameter
-    optimization. The system prompt establishes the optimization objective;
-    the user prompt supplies the measured Score history and asks the agent to
-    propose the next configuration.}
-  \label{fig:prompts}
-\end{figure*}
-
 \subsection{Agent Design}
 
 The LLM agent operates as a closed-loop optimizer over a mixed-type search space of
@@ -651,6 +616,16 @@ $\alpha$ without any structural change.
 The agent responds with a structured JSON object specifying the next configuration
 and a \textit{reasoning} field articulating its rationale.
 Figure~\ref{fig:prompts} illustrates the prompt template.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/prompts.pdf}
+  \caption{LLM prompt structure used by the agent for ANN index hyperparameter
+    optimization. The system prompt establishes the optimization objective;
+    the user prompt supplies the measured Score history and asks the agent to
+    propose the next configuration.}
+  \label{fig:prompts}
+\end{figure*}
 
 \smallskip
 \noindent\textbf{Phase-aware strategy.}
@@ -733,22 +708,32 @@ The full 30-iteration budget therefore demands approximately 3.5--4 hours of com
 per method, making sample efficiency --- how quickly each method reaches a high-scoring
 configuration --- a practically meaningful criterion.
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/convergence_hico_det.pdf}
-  \caption{Convergence of optimization methods on HICO-DET over 30 iterations.
-    Best Score ($\text{mAP} \times \text{QPS}$) achieved so far is plotted at
-    each iteration.
-    The LLM agent reaches Score $= 3.86$ by iteration~5 --- a level that
-    Optuna TPE first matches at iteration~9 and Random Search first matches at
-    iteration~28 --- and continues improving to Score $= 4.34$ at iteration~30
-    through its phase-aware exploitation strategy.
-    Grid Search early-stops at iteration~12 after failing to improve for five
-    consecutive iterations.}
-  \label{fig:convergence}
-\end{figure*}
-
 \subsection{System Baselines}
+
+% ── Table 1: System baselines ─────────────────────────────────────────────────
+\begin{table*}[t]
+\centering
+\caption{System baselines on HICO-DET (47{,}776 images, FaissFlat exact search).
+  Score $= \text{mAP} \times \text{QPS}$.
+  $\alpha$ is the DINOv2 reranking weight ($\alpha{=}0$: CLIP only; $\alpha{=}1$: DINOv2 only).
+  At equal $k{=}2000$, DINOv2 reranking adds $<$5\,ms latency and improves mAP by
+  $+$3.65\,pp over CLIP alone ($0.2763$ vs.\ $0.2398$).
+  $^*$UniIR throughput was not measured in our setup.}
+\label{tab:baselines}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llcccccccccc}
+\toprule
+\textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{NDCG@10} & \textbf{R@10} & \textbf{QPS} & \textbf{Build (s)} & \textbf{CLIP (ms)} & \textbf{DINOv2 (ms)} & \textbf{Score} \\
+\midrule
+UniIR~\cite{wei2023uniir} (CLIP ViT-L/14)$^*$   & 0.0 & 10   & 0.2461 & 0.3370 & 0.3686 & 0.0967 & ---  & ---   & ---   & ---  & ---   \\
+CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 500  & 0.2079 & 0.3370 & 0.3686 & 0.0967 & 8.21 & 433.3 & 121.0 & 0.03 & 1.707 \\
+CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 2000 & 0.2398 & 0.3370 & 0.3686 & 0.0967 & 1.17 & 431.2 & 850.0 & 0.09 & 0.280 \\
+DINOv2 ViT-L/14-reg4 (FaissFlat)         & 1.0 & 2000 & 0.2165 & 0.3232 & 0.3472 & 0.0800 & 1.16 & 432.9 & 851.6 & 5.18 & 0.250 \\
+CLIP + DINOv2 rerank (FaissFlat)          & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.4150} & \textbf{0.1138} & 1.15 & 430.1 & 855.2 & 4.82 & 0.319 \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
 Table~\ref{tab:baselines} reports exact-search system baselines that isolate retrieval
 accuracy from ANN approximation error, establishing upper bounds for each modeling choice.
@@ -791,6 +776,22 @@ encodes, and it cannot be navigated effectively without conditioning each new pr
 on the full history of observed outcomes.
 
 \subsection{Optimizer Comparison and Sample Efficiency}
+
+% ── Figure: Convergence curves ────────────────────────────────────────────────
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/convergence_hico_det.pdf}
+  \caption{Convergence of optimization methods on HICO-DET over 30 iterations.
+    Best Score ($\text{mAP} \times \text{QPS}$) achieved so far is plotted at
+    each iteration.
+    The LLM agent reaches Score $= 3.86$ by iteration~5 --- a level that
+    Optuna TPE first matches at iteration~9 and Random Search first matches at
+    iteration~28 --- and continues improving to Score $= 4.34$ at iteration~30
+    through its phase-aware exploitation strategy.
+    Grid Search early-stops at iteration~12 after failing to improve for five
+    consecutive iterations.}
+  \label{fig:convergence}
+\end{figure*}
 
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
