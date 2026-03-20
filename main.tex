@@ -1013,7 +1013,64 @@ the five feedback class labels used in the per-iteration diagnostic.
 \section{Conclusion}
 \label{sec:conclusion}
 
-% TODO: fill in conclusion
+We addressed two intertwined problems that arise when deploying vision-language embeddings
+in a production vector database: the absence of a semantically demanding retrieval benchmark
+that tests compositional understanding, and the lack of principled methods for jointly
+optimizing ANN index accuracy and throughput.
+
+On the benchmark side, we introduced the first text-query image retrieval benchmark derived
+from HICO-DET --- 47{,}776 images, 600 HOI categories, and 90{,}641 ground-truth positive
+pairs --- and demonstrated that HICO-DET's compositional structure creates a retrieval task
+that is qualitatively harder than scene- or object-level benchmarks: even exhaustive
+exact-nearest-neighbor search with modality fusion reaches only mAP $= 0.276$, exposing a
+persistent semantic ceiling that reflects genuine language--vision alignment difficulty rather
+than any indexing limitation.
+
+On the retrieval pipeline side, we proposed a two-stage architecture that pairs CLIP
+ViT-L/14 ANN retrieval with DINOv2 ViT-L/14-reg4 visual reranking at deployment cost
+of a single index.
+DINOv2 reranking improves mAP by $3.65$ percentage points ($+15.2\%$ relative) over
+CLIP-only retrieval at under $1\%$ additional query latency.
+We provided a formal geometric account of why text queries outperform reference image
+queries on compositionally structured datasets: a CLIP text embedding occupies the centroid
+of the HOI category's visual cluster, while any single reference image is displaced from
+that centroid by $\varepsilon_j > 0$, contributing a bias term $\varepsilon_j^2$ that
+increases expected L2 distance to every class member.
+This bias is largest for visually diverse categories with large within-class spread ---
+precisely the long-tailed regime that dominates HICO-DET.
+
+On the optimization side, we presented the first LLM agent for ANN index hyperparameter
+optimization in a vector database setting.
+Operating over a joint search space of approximately $102{,}000$ configurations, the agent
+observes the full history of (configuration, Score) pairs and reasons about engine
+architecture, graph connectivity, search depth, and fusion weight as an integrated system.
+Its phase-aware schedule --- broad structural exploration followed by exploitation of the
+best engine--$M$ pair followed by fine-grained continuous refinement --- encodes the
+conditional dependency structure of the search space in a form that neither Bayesian
+optimizers with parameter-independent marginals nor non-adaptive baselines can replicate.
+The result is strong sample efficiency: the LLM agent reaches Score $= 3.86$ within
+5 iterations, a threshold that requires 9 iterations for Optuna TPE and 28 for Random
+Search, saving approximately $30$ minutes and $2.5$ hours of compute respectively.
+The optimized pipeline achieves Score $= 4.337$ ($\text{mAP} \times \text{QPS}$), a
+$\mathbf{2.5\times}$ improvement over the CLIP FaissFlat baseline and $\mathbf{13.6\times}$
+over brute-force CLIP$+$DINOv2 reranking, at only $2.1$ percentage points of mAP below
+the exact-search upper bound --- a $14.7\times$ throughput gain (QPS $= 16.98$ vs.\
+$1.15$) that the brute-force baseline cannot approach.
+
+Looking forward, three directions are most immediate.
+First, scaling the evaluation to billion-vector corpora (e.g., SIFT1M) will test whether
+the agent's architectural priors for HNSW over IVFFlat and its compensatory reasoning
+between $\mathit{efSearch}$, $k$, and $\alpha$ generalize to the regime where ANN
+approximation error, memory locality, and quantization effects interact differently.
+Second, running each optimization method over multiple independent seeds will quantify
+statistical uncertainty in the sample efficiency and final Score comparisons.
+Third, the LLM agent framework is not specific to HNSW or even to vector databases:
+any system where a small number of structured parameters governs a measurable accuracy--throughput
+objective --- including learned index structures, database query planners, and neural
+architecture selection --- is a candidate application.
+We release the benchmark, pipeline, and optimizer code to support reproducibility and
+to encourage the community to evaluate compositional retrieval beyond object- and
+scene-level tasks.
 
 \begin{acks}
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
