@@ -5,6 +5,7 @@
 
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
+\usepackage{afterpage}
 % ── Float placement tuning ───────────────────────────────────────────────────
 % pipeline_figure.pdf has a full-page bounding box (~93% of textheight when
 % scaled to textwidth). Default \dbltopfraction=0.7 rejects it every page and
@@ -375,12 +376,13 @@ encodes the accuracy--throughput trade-off as a single scalar: a configuration t
 doubles QPS at half the mAP is penalized equally to one that halves QPS at double the
 mAP, preserving the symmetry expected of a production deployment objective.
 
+\afterpage{\clearpage}
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
 
 \begin{figure*}[!t]
   \centering
-  \includegraphics[width=\textwidth]{figures/pipeline_figure.pdf}
+  \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{figures/pipeline_figure.pdf}
   \caption{Two-stage HOI retrieval pipeline.
     Stage~1: a CLIP ViT-L/14 text embedding drives ANN search in VDMS,
     returning a top-$k$ candidate pool via a configurable ANN index
@@ -562,6 +564,7 @@ distribution, amplifying the margin over a text query.
 Under L2-based ANN retrieval, lower expected distance to class members translates
 directly to higher recall at any fixed $k$, and therefore to higher mAP.
 
+\afterpage{\clearpage}
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
 
@@ -658,6 +661,7 @@ Up to four retries are attempted; after four consecutive duplicates, a uniformly
 valid configuration is selected as a fallback, ensuring the optimization loop continues
 without stalling.
 
+\afterpage{\clearpage}
 \section{Experiments}
 \label{sec:experiments}
 
