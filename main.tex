@@ -303,6 +303,19 @@ database index configuration.
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
 
+Figure~\ref{fig:pipeline} illustrates the two-stage retrieval pipeline.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/pipeline_figure.pdf}
+  \caption{Two-stage HOI retrieval pipeline. CLIP ViT-L/14 encodes both the
+    text query and the indexed images; approximate nearest-neighbor search in
+    VDMS (HNSW index, CLIP vectors only) retrieves a top-$k$ candidate pool.
+    DINOv2 ViT-L/14-reg4 then reranks the candidates on-the-fly --- no
+    additional index required --- to produce the final ranked list.}
+  \label{fig:pipeline}
+\end{figure}
+
 % TODO: fill in pipeline description and embedding geometry analysis
 
 \section{LLM-Guided ANN Hyperparameter Optimization}
