@@ -585,11 +585,12 @@ directly to higher recall at any fixed $k$, and therefore to higher mAP.
 
 Figure~\ref{fig:workflow} illustrates the overall optimization framework.
 Four methods --- LLM Agent, Optuna TPE, Grid Search, and Random Search --- each propose
-index configurations $\{$engine, nlist, nprobe$\}$ over $N=30$ iterations.
+a joint index configuration (engine, $M$, \textit{efSearch}/\textit{nlist}/\textit{nprobe},
+pool size $k$, fusion weight $\alpha$, reference count $n_r$, reference strategy) over $N=30$ iterations.
 Each proposed configuration is loaded into a VDMS Apptainer container, which builds the
-ANN index and executes 10{,}000 queries; the resulting QPS and Recall@10 (or mAP) are
-combined into Score $= \text{QPS} \times \text{Recall@10}$ (SIFT1M) or
-$\text{mAP} \times \text{QPS}$ (HICO-DET).
+ANN index and executes all 600 HICO-DET queries; the resulting mAP and QPS are
+combined into Score $= \text{mAP} \times \text{QPS}$ (HICO-DET) or
+$\text{QPS} \times \text{Recall@10}$ (SIFT1M).
 Only adaptive methods --- the LLM Agent and Optuna TPE --- receive the score signal as
 feedback to inform subsequent proposals; Grid Search and Random Search are non-adaptive
 baselines that do not condition on observed outcomes.
