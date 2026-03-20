@@ -5,13 +5,21 @@
 
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
-% pipeline_figure.pdf has a full-page bounding box (~87% of textheight when scaled
-% to textwidth). Default \topfraction=0.7 rejects it every page and defers it to
-% the end of the document. Raise the limit so tall figures can be placed at [t].
+% ── Float placement tuning ───────────────────────────────────────────────────
+% pipeline_figure.pdf has a full-page bounding box (~93% of textheight when
+% scaled to textwidth). Default \dbltopfraction=0.7 rejects it every page and
+% defers it to the end. Raise the fraction limits so tall figure* can be placed.
 \renewcommand{\topfraction}{0.95}
 \renewcommand{\floatpagefraction}{0.85}
-\renewcommand{\dbltopfraction}{0.95}     % for figure* in two-column
+\renewcommand{\dbltopfraction}{0.95}       % for figure* in two-column
 \renewcommand{\dblfloatpagefraction}{0.85}
+% Default counters (topnumber=2, totalnumber=3, dbltopnumber=2) cause all 6
+% figure*/table* floats to queue and dump at \clearpage before the bibliography.
+% Raise them so LaTeX can place multiple floats per page.
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{6}
+\setcounter{dbltopnumber}{4}
 
 %% The following content must be adapted for the final version
 % paper-specific
@@ -555,6 +563,7 @@ distribution, amplifying the margin over a text query.
 Under L2-based ANN retrieval, lower expected distance to class members translates
 directly to higher recall at any fixed $k$, and therefore to higher mAP.
 
+\clearpage
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
 
@@ -651,6 +660,7 @@ Up to four retries are attempted; after four consecutive duplicates, a uniformly
 valid configuration is selected as a fallback, ensuring the optimization loop continues
 without stalling.
 
+\clearpage
 \section{Experiments}
 \label{sec:experiments}
 
