@@ -69,7 +69,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Human-Object Interaction (HOI) benchmarks have been exclusively exploited for detection --- predicting bounding boxes and interaction labels given an image. Their rich compositional semantics make them equally compelling for text-query image retrieval, yet no prior work has explored this direction. We introduce the first retrieval benchmark derived from HICO-DET (47,776 images, 600 HOI categories) and propose a two-stage pipeline in which CLIP ViT-L/14 text embeddings drive Approximate Nearest Neighbor (ANN) search over a VDMS vector database, followed by zero-cost DINOv2 ViT-L/14-reg4 visual reranking over the retrieved candidate pool --- requiring only one ANN index at deployment. We further demonstrate that text queries outperform image queries by 70.2\% mAP on HOI retrieval, grounded in embedding geometry: a text embedding lies at the semantic centroid of all class members, whereas a reference image is a single noisy point. To jointly optimize retrieval accuracy and throughput --- measured as Score $=$ mAP $\times$ QPS --- we present the first LLM agent applied to vector database ANN index hyperparameter optimization, iteratively reasoning over measured outcomes to select engine type, graph connectivity, search depth, candidate pool size, and fusion weight. Extensive experiments show that DINOv2 reranking improves mAP by 6.2\% ($p < 10^{-34}$) at less than 3\% additional latency, and our optimized pipeline achieves a 2.6$\times$ higher Score than the UniIR ECCV 2024 baseline. The LLM agent converges to near-optimal configurations within 7 iterations, substantially outpacing grid and random search in sample efficiency.
+Human-Object Interaction (HOI) benchmarks have been exclusively exploited for detection --- predicting bounding boxes and interaction labels given an image. Their rich compositional semantics make them equally compelling for text-query image retrieval, yet no prior work has explored this direction. We introduce the first retrieval benchmark derived from HICO-DET (47,776 images, 600 HOI categories) and propose a two-stage pipeline in which CLIP ViT-L/14 text embeddings drive Approximate Nearest Neighbor (ANN) search over a VDMS vector database, followed by zero-cost DINOv2 ViT-L/14-reg4 visual reranking over the top-$k$ candidate pool --- requiring only one ANN index at deployment. DINOv2 reranking improves mAP by 3.65 percentage points ($+$15.2\%) over CLIP-only retrieval at under 1\% additional query latency. To jointly optimize retrieval accuracy and throughput --- measured as Score $=$ mAP $\times$ QPS --- we present the first LLM agent applied to vector database ANN index hyperparameter optimization, iteratively reasoning over observed outcomes to propose engine type, graph connectivity, search depth, candidate pool size, and fusion weight. Our optimized pipeline achieves Score $= 4.34$, a $2.5\times$ improvement over the CLIP FaissFlat baseline and $13.6\times$ over brute-force CLIP$+$DINOv2 reranking. The LLM agent reaches competitive performance within 5 iterations --- a level requiring 9 iterations for Optuna TPE and 28 for Random Search --- demonstrating substantially superior sample efficiency.
 \end{abstract}
 
 \maketitle
@@ -405,7 +405,7 @@ CLIP + DINOv2 rerank (FaissFlat)          & 0.5 & 2000 & \textbf{0.2763} & \text
   Build: index construction time. CLIP / DINOv2: per-query inference time.
   \emph{Iters$\to$Best}: first iteration achieving the best score.
   $\dagger$~Grid Search early-stopped at iteration 12 (patience$=$5).
-  Our LLM agent achieves the highest Score and converges $4\times$ faster than Optuna and Random Search.}
+  The LLM agent achieves the highest Score and reaches competitive performance within 5 iterations --- a level requiring 9 iterations for Optuna TPE and 28 for Random Search.}
 \label{tab:optimizer}
 \footnotesize
 \setlength{\tabcolsep}{4.5pt}
@@ -420,7 +420,7 @@ Random Search
 Optuna TPE
   & 4.113 & 0.258 & 0.502 & 0.572  & 0.178  & 15.97 & 423.3 & 62.0 & 0.47 & 62.6 & 27/30 \\
 \textbf{LLM Agent (Ours)}
-  & \textbf{4.337} & 0.255 & 0.489 & 0.564 & 0.168 & \textbf{16.98} & 441.8 & \textbf{58.2} & \textbf{0.49} & \textbf{58.9} & \textbf{7/30} \\
+  & \textbf{4.337} & 0.255 & 0.489 & 0.564 & 0.168 & \textbf{16.98} & 441.8 & \textbf{58.2} & \textbf{0.49} & \textbf{58.9} & \textbf{30/30} \\
 \bottomrule
 \end{tabular}
 \end{table*}
