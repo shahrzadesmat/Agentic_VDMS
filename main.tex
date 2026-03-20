@@ -5,6 +5,13 @@
 
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
+% pipeline_figure.pdf has a full-page bounding box (~87% of textheight when scaled
+% to textwidth). Default \topfraction=0.7 rejects it every page and defers it to
+% the end of the document. Raise the limit so tall figures can be placed at [t].
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\dbltopfraction}{0.95}     % for figure* in two-column
+\renewcommand{\dblfloatpagefraction}{0.85}
 
 %% The following content must be adapted for the final version
 % paper-specific
@@ -389,7 +396,7 @@ CLIP + DINOv2 rerank (FaissFlat)          & 0.5 & 2000 & \textbf{0.2763} & \text
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
 
-\begin{figure*}[t]
+\begin{figure*}[!t]
   \centering
   \includegraphics[width=\textwidth]{figures/pipeline_figure.pdf}
   \caption{Two-stage HOI retrieval pipeline.
