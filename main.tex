@@ -4,6 +4,7 @@
 % The ACM Latex guide provides further information about the ACM template
 
 \documentclass[sigconf, nonacm]{acmart}
+\usepackage{enumitem}
 
 %% The following content must be adapted for the final version
 % paper-specific
@@ -120,10 +121,9 @@ probe whether a system can distinguish 600 fine-grained human activities from na
 
 Human-Object Interaction (HOI) recognition captures one of the richest forms of compositional
 visual semantics available in any public benchmark.
-HICO-DET~\cite{chao2018hico}, the largest HOI benchmark, annotates 47{,}776 images across
-600 fine-grained interaction categories structured as \textit{verb--object} pairs --- \textit{person
-riding horse}, \textit{person cutting cake}, \textit{person throwing frisbee} --- spanning
-80 object classes and 117 action verbs.
+HICO-DET~\cite{chao2018hico} annotates 47{,}776 images across 600 fine-grained
+interaction categories structured as \textit{verb--object} pairs spanning 80 object
+classes and 117 action verbs.
 Despite this semantic richness, every published use of HICO-DET has been restricted to the
 \emph{detection} paradigm: predicting bounding boxes and interaction class labels from a given
 image.
@@ -313,19 +313,14 @@ database index configuration.
 \label{sec:benchmark}
 
 \subsection{Source Dataset}
-HICO-DET~\cite{chao2018hico} is the largest publicly available Human-Object Interaction
-benchmark, containing 47{,}776 images (38{,}118 train / 9{,}658 test) annotated with
-bounding boxes and interaction labels across 600 fine-grained HOI categories.
-Each category is a \emph{verb--object} pair drawn from 117 action verbs and 80 MS-COCO
-object classes --- \textit{person riding motorcycle}, \textit{person cutting cake},
-\textit{person throwing frisbee} --- yielding interactions that span everyday activities,
-sports, and rare compositional events.
-The 600 categories are highly non-uniform: popular interactions such as
-\textit{person riding horse} appear in up to 1{,}844 images, while rare interactions such
-as \textit{person lassoing cow} appear in as few as 6.
-Every published use of HICO-DET prior to this work has been restricted to the detection
-paradigm.
-We repurpose its annotation structure to define the first HOI retrieval benchmark.
+HICO-DET~\cite{chao2018hico} contains 47{,}776 images (38{,}118 train / 9{,}658 test)
+annotated with bounding boxes and interaction labels across 600 HOI categories, each
+structured as a \emph{verb--object} pair drawn from 117 action verbs and 80 MS-COCO
+object classes.
+Every published use of HICO-DET has been restricted to the detection paradigm:
+predicting bounding boxes and interaction class labels from a given image.
+We repurpose its annotation structure to define the first HOI retrieval benchmark on
+HICO-DET.
 
 \subsection{Benchmark Construction}
 \noindent\textbf{Retrieval corpus.}
@@ -360,21 +355,9 @@ documents~\cite{manning2008ir}.
 Throughput is measured in queries per second (QPS) averaged over 600 queries issued as
 a single batch.
 The joint optimization objective is Score $= \text{mAP} \times \text{QPS}$, which
-captures the accuracy--throughput trade-off on a single scalar.
-
-\subsection{Benchmark Characteristics and Challenges}
-Table~\ref{tab:baselines} reports baseline results that illustrate three key properties
-of this benchmark.
-First, the task is genuinely \emph{compositionally hard}: the best brute-force retrieval
-system (CLIP$+$DINOv2, FaissFlat) achieves only mAP $= 0.276$, far below the theoretical
-ceiling, because many HOI categories are visually and semantically similar
-(e.g., \textit{ride}, \textit{sit\_on}, and \textit{straddle} for the same object class).
-Second, the benchmark is \emph{imbalanced by design}: relevant set sizes range from 6
-to 1{,}844 (mean 151, median 48), reflecting the natural long-tail distribution of human
-activities.
-Third, the benchmark directly tests \emph{cross-modal alignment}: queries are text,
-the corpus is images, and no fine-tuning is performed --- making it a zero-shot evaluation
-of the quality of the shared embedding space.
+encodes the accuracy--throughput trade-off as a single scalar: a configuration that
+doubles QPS at half the mAP is penalized equally to one that halves QPS at double the
+mAP, preserving the symmetry expected of a production deployment objective.
 
 % ── Table 1: System baselines ─────────────────────────────────────────────────
 \begin{table*}[t]
@@ -462,6 +445,50 @@ baselines that do not condition on observed outcomes.
 \section{Experiments}
 \label{sec:experiments}
 
+\subsection{Experimental Setup}
+
+\noindent\textbf{Dataset.}
+We evaluate on the HICO-DET retrieval benchmark introduced in
+Section~\ref{sec:benchmark}: 47{,}776 images, 600 text queries, and 90{,}641
+ground-truth positive pairs.
+All image embeddings are 512-dimensional CLIP ViT-L/14 vectors stored in VDMS.
+
+\noindent\textbf{Compared Methods.}
+We compare four optimization strategies, each run for $N{=}30$ iterations:
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{LLM Agent (Ours):} at each iteration, the agent receives the full
+    history of (configuration, Score) pairs in its prompt and proposes the next
+    configuration; implemented with MiniMax-M2.1 via OpenRouter.
+  \item \textbf{Optuna TPE}~\cite{akiba2019optuna}: Tree-structured Parzen Estimator
+    Bayesian optimization; adaptive, conditions on observed outcomes.
+  \item \textbf{Random Search}~\cite{bergstra2012random}: samples configurations
+    uniformly at random; non-adaptive.
+  \item \textbf{Grid Search}: enumerates a fixed grid of configurations in
+    lexicographic order; non-adaptive.
+\end{itemize}
+As system baselines we include UniIR~\cite{wei2023uniir} (CLIP ViT-L/14, brute-force),
+standalone CLIP ViT-L/14 (FaissFlat), standalone DINOv2 ViT-L/14-reg4 (FaissFlat), and
+CLIP$+$DINOv2 reranking (FaissFlat), all using exact search to establish
+accuracy upper bounds independent of ANN approximation.
+
+\noindent\textbf{Metrics.}
+Retrieval quality is measured by mean Average Precision at $k{=}10$ (mAP@10), the
+standard metric for ranked retrieval with multiple relevant documents~\cite{manning2008ir},
+as well as Precision@10, NDCG@10, and Recall@10.
+Throughput is measured in queries per second (QPS), averaged over all 600 queries issued
+as a single batch.
+The joint optimization objective is Score $= \text{mAP} \times \text{QPS}$.
+
+\noindent\textbf{Implementation.}
+All experiments run on the NCSA Delta cluster (partition \texttt{gpuA40x4}): one
+NVIDIA A40 GPU, 16 CPU cores (AMD EPYC 7763), and exclusive node access.
+VDMS is deployed as an Apptainer container; all retrieval and optimization code is
+implemented in Python~3.12.
+For Optuna, we use the official \texttt{optuna} library~\cite{akiba2019optuna} with the
+default TPE sampler.
+Each iteration builds a full ANN index and issues 600 queries, taking approximately
+7--8 minutes of wall-clock time.
+
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/convergence_hico_det.pdf}
@@ -472,6 +499,19 @@ baselines that do not condition on observed outcomes.
     sample efficiency.}
   \label{fig:convergence}
 \end{figure*}
+
+Table~\ref{tab:baselines} reveals three properties of the benchmark.
+First, the task is \emph{compositionally difficult}: the best exact-search system
+(CLIP$+$DINOv2, FaissFlat) achieves mAP $= 0.276$, because many HOI categories share
+the same object class and differ only in a fine-grained action verb
+(e.g., \textit{ride}, \textit{sit\_on}, and \textit{straddle}).
+Second, the relevant-set sizes are \emph{long-tailed}: they range from 6 to 1{,}844
+images per query (mean 151, median 48), reflecting the natural distribution of human
+activities in the dataset.
+Third, the setting is \emph{zero-shot cross-modal}: queries are text, the corpus is
+images, and no fine-tuning is performed, making mAP sensitive to the quality of the
+shared CLIP embedding space.
+
 
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
