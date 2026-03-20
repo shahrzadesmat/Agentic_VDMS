@@ -375,10 +375,11 @@ baselines that do not condition on observed outcomes.
 % ── Table 1: System baselines ─────────────────────────────────────────────────
 \begin{table*}[t]
 \centering
-\caption{Brute-force baselines on HICO-DET (47,776 images, FaissFlat exact search).
+\caption{Brute-force baselines on HICO-DET (47,776 images, FaissFlat exact search, all measured in our VDMS setup).
   Score $= \text{mAP} \times \text{QPS}$.
   $\alpha$ is the DINOv2 reranking weight ($\alpha{=}0$: CLIP alone; $\alpha{=}1$: DINOv2 alone).
-  DINOv2 reranking adds $<$5\,ms query latency while boosting mAP by $+$6.8\,pp over CLIP alone.}
+  DINOv2 reranking adds $<$5\,ms query latency while boosting mAP by $+$6.8\,pp over CLIP alone.
+  The UniIR~\cite{uniir} system reports mAP$=$0.2461 with CLIP ViT-L/14 at $k{=}10$ but does not provide throughput numbers.}
 \label{tab:baselines}
 \footnotesize
 \setlength{\tabcolsep}{5pt}
@@ -386,7 +387,6 @@ baselines that do not condition on observed outcomes.
 \toprule
 \textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{NDCG@10} & \textbf{QPS} & \textbf{Build (s)} & \textbf{CLIP (ms)} & \textbf{DINOv2 (ms)} & \textbf{Total Lat.\ (ms)} & \textbf{Score} \\
 \midrule
-UniIR~\cite{uniir} (CLIP ViT-L/14)       & 0.0 & 10   & 0.2461 & ---    & ---    & ---  & ---   & ---   & ---  & ---   & ---   \\
 CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 500  & 0.2079 & 0.3370 & 0.3686 & 8.21 & 433.3 & 121.0 & 0.03 & 121.8 & 1.707 \\
 CLIP ViT-L/14 (FaissFlat)                 & 0.0 & 2000 & 0.2398 & 0.3370 & 0.3686 & 1.17 & 431.2 & 850.0 & 0.09 & 855.8 & 0.280 \\
 DINOv2 ViT-L/14-reg4 (FaissFlat)         & 1.0 & 2000 & 0.2165 & 0.3232 & 0.3472 & 1.16 & 432.9 & 851.6 & 5.18 & 865.1 & 0.250 \\
