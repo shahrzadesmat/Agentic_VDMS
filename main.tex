@@ -312,7 +312,69 @@ database index configuration.
 \section{The HICO-DET Retrieval Benchmark}
 \label{sec:benchmark}
 
-% TODO: fill in benchmark construction
+\subsection{Source Dataset}
+HICO-DET~\cite{chao2018hico} is the largest publicly available Human-Object Interaction
+benchmark, containing 47{,}776 images (38{,}118 train / 9{,}658 test) annotated with
+bounding boxes and interaction labels across 600 fine-grained HOI categories.
+Each category is a \emph{verb--object} pair drawn from 117 action verbs and 80 MS-COCO
+object classes --- \textit{person riding motorcycle}, \textit{person cutting cake},
+\textit{person throwing frisbee} --- yielding interactions that span everyday activities,
+sports, and rare compositional events.
+The 600 categories are highly non-uniform: popular interactions such as
+\textit{person riding horse} appear in up to 1{,}844 images, while rare interactions such
+as \textit{person lassoing cow} appear in as few as 6.
+Every published use of HICO-DET prior to this work has been restricted to the detection
+paradigm.
+We repurpose its annotation structure to define the first HOI retrieval benchmark.
+
+\subsection{Benchmark Construction}
+\noindent\textbf{Retrieval corpus.}
+We use all 47{,}776 images as a single retrieval corpus, ignoring the train/test split
+(which was designed for detection, not retrieval).
+CLIP ViT-L/14 image embeddings are pre-computed for every image and stored in a VDMS
+vector database, forming a 512-dimensional index of 47{,}776 vectors.
+
+\noindent\textbf{Query set.}
+We construct one natural-language text query per HOI category, yielding 600 queries.
+Each query is formatted as \textit{``a person \{verb\} a \{object\}''}, with the special
+case of \textit{``a person near a \{object\}''} for the \texttt{no\_interaction} verb class.
+Queries are encoded with the same CLIP ViT-L/14 model (openai weights), producing
+512-dimensional unit-norm text embeddings that are directly comparable to the image index.
+
+\noindent\textbf{Ground truth.}
+An image is considered relevant to a query if it is annotated with the corresponding HOI
+category in the HICO-DET ground truth.
+A single image may be relevant to multiple queries (e.g., an image of a person riding a
+motorcycle while holding a phone is relevant to both \textit{ride motorcycle} and
+\textit{hold phone}).
+Across all 600 queries, there are 90{,}641 positive (image, query) pairs in total.
+All 600 queries satisfy a minimum relevance threshold of 5 images, ensuring a
+statistically meaningful mAP estimate for every query.
+
+\subsection{Evaluation Protocol}
+We evaluate retrieval quality using mean Average Precision at $k{=}10$ (mAP@10),
+Precision@10, NDCG@10, and Recall@10 over all 600 queries.
+mAP@10 is our primary metric: it rewards systems that place relevant images in the
+top-10 positions and is the standard metric for ranked retrieval with multiple relevant
+documents~\cite{manning2008ir}.
+Throughput is measured in queries per second (QPS) averaged over 600 queries issued as
+a single batch.
+The joint optimization objective is Score $= \text{mAP} \times \text{QPS}$, which
+captures the accuracy--throughput trade-off on a single scalar.
+
+\subsection{Benchmark Characteristics and Challenges}
+Table~\ref{tab:baselines} reports baseline results that illustrate three key properties
+of this benchmark.
+First, the task is genuinely \emph{compositionally hard}: the best brute-force retrieval
+system (CLIP$+$DINOv2, FaissFlat) achieves only mAP $= 0.276$, far below the theoretical
+ceiling, because many HOI categories are visually and semantically similar
+(e.g., \textit{ride}, \textit{sit\_on}, and \textit{straddle} for the same object class).
+Second, the benchmark is \emph{imbalanced by design}: relevant set sizes range from 6
+to 1{,}844 (mean 151, median 48), reflecting the natural long-tail distribution of human
+activities.
+Third, the benchmark directly tests \emph{cross-modal alignment}: queries are text,
+the corpus is images, and no fine-tuning is performed --- making it a zero-shot evaluation
+of the quality of the shared embedding space.
 
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
