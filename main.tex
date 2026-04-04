@@ -786,15 +786,14 @@ on the full history of observed outcomes.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.72\textwidth]{figures/convergence_hico_det.pdf}
-  \caption{Convergence of optimization methods on HICO-DET over 30 iterations.
+  \caption{Convergence of optimization methods on HICO-DET over 30 iterations
+    (mean $\pm 1\sigma$ across 3 seeds; 2 runs for Grid).
     Best Score ($\text{mAP} \times \text{QPS}$) achieved so far is plotted at
     each iteration.
-    The LLM agent reaches Score $= 3.86$ by iteration~5 --- a level that
-    Optuna TPE first matches at iteration~9 and Random Search first matches at
-    iteration~28 --- and continues improving to Score $= 4.34$ at iteration~30
-    through its phase-aware exploitation strategy.
-    Grid Search early-stops at iteration~12 after failing to improve for five
-    consecutive iterations.}
+    The LLM agent reaches Score $= 3.97$ by iteration~5 --- a level that
+    Optuna TPE first matches at iteration~27 and Random Search first matches at
+    iteration~28 --- and continues improving to Score $= 4.44$ at iteration~30.
+    Grid Search plateaus at iteration~19, having exhausted its fixed 30-configuration sweep.}
   \label{fig:convergence}
 \end{figure*}
 
