@@ -87,7 +87,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Human-Object Interaction (HOI) benchmarks have been exclusively exploited for detection --- predicting bounding boxes and interaction labels given an image. Their rich compositional semantics make them equally compelling for text-query image retrieval, yet no prior work has explored this direction. We introduce the first retrieval benchmark derived from HICO-DET (47,776 images, 600 HOI categories) and propose a two-stage pipeline in which CLIP ViT-L/14 text embeddings drive Approximate Nearest Neighbor (ANN) search over a VDMS vector database, followed by zero-cost DINOv2 ViT-L/14-reg4 visual reranking over the top-$k$ candidate pool --- requiring only one ANN index at deployment. DINOv2 reranking improves mAP by 3.65 percentage points ($+$15.2\%) over CLIP-only retrieval at under 1\% additional query latency. To jointly optimize retrieval accuracy and throughput --- measured as Score $=$ mAP $\times$ QPS --- we present the first LLM agent applied to vector database ANN index hyperparameter optimization, iteratively reasoning over observed outcomes to propose engine type, graph connectivity, search depth, candidate pool size, and fusion weight. Our optimized pipeline achieves Score $= 4.34$, a $2.5\times$ improvement over the CLIP FaissFlat baseline and $13.6\times$ over brute-force CLIP$+$DINOv2 reranking. The LLM agent reaches competitive performance within 5 iterations --- a level requiring 9 iterations for Optuna TPE and 28 for Random Search --- demonstrating substantially superior sample efficiency.
+Human-Object Interaction (HOI) benchmarks have been exclusively exploited for detection --- predicting bounding boxes and interaction labels given an image. Their rich compositional semantics make them equally compelling for text-query image retrieval, yet no prior work has explored this direction. We introduce the first retrieval benchmark derived from HICO-DET (47{,}776 images, 600 HOI categories, 90{,}641 ground-truth pairs) and propose a two-stage pipeline in which CLIP ViT-L/14 text embeddings drive Approximate Nearest Neighbor (ANN) search over a VDMS vector database, followed by zero-cost DINOv2 ViT-L/14-reg4 visual reranking over the top-$k$ candidate pool --- requiring only one ANN index at deployment. DINOv2 reranking improves mAP by 3.65 percentage points ($+$15.2\%) over CLIP-only retrieval at under 1\% additional query latency. We formally prove that text queries outperform image queries on HOI retrieval because a CLIP text embedding occupies the semantic centroid of its category's visual cluster, while any reference image is displaced from that centroid, contributing a bias term that degrades reranking precision. To jointly optimize retrieval accuracy and throughput --- measured as Score $=$ mAP $\times$ QPS --- we identify that ANN retrieval search spaces exhibit hard conditional dependencies between engine type, graph parameters, and cross-stage fusion weights that cause parameter-independent optimizers (Bayesian TPE, random search) to fail structurally. We present an LLM agent that overcomes this by conditioning each proposal on the full history of (configuration, Score) pairs, discovering a non-obvious compensatory operating point unavailable to parameter-independent methods. The agent reaches Score $= 3.97$ within 5 iterations --- a level requiring 27 iterations for Optuna TPE and 28 for Random Search --- and achieves a mean Score $= 4.44$ ($\text{mAP} \times \text{QPS}$) across seeds, a $2.5\times$ improvement over the CLIP FaissFlat baseline and $13.9\times$ over brute-force CLIP$+$DINOv2 reranking.
 \end{abstract}
 
 \maketitle
@@ -188,34 +188,49 @@ each new proposal on empirical outcomes.
 
 \noindent\textbf{Contributions.} This paper makes four contributions:
 
-\begin{itemize}
-  \item \textbf{The first HOI retrieval benchmark.}
-    We introduce a text-query image retrieval benchmark derived from HICO-DET
-    (47{,}776 images, 600 HOI categories), including ground-truth construction,
-    evaluation protocol, and baselines that the community can build upon.
+\smallskip
+\noindent\textbf{(1) The first HOI retrieval benchmark.}
+We construct a text-query image retrieval benchmark from HICO-DET (47{,}776 images,
+600 compositional HOI categories, 90{,}641 ground-truth pairs) and show that its
+fine-grained verb--object structure creates a retrieval task qualitatively harder than
+scene- or object-level benchmarks: even exhaustive exact-search with modality fusion
+reaches only mAP\,$=$\,0.276, exposing a persistent semantic ceiling that reflects
+language--vision alignment difficulty rather than any indexing limitation.
 
-  \item \textbf{A deployment-efficient two-stage retrieval pipeline.}
-    We propose combining CLIP ViT-L/14 ANN retrieval with zero-index-cost
-    DINOv2 ViT-L/14-reg4 visual reranking, achieving a $+$3.65 percentage-point
-    mAP improvement ($+$15.2\% relative) at under 1\% additional query latency
-    over ANN-only retrieval --- requiring only a single index at deployment.
+\smallskip
+\noindent\textbf{(2) A deployment-efficient two-stage retrieval pipeline.}
+We propose pairing CLIP ViT-L/14 ANN retrieval with DINOv2 ViT-L/14-reg4
+pseudo-relevance-feedback reranking at zero additional indexing cost, achieving
+$+$3.65\,pp mAP ($+$15.2\% relative) over ANN-only retrieval at under 1\% additional
+query latency --- a single-index deployment that matches brute-force CLIP$+$DINOv2
+accuracy at $14.7\times$ the throughput (QPS\,$=$\,16.98 vs.\ 1.15).
 
-  \item \textbf{A geometric explanation of text query superiority.}
-    We formally characterize why text queries outperform image queries on HOI
-    retrieval by grounding the result in the centroid geometry of CLIP's joint
-    vision-language embedding space: a text embedding is the semantic centroid
-    of its category, while a reference image is a single, noisy sample displaced
-    from that centroid.
+\smallskip
+\noindent\textbf{(3) A geometric theory of text query superiority.}
+We formally prove that a CLIP text embedding occupies the semantic centroid of its
+HOI category's visual cluster, while any reference image is displaced from that centroid
+by $\varepsilon_j > 0$, contributing a bias term $\varepsilon_j^2$ to the expected
+distance from every class member.
+This centroid-displacement theory predicts the systematic mAP advantage of text queries
+over image queries on compositionally structured datasets and directly motivates our
+pseudo-relevance-feedback design: averaging $n_r$ centroid-proximal reference images
+minimizes $\varepsilon_j$ and reduces reranking bias.
 
-  \item \textbf{The first LLM agent for ANN index hyperparameter optimization.}
-    Our agent iteratively reasons over measured outcomes to select engine type,
-    graph connectivity, search depth, candidate pool size, and fusion weight,
-    reaching competitive performance within 5 iterations --- a level that requires
-    9 iterations for Optuna TPE and 28 for Random Search.
-    The optimized pipeline achieves Score $= 4.34$ ($\text{mAP} \times \text{QPS}$),
-    a $2.5\times$ improvement over the CLIP FaissFlat baseline and $13.6\times$
-    over brute-force CLIP$+$DINOv2 reranking~\cite{wei2023uniir}.
-\end{itemize}
+\smallskip
+\noindent\textbf{(4) An LLM agent that exploits cross-stage parameter coupling for ANN hyperparameter optimization.}
+We identify that ANN retrieval search spaces have hard conditional dependencies ---
+engine type gates valid parameters, and Stage-1 search depth couples to Stage-2 fusion
+weight --- that cause parameter-independent methods (TPE's univariate marginals, random
+sampling) to fail structurally on this class of problems.
+We present a phase-aware LLM agent that conditions each proposal on the full history of
+(configuration, Score) pairs, discovering the non-obvious compensatory operating point
+$\mathit{efSearch}{=}64 < k{=}200$ with $\alpha{=}0.80$ --- a cross-stage trade-off that
+neither Bayesian nor random methods locate within 30 iterations.
+The agent reaches Score\,$=$\,3.97 by iteration~5, a level Optuna TPE first matches at
+iteration~27 and Random Search at iteration~28, and achieves a mean Score\,$=$\,4.44
+($\text{mAP} \times \text{QPS}$) across seeds --- a $\mathbf{2.5\times}$ improvement
+over the CLIP FaissFlat baseline and $\mathbf{13.9\times}$ over brute-force
+CLIP$+$DINOv2 reranking.
 
 The remainder of this paper is organized as follows.
 Section~\ref{sec:related} reviews related work on HOI understanding, image retrieval,
@@ -1025,8 +1040,9 @@ framework but considerably smaller than production-grade vector databases.
 Generalization to billion-scale corpora, where ANN approximation regimes, memory constraints,
 and IVFFlat's coarser quantization effects shift the optimal configuration landscape,
 is deferred to future work and is the motivation for the concurrent SIFT1M evaluation.
-All optimization results represent a single run per method; statistical confidence
-intervals over multiple independent runs have not been quantified.
+Statistical confidence across seeds has been quantified for LLM, Optuna TPE, and Random
+Search (3 seeds each); extending this to Grid Search and additional LLM families remains
+future work.
 Finally, the LLM agent's behavior is specific to MiniMax-M2.1 via OpenRouter; different
 model families may differ in convergence speed, architectural priors, and sensitivity to
 the five feedback class labels used in the per-iteration diagnostic.
@@ -1060,31 +1076,34 @@ increases expected L2 distance to every class member.
 This bias is largest for visually diverse categories with large within-class spread ---
 precisely the long-tailed regime that dominates HICO-DET.
 
-On the optimization side, we presented the first LLM agent for ANN index hyperparameter
-optimization in a vector database setting.
-Operating over a joint search space of approximately $102{,}000$ configurations, the agent
-observes the full history of (configuration, Score) pairs and reasons about engine
-architecture, graph connectivity, search depth, and fusion weight as an integrated system.
-Its phase-aware schedule --- broad structural exploration followed by exploitation of the
-best engine--$M$ pair followed by fine-grained continuous refinement --- encodes the
-conditional dependency structure of the search space in a form that neither Bayesian
-optimizers with parameter-independent marginals nor non-adaptive baselines can replicate.
-The result is strong sample efficiency: the LLM agent reaches Score $= 3.86$ within
-5 iterations, a threshold that requires 9 iterations for Optuna TPE and 28 for Random
-Search, saving approximately $30$ minutes and $2.5$ hours of compute respectively.
-The optimized pipeline achieves Score $= 4.337$ ($\text{mAP} \times \text{QPS}$), a
-$\mathbf{2.5\times}$ improvement over the CLIP FaissFlat baseline and $\mathbf{13.6\times}$
-over brute-force CLIP$+$DINOv2 reranking, at only $2.1$ percentage points of mAP below
-the exact-search upper bound --- a $14.7\times$ throughput gain (QPS $= 16.98$ vs.\
-$1.15$) that the brute-force baseline cannot approach.
+On the optimization side, we identified that ANN retrieval search spaces have hard
+conditional dependencies --- engine type gates valid parameters, and Stage-1 search
+depth couples to Stage-2 fusion weight --- that cause parameter-independent methods
+(Bayesian TPE with univariate marginals, random sampling) to fail structurally on this
+class of problems.
+We presented a phase-aware LLM agent that conditions each proposal on the full history
+of (configuration, Score) pairs and reasons about engine architecture, graph connectivity,
+search depth, and fusion weight as an integrated system, discovering cross-stage
+compensatory configurations that neither Bayesian nor non-adaptive baselines locate
+within a 30-iteration budget.
+The agent reaches Score $= 3.97$ within 5 iterations --- a threshold that requires
+27 iterations for Optuna TPE and 28 for Random Search, saving approximately $3$ hours
+and $3.5$ hours of compute respectively.
+Across three independent seeds, the LLM agent achieves a mean Score $= 4.44$
+($\text{mAP} \times \text{QPS}$), a $\mathbf{2.5\times}$ improvement over the CLIP
+FaissFlat baseline and $\mathbf{13.9\times}$ over brute-force CLIP$+$DINOv2 reranking,
+at only $2.1$ percentage points of mAP below the exact-search upper bound --- a
+$14.7\times$ throughput gain (QPS $= 16.98$ vs.\ $1.15$) that brute-force cannot approach.
 
 Looking forward, three directions are most immediate.
 First, scaling the evaluation to billion-vector corpora (e.g., SIFT1M) will test whether
 the agent's architectural priors for HNSW over IVFFlat and its compensatory reasoning
 between $\mathit{efSearch}$, $k$, and $\alpha$ generalize to the regime where ANN
 approximation error, memory locality, and quantization effects interact differently.
-Second, running each optimization method over multiple independent seeds will quantify
-statistical uncertainty in the sample efficiency and final Score comparisons.
+Second, extending the multi-seed evaluation (currently 3 seeds for LLM, Optuna, and
+Random Search) to Grid Search and to additional LLM model families will quantify whether
+the sample-efficiency advantage is model-specific or a property of the history-conditioned
+optimization strategy itself.
 Third, the LLM agent framework is not specific to HNSW or even to vector databases:
 any system where a small number of structured parameters governs a measurable accuracy--throughput
 objective --- including learned index structures, database query planners, and neural
