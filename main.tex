@@ -783,9 +783,9 @@ on the full history of observed outcomes.
 \subsection{Optimizer Comparison and Sample Efficiency}
 
 % ── Figure: Convergence curves ────────────────────────────────────────────────
-\begin{figure*}[t]
+\begin{figure}[t]
   \centering
-  \includegraphics[width=0.72\textwidth]{figures/convergence_hico_det.pdf}
+  \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
   \caption{Convergence of optimization methods on HICO-DET over 30 iterations
     (mean $\pm 1\sigma$ across 3 seeds; 2 runs for Grid).
     Best Score ($\text{mAP} \times \text{QPS}$) achieved so far is plotted at
@@ -795,7 +795,7 @@ on the full history of observed outcomes.
     iteration~28 --- and continues improving to Score $= 4.44$ at iteration~30.
     Grid Search plateaus at iteration~19, having exhausted its fixed 30-configuration sweep.}
   \label{fig:convergence}
-\end{figure*}
+\end{figure}
 
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
