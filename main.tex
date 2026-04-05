@@ -875,7 +875,7 @@ CLIP$+$DINOv2 ($\alpha{=}0.5$)   & FaissFlat & 2000 & 430.1 & 855.2 & 4.82  & 86
 LLM Agent (Ours)  & HNSW $M{=}48$ & 200 & 441.8 & 58.2 & 0.49 & 58.9 & 16.98 \\
 Optuna TPE        & HNSW $M{=}32$ & 200 & 423.3 & 62.0 & 0.47 & 62.6 & 15.97 \\
 Random Search     & HNSW $M{=}32$ & 200 & 444.3 & 48.3 & 0.32 & 48.9 & 20.47 \\
-Grid Search       & HNSW          & --- & $\sim$445 & --- & --- & --- & 20.49 \\
+Grid Search       & HNSW          & --- & $\sim$445 & --- & --- & --- & 20.51 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1008,7 +1008,7 @@ low-bias and low-variance, making it the most reliable proxy for the category di
 Both the LLM agent and Optuna TPE converge to FaissHNSWFlat as the optimal engine.
 HNSW's graph-based traversal achieves QPS $= 16.98$--$15.97$ for the two best
 configurations at mAP $= 0.255$--$0.258$, versus Grid Search's FaissHNSWFlat/IVFFlat
-configurations at QPS $= 20.49$ but mAP $= 0.148$.
+configurations at mean QPS $= 20.42$ but mAP $= 0.169$.
 The Score contrast is stark: $4.44$ and $4.05$ for HNSW-based methods vs.\ $3.44$ for
 Grid's sweep --- confirming that high-QPS, low-recall configurations are penalized by the
 Score objective whenever mAP drops below a critical threshold.
