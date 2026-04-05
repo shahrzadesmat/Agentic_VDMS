@@ -599,8 +599,7 @@ a joint index configuration (engine, $M$, \textit{efSearch}/\textit{nlist}/\text
 pool size $k$, fusion weight $\alpha$, reference count $n_r$, reference strategy) over $N=30$ iterations.
 Each proposed configuration is loaded into a VDMS Apptainer container, which builds the
 ANN index and executes all 600 HICO-DET queries; the resulting mAP and QPS are
-combined into Score $= \text{mAP} \times \text{QPS}$ (HICO-DET) or
-$\text{QPS} \times \text{Recall@10}$ (SIFT1M).
+combined into Score $= \text{mAP} \times \text{QPS}$ (HICO-DET and GLDv2).
 Only adaptive methods --- the LLM Agent and Optuna TPE --- receive the score signal as
 feedback to inform subsequent proposals; Grid Search and Random Search are non-adaptive
 baselines that do not condition on observed outcomes.
@@ -613,8 +612,7 @@ baselines that do not condition on observed outcomes.
     (Bayesian, adaptive) vs.\ \textbf{Grid Search} and \textbf{Random Search}
     (non-adaptive baselines) --- each propose ANN index configurations evaluated by VDMS
     over $N{=}30$ iterations.
-    Score $= \text{QPS} \times \text{Recall@10}$ (SIFT1M) or
-    $\text{mAP} \times \text{QPS}$ (HICO-DET).
+    Score $= \text{mAP} \times \text{QPS}$ (HICO-DET and GLDv2).
     Red dashed arrows indicate score feedback; only adaptive methods receive it.}
   \label{fig:workflow}
 \end{figure*}
@@ -906,8 +904,8 @@ Optuna TPE first exceeds the LLM agent's iteration-5 threshold at iteration~27;
 Random Search does not match it until iteration~28.
 At ${\approx}7$--$8$ minutes of wall-clock time per evaluation, this translates to
 concrete practical savings: the LLM agent reaches Score~$\geq 3.97$ approximately
-$2.5$ hours ahead of Optuna TPE (21 fewer evaluations) and over $2.5$ hours ahead of
-Random Search (22 fewer evaluations).
+$2.5$ hours ahead of Optuna TPE (22 fewer evaluations) and over $2.5$ hours ahead of
+Random Search (23 fewer evaluations).
 This efficiency stems directly from the agent's ability to condition each new proposal
 on the full empirical history and its phase-aware schedule that resolves structural choices
 (engine, $M$) before continuous choices ($\alpha$, $n_r$) --- a conditional dependency
@@ -1052,7 +1050,7 @@ $47{,}776$ images --- a scale appropriate for a proof-of-concept study of the op
 framework but considerably smaller than production-grade vector databases.
 Generalization to billion-scale corpora, where ANN approximation regimes, memory constraints,
 and IVFFlat's coarser quantization effects shift the optimal configuration landscape,
-is deferred to future work and is the motivation for the concurrent SIFT1M evaluation.
+is deferred to future work and is the motivation for the concurrent GLDv2 evaluation.
 Statistical confidence across seeds has been quantified for LLM, Optuna TPE, and Random
 Search (3 seeds each); extending this to Grid Search and additional LLM families remains
 future work.
@@ -1109,7 +1107,7 @@ at only $2.1$ percentage points of mAP below the exact-search upper bound --- a
 $14.7\times$ throughput gain (QPS $= 16.98$ vs.\ $1.15$) that brute-force cannot approach.
 
 Looking forward, three directions are most immediate.
-First, scaling the evaluation to billion-vector corpora (e.g., SIFT1M) will test whether
+First, scaling the evaluation to larger corpora (e.g., GLDv2 with 762K landmark images) will test whether
 the agent's architectural priors for HNSW over IVFFlat and its compensatory reasoning
 between $\mathit{efSearch}$, $k$, and $\alpha$ generalize to the regime where ANN
 approximation error, memory locality, and quantization effects interact differently.
