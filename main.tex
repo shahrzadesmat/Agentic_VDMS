@@ -254,7 +254,10 @@ between detected instances~\cite{gao2018ican}.
 The adoption of transformer architectures enabled end-to-end
 detection~\cite{kim2021hotr,zhang2021cdn}, and subsequent work leveraged vision-language
 pre-training to transfer interaction semantics from large-scale
-models~\cite{liao2022genvlkt}.
+models~\cite{liao2022genvlkt,ning2023hoiclip,li2024dphoi}.
+HOICLIP~\cite{ning2023hoiclip} (CVPR 2023) distills CLIP knowledge into a detector via
+interaction semantics transfer, while DP-HOI~\cite{li2024dphoi} (CVPR 2024) uses disentangled
+pre-training to improve HOI recognition without exhaustive instance-level annotation.
 Despite sustained progress, every published use of HICO-DET is restricted to the detection
 paradigm --- predicting bounding boxes and interaction labels from a given image.
 We identify and fill the orthogonal \emph{retrieval} direction: given a natural-language
@@ -281,8 +284,11 @@ geometric explanation of why text queries are better suited to this task.
 
 \subsection{Approximate Nearest Neighbor Search and Vector Databases}
 ANN index research has produced a rich family of scalable methods: graph-based indices
-(HNSW~\cite{malkov2018hnsw}), inverted file structures combined with product
-quantization~\cite{jegou2011pq}, and GPU-accelerated flat search~\cite{johnson2019billion}.
+(HNSW~\cite{malkov2018hnsw}, DiskANN~\cite{subramanya2019diskann}), inverted file structures
+combined with product quantization~\cite{jegou2011pq}, and GPU-accelerated flat
+search~\cite{johnson2019billion}.
+DiskANN~\cite{subramanya2019diskann} extends billion-scale graph search to SSD-resident indices,
+achieving state-of-the-art recall at 1B-scale on a single commodity server.
 Systematic benchmarking in ANN-Benchmarks~\cite{aumuller2020ann} and the NeurIPS 2021
 billion-scale competition~\cite{simhadri2022neurips} characterize the accuracy--throughput
 Pareto frontier across these methods and datasets.
@@ -303,6 +309,12 @@ Hyperband~\cite{li2018hyperband}, and hybrid approaches such as BOHB~\cite{falkn
 that combine kernel density estimation with successive halving.
 Automated machine learning frameworks such as Auto-sklearn~\cite{feurer2015autosklearn}
 apply these methods to joint algorithm selection and hyperparameter configuration.
+ML-guided database configuration tuning --- selecting DBMS knobs such as buffer pool sizes,
+parallelism settings, and I/O parameters --- was pioneered by OtterTune~\cite{vanaken2017ottertune},
+which applied Gaussian process regression to map workload features to optimal knob settings.
+Subsequent systems applied deep reinforcement learning and online learning to this problem,
+but all operate on a continuous or integer knob space without structural type-dependencies.
+
 A key limitation of classical HPO for ANN index selection is that the search space is
 \emph{mixed-type}: it includes discrete engine choices (HNSW vs.\ IVFFlat), integer
 parameters ($M$, \textit{efSearch}, \textit{nlist}, $k$), and continuous parameters
@@ -327,17 +339,32 @@ Follow-up work has applied this paradigm to machine learning hyperparameter
 optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}, showing that LLMs can match or
 surpass Bayesian optimization in sample efficiency on tabular HPO benchmarks by exploiting
 domain knowledge embedded in pre-training.
-Our work applies this paradigm to a fundamentally different setting: optimizing the joint
-configuration of a production vector database ANN index, where the search space is
-mixed-type, the objective ($\text{Score} = \text{mAP} \times \text{QPS}$) couples retrieval
-accuracy with systems-level throughput, and the agent must reason about index architecture
-trade-offs from first principles.
-Critically, each function evaluation requires building a full ANN index and running 600
-benchmark queries --- roughly 7--8 minutes of wall-clock time per iteration --- making
-sample efficiency far more important than in standard HPO settings where evaluations take
-seconds.
-To our knowledge, this is the first application of LLM-guided optimization to vector
-database index configuration.
+
+Most closely related to our work is GPTuner~\cite{lao2024gpttuner} (VLDB 2024), which uses
+GPT-4 to read DBMS administration manuals, extract structured domain knowledge, and guide
+Bayesian optimization for database configuration knob tuning (buffer pool size, parallelism,
+caching policies) on PostgreSQL and MySQL.
+GPTuner demonstrates that LLM-extracted priors substantially improve Bayesian optimization
+sample efficiency over manual priors, establishing the value of domain knowledge injection
+for database system tuning --- a line of research that builds on earlier ML-guided DBMS
+tuning systems such as OtterTune~\cite{vanaken2017ottertune}.
+Our work differs from GPTuner in three key respects.
+First, we optimize ANN \emph{index architecture} rather than DBMS configuration knobs ---
+a mixed-type search space with hard conditional dependencies (engine type gates valid
+parameters) that Bayesian optimization handles poorly even with LLM-derived priors.
+Second, the LLM in our system \emph{is} the optimizer: it conditions each proposal on the
+full empirical history of (configuration, Score) pairs rather than serving as a
+prior-extraction module feeding a separate Bayesian surrogate.
+Third, our objective $\text{Score} = \text{mAP} \times \text{QPS}$ couples retrieval quality
+with throughput, requiring cross-stage parameter reasoning (Stage-1 $\mathit{efSearch}$
+interacts with Stage-2 $\alpha$) that has no analogue in DBMS knob tuning.
+
+Our work applies LLM-guided optimization to a fundamentally different setting: jointly
+configuring a production vector database ANN index where the search space is mixed-type,
+evaluations require 7--8 minutes of wall-clock time, and the agent must reason about
+architecture trade-offs from first principles.
+To our knowledge, this is the first application of LLM-guided optimization to ANN index
+architecture selection for vector databases.
 
 \section{The HICO-DET Retrieval Benchmark}
 \label{sec:benchmark}
