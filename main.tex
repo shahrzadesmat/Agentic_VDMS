@@ -818,9 +818,10 @@ on the full history of observed outcomes.
 \caption{Comparison of ANN index hyperparameter optimization methods on HICO-DET (30 iterations, best config reported).
   Score $= \text{mAP} \times \text{QPS}$.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.
-  $^\dagger$~Grid Search early-stopped at iteration 12 (patience$=$5).
-  The LLM agent achieves the highest Score and reaches Score $= 3.86$ within 5 iterations ---
-  a level requiring 9 iterations for Optuna TPE and 28 for Random Search.
+  $^\dagger$~Grid Search ran all 30 iterations, plateauing at iteration 19.
+  Scores are means across 3 seeds (LLM, Optuna, Random); Grid is the mean of 2 runs.
+  The LLM agent achieves the highest Score and reaches Score $\approx 3.97$ within 6 iterations ---
+  a level requiring 27 iterations for Optuna TPE and 28 for Random Search.
   Full per-query latency breakdown is reported in Table~\ref{tab:efficiency}.}
 \label{tab:optimizer}
 \small
@@ -829,10 +830,10 @@ on the full history of observed outcomes.
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Grid Search$^\dagger$         & 3.027          & 0.148          & ---            & 20.49          & 7/12  \\
-Random Search                 & 4.095          & 0.200          & 0.449          & 20.47          & 28/30 \\
-Optuna TPE                    & 4.113          & 0.258          & 0.502          & 15.97          & 27/30 \\
-\textbf{LLM Agent (Ours)}     & \textbf{4.337} & 0.255          & 0.489          & \textbf{16.98} & \textbf{30/30} \\
+Grid Search$^\dagger$         & 3.44           & 0.169          & ---            & 20.42          & 19/30 \\
+Random Search                 & 4.04           & 0.200          & 0.449          & 20.47          & 28/30 \\
+Optuna TPE                    & 4.05           & 0.258          & 0.502          & 15.97          & 27/30 \\
+\textbf{LLM Agent (Ours)}     & \textbf{4.44}  & 0.255          & 0.489          & \textbf{16.98} & \textbf{30/30} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -869,31 +870,31 @@ Grid Search       & HNSW          & --- & $\sim$445 & --- & --- & --- & 20.49 \\
 \noindent\textbf{Overall performance.}
 Table~\ref{tab:optimizer} and Figure~\ref{fig:convergence} report the results of all four
 optimization methods over 30 iterations on HICO-DET.
-The LLM agent achieves the highest Score $= 4.337$, a $\mathbf{2.5\times}$ improvement
-over the CLIP FaissFlat baseline at $k{=}500$ (Score $= 1.707$) and $\mathbf{13.6\times}$
+The LLM agent achieves the highest mean Score $= 4.44$, a $\mathbf{2.5\times}$ improvement
+over the CLIP FaissFlat baseline at $k{=}500$ (Score $= 1.707$) and $\mathbf{13.9\times}$
 over brute-force CLIP$+$DINOv2 reranking (Score $= 0.319$).
 At its optimal configuration --- FaissHNSWFlat with $M{=}48$, $\mathit{efSearch}{=}64$,
 $k{=}200$, $\alpha{=}0.80$, $n_r{=}10$, and \textit{centroid} reference selection ---
 the pipeline achieves mAP $= 0.255$ and QPS $= 16.98$, representing a $14.7\times$
 throughput gain over brute-force CLIP$+$DINOv2 (QPS $= 1.15$) at a cost of only
 $2.1$ percentage points of mAP ($0.255$ vs.\ $0.276$).
-Optuna TPE (Score $= 4.113$) and Random Search (Score $= 4.095$) reach comparable final
-scores, trailing the LLM agent by $5.2\%$ and $5.6\%$ respectively.
-Grid Search (Score $= 3.027$) performs substantially worse, early-stopping at
-iteration~12 and achieving mAP only $0.148$ --- less than half the CLIP-only exact-search
-baseline at $k{=}2000$.
+Optuna TPE (mean Score $= 4.05$) and Random Search (mean Score $= 4.04$) reach comparable final
+scores, trailing the LLM agent by $8.8\%$ and $9.0\%$ respectively.
+Grid Search (mean Score $= 3.44$) performs substantially worse, running all 30 iterations
+but plateauing at iteration~19 and achieving mAP only $0.169$ --- below the CLIP-only exact-search
+baseline at $k{=}2000$ (mAP $= 0.240$).
 
 \noindent\textbf{Sample efficiency.}
-The LLM agent's primary advantage lies in \emph{sample efficiency}: it reaches Score $= 3.86$
-by iteration~5, already exceeding Grid Search's final best (Score $= 3.027$) and
-surpassing both Optuna TPE (Score $= 3.142$ at iteration~10) and Random Search
-(Score $= 2.294$ at iteration~10).
-Optuna TPE first exceeds the LLM agent's iteration-5 threshold at iteration~9
-(Score $= 3.905$); Random Search does not match it until iteration~28 (Score $= 4.095$).
+The LLM agent's primary advantage lies in \emph{sample efficiency}: its mean convergence curve
+reaches Score $\approx 3.97$ by iteration~6, already exceeding Grid Search's final best
+(mean Score $= 3.44$) and surpassing both Optuna TPE (mean Score $= 3.13$ at iteration~6)
+and Random Search (mean Score $= 3.58$ at iteration~6).
+Optuna TPE first exceeds the LLM agent's iteration-6 threshold at iteration~27;
+Random Search does not match it until iteration~28.
 At ${\approx}7$--$8$ minutes of wall-clock time per evaluation, this translates to
-concrete practical savings: the LLM agent reaches Score~$\geq 3.86$ approximately
-$30$ minutes ahead of Optuna TPE (four fewer evaluations) and over $2.5$ hours ahead of
-Random Search (23 fewer evaluations).
+concrete practical savings: the LLM agent reaches Score~$\geq 3.97$ approximately
+$2.5$ hours ahead of Optuna TPE (21 fewer evaluations) and over $2.5$ hours ahead of
+Random Search (22 fewer evaluations).
 This efficiency stems directly from the agent's ability to condition each new proposal
 on the full empirical history and its phase-aware schedule that resolves structural choices
 (engine, $M$) before continuous choices ($\alpha$, $n_r$) --- a conditional dependency
@@ -923,8 +924,7 @@ structure: it sweeps $k$ while holding $M{=}32$ and $\alpha{=}0.30$ fixed, never
 testing $M{=}48$ (the LLM's optimal) and never exploring $\alpha > 0.30$ (vs.\ the
 optimal $\alpha{=}0.80$).
 The lexicographic enumeration order guarantees that the joint optimum of
-$(M, k, \alpha, n_r, \text{ref\_strategy})$ cannot be reached within the
-early-stopping horizon.
+$(M, k, \alpha, n_r, \text{ref\_strategy})$ cannot be reached within a 30-iteration budget.
 Optuna TPE exhibits premature convergence: at iterations~11--13, all three consecutive
 evaluations produce configurations with identical mAP $= 0.169$ and QPS $= 18.6$, a
 plateau that reflects the structural limitation of TPE's univariate kernel density
@@ -996,7 +996,7 @@ Both the LLM agent and Optuna TPE converge to FaissHNSWFlat as the optimal engin
 HNSW's graph-based traversal achieves QPS $= 16.98$--$15.97$ for the two best
 configurations at mAP $= 0.255$--$0.258$, versus Grid Search's FaissHNSWFlat/IVFFlat
 configurations at QPS $= 20.49$ but mAP $= 0.148$.
-The Score contrast is stark: $4.337$ and $4.113$ for HNSW-based methods vs.\ $3.027$ for
+The Score contrast is stark: $4.44$ and $4.05$ for HNSW-based methods vs.\ $3.44$ for
 Grid's sweep --- confirming that high-QPS, low-recall configurations are penalized by the
 Score objective whenever mAP drops below a critical threshold.
 HNSW's navigable graph structure, with graph connectivity $M{=}48$ tuned to maintain
