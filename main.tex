@@ -693,8 +693,8 @@ text queries, 90{,}641 ground-truth positive pairs --- a stringent testbed combi
 fine-grained HOI categories, long-tailed relevance distributions, and a cross-modal
 (text-to-image) retrieval setting.
 \textbf{GLDv2}~\cite{weyand2020gld}: Google Landmarks Dataset v2, a large-scale
-image-to-image retrieval benchmark with 762{,}000 gallery images and 117{,}577 queries
-spanning global landmarks, providing a $16\times$ larger corpus for cross-domain
+image-to-image retrieval benchmark with 762{,}000 gallery images and 1{,}129 public
+queries spanning global landmarks, providing a $16\times$ larger corpus for cross-domain
 generalization evaluation.
 For HICO-DET, image embeddings are 768-dimensional CLIP ViT-L/14 vectors.
 For GLDv2, each image is represented by a 768-dimensional CLIP ViT-L/14 embedding
@@ -707,9 +707,9 @@ We compare four optimization strategies, each run for $N{=}30$ iterations:
     history of (configuration, Score) pairs in its prompt and proposes the next
     configuration; implemented with MiniMax-M2.1 via OpenRouter.
   \item \textbf{Optuna TPE}~\cite{akiba2019optuna}: Tree-structured Parzen Estimator
-    Bayesian optimization; adaptive, conditions on observed outcomes (seed~42).
+    Bayesian optimization; adaptive, conditions on observed outcomes (3~seeds: 42, 99, 200).
   \item \textbf{Random Search}~\cite{bergstra2012random}: samples configurations
-    uniformly at random; non-adaptive (seed~78).
+    uniformly at random; non-adaptive (3~seeds: 78, 99, 200).
   \item \textbf{Grid Search}: enumerates a fixed grid of configurations in
     lexicographic order; non-adaptive.
 \end{itemize}
@@ -836,6 +836,7 @@ on the full history of observed outcomes.
   Scores are means across 3 seeds (LLM, Optuna, Random); Grid is the mean of 2 runs.
   The LLM agent achieves the highest Score and reaches Score $\approx 3.97$ within 5 iterations ---
   a level requiring 27 iterations for Optuna TPE and 28 for Random Search.
+  $^\ddagger$~P@10 was not recorded for Grid Search runs.
   Full per-query latency breakdown is reported in Table~\ref{tab:efficiency}.}
 \label{tab:optimizer}
 \small
@@ -844,7 +845,7 @@ on the full history of observed outcomes.
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Grid Search$^\dagger$         & 3.44           & 0.169          & ---            & 20.42          & 19/30 \\
+Grid Search$^\dagger$$^\ddagger$ & 3.44         & 0.169          & ---            & 20.42          & 19/30 \\
 Random Search                 & 4.04           & 0.200          & 0.449          & 20.47          & 28/30 \\
 Optuna TPE                    & 4.05           & 0.258          & 0.502          & 15.97          & 27/30 \\
 \textbf{LLM Agent (Ours)}     & \textbf{4.44}  & 0.255          & 0.489          & \textbf{16.98} & \textbf{30/30} \\
@@ -957,7 +958,7 @@ agent has already committed to and begun refining its HNSW-based operating point
 To test whether the LLM agent's advantage generalizes beyond the HICO-DET benchmark,
 we evaluate all four optimization methods on the Google Landmarks Dataset v2
 (GLDv2)~\cite{weyand2020gld}, a large-scale image-to-image retrieval benchmark with
-$762{,}000$ gallery images and $117{,}577$ queries spanning global landmarks.
+$762{,}000$ gallery images and $1{,}129$ public queries spanning global landmarks.
 GLDv2 differs from HICO-DET in two key respects: the corpus is $16\times$ larger
 (762K vs.\ 47K images), stressing ANN index construction time and memory, and the
 retrieval task is image-to-image rather than text-to-image, removing the text-query
@@ -969,7 +970,7 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
 % ── Table: GLDv2 optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
 \centering
-\caption{Optimizer comparison on GLDv2 (762K images, 30 iterations, seed~42).
+\caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries, 30 iterations, seed~42).
   Score $= \text{mAP} \times \text{QPS}$.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.
   $^\dagger$~Grid Search ran all 30 iterations.}
