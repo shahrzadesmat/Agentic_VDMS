@@ -340,29 +340,15 @@ optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}, showing that LLMs can 
 surpass Bayesian optimization in sample efficiency on tabular HPO benchmarks by exploiting
 domain knowledge embedded in pre-training.
 
-Most closely related to our work is GPTuner~\cite{lao2024gpttuner} (VLDB 2024), which uses
-GPT-4 to read DBMS administration manuals, extract structured domain knowledge, and guide
-Bayesian optimization for database configuration knob tuning (buffer pool size, parallelism,
-caching policies) on PostgreSQL and MySQL.
-GPTuner demonstrates that LLM-extracted priors substantially improve Bayesian optimization
-sample efficiency over manual priors, establishing the value of domain knowledge injection
-for database system tuning --- a line of research that builds on earlier ML-guided DBMS
-tuning systems such as OtterTune~\cite{vanaken2017ottertune}.
-Our work differs from GPTuner in three key respects.
-First, we optimize ANN \emph{index architecture} rather than DBMS configuration knobs ---
-a mixed-type search space with hard conditional dependencies (engine type gates valid
-parameters) that Bayesian optimization handles poorly even with LLM-derived priors.
-Second, the LLM in our system \emph{is} the optimizer: it conditions each proposal on the
-full empirical history of (configuration, Score) pairs rather than serving as a
-prior-extraction module feeding a separate Bayesian surrogate.
-Third, our objective $\text{Score} = \text{mAP} \times \text{QPS}$ couples retrieval quality
-with throughput, requiring cross-stage parameter reasoning (Stage-1 $\mathit{efSearch}$
-interacts with Stage-2 $\alpha$) that has no analogue in DBMS knob tuning.
-
-Our work applies LLM-guided optimization to a fundamentally different setting: jointly
-configuring a production vector database ANN index where the search space is mixed-type,
-evaluations require 7--8 minutes of wall-clock time, and the agent must reason about
-architecture trade-offs from first principles.
+Most closely related is GPTuner~\cite{lao2024gpttuner} (VLDB 2024), which uses GPT-4 to
+extract priors from DBMS manuals and guide Bayesian optimization of continuous configuration
+knobs (buffer pool size, parallelism) for PostgreSQL and MySQL, building on earlier
+ML-guided DBMS tuning~\cite{vanaken2017ottertune}.
+Our work addresses a structurally different problem: ANN index architecture selection over
+a mixed-type space with hard conditional dependencies, where the LLM is the optimizer rather
+than a prior-extraction module, and the objective $\text{Score} = \text{mAP} \times
+\text{QPS}$ couples retrieval quality with throughput --- requiring cross-stage reasoning
+with no analogue in DBMS knob tuning.
 To our knowledge, this is the first application of LLM-guided optimization to ANN index
 architecture selection for vector databases.
 
