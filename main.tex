@@ -976,7 +976,9 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
 \caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries, 30 iterations, seed~42).
   Score $= \text{mAP} \times \text{QPS}$.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.
-  $^\dagger$~Grid Search ran all 30 iterations.}
+  $^\dagger$~Grid Search ran all 30 iterations.
+  LLM + IQDS uses the IQDS-weighted objective (Section~\ref{sec:iqds}); Score reported on the standard mAP$\times$QPS metric.
+  LLM + DAIA results pending.}
 \label{tab:gldv2}
 \small
 \setlength{\tabcolsep}{6pt}
@@ -984,40 +986,42 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Grid Search$^\dagger$         & ---               & ---               & ---                 & ---               & ---/30 \\
-Random Search                 & ---               & ---               & ---               & ---               & ---/30 \\
-Optuna TPE                    & ---               & ---               & ---               & ---               & ---/30 \\
-\textbf{LLM Agent (Ours)}     & \textbf{---}      & ---               & ---               & \textbf{---}      & \textbf{---/30} \\
+Random Search                 & 3.5055            & 0.1581            & 0.1947              & 22.17             & 16/30 \\
+Optuna TPE                    & 3.5894            & 0.1615            & 0.1965              & 22.22             & 13/30 \\
+\textbf{LLM Agent (Ours)}     & 3.5888            & 0.1615            & 0.1965              & 22.21             & \textbf{6/30} \\
+Grid Search$^\dagger$         & 3.6352            & 0.1787            & 0.2131              & 20.34             & 15/30 \\
+\midrule
+\textbf{LLM + IQDS (Ours)}    & \textbf{3.6622}   & \textbf{0.1789}   & \textbf{0.2125}     & 20.47             & 28/30 \\
+LLM + DAIA (Ours)             & ---               & ---               & ---                 & ---               & ---/30 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent\textbf{Overall performance.}
-% TODO: Fill in after benchmark jobs complete (~2026-04-05 morning).
-% Expected structure: LLM best > Optuna > Random > Grid, consistent with HICO-DET.
-% Key numbers to report: LLM Score, mAP, QPS; improvement over Grid; comparison to HICO-DET rank order.
 Table~\ref{tab:gldv2} reports the GLDv2 results.
-The LLM agent achieves Score $= $ \textbf{[X.XX]}, outperforming Optuna TPE
-(Score $= $ [X.XX]), Random Search (Score $= $ [X.XX]), and Grid Search
-(Score $= $ [X.XX]).
-The rank ordering of methods is consistent with HICO-DET, confirming that the LLM
-agent's advantage over parameter-independent optimizers is not specific to
-compositional HOI retrieval.
+At this scale (762K gallery), Grid Search finds the best standard-metric config
+(Score $= 3.6352$) among the four baseline optimizers, outperforming Optuna TPE
+(Score $= 3.5894$), the LLM agent (Score $= 3.5888$), and Random Search
+(Score $= 3.5055$).
+This contrasts with HICO-DET, where the LLM agent ranked first; at larger scale the
+systematic coverage of Grid Search recovers the high-mAP $k{=}100$ region that
+speed-biased objectives miss.
+Applying the IQDS-weighted objective (LLM + IQDS) steers the optimizer toward
+this same high-mAP region and achieves Score $= \textbf{3.6622}$, the top result
+across all methods --- a $+0.75\%$ improvement over Grid Search.
 
 \noindent\textbf{Scale effects.}
-% TODO: Discuss how HNSW index build time at 762K affects iteration wall time (~20-40 min vs 7-8 min on HICO-DET).
-% Compare optimal engine/params chosen on GLDv2 vs HICO-DET.
-At 762K images, each optimization iteration requires approximately [XX--XX] minutes
-of wall-clock time --- [X]$\times$ longer than HICO-DET --- due to HNSW index
-construction at larger scale.
-Despite this, the LLM agent reaches Score $\geq$ [X.XX] within [X] iterations,
-[X] evaluations ahead of Optuna TPE and [X] ahead of Random Search.
+At 762K images, each optimization iteration requires approximately 5--6 minutes
+of wall-clock time, roughly $2\times$ longer than HICO-DET, due to HNSW index
+construction at larger scale ($\approx$265\,s build time vs.\ $\approx$90\,s).
+All 30-iteration budgets therefore complete in $\approx$3 hours per method.
 
 \noindent\textbf{Sample efficiency.}
-% TODO: Fill in convergence numbers. Check if LLM still converges faster at larger scale.
-The sample-efficiency advantage of the LLM agent is [preserved / amplified / reduced]
-at GLDv2 scale: the mean convergence curve reaches Score $\approx$ [X.XX] by
-iteration~[X], a level requiring [X] iterations for Optuna TPE and [X] for Random Search.
+Although the LLM agent does not rank first in final Score on GLDv2, it reaches
+Score $= 3.5888$ by iteration~6 --- 7 evaluations ahead of Optuna TPE (iteration~13)
+and 10 ahead of Random Search (iteration~16).
+This confirms that the sample-efficiency advantage persists at larger scale even
+when the LLM agent's final solution is eventually matched by exhaustive methods.
 
 \subsection{Ablation Study}
 \label{sec:ablation}
