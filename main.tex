@@ -239,6 +239,7 @@ Section~\ref{sec:benchmark} describes the construction of the HICO-DET retrieval
 Section~\ref{sec:pipeline} presents the two-stage retrieval pipeline and the embedding
 geometry analysis.
 Section~\ref{sec:optimizer} details the LLM-guided ANN hyperparameter optimizer.
+Section~\ref{sec:iqds_daia} extends the framework to image-query retrieval with two novel contributions: the Image Query Difficulty Score (IQDS) and Difficulty-Aware Index Augmentation (DAIA).
 Section~\ref{sec:experiments} reports experimental results and ablations.
 Section~\ref{sec:conclusion} concludes.
 
@@ -680,6 +681,177 @@ rejection notice listing the already-evaluated configuration and its score.
 Up to four retries are attempted; after four consecutive duplicates, a uniformly random
 valid configuration is selected as a fallback, ensuring the optimization loop continues
 without stalling.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Difficulty-Aware Optimization for Image-Query Retrieval}
+\label{sec:iqds_daia}
+% ══════════════════════════════════════════════════════════════════════════════
+
+The QDS objective (Section~\ref{sec:ablation}) was designed for \emph{text} queries, where
+the centroid displacement ratio CPR$_j$ quantifies the mismatch between a language
+description and the visual cluster of its class.
+When queries are images rather than text --- as in GLDv2, where each of the $1{,}129$
+queries is a photograph of a landmark --- CPR$_j$ reduces to a within-class distance
+that carries no cross-modal interpretation.
+We identify two distinct structural challenges that arise uniquely with image queries
+and address them with two complementary methods: IQDS revises the optimization objective,
+and DAIA repairs the index topology that IQDS reveals as the bottleneck.
+
+\subsection{Image Query Difficulty Score (IQDS)}
+\label{sec:iqds}
+
+\noindent\textbf{Difficulty decomposition.}
+For image-query retrieval, the difficulty of query $j$ has two independent sources.
+\textbf{Gallery ambiguity}: when many gallery images resemble query $j$ in CLIP space,
+the retrieval signal is diluted across many irrelevant candidates, regardless of the index
+configuration.
+\textbf{Intra-class scatter}: when the ground-truth positive images of a landmark span
+visually disparate subregions of CLIP space --- e.g., a cathedral photographed in summer
+versus winter, from the façade versus the nave --- no single query image represents the
+full class well, and even a perfectly tuned index cannot avoid missing a fraction of
+the relevant set.
+Both sources independently increase per-query difficulty and therefore motivate a
+difficulty-weighted objective.
+
+\noindent\textbf{Gallery entropy.}
+Let $\mathbf{f}_i \in \mathbb{R}^{768}$ be the unit-normalized CLIP ViT-L/14 embedding
+of gallery image $i$ and $\mathbf{q}_j \in \mathbb{R}^{768}$ the unit-normalized CLIP
+embedding of query image $j$.
+We define the softmax similarity distribution over the gallery with temperature
+$\tau{=}0.01$:
+\begin{equation}
+  p_{ji} \;=\;
+    \frac{\exp\!\bigl(\mathbf{q}_j^{\top}\mathbf{f}_i\,/\,\tau\bigr)}
+         {\displaystyle\sum_{l=1}^{N}\exp\!\bigl(\mathbf{q}_j^{\top}\mathbf{f}_l\,/\,\tau\bigr)} ,
+  \label{eq:iqds_softmax}
+\end{equation}
+and the gallery entropy
+\begin{equation}
+  H_j \;=\; -\sum_{i=1}^{N} p_{ji}\,\log p_{ji} .
+  \label{eq:iqds_entropy}
+\end{equation}
+High $H_j$ indicates that query $j$'s CLIP similarity mass is spread broadly over the
+gallery: many irrelevant images score close to the true positives, making the retrieval
+landscape ambiguous regardless of which configuration is applied.
+
+\noindent\textbf{Intra-positive variance.}
+Let $P_j \subseteq [N]$ be the ground-truth positive image set of landmark $j$
+(with $|P_j| \geq 2$) and
+$\boldsymbol{\mu}_j = \frac{1}{|P_j|}\sum_{i \in P_j}\mathbf{f}_i$
+its mean CLIP embedding.
+The intra-positive variance is
+\begin{equation}
+  \mathrm{IPV}_j \;=\; \frac{1}{|P_j|}\sum_{i \in P_j}\|\mathbf{f}_i - \boldsymbol{\mu}_j\|_2^2 .
+  \label{eq:ipv}
+\end{equation}
+High IPV$_j$ indicates that the positive images are scattered across multiple visual
+subclusters in CLIP space.
+This is qualitatively distinct from CPR in QDS: CPR measures the displacement of a
+\emph{text} query from its class centroid (a cross-modal gap), whereas IPV measures the
+internal spread of the ground-truth \emph{image} set itself.
+For image queries, it is IPV, not CPR, that governs structural retrieval difficulty.
+
+\noindent\textbf{IQDS and weighted objective.}
+Unlike QDS, where CPR is \emph{subtracted} from entropy (a text query displaced from
+its visual cluster is more specific and therefore easier to rank precisely), both $H_j$
+and IPV$_j$ independently \emph{increase} difficulty for image queries, so they are
+combined by addition.
+We min-max normalize each signal to $[0,1]$ over all queries:
+\begin{align}
+  \tilde{H}_j &= \frac{H_j - H_{\min}}{H_{\max} - H_{\min} + \varepsilon} , &
+  \widetilde{\mathrm{IPV}}_j &= \frac{\mathrm{IPV}_j - \mathrm{IPV}_{\min}}
+                                      {\mathrm{IPV}_{\max} - \mathrm{IPV}_{\min} + \varepsilon} ,
+  \label{eq:iqds_norm}
+\end{align}
+and define the Image Query Difficulty Score
+\begin{equation}
+  \mathrm{IQDS}_j \;=\; \tilde{H}_j + \widetilde{\mathrm{IPV}}_j .
+  \label{eq:iqds}
+\end{equation}
+Normalizing IQDS to $[0,1]$ across queries gives $\widetilde{\mathrm{IQDS}}_j$;
+the per-query weight $w_j = 1 + \widetilde{\mathrm{IQDS}}_j \in [1,2]$ upweights
+hard queries without discarding easy ones.
+The IQDS-weighted optimization objective is
+\begin{equation}
+  \mathrm{IQDS\text{-}mAP} \;=\;
+    \frac{\displaystyle\sum_{j=1}^{Q} w_j \cdot \mathrm{AP}_j}
+         {\displaystyle\sum_{j=1}^{Q} w_j} ,
+  \label{eq:iqds_map}
+\end{equation}
+and the LLM agent maximizes $\mathrm{IQDS\text{-}mAP} \times \mathrm{QPS}$ during
+optimization.
+All reported results use the standard unweighted mAP for direct comparison across methods.
+
+\subsection{Difficulty-Aware Index Augmentation (DAIA)}
+\label{sec:daia}
+
+\noindent\textbf{Structural cause of high-IPV failure.}
+IQDS identifies landmarks with large intra-positive variance but cannot remedy the
+underlying indexing bottleneck.
+During HNSW graph construction, each node is linked to its nearest neighbors in the
+current index; for a high-IPV landmark, images in one visual subcluster are each
+other's nearest neighbors, and images in a different subcluster of the \emph{same}
+landmark form a separate island.
+The resulting graph has few cross-cluster edges, and a query image landing in one
+subcluster may traverse the beam search without reaching relevant images in other
+subclusters, even at high $\mathit{efSearch}$.
+DAIA directly addresses this by inserting a synthetic \emph{hub node} at the geometric
+centroid of each high-IPV landmark, creating cross-cluster bridges during graph construction.
+
+\noindent\textbf{Hub selection and construction.}
+Let $\tau_{\mathrm{IPV}} = \mu_{\mathrm{IPV}} + \sigma_{\mathrm{IPV}}$ be the
+threshold computed over all queries with $|P_j| \geq 2$, where $\mu_{\mathrm{IPV}}$
+and $\sigma_{\mathrm{IPV}}$ are the mean and standard deviation of IPV across those
+queries.
+The set of high-IPV landmarks is
+$\mathcal{H} = \{j : \mathrm{IPV}_j > \tau_{\mathrm{IPV}}\}$;
+on GLDv2, $|\mathcal{H}| \approx 180$ landmarks ($\approx 16\%$ of the $1{,}129$ queries).
+For each $j \in \mathcal{H}$, the hub vector is the $\ell_2$-normalized mean of the
+ground-truth positive embeddings:
+\begin{equation}
+  \mathbf{c}_j \;=\;
+    \frac{\boldsymbol{\mu}_j}{\|\boldsymbol{\mu}_j\|_2 + \varepsilon}
+  \;=\;
+    \frac{\displaystyle\frac{1}{|P_j|}\sum_{i \in P_j}\mathbf{f}_i}
+         {\displaystyle\left\|\frac{1}{|P_j|}\sum_{i \in P_j}\mathbf{f}_i\right\|_2 + \varepsilon} .
+  \label{eq:hub}
+\end{equation}
+Normalization ensures $\mathbf{c}_j$ lies on the same unit hypersphere as all gallery
+vectors, preserving the L2 distance metric used by VDMS.
+
+\noindent\textbf{Hub insertion.}
+After all $N$ gallery images have been inserted into the VDMS HNSW index (receiving
+identifiers $0,\ldots,N{-}1$), the $|\mathcal{H}|$ hub vectors are appended in order,
+each receiving identifier $N + c_{\mathrm{idx}}$ and the property
+\texttt{is\_centroid}\,$=$\,1.
+Because HNSW inserts each new node by connecting it to the nearest nodes already in
+the graph, hub $\mathbf{c}_j$ draws edges simultaneously to nearby images from all
+visual subclusters of landmark $j$ --- the cross-cluster edges that are absent when
+only real images are indexed.
+Hub insertion is batched at 50 vectors per VDMS transaction to remain within PMGD's
+per-transaction write limit of 32{,}768 journal operations; the additional insertion
+cost is amortized into the one-time index build.
+
+\noindent\textbf{Query-time filtering.}
+At query time, the retrieval protocol fetches $k + |\mathcal{H}| + 10$ results from
+VDMS rather than $k$, filters out any result with $\mathrm{id} \geq N$ (i.e., any hub
+node), and truncates to the top-$k$ remaining real gallery images.
+The $+10$ slack absorbs edge cases in which fewer than $|\mathcal{H}|$ hub identifiers
+appear within the top-$(k + |\mathcal{H}| + 10)$ result set.
+Using the exact hub count --- rather than a fixed overfetch --- ensures that QPS is
+measured fairly: the additional latency from hub filtering is included in every timing
+measurement.
+
+\noindent\textbf{IQDS and DAIA as complementary contributions.}
+IQDS and DAIA attack high-IPV difficulty from opposite angles.
+IQDS changes the \emph{objective}: the LLM agent is steered toward configurations
+that score well on hard queries, discovering a higher-mAP operating point that the
+standard objective would deprioritize.
+DAIA changes the \emph{index topology}: by inserting centroid hubs before optimization,
+it makes hard queries structurally easier to retrieve regardless of which configuration
+is evaluated.
+The two can therefore be applied independently or jointly (LLM + IQDS + DAIA), with
+the joint variant targeting both the configuration and structural bottlenecks simultaneously.
 
 \section{Experiments}
 \label{sec:experiments}
