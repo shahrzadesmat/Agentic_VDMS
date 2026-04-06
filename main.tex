@@ -239,7 +239,7 @@ Section~\ref{sec:benchmark} describes the construction of the HICO-DET retrieval
 Section~\ref{sec:pipeline} presents the two-stage retrieval pipeline and the embedding
 geometry analysis.
 Section~\ref{sec:optimizer} details the LLM-guided ANN hyperparameter optimizer.
-Section~\ref{sec:iqds_daia} extends the framework to image-query retrieval with two novel contributions: the Image Query Difficulty Score (IQDS) and Difficulty-Aware Index Augmentation (DAIA).
+Section~\ref{sec:iqds_daia} extends the framework to image-query retrieval with the Image Query Difficulty Score (IQDS), a novel difficulty-weighted optimization objective for image queries.
 Section~\ref{sec:experiments} reports experimental results and ablations.
 Section~\ref{sec:conclusion} concludes.
 
@@ -694,9 +694,8 @@ description and the visual cluster of its class.
 When queries are images rather than text --- as in GLDv2, where each of the $1{,}129$
 queries is a photograph of a landmark --- CPR$_j$ reduces to a within-class distance
 that carries no cross-modal interpretation.
-We identify two distinct structural challenges that arise uniquely with image queries
-and address them with two complementary methods: IQDS revises the optimization objective,
-and DAIA repairs the index topology that IQDS reveals as the bottleneck.
+We identify a structural challenge that arises uniquely with image queries
+and address it with a revised optimization objective: the Image Query Difficulty Score (IQDS).
 
 \subsection{Image Query Difficulty Score (IQDS)}
 \label{sec:iqds}
@@ -783,76 +782,6 @@ and the LLM agent maximizes $\mathrm{IQDS\text{-}mAP} \times \mathrm{QPS}$ durin
 optimization.
 All reported results use the standard unweighted mAP for direct comparison across methods.
 
-\subsection{Difficulty-Aware Index Augmentation (DAIA)}
-\label{sec:daia}
-
-\noindent\textbf{Structural cause of high-IPV failure.}
-IQDS identifies landmarks with large intra-positive variance but cannot remedy the
-underlying indexing bottleneck.
-During HNSW graph construction, each node is linked to its nearest neighbors in the
-current index; for a high-IPV landmark, images in one visual subcluster are each
-other's nearest neighbors, and images in a different subcluster of the \emph{same}
-landmark form a separate island.
-The resulting graph has few cross-cluster edges, and a query image landing in one
-subcluster may traverse the beam search without reaching relevant images in other
-subclusters, even at high $\mathit{efSearch}$.
-DAIA directly addresses this by inserting a synthetic \emph{hub node} at the geometric
-centroid of each high-IPV landmark, creating cross-cluster bridges during graph construction.
-
-\noindent\textbf{Hub selection and construction.}
-Let $\tau_{\mathrm{IPV}} = \mu_{\mathrm{IPV}} + \sigma_{\mathrm{IPV}}$ be the
-threshold computed over all queries with $|P_j| \geq 2$, where $\mu_{\mathrm{IPV}}$
-and $\sigma_{\mathrm{IPV}}$ are the mean and standard deviation of IPV across those
-queries.
-The set of high-IPV landmarks is
-$\mathcal{H} = \{j : \mathrm{IPV}_j > \tau_{\mathrm{IPV}}\}$;
-on GLDv2, $|\mathcal{H}| \approx 180$ landmarks ($\approx 16\%$ of the $1{,}129$ queries).
-For each $j \in \mathcal{H}$, the hub vector is the $\ell_2$-normalized mean of the
-ground-truth positive embeddings:
-\begin{equation}
-  \mathbf{c}_j \;=\;
-    \frac{\boldsymbol{\mu}_j}{\|\boldsymbol{\mu}_j\|_2 + \varepsilon}
-  \;=\;
-    \frac{\displaystyle\frac{1}{|P_j|}\sum_{i \in P_j}\mathbf{f}_i}
-         {\displaystyle\left\|\frac{1}{|P_j|}\sum_{i \in P_j}\mathbf{f}_i\right\|_2 + \varepsilon} .
-  \label{eq:hub}
-\end{equation}
-Normalization ensures $\mathbf{c}_j$ lies on the same unit hypersphere as all gallery
-vectors, preserving the L2 distance metric used by VDMS.
-
-\noindent\textbf{Hub insertion.}
-After all $N$ gallery images have been inserted into the VDMS HNSW index (receiving
-identifiers $0,\ldots,N{-}1$), the $|\mathcal{H}|$ hub vectors are appended in order,
-each receiving identifier $N + c_{\mathrm{idx}}$ and the property
-\texttt{is\_centroid}\,$=$\,1.
-Because HNSW inserts each new node by connecting it to the nearest nodes already in
-the graph, hub $\mathbf{c}_j$ draws edges simultaneously to nearby images from all
-visual subclusters of landmark $j$ --- the cross-cluster edges that are absent when
-only real images are indexed.
-Hub insertion is batched at 50 vectors per VDMS transaction to remain within PMGD's
-per-transaction write limit of 32{,}768 journal operations; the additional insertion
-cost is amortized into the one-time index build.
-
-\noindent\textbf{Query-time filtering.}
-At query time, the retrieval protocol fetches $k + |\mathcal{H}| + 10$ results from
-VDMS rather than $k$, filters out any result with $\mathrm{id} \geq N$ (i.e., any hub
-node), and truncates to the top-$k$ remaining real gallery images.
-The $+10$ slack absorbs edge cases in which fewer than $|\mathcal{H}|$ hub identifiers
-appear within the top-$(k + |\mathcal{H}| + 10)$ result set.
-Using the exact hub count --- rather than a fixed overfetch --- ensures that QPS is
-measured fairly: the additional latency from hub filtering is included in every timing
-measurement.
-
-\noindent\textbf{IQDS and DAIA as complementary contributions.}
-IQDS and DAIA attack high-IPV difficulty from opposite angles.
-IQDS changes the \emph{objective}: the LLM agent is steered toward configurations
-that score well on hard queries, discovering a higher-mAP operating point that the
-standard objective would deprioritize.
-DAIA changes the \emph{index topology}: by inserting centroid hubs before optimization,
-it makes hard queries structurally easier to retrieve regardless of which configuration
-is evaluated.
-The two can therefore be applied independently or jointly (LLM + IQDS + DAIA), with
-the joint variant targeting both the configuration and structural bottlenecks simultaneously.
 
 \section{Experiments}
 \label{sec:experiments}
@@ -1150,8 +1079,7 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
   Score $= \text{mAP} \times \text{QPS}$.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.
   $^\dagger$~Grid Search ran all 30 iterations.
-  LLM + IQDS uses the IQDS-weighted objective (Section~\ref{sec:iqds}); Score reported on the standard mAP$\times$QPS metric.
-  LLM + DAIA results pending.}
+  LLM + IQDS uses the IQDS-weighted objective (Section~\ref{sec:iqds}); Score reported on the standard mAP$\times$QPS metric.}
 \label{tab:gldv2}
 \small
 \setlength{\tabcolsep}{6pt}
@@ -1165,7 +1093,6 @@ Optuna TPE                    & 3.5894            & 0.1615            & 0.1965  
 Grid Search$^\dagger$         & 3.6352            & 0.1787            & 0.2131              & 20.34             & 15/30 \\
 \midrule
 \textbf{LLM + IQDS (Ours)}    & \textbf{3.6622}   & \textbf{0.1789}   & \textbf{0.2125}     & 20.47             & 28/30 \\
-LLM + DAIA (Ours)             & ---               & ---               & ---                 & ---               & ---/30 \\
 \bottomrule
 \end{tabular}
 \end{table}
