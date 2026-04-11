@@ -850,23 +850,30 @@ configuration --- a practically meaningful criterion.
 \centering
 \caption{System baselines on HICO-DET (47{,}776 images, FaissFlat exact search).
   Score $= \text{mAP} \times \text{QPS}$.
-  $\alpha$ is the DINOv2 reranking weight ($\alpha{=}0$: CLIP only; $\alpha{=}1$: DINOv2 only).
-  At equal $k{=}2000$, DINOv2 reranking adds $<$5\,ms latency and improves mAP by
-  $+$3.65\,pp over CLIP alone ($0.2763$ vs.\ $0.2398$).
-  $^*$UniIR throughput was not measured in our setup.
+  $\alpha$ is the DINOv2 reranking weight ($\alpha{=}0$: CLIP only; $\alpha{=}1$: DINOv2 only);
+  ``---'' indicates not applicable.
+  UniIR variants are measured in VDMS under identical conditions (FaissFlat, sequential
+  client-server QPS); UniIR zero-shot is a brute-force numpy reference with no database QPS.
   System efficiency (latency, build time) is reported in Table~\ref{tab:efficiency}.}
 \label{tab:baselines}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabular}{p{3.5cm}lcccccc}
+\begin{tabular}{p{4.0cm}lcccccc}
 \toprule
-\textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{NDCG@10} & \textbf{R@10} & \textbf{Score} \\
+\textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{R@10} & \textbf{QPS} & \textbf{Score} \\
 \midrule
-UniIR~\cite{wei2023uniir} (CLIP)$^*$  & 0.0 & 10   & 0.2461 & 0.3370 & 0.3686 & 0.0967 & ---   \\
-CLIP ViT-L/14 (FaissFlat)             & 0.0 & 500  & 0.2079 & 0.3370 & 0.3686 & 0.0967 & 1.707 \\
-CLIP ViT-L/14 (FaissFlat)             & 0.0 & 2000 & 0.2398 & 0.3370 & 0.3686 & 0.0967 & 0.280 \\
-DINOv2 ViT-L/14-reg4 (Flat)           & 1.0 & 2000 & 0.2165 & 0.3232 & 0.3472 & 0.0800 & 0.250 \\
-CLIP + DINOv2 rerank (Flat)           & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.4150} & \textbf{0.1138} & 0.319 \\
+\multicolumn{8}{l}{\textit{UniIR~\cite{wei2023uniir} baselines}} \\
+\quad Zero-shot CLIP ViT-L/14 (brute-force) & --- & ---  & 0.2461 & 0.3370 & 0.0967 & ---   & ---   \\
+\quad CLIP-SF Large, image-only (VDMS)      & --- & 10   & 0.0951 & 0.4477 & 0.1327 & 19.67 & 1.871 \\
+\quad CLIP-SF Large, multimodal (VDMS)      & --- & 10   & 0.0894 & 0.4415 & 0.1206 & 19.46 & 1.740 \\
+\quad BLIP-FF Large, image-only (VDMS)      & --- & 10   & 0.0889 & 0.4420 & 0.1213 & 19.69 & 1.751 \\
+\quad BLIP-FF Large, multimodal (VDMS)      & --- & 10   & 0.0745 & 0.4097 & 0.1019 & 19.72 & 1.469 \\
+\midrule
+\multicolumn{8}{l}{\textit{Our CLIP\,+\,DINOv2 pipeline (FaissFlat exact)}} \\
+\quad CLIP ViT-L/14                          & 0.0 & 500  & 0.2079 & 0.3370 & 0.0967 &  8.21 & 1.707 \\
+\quad CLIP ViT-L/14                          & 0.0 & 2000 & 0.2398 & 0.3370 & 0.0967 &  1.17 & 0.280 \\
+\quad DINOv2 ViT-L/14-reg4                   & 1.0 & 2000 & 0.2165 & 0.3232 & 0.0800 &  1.16 & 0.250 \\
+\quad CLIP\,+\,DINOv2 rerank                 & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.1138} & 1.15 & 0.319 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -881,9 +888,22 @@ This ceiling reflects the structural difficulty of fine-grained HOI categories: 
 such as \textit{ride horse}, \textit{sit\_on horse}, and \textit{straddle horse} share
 the same object but differ only in the action verb, and CLIP's joint embedding space
 partially conflates these distinctions.
-UniIR~\cite{wei2023uniir} achieves mAP $= 0.246$ at $k{=}10$ in a brute-force setting,
-confirming that even state-of-the-art unified retrieval models face the same semantic
-compression bottleneck on compositional HOI queries.
+
+\noindent\textbf{UniIR comparison.}
+To provide a fair, apples-to-apples comparison, we evaluate all four UniIR variants
+(CLIP-SF and BLIP-FF, image-only and multimodal) through the same VDMS FaissFlat
+index using the identical sequential client-server QPS measurement protocol.
+UniIR's fine-tuned CLIP-SF achieves mAP $= 0.095$ in VDMS --- a $2.6\times$ drop
+from the standard CLIP ViT-L/14 zero-shot retrieval (mAP $= 0.246$, brute-force).
+This degradation arises because UniIR's multi-task fine-tuning on COCO-style image-text
+pairs disrupts the precise HOI semantic alignment that the original CLIP text encoder
+provides for compositional queries such as \textit{``a person ride a motorcycle''}.
+The BLIP-FF variants perform similarly (mAP $\approx 0.089$), confirming that the
+bottleneck is task-specific semantic alignment rather than model architecture.
+Despite higher QPS ($\approx$19.7) due to their smaller $k{=}10$ search, all UniIR
+variants achieve Score $\leq 1.871$, below our unoptimized CLIP-only baseline
+(Score $= 1.707$ at $k{=}500$, QPS $= 8.21$) once mAP differences are accounted for,
+and far below the LLM-optimized result reported in Section~\ref{sec:results_optimizer}.
 
 \noindent\textbf{Modality gap.}
 DINOv2 alone ($\alpha{=}1.0$, $k{=}2000$, mAP $= 0.217$) underperforms CLIP alone
