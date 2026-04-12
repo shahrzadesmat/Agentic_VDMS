@@ -87,7 +87,32 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Human-Object Interaction (HOI) benchmarks have been exclusively exploited for detection --- predicting bounding boxes and interaction labels given an image. Their rich compositional semantics make them equally compelling for text-query image retrieval, yet no prior work has explored this direction. We introduce the first retrieval benchmark derived from HICO-DET (47{,}776 images, 600 HOI categories, 90{,}641 ground-truth pairs) and propose a two-stage pipeline in which CLIP ViT-L/14 text embeddings drive Approximate Nearest Neighbor (ANN) search over a VDMS vector database, followed by zero-cost DINOv2 ViT-L/14-reg4 visual reranking over the top-$k$ candidate pool --- requiring only one ANN index at deployment. DINOv2 reranking improves mAP by 3.65 percentage points ($+$15.2\%) over CLIP-only retrieval at under 1\% additional query latency. We formally prove that text queries outperform image queries on HOI retrieval because a CLIP text embedding occupies the semantic centroid of its category's visual cluster, while any reference image is displaced from that centroid, contributing a bias term that degrades reranking precision. To jointly optimize retrieval accuracy and throughput --- measured as Score $=$ mAP $\times$ QPS --- we identify that ANN retrieval search spaces exhibit hard conditional dependencies between engine type, graph parameters, and cross-stage fusion weights that cause parameter-independent optimizers (Bayesian TPE, random search) to fail structurally. We present an LLM agent that overcomes this by conditioning each proposal on the full history of (configuration, Score) pairs, discovering a non-obvious compensatory operating point unavailable to parameter-independent methods. The agent reaches Score $\approx 3.97$ within 5 iterations --- a level requiring 27 iterations for Optuna TPE and 28 for Random Search --- and achieves a mean Score $= 4.44$ ($\text{mAP} \times \text{QPS}$) across seeds, a $2.5\times$ improvement over the CLIP FaissFlat baseline and $13.9\times$ over brute-force CLIP$+$DINOv2 reranking.
+Human-Object Interaction (HOI) benchmarks have been exclusively used for detection ---
+predicting bounding boxes and interaction labels. To our knowledge, no prior work has
+repurposed HICO-DET for retrieval. We introduce the first text-query image retrieval
+benchmark derived from HICO-DET (47{,}776 images, 600 compositional HOI categories,
+90{,}641 ground-truth pairs) and propose a two-stage pipeline pairing CLIP ViT-L/14
+ANN retrieval over a VDMS vector database with zero-cost DINOv2 ViT-L/14-reg4 visual
+reranking, improving mAP by 3.65\,pp ($+$15.2\%) over CLIP-only retrieval at under
+1\% additional latency. We formally prove that CLIP text embeddings occupy the semantic
+centroid of their HOI category's visual cluster --- making text queries structurally
+superior to image queries on compositionally structured datasets --- and confirm this
+prediction empirically.
+
+To jointly optimize retrieval quality and throughput (Score $=$ mAP $\times$ QPS),
+we present a phase-aware LLM agent that conditions each configuration proposal on the
+full history of (config, Score) pairs, reasoning over cross-stage parameter coupling
+that parameter-independent methods cannot exploit. We evaluate across three datasets
+of increasing search-space complexity: HICO-DET (6-parameter, cross-modal),
+GLDv2 (6-parameter, 762K-image landmark retrieval), and SIFT1M (4-parameter, 1M-vector
+pure ANN). On HICO-DET --- the most complex regime tested --- the agent achieves mean
+Score $= 4.44$ across seeds, $+$9.7\% over Optuna TPE and Random Search, and reaches
+Score $\approx$3.97 within 5~iterations versus 27 for Optuna and 28 for Random Search,
+a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline. On SIFT1M, all
+four methods converge near-optimally within 30~iterations --- confirming that optimizer
+sophistication is decisive only when the search landscape is complex enough to exploit.
+We further introduce an Image Query Difficulty Score (IQDS) that steers optimization
+toward structurally hard queries on image-to-image retrieval benchmarks.
 \end{abstract}
 
 \maketitle
