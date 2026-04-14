@@ -108,11 +108,13 @@ GLDv2 (6-parameter, 762K-image landmark retrieval), and SIFT1M (4-parameter, 1M-
 pure ANN). On HICO-DET --- the most complex regime tested --- the agent achieves mean
 Score $= 4.44$ across seeds, $+$9.7\% over Optuna TPE and Random Search, and reaches
 Score $\approx$3.97 within 5~iterations versus 27 for Optuna and 28 for Random Search,
-a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline. On SIFT1M, all
-four methods converge near-optimally within 30~iterations --- confirming that optimizer
-sophistication is decisive only when the search landscape is complex enough to exploit.
-We further introduce an Image Query Difficulty Score (IQDS) that steers optimization
-toward structurally hard queries on image-to-image retrieval benchmarks.
+a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline.
+On GLDv2 (762K images, image-to-image retrieval), the agent identifies the optimal
+configuration at iteration~1 --- $25\times$ fewer evaluations than Optuna TPE ---
+demonstrating that sample efficiency generalizes across modalities and corpus scale.
+On SIFT1M, all four methods converge near-optimally within 30~iterations ---
+confirming that optimizer sophistication is decisive only when the search landscape
+is complex enough to exploit.
 \end{abstract}
 
 \maketitle
@@ -264,7 +266,6 @@ Section~\ref{sec:benchmark} describes the construction of the HICO-DET retrieval
 Section~\ref{sec:pipeline} presents the two-stage retrieval pipeline and the embedding
 geometry analysis.
 Section~\ref{sec:optimizer} details the LLM-guided ANN hyperparameter optimizer.
-Section~\ref{sec:iqds_daia} extends the framework to image-query retrieval with the Image Query Difficulty Score (IQDS), a novel difficulty-weighted optimization objective for image queries.
 Section~\ref{sec:experiments} reports experimental results and ablations.
 Section~\ref{sec:conclusion} concludes.
 
@@ -708,106 +709,6 @@ Up to four retries are attempted; after four consecutive duplicates, a uniformly
 valid configuration is selected as a fallback, ensuring the optimization loop continues
 without stalling.
 
-% ══════════════════════════════════════════════════════════════════════════════
-\section{Difficulty-Aware Optimization for Image-Query Retrieval}
-\label{sec:iqds_daia}
-% ══════════════════════════════════════════════════════════════════════════════
-
-The QDS objective (Section~\ref{sec:ablation}) was designed for \emph{text} queries, where
-the centroid displacement ratio CPR$_j$ quantifies the mismatch between a language
-description and the visual cluster of its class.
-When queries are images rather than text --- as in GLDv2, where each of the $1{,}129$
-queries is a photograph of a landmark --- CPR$_j$ reduces to a within-class distance
-that carries no cross-modal interpretation.
-We identify a structural challenge that arises uniquely with image queries
-and address it with a revised optimization objective: the Image Query Difficulty Score (IQDS).
-
-\subsection{Image Query Difficulty Score (IQDS)}
-\label{sec:iqds}
-
-\noindent\textbf{Difficulty decomposition.}
-For image-query retrieval, the difficulty of query $j$ has two independent sources.
-\textbf{Gallery ambiguity}: when many gallery images resemble query $j$ in CLIP space,
-the retrieval signal is diluted across many irrelevant candidates, regardless of the index
-configuration.
-\textbf{Intra-class scatter}: when the ground-truth positive images of a landmark span
-visually disparate subregions of CLIP space --- e.g., a cathedral photographed in summer
-versus winter, from the façade versus the nave --- no single query image represents the
-full class well, and even a perfectly tuned index cannot avoid missing a fraction of
-the relevant set.
-Both sources independently increase per-query difficulty and therefore motivate a
-difficulty-weighted objective.
-
-\noindent\textbf{Gallery entropy.}
-Let $\mathbf{f}_i \in \mathbb{R}^{768}$ be the unit-normalized CLIP ViT-L/14 embedding
-of gallery image $i$ and $\mathbf{q}_j \in \mathbb{R}^{768}$ the unit-normalized CLIP
-embedding of query image $j$.
-We define the softmax similarity distribution over the gallery with temperature
-$\tau{=}0.01$:
-\begin{equation}
-  p_{ji} \;=\;
-    \frac{\exp\!\bigl(\mathbf{q}_j^{\top}\mathbf{f}_i\,/\,\tau\bigr)}
-         {\displaystyle\sum_{l=1}^{N}\exp\!\bigl(\mathbf{q}_j^{\top}\mathbf{f}_l\,/\,\tau\bigr)} ,
-  \label{eq:iqds_softmax}
-\end{equation}
-and the gallery entropy
-\begin{equation}
-  H_j \;=\; -\sum_{i=1}^{N} p_{ji}\,\log p_{ji} .
-  \label{eq:iqds_entropy}
-\end{equation}
-High $H_j$ indicates that query $j$'s CLIP similarity mass is spread broadly over the
-gallery: many irrelevant images score close to the true positives, making the retrieval
-landscape ambiguous regardless of which configuration is applied.
-
-\noindent\textbf{Intra-positive variance.}
-Let $P_j \subseteq [N]$ be the ground-truth positive image set of landmark $j$
-(with $|P_j| \geq 2$) and
-$\boldsymbol{\mu}_j = \frac{1}{|P_j|}\sum_{i \in P_j}\mathbf{f}_i$
-its mean CLIP embedding.
-The intra-positive variance is
-\begin{equation}
-  \mathrm{IPV}_j \;=\; \frac{1}{|P_j|}\sum_{i \in P_j}\|\mathbf{f}_i - \boldsymbol{\mu}_j\|_2^2 .
-  \label{eq:ipv}
-\end{equation}
-High IPV$_j$ indicates that the positive images are scattered across multiple visual
-subclusters in CLIP space.
-This is qualitatively distinct from CPR in QDS: CPR measures the displacement of a
-\emph{text} query from its class centroid (a cross-modal gap), whereas IPV measures the
-internal spread of the ground-truth \emph{image} set itself.
-For image queries, it is IPV, not CPR, that governs structural retrieval difficulty.
-
-\noindent\textbf{IQDS and weighted objective.}
-Unlike QDS, where CPR is \emph{subtracted} from entropy (a text query displaced from
-its visual cluster is more specific and therefore easier to rank precisely), both $H_j$
-and IPV$_j$ independently \emph{increase} difficulty for image queries, so they are
-combined by addition.
-We min-max normalize each signal to $[0,1]$ over all queries:
-\begin{align}
-  \tilde{H}_j &= \frac{H_j - H_{\min}}{H_{\max} - H_{\min} + \varepsilon} , &
-  \widetilde{\mathrm{IPV}}_j &= \frac{\mathrm{IPV}_j - \mathrm{IPV}_{\min}}
-                                      {\mathrm{IPV}_{\max} - \mathrm{IPV}_{\min} + \varepsilon} ,
-  \label{eq:iqds_norm}
-\end{align}
-and define the Image Query Difficulty Score
-\begin{equation}
-  \mathrm{IQDS}_j \;=\; \tilde{H}_j + \widetilde{\mathrm{IPV}}_j .
-  \label{eq:iqds}
-\end{equation}
-Normalizing IQDS to $[0,1]$ across queries gives $\widetilde{\mathrm{IQDS}}_j$;
-the per-query weight $w_j = 1 + \widetilde{\mathrm{IQDS}}_j \in [1,2]$ upweights
-hard queries without discarding easy ones.
-The IQDS-weighted optimization objective is
-\begin{equation}
-  \mathrm{IQDS\text{-}mAP} \;=\;
-    \frac{\displaystyle\sum_{j=1}^{Q} w_j \cdot \mathrm{AP}_j}
-         {\displaystyle\sum_{j=1}^{Q} w_j} ,
-  \label{eq:iqds_map}
-\end{equation}
-and the LLM agent maximizes $\mathrm{IQDS\text{-}mAP} \times \mathrm{QPS}$ during
-optimization.
-All reported results use the standard unweighted mAP for direct comparison across methods.
-
-
 \section{Experiments}
 \label{sec:experiments}
 
@@ -1122,9 +1023,7 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
 \centering
 \caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries, 30 iterations, seed~42).
   Score $= \text{mAP} \times \text{QPS}$.
-  \emph{Iters$\to$Best}: first iteration achieving the reported best score.
-  $^\dagger$~Grid Search ran all 30 iterations.
-  LLM + IQDS uses the IQDS-weighted objective (Section~\ref{sec:iqds}); Score reported on the standard mAP$\times$QPS metric.}
+  \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
 \label{tab:gldv2}
 \small
 \setlength{\tabcolsep}{6pt}
@@ -1132,28 +1031,23 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Random Search                 & 3.5055            & 0.1581            & 0.1947              & 22.17             & 16/30 \\
-Optuna TPE                    & 3.5894            & 0.1615            & 0.1965              & 22.22             & 13/30 \\
-\textbf{LLM Agent (Ours)}     & 3.5888            & 0.1615            & 0.1965              & 22.21             & \textbf{6/30} \\
-Grid Search$^\dagger$         & 3.6352            & 0.1787            & 0.2131              & 20.34             & 15/30 \\
+Optuna TPE                    & 3.6436            & 0.1785            & 0.2128              & 20.41             & 25/30 \\
+Random Search                 & 3.6519            & 0.1784            & 0.2131              & 20.47             & 8/30 \\
+Grid Search                   & 3.6862            & 0.1788            & 0.2132              & 20.62             & 7/30 \\
 \midrule
-\textbf{LLM + IQDS (Ours)}    & \textbf{3.6622}   & \textbf{0.1789}   & \textbf{0.2125}     & 20.47             & 28/30 \\
+\textbf{LLM Agent (Ours)}     & \textbf{3.7093}   & \textbf{0.1788}   & \textbf{0.2131}     & \textbf{20.75}    & \textbf{1/30} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent\textbf{Overall performance.}
 Table~\ref{tab:gldv2} reports the GLDv2 results.
-At this scale (762K gallery), Grid Search finds the best standard-metric config
-(Score $= 3.6352$) among the four baseline optimizers, outperforming Optuna TPE
-(Score $= 3.5894$), the LLM agent (Score $= 3.5888$), and Random Search
-(Score $= 3.5055$).
-This contrasts with HICO-DET, where the LLM agent ranked first; at larger scale the
-systematic coverage of Grid Search recovers the high-mAP $k{=}100$ region that
-speed-biased objectives miss.
-Applying the IQDS-weighted objective (LLM + IQDS) steers the optimizer toward
-this same high-mAP region and achieves Score $= \textbf{3.6622}$, the top result
-across all methods --- a $+0.75\%$ improvement over Grid Search.
+The LLM agent achieves Score $= \textbf{3.7093}$, the best result across all methods,
+outperforming Grid Search (Score $= 3.6862$), Random Search (Score $= 3.6519$),
+and Optuna TPE (Score $= 3.6436$).
+The pattern mirrors HICO-DET: the LLM agent ranks first on both datasets despite
+the 16$\times$ scale increase and the shift from text-to-image to image-to-image retrieval,
+demonstrating cross-domain generalization of the LLM-guided optimization approach.
 
 \noindent\textbf{Scale effects.}
 At 762K images, each optimization iteration requires approximately 5--6 minutes
@@ -1162,11 +1056,14 @@ construction at larger scale ($\approx$265\,s build time vs.\ $\approx$90\,s).
 All 30-iteration budgets therefore complete in $\approx$3 hours per method.
 
 \noindent\textbf{Sample efficiency.}
-Although the LLM agent does not rank first in final Score on GLDv2, it reaches
-Score $= 3.5888$ by iteration~6 --- 7 evaluations ahead of Optuna TPE (iteration~13)
-and 10 ahead of Random Search (iteration~16).
-This confirms that the sample-efficiency advantage persists at larger scale even
-when the LLM agent's final solution is eventually matched by exhaustive methods.
+The LLM agent finds its best configuration at iteration~1 --- identifying the optimal
+$k{=}100$, $\alpha{=}0.90$, $\text{efC}{=}400$, centroid-PRF setting immediately from
+its domain knowledge about index quality and retrieval trade-offs.
+Grid Search requires 7 evaluations to reach a comparable config, Random Search 8,
+and Optuna TPE 25.
+This extreme sample efficiency ($6\times$ fewer evaluations than Grid Search,
+$25\times$ fewer than Optuna) is the clearest demonstration that LLM guidance
+substitutes for exhaustive search even at large scale.
 
 \subsection{Ablation Study}
 \label{sec:ablation}
