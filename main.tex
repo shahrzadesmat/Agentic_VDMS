@@ -98,20 +98,23 @@ model cross-stage coupling, where Stage-1 search depth and Stage-2 fusion weight
 must be co-optimized to discover compensatory operating points that blind sampling
 cannot predict.
 
-We propose a phase-aware LLM agent that conditions each proposal on the complete
-history of measured outcomes, reasoning over cross-stage parameter interactions.
-Firstly, the agent operates across three self-regulated phases --- exploration,
-exploitation, and fine-tuning --- with stagnation detection to prevent premature
-convergence.
-Secondly, we introduce the first text-query image retrieval benchmark derived from
-HICO-DET --- hundreds of fine-grained compositional HOI categories deployed on
-Intel's VDMS vector DBMS --- and formally \emph{prove} that CLIP text embeddings
-occupy the semantic centroid of each category's visual cluster, making text queries
-\emph{structurally} superior to image queries on compositionally structured data
-and directly motivating our zero-cost DINOv2 pseudo-relevance-feedback reranking
-stage ($+$15.2\% mAP at negligible latency overhead).
-Finally, we evaluate across three datasets of increasing parameter-space simplicity
-to isolate precisely when LLM reasoning adds value over classical methods.
+Hence, we propose a phase-aware LLM agent for vector database index optimization
+that conditions each proposal on the complete history of measured outcomes,
+reasoning explicitly over cross-stage parameter interactions.
+Firstly, we design a three-phase optimization schedule --- exploration,
+exploitation, and fine-tuning --- with stagnation detection and anti-collapse
+mechanisms to navigate the configuration space without premature convergence.
+Secondly, to ground the agent in a genuinely hard retrieval workload, we
+(1)~construct the first text-query image retrieval benchmark from HICO-DET on
+Intel's VDMS vector DBMS,
+(2)~formally \emph{prove} that CLIP text embeddings occupy the semantic centroid
+of each HOI category's visual cluster --- making text queries \emph{structurally}
+superior to image queries on compositionally structured data --- and
+(3)~build a zero-cost DINOv2 pseudo-relevance-feedback reranking stage achieving
+$+$15.2\% mAP at negligible latency overhead.
+Finally, we evaluate across three datasets of increasing parameter-space
+simplicity to characterize precisely when LLM reasoning adds value over classical
+methods.
 
 Compared to state-of-the-art baselines, the agent reaches target retrieval quality
 in $\mathbf{5}$~iterations versus 27 for Optuna, achieves $+$9.7\% joint
