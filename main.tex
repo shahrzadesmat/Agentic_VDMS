@@ -159,8 +159,9 @@ The source code, data, and/or other artifacts have been made available at \url{\
 Modern vector database management systems expose a multidimensional configuration
 space whose parameters jointly govern the accuracy--throughput trade-off at
 production scale.
-A system such as VDMS~\cite{pan2023vdms} or Milvus~\cite{wang2021milvus} serving
-semantic similarity queries over tens of millions of embeddings requires setting
+A system such as VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, or
+GaussDB-Vector~\cite{sun2025gaussdb} serving semantic similarity queries over tens
+of millions of embeddings requires setting
 graph connectivity ($M$), construction depth (\textit{efConstruction}), search
 depth (\textit{efSearch}), candidate pool size ($k$), and cross-modal fusion
 weight $\alpha$ --- a 6-parameter space in which each evaluation requires a full
@@ -212,17 +213,19 @@ compositionally structured data and directly justifies the reranker design witho
 a secondary index.
 
 LLM-guided and learning-based database tuning systems such as
-GPTuner~\cite{lao2024gpttuner}, OtterTune~\cite{vanaken2017ottertune}, and
-VDTuner~\cite{yang2024vdtuner} demonstrate the value of structured reasoning and
-multi-objective optimization for DBMS configuration, achieving substantial
-performance improvements over Bayesian and reinforcement-learning baselines.
-However, these systems operate on continuous or integer-valued parameter spaces
-without conditional type-dependencies or cross-stage coupling --- the fundamental
-characteristics that distinguish ANN index configuration from scalar DBMS tuning.
-Our problem requires an optimizer that reasons over conditional parameter
+GPTuner~\cite{lao2024gpttuner}, $\lambda$-Tune~\cite{giannakouris2025lambdatune},
+OtterTune~\cite{vanaken2017ottertune}, and VDTuner~\cite{yang2024vdtuner} demonstrate
+the value of structured reasoning and multi-objective optimization for DBMS
+configuration, achieving substantial performance improvements over Bayesian and
+reinforcement-learning baselines.
+Automated ANN parameter tuning frameworks such as VSAG~\cite{zhong2025vsag} reduce
+index rebuild costs via analytical subgraph techniques, but address only graph
+construction parameters and do not model multi-stage pipeline coupling.
+All of these systems operate on parameter spaces without the conditional
+type-dependencies or cross-stage coupling that characterize multi-stage retrieval
+pipelines: our problem requires an optimizer that reasons over conditional
 dependencies (engine type gates valid knobs) and joint inter-stage trade-offs
-($\mathit{efSearch}$--$\alpha$ coupling) that these systems are not designed to
-handle.
+($\mathit{efSearch}$--$\alpha$ coupling) that none of them address.
 
 To address these challenges, we propose a \emph{phase-aware LLM agent} that
 conditions each configuration proposal on the complete history of measured
@@ -350,6 +353,9 @@ with substantially fewer trainable parameters.
 UniIR~\cite{wei2023uniir}, an ECCV 2024 Oral, unified eight multimodal retrieval tasks within
 a single model and constructed the M-BEIR benchmark spanning 1.5M queries over 10 datasets;
 we adopt UniIR as our primary baseline.
+LamRA~\cite{liu2025lamra} (CVPR 2025) repurposes generative large multimodal models for
+universal retrieval via lightweight LoRA adaptation, achieving strong cross-task
+generalization on M-BEIR without task-specific fine-tuning.
 No prior work has constructed a retrieval benchmark from HOI annotations or analyzed
 the relative merits of text versus image queries on compositionally structured datasets.
 We fill both gaps: we introduce the first HOI retrieval benchmark and provide a principled
