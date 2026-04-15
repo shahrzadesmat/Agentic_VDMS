@@ -156,123 +156,186 @@ The source code, data, and/or other artifacts have been made available at \url{\
 \section{Introduction}
 \label{sec:intro}
 
-The rapid adoption of large-scale vision-language foundation models has elevated image retrieval
-from a narrow computer vision task to a central infrastructure challenge.
-Models such as CLIP~\cite{radford2021clip} and DINOv2~\cite{oquab2024dinov2} produce rich
-semantic embeddings that encode not only visual appearance but also object identity and
-compositional scene understanding.
-Deployed over vector databases with Approximate Nearest Neighbor (ANN) indexing, these embeddings
-enable sub-second similarity search over collections of tens of millions of images --- a
-capability now integral to e-commerce product discovery, medical image retrieval, and multimodal
-AI assistants~\cite{pan2023vdms,aguerrebere2023locally}.
-Yet while the database community has invested heavily in the efficiency of ANN
-search~\cite{malkov2018hnsw,johnson2019billion}, far less attention has been paid to the
-depth of semantic expressiveness that retrieval benchmarks actually demand.
-Most existing benchmarks test retrieval of visually similar images or single objects; none
-probe whether a system can distinguish 600 fine-grained human activities from natural language.
+Vector database management systems are becoming critical infrastructure for
+large-scale semantic search.
+Systems such as VDMS~\cite{pan2023vdms} and Milvus~\cite{wang2021milvus} combine
+ANN index retrieval with metadata filtering and multi-stage reranking pipelines to
+serve sub-second similarity queries over collections of tens of millions of
+embeddings --- a capability now central to e-commerce product discovery, medical
+image retrieval, and multimodal AI assistants~\cite{aguerrebere2023locally}.
+The performance these systems deliver is highly sensitive to ANN index
+configuration: graph connectivity ($M$), construction depth
+(\textit{efConstruction}), search depth (\textit{efSearch}), candidate pool size
+($k$), and the cross-modal fusion weight $\alpha$ jointly determine the
+accuracy--throughput trade-off in ways that interact non-linearly and depend on the
+embedding distribution and workload.
+Determining the right values for these parameters is a long-standing challenge
+within the database community: the configuration space is large, each evaluation
+requires a full index rebuild and query execution costing minutes at scale, and the
+interactions among parameters resist independent analysis.
 
-Human-Object Interaction (HOI) recognition captures one of the richest forms of compositional
-visual semantics available in any public benchmark.
+State-of-the-art approaches automate the search via grid enumeration, random
+sampling, or Bayesian optimization~\cite{snoek2012bayesian,bergstra2012random}.
+These methods follow a trial-and-error strategy, iteratively evaluating
+configurations and selecting the next candidate based on observed performance
+scores.
+While they can eventually converge, they incur significant tuning costs and fail
+to exploit the structural relationships among ANN parameters that govern the search
+landscape.
+Most critically, they treat each parameter \emph{independently}: grid and random
+search evaluate every candidate with no memory of prior outcomes, while Bayesian
+methods such as Optuna TPE model each parameter with independent marginal
+distributions~\cite{bergstra2012random}, unable to capture the cross-stage coupling
+inherent to multi-stage retrieval pipelines.
+In such pipelines, Stage-1 search depth (\textit{efSearch}) and Stage-2 fusion
+weight ($\alpha$) are jointly determined: reducing \textit{efSearch} compresses the
+candidate pool fed to the reranker, which can only be compensated by raising
+$\alpha$, and vice versa.
+This is a structural dependency that no parameter-independent technique models,
+causing existing methods to miss the compensatory operating points where these
+parameters exploit each other.
+
+Human-Object Interaction (HOI) recognition captures one of the richest forms of
+compositional visual semantics available in any public benchmark.
 HICO-DET~\cite{chao2018hico} annotates 47{,}776 images across 600 fine-grained
 interaction categories structured as \textit{verb--object} pairs spanning 80 object
 classes and 117 action verbs.
-Despite this semantic richness, every published use of HICO-DET has been restricted to the
-\emph{detection} paradigm: predicting bounding boxes and interaction class labels from a given
-image.
+Despite this semantic richness, every published use of HICO-DET has been restricted
+to the \emph{detection} paradigm: predicting bounding boxes and interaction labels
+from a given image.
 The \emph{retrieval} direction --- in which a natural-language query such as
-\emph{``a person riding a horse''} should rank all 47{,}776 images by relevance --- has never been
-explored.
-This is a significant missed opportunity: the same compositional label structure that makes
-HOI detection challenging makes HOI retrieval a uniquely demanding test of cross-modal alignment
-between language and visual content, providing a far more discriminative evaluation signal
-than scene-level or object-level benchmarks.
+\emph{``a person riding a horse''} should rank all 47{,}776 images by relevance ---
+has never been explored.
+This is a significant missed opportunity: the same compositional label structure
+that makes HOI detection challenging creates a uniquely demanding retrieval task
+with a 6-parameter coupled ANN configuration space that exposes precisely the
+cross-stage dependencies that blind optimizers cannot navigate.
 
-Establishing HOI retrieval as a benchmark task immediately surfaces two open technical problems.
-First, practitioners must decide between two query modalities: a natural-language description
-or a reference image.
-The relative merits of text versus image queries on a compositionally structured dataset have
-not been quantified, and the underlying geometric reason for any observed difference has not
-been articulated.
-Second, once embeddings are stored in a vector database, the ANN index
-hyperparameters --- graph connectivity ($M$), search depth (\textit{efSearch}), candidate
-pool size ($k$), and the fusion weight $\alpha$ blending ANN retrieval scores with visual
-reranking signals --- jointly determine the accuracy--throughput trade-off in ways that
-interact non-linearly and depend on the data distribution.
-Current practice resorts to grid search or random search: \emph{blind} procedures that
-evaluate configurations independently of all previously measured outcomes.
-As vector database collections scale to tens of millions of vectors, this sample-inefficient
-approach wastes substantial compute and fails to exploit the structured, measurable feedback
-that each evaluated configuration already provides.
+These observations surface two concrete challenges that existing methods cannot
+simultaneously address.
 
-We address both problems with a unified system.
-For retrieval, we propose a two-stage pipeline: in the first stage, CLIP ViT-L/14 text
-embeddings drive ANN search over a VDMS vector database~\cite{pan2023vdms}, returning a
-ranked candidate pool; in the second stage, DINOv2 ViT-L/14-reg4 visual embeddings rerank
-the candidate pool using a weighted fusion of normalized distances --- requiring only
-\emph{one} ANN index at deployment, with zero additional indexing cost for the reranker.
-For modality selection, we show geometrically that a CLIP text embedding lies at the
-\emph{semantic centroid} of all images sharing a given HOI category, while a reference image
-is a single noisy point displaced from that centroid in the same embedding space --- a
-structural difference that predicts a systematic mAP advantage for text queries on
-compositionally structured datasets such as HICO-DET.
-For hyperparameter optimization, we present an LLM agent that, at each iteration, observes
-the measured Score ($= \text{mAP} \times \text{QPS}$) of every previously evaluated
-configuration and reasons over the full history to propose the next configuration --- a
-strategy fundamentally different from blind grid and random search because it conditions
-each new proposal on empirical outcomes.
+\noindent\textbf{C1.}~\emph{ANN configuration spaces have structural cross-stage
+dependencies that parameter-independent methods cannot model.}
+Engine type gates valid parameters (only HNSW configurations have $M$ and
+\textit{efSearch}), and Stage-1 search depth couples non-linearly to Stage-2 fusion
+weight through the candidate pool.
+These conditional dependencies cause methods that model parameters independently
+to fail \emph{structurally} --- not merely statistically --- on this class of spaces.
+No existing hyperparameter optimization technique is designed to reason over the
+full history of measured outcomes in light of these inter-stage dependencies.
 
-\noindent\textbf{Contributions.} This paper makes four contributions:
+\noindent\textbf{C2.}~\emph{Existing ANN benchmarks are insufficient to expose
+optimizer behavior on complex, coupled configuration landscapes.}
+Pure vector search datasets such as SIFT1M~\cite{jegou2011pq} expose a small,
+near-independent parameter space where any competent optimizer converges within tens
+of iterations, providing no signal to distinguish optimizer sophistication from
+random luck.
+Scene-level or object-level image benchmarks lack the fine-grained compositional
+structure that generates genuinely coupled retrieval configurations.
+
+To address the challenges above, we propose a unified system.
+For \textbf{C1}, we develop a \emph{phase-aware LLM agent} that conditions each
+configuration proposal on the complete history of measured (configuration, Score)
+pairs, reasoning explicitly over cross-stage parameter dependencies across three
+self-regulated optimization phases --- exploration, exploitation, and fine-tuning
+--- with stagnation detection and anti-collapse mechanisms.
+For \textbf{C2}, we introduce --- to our knowledge --- the first text-query image
+retrieval benchmark derived from HICO-DET, deployed on Intel's VDMS vector DBMS,
+and construct a two-stage retrieval pipeline pairing CLIP ViT-L/14 ANN retrieval
+with zero-cost DINOv2 ViT-L/14-reg4 pseudo-relevance-feedback reranking.
+We further formally prove that CLIP text embeddings occupy the semantic centroid of
+each HOI category's visual cluster --- a structural result that makes text queries
+superior to image queries on compositionally structured data and directly motivates
+our reranking design.
+
+LLM-guided database tuning systems such as GPTuner~\cite{lao2024gpttuner} and
+OtterTune~\cite{vanaken2017ottertune} demonstrate the value of structured reasoning
+for DBMS knob configuration, achieving substantial performance improvements over
+Bayesian and reinforcement-learning baselines.
+However, these systems operate on continuous or integer-valued knob spaces without
+structural type-dependencies or cross-stage coupling --- the fundamental
+characteristics that distinguish ANN index configuration from scalar DBMS tuning.
+Our problem requires an optimizer that reasons over conditional parameter
+dependencies (engine type gates valid knobs) and joint inter-stage trade-offs
+($\mathit{efSearch}$--$\alpha$ coupling) that these systems are not designed to
+handle.
+
+We evaluate the system across three datasets of increasing parameter-space
+simplicity: HICO-DET (6-parameter, cross-modal, full cross-stage coupling), Google
+Landmarks v2~\cite{weyand2020gld} (GLDv2, 762K images, image-to-image retrieval),
+and SIFT1M~\cite{jegou2011pq} (4-parameter, pure ANN search).
+Compared to state-of-the-art baselines, the agent converges in 5~iterations versus
+27 for Optuna TPE and achieves $+$9.7\% accuracy--throughput Score on HICO-DET,
+a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline.
+On GLDv2, the agent identifies the optimal configuration $25\times$ faster than
+Optuna.
+On SIFT1M, all methods converge within 2\% --- confirming that the agent's
+advantage scales with the coupling complexity of the configuration landscape.
+
+\noindent\textbf{Contributions.} This paper makes the following contributions:
 
 \smallskip
 \noindent\textbf{(1) The first HOI retrieval benchmark.}
 We construct a text-query image retrieval benchmark from HICO-DET (47{,}776 images,
 600 compositional HOI categories, 90{,}641 ground-truth pairs) and show that its
-fine-grained verb--object structure creates a retrieval task qualitatively harder than
-scene- or object-level benchmarks: even exhaustive exact-search with modality fusion
-reaches only mAP\,$=$\,0.276, exposing a persistent semantic ceiling that reflects
+fine-grained verb--object structure creates a retrieval task qualitatively harder
+than scene- or object-level benchmarks: even exhaustive exact-search with modality
+fusion reaches only mAP\,$=$\,0.276, exposing a semantic ceiling that reflects
 language--vision alignment difficulty rather than any indexing limitation.
 
 \smallskip
 \noindent\textbf{(2) A deployment-efficient two-stage retrieval pipeline.}
 We propose pairing CLIP ViT-L/14 ANN retrieval with DINOv2 ViT-L/14-reg4
 pseudo-relevance-feedback reranking at zero additional indexing cost, achieving
-$+$3.65\,pp mAP ($+$15.2\% relative) over ANN-only retrieval at under 1\% additional
-query latency --- a single-index deployment that matches brute-force CLIP$+$DINOv2
-accuracy at $14.7\times$ the throughput (QPS\,$=$\,16.98 vs.\ 1.15).
+$+$3.65\,pp mAP ($+$15.2\% relative) over ANN-only retrieval at under 1\%
+additional query latency, with a single ANN index at deployment.
 
 \smallskip
 \noindent\textbf{(3) A geometric theory of text query superiority.}
 We formally prove that a CLIP text embedding occupies the semantic centroid of its
-HOI category's visual cluster, while any reference image is displaced from that centroid
-by $\varepsilon_j > 0$, contributing a bias term $\varepsilon_j^2$ to the expected
-distance from every class member.
-This centroid-displacement theory predicts the systematic mAP advantage of text queries
-over image queries on compositionally structured datasets and directly motivates our
-pseudo-relevance-feedback design: averaging $n_r$ centroid-proximal reference images
-minimizes $\varepsilon_j$ and reduces reranking bias.
+HOI category's visual cluster, while any reference image is displaced from that
+centroid by $\varepsilon_j > 0$, contributing a bias term $\varepsilon_j^2$ to the
+expected distance from every class member.
+This centroid-displacement theory predicts the systematic mAP advantage of text
+queries over image queries on compositionally structured datasets and directly
+motivates our pseudo-relevance-feedback design: averaging $n_r$ centroid-proximal
+reference images minimizes $\varepsilon_j$ and reduces reranking bias.
 
 \smallskip
-\noindent\textbf{(4) An LLM agent that exploits cross-stage parameter coupling for ANN hyperparameter optimization.}
+\noindent\textbf{(4) A phase-aware LLM agent for ANN hyperparameter optimization.}
 We identify that ANN retrieval search spaces have hard conditional dependencies ---
-engine type gates valid parameters, and Stage-1 search depth couples to Stage-2 fusion
-weight --- that cause parameter-independent methods (TPE's univariate marginals, random
-sampling) to fail structurally on this class of problems.
-We present a phase-aware LLM agent that conditions each proposal on the full history of
-(configuration, Score) pairs, discovering the non-obvious compensatory operating point
-$\mathit{efSearch}{=}64 < k{=}200$ with $\alpha{=}0.80$ --- a cross-stage trade-off that
-neither Bayesian nor random methods locate within 30 iterations.
-The agent reaches Score\,$\approx$\,3.97 by iteration~5, a level Optuna TPE first matches at
-iteration~27 and Random Search at iteration~28, and achieves a mean Score\,$=$\,4.44
-($\text{mAP} \times \text{QPS}$) across seeds --- a $\mathbf{2.5\times}$ improvement
-over the CLIP FaissFlat baseline and $\mathbf{13.9\times}$ over brute-force
-CLIP$+$DINOv2 reranking.
+engine type gates valid parameters, and Stage-1 search depth couples to Stage-2
+fusion weight --- that cause parameter-independent methods to fail structurally on
+this class of problems.
+We present a phase-aware LLM agent that conditions each proposal on the full history
+of (configuration, Score) pairs, discovering the compensatory operating point
+$\mathit{efSearch}{=}64 < k{=}200$ with $\alpha{=}0.80$ that neither Bayesian nor
+random methods locate within 30 iterations.
+The agent reaches Score\,$\approx$\,3.97 in 5~iterations versus 27 for Optuna TPE
+and 28 for Random Search, and achieves a mean Score\,$=$\,4.44
+($\text{mAP} \times \text{QPS}$) across seeds --- a $\mathbf{2.6\times}$
+improvement over the CLIP FaissFlat baseline and $\mathbf{13.9\times}$ over
+brute-force CLIP$+$DINOv2 reranking.
+
+\smallskip
+\noindent\textbf{(5) A complexity-matched evaluation across three retrieval workloads.}
+We evaluate across HICO-DET, GLDv2, and SIFT1M --- datasets of systematically
+increasing parameter-space simplicity --- to characterize when and why LLM-guided
+reasoning outperforms classical methods.
+On HICO-DET the agent achieves $+$9.7\% over all baselines; on GLDv2 it identifies
+the optimal configuration $25\times$ faster than Optuna; on SIFT1M all methods
+converge within 2\%.
+This graded evaluation establishes that the agent's advantage is proportional to
+the structural coupling of the configuration landscape, providing a principled
+framework for predicting optimizer behavior across retrieval workloads.
 
 The remainder of this paper is organized as follows.
-Section~\ref{sec:related} reviews related work on HOI understanding, image retrieval,
-vector database systems, and hyperparameter optimization.
-Section~\ref{sec:benchmark} describes the construction of the HICO-DET retrieval benchmark.
-Section~\ref{sec:pipeline} presents the two-stage retrieval pipeline and the embedding
-geometry analysis.
+Section~\ref{sec:related} reviews related work on HOI understanding, image
+retrieval, vector database systems, and hyperparameter optimization.
+Section~\ref{sec:benchmark} describes the construction of the HICO-DET retrieval
+benchmark.
+Section~\ref{sec:pipeline} presents the two-stage retrieval pipeline and the
+embedding geometry analysis.
 Section~\ref{sec:optimizer} details the LLM-guided ANN hyperparameter optimizer.
 Section~\ref{sec:experiments} reports experimental results and ablations.
 Section~\ref{sec:conclusion} concludes.
