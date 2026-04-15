@@ -164,10 +164,10 @@ semantic similarity queries over tens of millions of embeddings requires setting
 graph connectivity ($M$), construction depth (\textit{efConstruction}), search
 depth (\textit{efSearch}), candidate pool size ($k$), and cross-modal fusion
 weight $\alpha$ --- a 6-parameter space in which each evaluation requires a full
-index rebuild and query execution, approximately 8~minutes of wall-clock time at
-47{,}776-image scale~\cite{aguerrebere2023locally}.
-A 30-iteration tuning budget therefore consumes 3.5--4 hours of compute, and the
-interactions among parameters are highly non-linear: the optimal value of each
+index rebuild and query execution --- approximately 8~minutes of wall-clock time at
+47{,}776-image scale~\cite{aguerrebere2023locally} --- making convergence speed a
+first-class system concern.
+The interactions among parameters are highly non-linear: the optimal value of each
 knob depends on the values of the others in ways that resist independent analysis.
 
 State-of-the-art approaches automate the search via grid enumeration, random
