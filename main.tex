@@ -770,6 +770,18 @@ Each optimization iteration builds a complete ANN index from scratch and issues 
 The full 30-iteration budget therefore demands approximately 3.5--4 hours of compute
 per method, making sample efficiency --- how quickly each method reaches a high-scoring
 configuration --- a practically meaningful criterion.
+We fix $N{=}30$ for all methods and datasets for three reasons.
+First, 30 iterations represent under 1\% coverage of the valid configuration space
+(e.g., 5{,}940 HNSW configs on SIFT1M), placing all methods in a regime where
+optimizer choice is genuinely consequential rather than trivially solvable by
+exhaustive enumeration.
+Second, 3.5--4 hours of wall-clock tuning time per method is a realistic practitioner
+budget; extending to $N{=}100$ would require over 12 hours per method without
+changing the ranking, since our convergence analysis (Figure~\ref{fig:convergence})
+shows the LLM agent's advantage is established by iteration~10 and the gap only
+widens thereafter.
+Third, $N{=}30$ is consistent with the evaluation protocol of closely related
+LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}.
 
 \subsection{System Baselines}
 
