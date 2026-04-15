@@ -164,11 +164,12 @@ semantic similarity queries over tens of millions of embeddings requires setting
 graph connectivity ($M$), construction depth (\textit{efConstruction}), search
 depth (\textit{efSearch}), candidate pool size ($k$), and cross-modal fusion
 weight $\alpha$ --- a 6-parameter space in which each evaluation requires a full
-index rebuild and query execution --- approximately 8~minutes of wall-clock time at
-47{,}776-image scale~\cite{aguerrebere2023locally} --- making convergence speed a
-first-class system concern.
+index rebuild and query execution across tens of thousands of embeddings, incurring
+significant wall-clock cost per trial~\cite{yang2024vdtuner} --- making convergence
+speed a first-class system concern.
 The interactions among parameters are highly non-linear: the optimal value of each
-knob depends on the values of the others in ways that resist independent analysis.
+parameter depends on the values of the others in ways that resist independent
+analysis.
 
 State-of-the-art approaches automate the search via grid enumeration, random
 sampling, or Bayesian optimization~\cite{snoek2012bayesian,bergstra2012random}.
@@ -176,7 +177,7 @@ These methods follow a trial-and-error strategy with no cross-parameter memory: 
 and random search evaluate every candidate independently, while Bayesian methods
 such as Optuna TPE~\cite{akiba2019optuna} model each parameter with independent
 marginal distributions~\cite{bergstra2012random}.
-This independence assumption is harmless on scalar knob spaces, but it causes
+This independence assumption is harmless on scalar parameter spaces, but it causes
 \emph{structural} failure on multi-stage retrieval pipelines, where Stage-1 search
 depth (\textit{efSearch}) and Stage-2 fusion weight ($\alpha$) are jointly
 determined: reducing \textit{efSearch} compresses the candidate pool fed to the
@@ -210,12 +211,13 @@ result that makes text queries structurally superior to image queries on
 compositionally structured data and directly justifies the reranker design without
 a secondary index.
 
-LLM-guided database tuning systems such as GPTuner~\cite{lao2024gpttuner} and
-OtterTune~\cite{vanaken2017ottertune} demonstrate the value of structured reasoning
-for DBMS knob configuration, achieving substantial performance improvements over
-Bayesian and reinforcement-learning baselines.
-However, these systems operate on continuous or integer-valued knob spaces without
-conditional type-dependencies or cross-stage coupling --- the fundamental
+LLM-guided and learning-based database tuning systems such as
+GPTuner~\cite{lao2024gpttuner}, OtterTune~\cite{vanaken2017ottertune}, and
+VDTuner~\cite{yang2024vdtuner} demonstrate the value of structured reasoning and
+multi-objective optimization for DBMS configuration, achieving substantial
+performance improvements over Bayesian and reinforcement-learning baselines.
+However, these systems operate on continuous or integer-valued parameter spaces
+without conditional type-dependencies or cross-stage coupling --- the fundamental
 characteristics that distinguish ANN index configuration from scalar DBMS tuning.
 Our problem requires an optimizer that reasons over conditional parameter
 dependencies (engine type gates valid knobs) and joint inter-stage trade-offs
