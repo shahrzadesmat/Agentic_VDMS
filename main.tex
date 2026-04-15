@@ -184,8 +184,9 @@ to exploit the structural relationships among ANN parameters that govern the sea
 landscape.
 Most critically, they treat each parameter \emph{independently}: grid and random
 search evaluate every candidate with no memory of prior outcomes, while Bayesian
-methods such as Optuna TPE model each parameter with independent marginal
-distributions~\cite{bergstra2012random}, unable to capture the cross-stage coupling
+methods such as Optuna TPE~\cite{akiba2019optuna} model each parameter with
+independent marginal distributions~\cite{bergstra2012random}, unable to capture the
+cross-stage coupling
 inherent to multi-stage retrieval pipelines.
 In such pipelines, Stage-1 search depth (\textit{efSearch}) and Stage-2 fusion
 weight ($\alpha$) are jointly determined: reducing \textit{efSearch} compresses the
@@ -202,7 +203,7 @@ interaction categories structured as \textit{verb--object} pairs spanning 80 obj
 classes and 117 action verbs.
 Despite this semantic richness, every published use of HICO-DET has been restricted
 to the \emph{detection} paradigm: predicting bounding boxes and interaction labels
-from a given image.
+from a given image~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
 The \emph{retrieval} direction --- in which a natural-language query such as
 \emph{``a person riding a horse''} should rank all 47{,}776 images by relevance ---
 has never been explored.
@@ -226,10 +227,10 @@ full history of measured outcomes in light of these inter-stage dependencies.
 
 \noindent\textbf{C2.}~\emph{Existing ANN benchmarks are insufficient to expose
 optimizer behavior on complex, coupled configuration landscapes.}
-Pure vector search datasets such as SIFT1M~\cite{jegou2011pq} expose a small,
-near-independent parameter space where any competent optimizer converges within tens
-of iterations, providing no signal to distinguish optimizer sophistication from
-random luck.
+Pure vector search datasets such as SIFT1M~\cite{jegou2011pq} and
+ANN-Benchmarks~\cite{aumuller2020ann} expose a small, near-independent parameter
+space where any competent optimizer converges within tens of iterations, providing
+no signal to distinguish optimizer sophistication from random luck.
 Scene-level or object-level image benchmarks lack the fine-grained compositional
 structure that generates genuinely coupled retrieval configurations.
 
