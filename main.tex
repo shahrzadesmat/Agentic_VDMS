@@ -156,8 +156,10 @@ The source code, data, and/or other artifacts have been made available at \url{\
 \section{Introduction}
 \label{sec:intro}
 
-Vector database management systems are becoming critical infrastructure for
-large-scale semantic search.
+Configuring a vector database management system for production-scale semantic
+search requires choosing ANN index parameters that jointly govern the
+accuracy--throughput trade-off --- a long-standing challenge in the database
+community~\cite{aumuller2020ann}.
 Systems such as VDMS~\cite{pan2023vdms} and Milvus~\cite{wang2021milvus} combine
 ANN index retrieval with metadata filtering and multi-stage reranking pipelines to
 serve sub-second similarity queries over collections of tens of millions of
@@ -169,10 +171,11 @@ configuration: graph connectivity ($M$), construction depth
 ($k$), and the cross-modal fusion weight $\alpha$ jointly determine the
 accuracy--throughput trade-off in ways that interact non-linearly and depend on the
 embedding distribution and workload.
-Determining the right values for these parameters is a long-standing challenge
-within the database community: the configuration space is large, each evaluation
-requires a full index rebuild and query execution costing minutes at scale, and the
-interactions among parameters resist independent analysis.
+Determining the right values for these parameters is non-trivial: the configuration
+space is large, each evaluation requires a full index rebuild and query execution
+--- approximately 8~minutes of wall-clock time at 47{,}776-image scale, making a
+30-iteration budget 3.5--4 hours of compute --- and the interactions among
+parameters resist independent analysis.
 
 State-of-the-art approaches automate the search via grid enumeration, random
 sampling, or Bayesian optimization~\cite{snoek2012bayesian,bergstra2012random}.
@@ -193,8 +196,10 @@ weight ($\alpha$) are jointly determined: reducing \textit{efSearch} compresses 
 candidate pool fed to the reranker, which can only be compensated by raising
 $\alpha$, and vice versa.
 This is a structural dependency that no parameter-independent technique models,
-causing existing methods to miss the compensatory operating points where these
-parameters exploit each other.
+causing existing methods to miss compensatory operating points: on our benchmark,
+the configuration $\mathit{efSearch}{=}64 < k{=}200$ with $\alpha{=}0.80$ ---
+where reduced search depth is compensated by higher reranker fusion weight ---
+is not located by grid, random, or Bayesian search within 30 iterations.
 
 Human-Object Interaction (HOI) recognition captures one of the richest forms of
 compositional visual semantics available in any public benchmark.
@@ -235,6 +240,18 @@ no signal to distinguish optimizer sophistication from random luck.
 Scene-level or object-level image benchmarks lack the fine-grained compositional
 structure that generates genuinely coupled retrieval configurations.
 
+LLM-guided database tuning systems such as GPTuner~\cite{lao2024gpttuner} and
+OtterTune~\cite{vanaken2017ottertune} demonstrate the value of structured reasoning
+for DBMS knob configuration, achieving substantial performance improvements over
+Bayesian and reinforcement-learning baselines.
+However, these systems operate on continuous or integer-valued knob spaces without
+structural type-dependencies or cross-stage coupling --- the fundamental
+characteristics that distinguish ANN index configuration from scalar DBMS tuning.
+Our problem requires an optimizer that reasons over conditional parameter
+dependencies (engine type gates valid knobs) and joint inter-stage trade-offs
+($\mathit{efSearch}$--$\alpha$ coupling) that these systems are not designed to
+handle.
+
 To address the challenges above, we propose a unified system.
 For \textbf{C1}, we develop a \emph{phase-aware LLM agent} that conditions each
 configuration proposal on the complete history of measured (configuration, Score)
@@ -249,18 +266,6 @@ We further formally prove that CLIP text embeddings occupy the semantic centroid
 each HOI category's visual cluster --- a structural result that makes text queries
 superior to image queries on compositionally structured data and directly motivates
 our reranking design.
-
-LLM-guided database tuning systems such as GPTuner~\cite{lao2024gpttuner} and
-OtterTune~\cite{vanaken2017ottertune} demonstrate the value of structured reasoning
-for DBMS knob configuration, achieving substantial performance improvements over
-Bayesian and reinforcement-learning baselines.
-However, these systems operate on continuous or integer-valued knob spaces without
-structural type-dependencies or cross-stage coupling --- the fundamental
-characteristics that distinguish ANN index configuration from scalar DBMS tuning.
-Our problem requires an optimizer that reasons over conditional parameter
-dependencies (engine type gates valid knobs) and joint inter-stage trade-offs
-($\mathit{efSearch}$--$\alpha$ coupling) that these systems are not designed to
-handle.
 
 We evaluate the system across three datasets of increasing parameter-space
 simplicity: HICO-DET (6-parameter, cross-modal, full cross-stage coupling), Google
@@ -277,34 +282,7 @@ advantage scales with the coupling complexity of the configuration landscape.
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 
 \smallskip
-\noindent\textbf{(1) The first HOI retrieval benchmark.}
-We construct a text-query image retrieval benchmark from HICO-DET (47{,}776 images,
-600 compositional HOI categories, 90{,}641 ground-truth pairs) and show that its
-fine-grained verb--object structure creates a retrieval task qualitatively harder
-than scene- or object-level benchmarks: even exhaustive exact-search with modality
-fusion reaches only mAP\,$=$\,0.276, exposing a semantic ceiling that reflects
-language--vision alignment difficulty rather than any indexing limitation.
-
-\smallskip
-\noindent\textbf{(2) A deployment-efficient two-stage retrieval pipeline.}
-We propose pairing CLIP ViT-L/14 ANN retrieval with DINOv2 ViT-L/14-reg4
-pseudo-relevance-feedback reranking at zero additional indexing cost, achieving
-$+$3.65\,pp mAP ($+$15.2\% relative) over ANN-only retrieval at under 1\%
-additional query latency, with a single ANN index at deployment.
-
-\smallskip
-\noindent\textbf{(3) A geometric theory of text query superiority.}
-We formally prove that a CLIP text embedding occupies the semantic centroid of its
-HOI category's visual cluster, while any reference image is displaced from that
-centroid by $\varepsilon_j > 0$, contributing a bias term $\varepsilon_j^2$ to the
-expected distance from every class member.
-This centroid-displacement theory predicts the systematic mAP advantage of text
-queries over image queries on compositionally structured datasets and directly
-motivates our pseudo-relevance-feedback design: averaging $n_r$ centroid-proximal
-reference images minimizes $\varepsilon_j$ and reduces reranking bias.
-
-\smallskip
-\noindent\textbf{(4) A phase-aware LLM agent for ANN hyperparameter optimization.}
+\noindent\textbf{(1) A phase-aware LLM agent for ANN hyperparameter optimization.}
 We identify that ANN retrieval search spaces have hard conditional dependencies ---
 engine type gates valid parameters, and Stage-1 search depth couples to Stage-2
 fusion weight --- that cause parameter-independent methods to fail structurally on
@@ -318,6 +296,33 @@ and 28 for Random Search, and achieves a mean Score\,$=$\,4.44
 ($\text{mAP} \times \text{QPS}$) across seeds --- a $\mathbf{2.6\times}$
 improvement over the CLIP FaissFlat baseline and $\mathbf{13.9\times}$ over
 brute-force CLIP$+$DINOv2 reranking.
+
+\smallskip
+\noindent\textbf{(2) The first HOI retrieval benchmark.}
+We construct a text-query image retrieval benchmark from HICO-DET (47{,}776 images,
+600 compositional HOI categories, 90{,}641 ground-truth pairs) and show that its
+fine-grained verb--object structure creates a retrieval task qualitatively harder
+than scene- or object-level benchmarks: even exhaustive exact-search with modality
+fusion reaches only mAP\,$=$\,0.276, exposing a semantic ceiling that reflects
+language--vision alignment difficulty rather than any indexing limitation.
+
+\smallskip
+\noindent\textbf{(3) A deployment-efficient two-stage retrieval pipeline.}
+We propose pairing CLIP ViT-L/14 ANN retrieval with DINOv2 ViT-L/14-reg4
+pseudo-relevance-feedback reranking at zero additional indexing cost, achieving
+$+$3.65\,pp mAP ($+$15.2\% relative) over ANN-only retrieval at under 1\%
+additional query latency, with a single ANN index at deployment.
+
+\smallskip
+\noindent\textbf{(4) A geometric theory of text query superiority.}
+We formally prove that a CLIP text embedding occupies the semantic centroid of its
+HOI category's visual cluster, while any reference image is displaced from that
+centroid by $\varepsilon_j > 0$, contributing a bias term $\varepsilon_j^2$ to the
+expected distance from every class member.
+This centroid-displacement theory predicts the systematic mAP advantage of text
+queries over image queries on compositionally structured datasets and directly
+motivates our pseudo-relevance-feedback design: averaging $n_r$ centroid-proximal
+reference images minimizes $\varepsilon_j$ and reduces reranking bias.
 
 \smallskip
 \noindent\textbf{(5) A complexity-matched evaluation across three retrieval workloads.}
