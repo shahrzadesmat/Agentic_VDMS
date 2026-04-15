@@ -92,36 +92,37 @@ combining ANN index retrieval with multi-stage reranking pipelines --- exposing
 a configuration space of graph connectivity, search depth, candidate pool size,
 and cross-modal fusion weight that jointly governs the accuracy--throughput
 trade-off.
-Finding a good configuration is a long-standing challenge: grid and random search
-evaluate every candidate with no memory of prior outcomes, while Bayesian methods
-model each parameter independently, unable to exploit the cross-stage coupling
-where Stage-1 search depth and Stage-2 fusion weight must be jointly tuned ---
-a dependency no existing technique models.
+Determining the right values for these parameters is a long-standing challenge:
+grid and random search evaluate every candidate with no memory of prior outcomes,
+while Bayesian methods model each parameter independently and fail to capture the
+cross-stage coupling where Stage-1 search depth and Stage-2 fusion weight must be
+tuned jointly --- a structural dependency that existing techniques do not model.
 
 Hence, we propose a phase-aware LLM agent that conditions each configuration
 proposal on the complete history of measured outcomes, reasoning over cross-stage
-dependencies at every step.
+parameter dependencies.
 Firstly, we design a three-phase optimization schedule --- exploration,
 exploitation, and fine-tuning --- with stagnation detection to prevent premature
 convergence.
-Secondly, to ground the agent in a genuinely demanding retrieval workload, we
-(1)~construct the first text-query image retrieval benchmark from HICO-DET on
-Intel's VDMS vector DBMS,
+Secondly, to evaluate on a semantically rich and realistic retrieval workload, we
+(1)~construct the first text-query image retrieval benchmark derived from HICO-DET
+on Intel's VDMS vector DBMS,
 (2)~formally \emph{prove} that CLIP text embeddings occupy the semantic centroid
 of each HOI category's visual cluster --- making text queries \emph{structurally}
 superior to image queries on compositionally structured data --- and
 (3)~build a zero-cost DINOv2 pseudo-relevance-feedback reranking stage that
-delivers substantial mAP improvement at negligible latency overhead.
+substantially improves retrieval quality at negligible latency overhead.
 Finally, we evaluate across three datasets of increasing parameter-space
-simplicity to characterize precisely when LLM reasoning outperforms classical
-methods.
+simplicity to characterize when LLM-guided reasoning provides the greatest
+advantage over classical methods.
 
 Compared to state-of-the-art approaches, the agent converges to the target
 operating point in $\mathbf{5}$~iterations versus 27 for Optuna and achieves
 $+$9.7\% accuracy--throughput Score on HICO-DET\@.
-Moreover, on a large-scale cross-domain benchmark it identifies the optimal
-configuration $\mathbf{25\times}$ faster --- with all methods converging on
-simpler spaces, confirming that the advantage grows with parameter coupling.
+On a large-scale cross-domain benchmark, the agent identifies the optimal
+configuration $\mathbf{25\times}$ faster, with performance gaps narrowing on
+simpler spaces --- validating that the agent's advantage scales with the coupling
+complexity of the configuration landscape.
 \end{abstract}
 
 \maketitle
