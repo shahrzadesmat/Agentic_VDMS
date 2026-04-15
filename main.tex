@@ -207,10 +207,11 @@ from a given image~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
 The \emph{retrieval} direction --- in which a natural-language query such as
 \emph{``a person riding a horse''} should rank all 47{,}776 images by relevance ---
 has never been explored.
-This is a significant missed opportunity: the same compositional label structure
-that makes HOI detection challenging creates a uniquely demanding retrieval task
-with a 6-parameter coupled ANN configuration space that exposes precisely the
-cross-stage dependencies that blind optimizers cannot navigate.
+This is a significant missed opportunity.
+HOI's compositional verb--object structure makes retrieval qualitatively harder
+than any scene- or object-level benchmark, providing a far more discriminative test
+of cross-modal alignment --- and, as we show, a configuration landscape rich enough
+to expose the structural limits of blind ANN optimizers.
 
 These observations surface two concrete challenges that existing methods cannot
 simultaneously address.
