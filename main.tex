@@ -87,39 +87,36 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Configuring an Approximate Nearest Neighbor (ANN) index in a vector database
-management system is a long-standing performance challenge.
+Configuring an ANN index in a vector database management system is a long-standing
+performance challenge.
 Practitioners must jointly set graph connectivity, search depth, candidate pool
-size, and cross-modal fusion weight --- parameters whose interactions are
-non-linear, data-dependent, and governed by hard conditional dependencies between
-retrieval stages.
-Grid and random search evaluate configurations blindly, with no memory of prior
-outcomes; Bayesian optimization fails \emph{structurally} on this class of spaces
-because its univariate marginal models cannot capture cross-stage coupling, where
-Stage-1 search depth and Stage-2 fusion weight must be co-optimized to reach
-compensatory operating points that blind sampling cannot predict.
+size, and cross-modal fusion weight --- parameters with non-linear interactions
+and hard conditional dependencies between retrieval stages.
+Grid and random search evaluate configurations blindly; Bayesian methods such as
+Optuna TPE fail \emph{structurally} because their univariate marginals cannot
+model cross-stage coupling, where Stage-1 search depth and Stage-2 fusion weight
+must be co-optimized to discover compensatory operating points that blind sampling
+cannot predict.
 
-We propose a phase-aware LLM agent that conditions each configuration proposal on
-the complete history of measured outcomes, reasoning explicitly over cross-stage
-parameter interactions.
+We propose a phase-aware LLM agent that conditions each proposal on the complete
+history of measured outcomes, reasoning over cross-stage parameter interactions.
 Firstly, the agent operates across three self-regulated phases --- exploration,
-exploitation, and fine-tuning --- with stagnation detection, ensuring it neither
-converges prematurely nor wastes iterations on already-explored regions.
-Secondly, to expose the agent to a genuinely hard configuration surface, we
-introduce --- to our knowledge --- the first text-query image retrieval benchmark
-derived from HICO-DET, with hundreds of fine-grained compositional HOI categories
-deployed on Intel's VDMS vector DBMS, and formally \emph{prove} that CLIP text
-embeddings are the semantic centroid of their category's visual cluster --- making
-text queries structurally superior to image queries on compositionally structured
-data and directly motivating our zero-cost DINOv2 pseudo-relevance-feedback
-reranking stage.
-Finally, we evaluate across three datasets of increasing parameter-space
-simplicity to isolate when LLM reasoning adds value over classical methods.
+exploitation, and fine-tuning --- with stagnation detection to prevent premature
+convergence.
+Secondly, we introduce the first text-query image retrieval benchmark derived from
+HICO-DET --- hundreds of fine-grained compositional HOI categories deployed on
+Intel's VDMS vector DBMS --- and formally \emph{prove} that CLIP text embeddings
+occupy the semantic centroid of each category's visual cluster, making text queries
+\emph{structurally} superior to image queries on compositionally structured data
+and directly motivating our zero-cost DINOv2 pseudo-relevance-feedback reranking
+stage ($+$15.2\% mAP at negligible latency overhead).
+Finally, we evaluate across three datasets of increasing parameter-space simplicity
+to isolate precisely when LLM reasoning adds value over classical methods.
 
-Compared to state-of-the-art Bayesian and random baselines, our agent reaches the
-target retrieval quality in $\mathbf{5}$~iterations versus 27 for Optuna, achieves
-$+$9.7\% joint accuracy--throughput Score on HICO-DET, and identifies the optimal
-configuration $\mathbf{25\times}$ faster on a 762K-image cross-domain dataset.
+Compared to state-of-the-art baselines, the agent reaches target retrieval quality
+in $\mathbf{5}$~iterations versus 27 for Optuna, achieves $+$9.7\% joint
+accuracy--throughput Score on HICO-DET, and finds the optimal configuration
+$\mathbf{25\times}$ faster on a 762K-image cross-domain benchmark.
 On a near-independent HNSW space, all methods converge within 2\% --- validating
 that the agent's advantage is \emph{proportional} to parameter coupling, not an
 artifact of a favorable benchmark.
