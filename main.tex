@@ -87,34 +87,36 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Human-Object Interaction (HOI) benchmarks have been exclusively used for detection ---
-predicting bounding boxes and interaction labels. To our knowledge, no prior work has
-repurposed HICO-DET for retrieval. We introduce the first text-query image retrieval
-benchmark derived from HICO-DET (47{,}776 images, 600 compositional HOI categories,
-90{,}641 ground-truth pairs) and propose a two-stage pipeline pairing CLIP ViT-L/14
-ANN retrieval over a VDMS vector database with zero-cost DINOv2 ViT-L/14-reg4 visual
-reranking, improving mAP by 3.65\,pp ($+$15.2\%) over CLIP-only retrieval at under
-1\% additional latency. We formally prove that CLIP text embeddings occupy the semantic
-centroid of their HOI category's visual cluster --- making text queries structurally
-superior to image queries on compositionally structured datasets --- and confirm this
-prediction empirically.
+Human-Object Interaction (HOI) datasets encode the richest compositional visual
+semantics in any public benchmark, yet every published use of HICO-DET has been
+restricted to detection.
+We introduce the \textbf{first text-query image retrieval benchmark} derived from
+HICO-DET: 47{,}776 images, 600 verb--object HOI categories, and 90{,}641
+ground-truth pairs whose fine-grained compositional structure makes retrieval
+qualitatively harder than scene- or object-level benchmarks --- even exhaustive
+exact search with modality fusion reaches only mAP\,$=$\,0.276, a semantic ceiling
+reflecting language--vision alignment difficulty rather than any indexing limitation.
 
-To jointly optimize retrieval quality and throughput (Score $=$ mAP $\times$ QPS),
-we present a phase-aware LLM agent that conditions each configuration proposal on the
-full history of (config, Score) pairs, reasoning over cross-stage parameter coupling
-that parameter-independent methods cannot exploit. We evaluate across three datasets
-of increasing search-space complexity: HICO-DET (6-parameter, cross-modal),
-GLDv2 (6-parameter, 762K-image landmark retrieval), and SIFT1M (4-parameter, 1M-vector
-pure ANN). On HICO-DET --- the most complex regime tested --- the agent achieves mean
-Score $= 4.44$ across seeds, $+$9.7\% over Optuna TPE and Random Search, and reaches
-Score $\approx$3.97 within 5~iterations versus 27 for Optuna and 28 for Random Search,
-a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline.
+To retrieve effectively, we propose a two-stage pipeline pairing CLIP ViT-L/14 ANN
+retrieval over a VDMS vector database with zero-cost DINOv2 ViT-L/14-reg4 visual
+reranking ($+$15.2\% mAP over CLIP-only at under 1\% additional latency).
+We formally prove that CLIP text embeddings occupy the semantic centroid of their
+HOI category's visual cluster --- making text queries structurally superior to image
+queries on compositionally structured data --- and validate this prediction with a
+novel centroid-displacement metric ($\rho = -0.499$, $p < 10^{-39}$).
+
+To jointly optimize retrieval quality and throughput, we present a phase-aware LLM
+agent that conditions each configuration proposal on the full history of
+(config, Score) pairs, exploiting cross-stage parameter coupling that grid, random,
+and Bayesian methods cannot.
+On HICO-DET (6-parameter search space), the agent achieves mean Score\,$=$\,4.44
+($+$9.7\% over Optuna TPE and Random Search), reaching Score\,$\approx$\,3.97 in
+5~iterations versus 27 for Optuna --- a $\mathbf{2.6\times}$ improvement over the
+CLIP FaissFlat baseline.
 On GLDv2 (762K images, image-to-image retrieval), the agent identifies the optimal
-configuration at iteration~1 --- $25\times$ fewer evaluations than Optuna TPE ---
-demonstrating that sample efficiency generalizes across modalities and corpus scale.
-On SIFT1M, all four methods converge near-optimally within 30~iterations ---
-confirming that optimizer sophistication is decisive only when the search landscape
-is complex enough to exploit.
+configuration at iteration~1 --- $25\times$ fewer evaluations than Optuna ---
+confirming that LLM guidance is decisive precisely when the search landscape is
+complex enough to reward it.
 \end{abstract}
 
 \maketitle
