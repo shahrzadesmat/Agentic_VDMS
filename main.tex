@@ -413,19 +413,36 @@ which applied Gaussian process regression to map workload features to optimal kn
 Subsequent systems applied deep reinforcement learning and online learning to this problem,
 but all operate on a continuous or integer knob space without structural type-dependencies.
 
-A key limitation of classical HPO for ANN index selection is that the search space is
-\emph{mixed-type}: it includes discrete engine choices (HNSW vs.\ IVFFlat), integer
-parameters ($M$, \textit{efSearch}, \textit{nlist}, $k$), and continuous parameters
-($\alpha$), with structural dependencies between parameters and engine choice.
-Gaussian process surrogates assume stationarity over a continuous space, making them poorly
-suited to this setting; Bayesian methods also typically require warm-start priors that are
-unavailable for new embedding modalities.
-Tree-structured Parzen Estimators (TPE), as implemented in Optuna~\cite{akiba2019optuna},
-handle mixed-type spaces more gracefully by modeling the density of good and bad
-configurations separately, but they treat each parameter independently and cannot exploit
-architectural knowledge about ANN indices (e.g., that $M$ and \textit{efSearch} must be
-co-tuned, or that IVFFlat is preferable when $n$-probe covers a large fraction of the
-cluster count).
+Most closely related to our work, VDTuner~\cite{yang2024vdtuner} applies multi-objective
+Bayesian optimization to tune both index parameters and system parameters in Milvus,
+using a successive-abandon strategy to allocate the evaluation budget across index types
+with non-fixed parameter spaces.
+VDTuner is the first dedicated auto-configuration system for vector database management
+systems, achieving up to $3.57\times$ faster convergence than baselines on pure vector
+search workloads.
+However, VDTuner models all parameters independently via a Gaussian process surrogate
+and does not account for the cross-stage coupling between ANN retrieval depth and
+reranking fusion weight that arises in multi-stage retrieval pipelines --- the structural
+dependency that our LLM agent is specifically designed to exploit.
+Furthermore, VDTuner evaluates on pure vector search benchmarks (GloVe, keyword-match)
+without semantic structure; our work introduces the first compositionally structured
+retrieval benchmark and formally characterizes the geometry of cross-modal query
+superiority.
+
+A key limitation of all classical HPO methods for ANN index selection is that the
+search space is \emph{mixed-type}: it includes discrete engine choices (HNSW
+vs.\ IVFFlat), integer parameters ($M$, \textit{efSearch}, \textit{nlist}, $k$), and
+continuous parameters ($\alpha$), with structural dependencies between parameters and
+engine choice.
+Gaussian process surrogates assume stationarity over a continuous space, making them
+poorly suited to this setting; Bayesian methods also typically require warm-start priors
+that are unavailable for new embedding modalities.
+Tree-structured Parzen Estimators (TPE), as implemented in
+Optuna~\cite{akiba2019optuna}, handle mixed-type spaces more gracefully by modeling the
+density of good and bad configurations separately, but they treat each parameter
+independently and cannot exploit architectural knowledge about ANN indices (e.g., that
+$M$ and \textit{efSearch} must be co-tuned, or that IVFFlat is preferable when
+$n$-probe covers a large fraction of the cluster count).
 
 \subsection{LLM Agents for Optimization}
 Recent work has demonstrated that large language models can act as black-box optimizers by
