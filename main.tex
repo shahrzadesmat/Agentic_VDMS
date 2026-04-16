@@ -808,17 +808,32 @@ reporting mean Score across three random seeds against five optimization baselin
 \begin{figure*}[!t]
   \centering
     \includegraphics[width=\textwidth, trim=0 12cm 0 0, clip]{figures/pipeline_figure.pdf}
-  \caption{Two-stage HOI retrieval pipeline.
-    Stage~1: a CLIP ViT-L/14 text embedding drives ANN search in VDMS,
-    returning a top-$k$ candidate pool via a configurable ANN index
-    (FaissFlat, FaissHNSWFlat, or FaissIVFFlat).
-    Stage~2: DINOv2 ViT-L/14-reg4 visual distances rerank the pool
-    on-the-fly via weighted score fusion --- no additional index is required
-    at deployment.}
+  \caption{\textbf{Two-stage retrieval pipeline implementing oracle $\mathcal{O}(\theta)$
+    (Definition~\ref{def:oracle}).}
+    A configuration $\theta \in \Theta$ parameterizes both stages simultaneously
+    (Table~\ref{tab:config-space}).
+    \textbf{Stage~1:} the frozen CLIP ViT-L/14 text encoder maps the HOI category label
+    to a 768-d query embedding $\mathbf{q}_c$, which VDMS resolves via a configurable
+    ANN index (FaissFlat, FaissHNSWFlat, or FaissIVFFlat) to a top-$k$ candidate pool
+    $\mathcal{T}_k(q)$ (Eq.~\ref{eq:stage1}).
+    \textbf{Stage~2:} each candidate's normalized CLIP distance $\hat{c}_j$ and
+    DINOv2 ViT-L/14-reg4 distance $\hat{d}_j$ to a per-class visual reference
+    $\mathbf{r}_h$ are fused via the convex combination
+    $s_j = (1{-}\alpha)\hat{c}_j + \alpha\hat{d}_j$ (Eq.~\ref{eq:fusion}),
+    re-ranking $\mathcal{T}_k(q)$ at zero additional indexing cost.
+    The oracle records mAP and batch QPS; $\mathrm{Score}(\theta) =
+    \mathrm{mAP}(\theta) \times \mathrm{QPS}(\theta)$ is the scalar objective
+    maximized by the LLM optimizer (Section~\ref{sec:optimizer}).}
   \label{fig:pipeline}
 \end{figure*}
 
-\subsection{Overview}
+\subsection{Oracle Instantiation and Notation}
+
+This section provides the concrete implementation of oracle $\mathcal{O}$
+(Definition~\ref{def:oracle}): given any configuration $\theta \in \Theta$,
+the pipeline maps $\theta$ to a $(\mathrm{mAP},\,\mathrm{QPS})$ pair from which
+the optimizer computes $\mathrm{Score}(\theta) = \mathrm{mAP}(\theta) \times
+\mathrm{QPS}(\theta)$.
 
 Let $\mathcal{C} = \{(\mathbf{c}_i,\,\mathbf{d}_i)\}_{i=1}^{N}$ denote the corpus
 of $N{=}47{,}776$ images, where $\mathbf{c}_i \in \mathbb{R}^{768}$ is the
@@ -826,81 +841,108 @@ unit-normalized CLIP ViT-L/14 embedding and $\mathbf{d}_i \in \mathbb{R}^{1024}$
 is the unit-normalized DINOv2 ViT-L/14-reg4 embedding of image $i$.
 For HOI class $h$, let $\mathcal{I}_h \subseteq [N]$ denote the annotated relevant
 image set.
-Given a text query $q$ (e.g., \textit{``a person riding a horse''}), the pipeline
+Given a text query $q_h$ (e.g., \textit{``a person riding a horse''}), the pipeline
 proceeds in two stages, as illustrated in Figure~\ref{fig:pipeline}.
 
-\textbf{Stage~1} encodes $q$ into a 768-dimensional unit-norm query vector
-$\mathbf{q}_c \in \mathbb{R}^{768}$ using the CLIP ViT-L/14 text encoder and
-issues an ANN search over the VDMS CLIP DescriptorSet to retrieve a top-$k$ candidate
-pool $\mathcal{T}_k(q)$.
-\textbf{Stage~2} reranks $\mathcal{T}_k(q)$ using DINOv2 visual distances without
-requiring any additional index: a per-class reference vector $\mathbf{r}_h$ is
-computed once at initialization from the DINOv2 embeddings of a small representative
-subset of $\mathcal{I}_h$, and the CLIP and DINOv2 distances of each candidate are
-fused into a single score.
-Seven configuration parameters $\{$engine, $M$ or \textit{nlist}, \textit{efSearch}
-or \textit{nprobe}, $k$, $\alpha$, $n_{\mathrm{refs}}$, \textit{ref\_strategy}$\}$
-jointly govern the accuracy--throughput trade-off and are selected by the LLM
-optimizer described in Section~\ref{sec:optimizer}.
+\textbf{Stage~1} encodes $q_h$ into a unit-norm vector $\mathbf{q}_c \in \mathbb{R}^{768}$
+via the frozen CLIP ViT-L/14 text encoder and issues an ANN search over the VDMS
+CLIP DescriptorSet to retrieve a candidate pool $\mathcal{T}_k(q_h)$ of cardinality $k$.
+\textbf{Stage~2} reranks $\mathcal{T}_k(q_h)$ using DINOv2 visual distances computed
+against a pre-built per-class reference $\mathbf{r}_h$, fusing both distance signals
+without any additional index.
+The seven parameters of $\theta$ --- engine, $M$ or $\mathit{nlist}$,
+$\mathit{efSearch}$ or $\mathit{nprobe}$, $k$, $\alpha$, $n_{\mathrm{refs}}$,
+$\mathit{ref\_strategy}$ --- govern the accuracy--throughput trade-off across both
+stages and constitute the search space $\Theta$ (Table~\ref{tab:config-space}).
+The oracle cost per call is dominated by index construction (${\approx}425$--$455$~s)
+and 600 batch queries (${\approx}35$--$99$~s), yielding ${\approx}8$--$9$~minutes
+of wall-clock time per oracle evaluation.
 
-\subsection{Stage 1: CLIP-Based ANN Retrieval}
+\subsection{Stage 1: ANN Candidate Generation}
+\label{sec:stage1}
 
-All 47{,}776 CLIP ViT-L/14 image embeddings are pre-computed offline using the OpenAI
-weights and stored in VDMS as a 768-dimensional L2 DescriptorSet.
-At query time, $q$ is encoded by the frozen CLIP text encoder and the resulting
-$\mathbf{q}_c$ is submitted to VDMS as a \texttt{FindDescriptor} request.
-VDMS returns the top-$k$ candidate identifiers with their L2 distances
+All $N$ CLIP ViT-L/14 image embeddings are pre-computed offline and stored in VDMS as
+a 768-dimensional L2 DescriptorSet.
+At query time, $q_h$ is encoded by the frozen text encoder and submitted to VDMS
+as a \texttt{FindDescriptor} request.
+VDMS returns the top-$k$ candidate identifiers together with their L2 distances
 $\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$; the candidate pool is formally
 \begin{equation}
-  \mathcal{T}_k(q) = \bigl\{j \in [N] : \|\mathbf{c}_j - \mathbf{q}_c\|_2 \leq \delta^{(k)}\bigr\} ,
+  \mathcal{T}_k(q_h) \;=\; \bigl\{j \in [N] :\,\|\mathbf{c}_j - \mathbf{q}_c\|_2
+    \leq \delta^{(k)}\bigr\} ,
   \label{eq:stage1}
 \end{equation}
-where $\delta^{(k)}$ is the $k$-th smallest L2 distance to $\mathbf{q}_c$ across the full corpus.
-For FaissFlat this set is exact; for FaissHNSWFlat and FaissIVFFlat, VDMS returns a
-high-recall approximation.
-Three ANN engines are available, each exposing a different accuracy--throughput
-operating point:
+where $\delta^{(k)}$ denotes the $k$-th smallest L2 distance from $\mathbf{q}_c$ to
+any corpus embedding.
+For FaissFlat, Eq.~\eqref{eq:stage1} is satisfied exactly; for FaissHNSWFlat and
+FaissIVFFlat, VDMS returns a high-recall approximation whose tightness is governed
+by the engine-specific search parameters.
+
+Three ANN engines expose qualitatively distinct accuracy--throughput operating points:
 \begin{itemize}[noitemsep,topsep=2pt]
-  \item \textbf{FaissFlat}: exact exhaustive search; highest recall, lowest QPS.
-  \item \textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: graph-based ANN index;
-    accuracy controlled by graph connectivity $M \in \{8, 16, 32, 48, 64\}$
-    and search beam width $\mathit{efSearch} \in \{32, 64, 100, 150, 200, 300, 500\}$.
-  \item \textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file ANN index;
-    accuracy controlled by $\mathit{nlist} \in \{64, 128, 256, 512\}$ clusters
-    and $\mathit{nprobe} \in \{4, 8, 16, 32, 64\}$ probed clusters.
+  \item \textbf{FaissFlat}: exact exhaustive L2 search over all $N$ embeddings;
+    provides the recall upper bound for Stage~1 at the cost of the lowest QPS.
+  \item \textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: hierarchical navigable small-world
+    graph index; recall and latency are jointly controlled by graph connectivity
+    $M \in \{8, 16, 32, 48, 64\}$ and beam-search width
+    $\mathit{efSearch} \in \{32, 64, 100, 150, 200, 300, 500\}$.
+    Higher $M$ increases graph density (larger index, better recall per beam step);
+    higher $\mathit{efSearch}$ expands the candidate frontier (better recall, lower QPS).
+  \item \textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file index partitioning
+    the embedding space into $\mathit{nlist} \in \{64, 128, 256, 512\}$ Voronoi cells;
+    search probes $\mathit{nprobe} \in \{4, 8, 16, 32, 64\}$ cells.
+    Larger $\mathit{nlist}$ increases partition granularity; larger $\mathit{nprobe}$
+    increases recall at the cost of proportionally higher latency.
 \end{itemize}
-Increasing $k$ improves Stage~2 recall at the cost of higher reranking latency;
-the optimal $k \in \{50, 100, 150, 200, 300, 500, 750, 1000\}$ is jointly selected
-with the engine parameters.
 
-\subsection{Stage 2: DINOv2 Reranking}
-
-\noindent\textbf{Reference vector.}
-DINOv2 ViT-L/14-reg4 is a self-supervised visual encoder that captures fine-grained
-appearance features --- object identity, texture, and spatial structure ---
-complementary to CLIP's language-aligned semantic embeddings.
-We represent each HOI class $h$ by a reference vector
-$\mathbf{r}_h \in \mathbb{R}^{1024}$, computed once at initialization as the mean
-DINOv2 embedding of a selected subset $\mathcal{S}_h \subseteq \mathcal{I}_h$ of
-$n_r \in \{1, 3, 5, 10\}$ images:
+The candidate pool size $k \in \{50, 100, 150, 200, 300, 500, 750, 1000\}$ determines
+the recall ceiling available to Stage~2 and is selected jointly with engine parameters.
+Batch QPS is defined as
 \begin{equation}
-  \mathbf{r}_h \;=\; \frac{1}{n_r} \sum_{i \in \mathcal{S}_h} \mathbf{d}_i .
+  \mathrm{QPS}(\theta) \;=\; \frac{|Q|}{T_{\mathrm{total}}(\theta)} ,
+  \label{eq:qps}
+\end{equation}
+where $|Q|{=}600$ is the number of HOI text queries and $T_{\mathrm{total}}(\theta)$
+is the elapsed wall-clock time for all queries issued in a single batch to the live
+VDMS container under configuration $\theta$.
+This end-to-end latency encompasses the VDMS round-trip for Stage~1, the numpy
+reranking in Stage~2, and all inter-process communication overhead.
+
+\subsection{Stage 2: Feature Fusion and Reranking}
+\label{sec:stage2}
+
+\noindent\textbf{Per-class visual reference.}
+DINOv2 ViT-L/14-reg4~\cite{oquab2024dinov2} is a self-supervised vision encoder whose
+1024-dimensional features capture fine-grained appearance structure --- object identity,
+texture, and spatial layout --- complementary to CLIP's language-aligned semantics.
+Each HOI class $h$ is characterized by a visual reference vector
+$\mathbf{r}_h \in \mathbb{R}^{1024}$, constructed offline as the mean DINOv2 embedding
+of a selected subset $\mathcal{S}_h \subseteq \mathcal{I}_h$ of $n_r$ images:
+\begin{equation}
+  \mathbf{r}_h \;=\; \frac{1}{|\mathcal{S}_h|} \sum_{i \in \mathcal{S}_h} \mathbf{d}_i ,
   \label{eq:refvec}
 \end{equation}
-Three strategies select $\mathcal{S}_h$: \textbf{first} takes the first $n_r$ images
-in dataset order; \textbf{centroid} selects the $n_r$ images closest to the class mean
-$\boldsymbol{\mu}_h^d = \frac{1}{|\mathcal{I}_h|}\sum_{i \in \mathcal{I}_h}\mathbf{d}_i$;
+where $n_r = |\mathcal{S}_h| \in \{1, 3, 5, 10\}$ is the reference count.
+For $n_r{=}1$ (the default), $\mathbf{r}_h$ is the DINOv2 embedding of the query image
+itself --- the first image in the HOI category --- which constitutes the most accessible
+visual proxy for the interaction.
+For $n_r{>}1$, three strategies populate $\mathcal{S}_h$:
+\textbf{first} takes the initial $n_r$ images in dataset order;
+\textbf{centroid} selects the $n_r$ images nearest to the DINOv2 class mean
+$\boldsymbol{\mu}_h^d = \frac{1}{|\mathcal{I}_h|}\sum_{i \in \mathcal{I}_h}\mathbf{d}_i$,
+anchoring $\mathbf{r}_h$ at the visual core of the class;
 \textbf{diverse} applies greedy farthest-point sampling, seeding from the most central
-image and iteratively adding the image furthest from the already-selected set to maximize
-intra-subset spread.
-Reference vector construction is a one-time cost ($<$1\,ms per class in numpy) and
-imposes no per-query overhead.
+image and iteratively selecting the image most distant from the current selection,
+maximising intra-subset appearance spread.
+Reference construction is a one-time pre-computation (${<}1$\,ms per class) that incurs
+no per-query overhead and does not contribute to $T_{\mathrm{total}}$ in Eq.~\eqref{eq:qps}.
 
 \noindent\textbf{Distance normalization.}
-CLIP and DINOv2 distances operate at different absolute scales and cannot be directly
-combined.
-We apply min-max normalization \emph{within} $\mathcal{T}_k(q)$ to map both onto
-$[0,\,1]$:
+CLIP L2 distances $\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$ and
+DINOv2 L2 distances $\delta_j^d = \|\mathbf{d}_j - \mathbf{r}_h\|_2$ operate
+at different absolute scales and cannot be directly combined.
+We apply min-max normalization \emph{within} the candidate pool $\mathcal{T}_k(q_h)$
+to place both modalities on a common $[0,\,1]$ scale:
 \begin{equation}
   \hat{c}_j =
     \frac{\delta_j^c - \min_{i \in \mathcal{T}_k}\delta_i^c}
@@ -915,80 +957,97 @@ $[0,\,1]$:
           - \min_{i \in \mathcal{T}_k}\delta_i^d + \varepsilon} ,
   \label{eq:dinonorm}
 \end{equation}
-where $\delta_j^d = \|\mathbf{d}_j - \mathbf{r}_h\|_2$ is the DINOv2 distance of
-candidate $j$ to the class reference vector and $\varepsilon = 10^{-10}$ prevents
-division by zero.
-Normalizing within the candidate pool --- rather than globally across the corpus ---
-ensures the two scores remain commensurate regardless of the per-query scale of
-retrieved distances.
+where $\varepsilon = 10^{-10}$ prevents division by zero.
+Normalizing within the retrieved pool --- rather than against a global corpus
+statistic --- ensures the two signals remain commensurate across queries regardless
+of per-query distance scale variation.
+Empirically, pool-local normalization preserves the fine-grained distance ordering
+within $\mathcal{T}_k(q_h)$; this is critical because the CLIP L2 distances within
+the top-$k$ pool vary over a narrow range (${\approx}1.55$--$1.75$ for unit-normalized
+768-d embeddings), so intra-pool relative distances carry meaningful discriminative
+signal that global normalization would compress.
 
 \noindent\textbf{Fusion and final ranking.}
-The fusion score for candidate $j \in \mathcal{T}_k(q)$ is the convex combination
+The fused relevance score for candidate $j \in \mathcal{T}_k(q_h)$ is the
+convex combination~\cite{bruch2023tois}
 \begin{equation}
   s_j \;=\; (1-\alpha)\,\hat{c}_j \;+\; \alpha\,\hat{d}_j ,
   \label{eq:fusion}
 \end{equation}
-where $\alpha \in \{0.0, 0.05, \ldots, 0.90\}$ governs the DINOv2 contribution.
-Lower $s_j$ indicates higher relevance.
-The final ranked list is $\mathcal{T}_k(q)$ sorted by $s_j$ in ascending order.
-Setting $\alpha{=}0$ reduces the system to CLIP-only ranking; $\alpha{=}1$ reduces it
-to DINOv2-only ranking.
-The optimal $\alpha$ is data-dependent and is selected jointly with the ANN engine
-configuration by the optimizer in Section~\ref{sec:optimizer}.
+where $\alpha \in \{0.0, 0.05, \ldots, 0.90\}$ (19 values) controls the relative
+weight of the DINOv2 reranking signal.
+Lower $s_j$ denotes higher predicted relevance; the final output list is
+$\mathcal{T}_k(q_h)$ sorted by $s_j$ in ascending order.
+Setting $\alpha{=}0$ degenerates to CLIP-only retrieval; $\alpha{=}1$ to
+DINOv2-only reranking.
+We select Eq.~\eqref{eq:fusion} over reciprocal rank fusion because CLIP text
+queries on a tight unit-normalized space produce meaningful intra-pool distance
+values whose fine-grained ordering is destroyed when converted to ranks;
+empirically, the weighted distance sum achieves higher mAP than weighted RRF on
+this benchmark.
+The optimal $\alpha$ is configuration-dependent and is learned jointly with the
+Stage~1 parameters by the LLM optimizer (Section~\ref{sec:optimizer}).
 
-\subsection{Why Text Queries Outperform Image Queries: Centroid Geometry}
+\subsection{Text Query Superiority: Centroid-Displacement Theory}
+\label{sec:centroid}
 
-We formalize why a text query systematically outperforms a single reference image on
-compositionally structured HOI categories, grounding the argument in the geometry of
+We provide a formal geometric characterization of why text queries achieve
+systematically higher recall than single reference images on compositionally
+structured HOI categories, grounding the argument in the metric geometry of
 CLIP's joint embedding space.
 
 Let $\boldsymbol{\mu}_h^c = \frac{1}{|\mathcal{I}_h|}\sum_{i\in\mathcal{I}_h}\mathbf{c}_i$
-denote the visual centroid of class $h$ in CLIP space, and let
+denote the visual centroid of HOI class $h$ in the CLIP space, and let
 $\sigma_h^2 = \frac{1}{|\mathcal{I}_h|}\sum_{i \in \mathcal{I}_h}
-\|\mathbf{c}_i - \boldsymbol{\mu}_h^c\|_2^2$ be the intra-class variance.
+\|\mathbf{c}_i - \boldsymbol{\mu}_h^c\|_2^2$ denote the intra-class visual variance.
 For any query vector $\mathbf{q}' \in \mathbb{R}^{768}$, the bias--variance
-decomposition of the expected squared L2 distance to a uniformly sampled class
-member $\mathbf{c}_i$ ($i \sim \mathcal{I}_h$) is:
+decomposition of the expected squared L2 distance to a class member $\mathbf{c}_i$
+drawn uniformly from $\mathcal{I}_h$ yields
 \begin{equation}
   \mathbb{E}_{i}\bigl[\|\mathbf{q}' - \mathbf{c}_i\|_2^2\bigr]
   \;=\;
-  \underbrace{\|\mathbf{q}' - \boldsymbol{\mu}_h^c\|_2^2}_{\text{bias}^2}
+  \underbrace{\|\mathbf{q}' - \boldsymbol{\mu}_h^c\|_2^2}_{\text{centroid bias}^2}
   \;+\;
-  \underbrace{\sigma_h^2}_{\text{variance}} .
+  \underbrace{\sigma_h^2}_{\text{intra-class variance}} .
   \label{eq:biasvar}
 \end{equation}
-The variance term $\sigma_h^2$ is fixed by the data; only the bias term
-$\|\mathbf{q}' - \boldsymbol{\mu}_h^c\|_2^2$ depends on the choice of query.
+The variance term $\sigma_h^2$ is an intrinsic property of the class; only the
+bias term $\|\mathbf{q}' - \boldsymbol{\mu}_h^c\|_2^2$ depends on the query.
 
-CLIP's contrastive training aligns the text embedding of a category description with the
-visual embeddings of matching images~\cite{radford2021clip}.
-For a compositionally structured category such as \textit{``a person riding a horse''} ---
-which spans diverse viewpoints, backgrounds, and subjects --- the text embedding aggregates
-signals from many matched images and therefore lies near the visual centroid of the class:
-$\mathbf{q}_c \approx \boldsymbol{\mu}_h^c$, making the bias term in
-Eq.~\eqref{eq:biasvar} approximately zero:
+CLIP's contrastive training objective aligns the text embedding of a category
+description with the visual embeddings of all matching images~\cite{radford2021clip}.
+For a compositionally structured category --- e.g., \textit{``a person riding a horse''}
+spanning diverse viewpoints, backgrounds, and subjects --- the text embedding
+aggregates distributional statistics from many matched images and therefore
+lies near the visual centroid: $\mathbf{q}_c \approx \boldsymbol{\mu}_h^c$.
+The centroid bias is thus approximately zero:
 \begin{equation}
   \mathbb{E}_{i}\bigl[\|\mathbf{q}_c - \mathbf{c}_i\|_2^2\bigr]
   \;\approx\; \sigma_h^2 .
   \label{eq:textquery}
 \end{equation}
-In contrast, a reference image $\mathbf{c}_j$ ($j \in \mathcal{I}_h$) lies at
-displacement $\varepsilon_j = \|\mathbf{c}_j - \boldsymbol{\mu}_h^c\|_2 > 0$ from
-the centroid, contributing a positive bias term:
+In contrast, any reference image $\mathbf{c}_j$ ($j \in \mathcal{I}_h$) lies at
+centroid displacement $\varepsilon_j = \|\mathbf{c}_j - \boldsymbol{\mu}_h^c\|_2 > 0$,
+incurring a strictly positive bias:
 \begin{equation}
   \mathbb{E}_{i}\bigl[\|\mathbf{c}_j - \mathbf{c}_i\|_2^2\bigr]
   \;=\; \varepsilon_j^2 + \sigma_h^2
   \;>\; \sigma_h^2 .
   \label{eq:imagequery}
 \end{equation}
-The text query therefore achieves lower expected squared distance to every class member
-than any individual reference image, by a margin of $\varepsilon_j^2$.
-This advantage is largest for visually diverse categories: for an HOI class spanning many
-viewpoints and subjects (e.g., \textit{ride horse}), any single reference image lies far
-from the centroid ($\varepsilon_j$ large) and provides a poor proxy for the full category
-distribution, amplifying the margin over a text query.
-Under L2-based ANN retrieval, lower expected distance to class members translates
-directly to higher recall at any fixed $k$, and therefore to higher mAP.
+The text query therefore achieves strictly lower expected squared distance to every
+class member than any single reference image, by a margin of $\varepsilon_j^2 > 0$.
+This centroid-displacement advantage is monotonically amplified by intra-class visual
+diversity: the higher the variance $\sigma_h^2$ across HOI images (e.g., \textit{ride
+horse} spans many settings and viewpoints), the larger the typical $\varepsilon_j$
+and hence the larger the margin over any individual reference image.
+Under L2-based ANN retrieval, lower expected squared distance to class members
+translates directly to higher expected recall at any fixed $k$, and therefore to
+higher mAP.
+This result formally justifies the design choice of text queries for Stage~1 and
+additionally motivates the $n_r{>}1$ reference aggregation in Stage~2: averaging
+$n_r$ class embeddings reduces the effective centroid bias of $\mathbf{r}_h$
+by $O(1/n_r)$ relative to a single reference image.
 
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
