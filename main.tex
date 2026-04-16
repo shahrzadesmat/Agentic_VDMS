@@ -117,7 +117,7 @@ simplicity to characterize when LLM-guided reasoning provides the greatest
 advantage over classical methods.
 
 Compared to state-of-the-art approaches, the agent converges to the target
-operating point in $\mathbf{5}$~iterations versus 27 for Optuna and achieves
+operating point in $\mathbf{6}$~iterations versus 27 for Optuna and achieves
 $+$9.7\% accuracy--throughput Score on HICO-DET\@.
 On a large-scale cross-domain benchmark, the agent identifies the optimal
 configuration $\mathbf{25\times}$ faster, with performance gaps narrowing on
@@ -244,7 +244,7 @@ increasing parameter-space simplicity: HICO-DET (6-parameter, cross-modal, full
 cross-stage coupling), Google Landmarks v2~\cite{weyand2020gld} (GLDv2, 762K
 images, image-to-image retrieval), and SIFT1M~\cite{jegou2011pq} (4-parameter,
 pure ANN search).
-Compared to state-of-the-art baselines, the agent converges in 5~iterations versus
+Compared to state-of-the-art baselines, the agent converges in 6~iterations versus
 27 for Optuna TPE and achieves $+$9.7\% accuracy--throughput Score on HICO-DET,
 a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline.
 On GLDv2, the agent reaches the optimal configuration in $25\times$ fewer
@@ -265,7 +265,7 @@ We present a phase-aware LLM agent that conditions each proposal on the full his
 of (configuration, Score) pairs, discovering the compensatory operating point
 $\mathit{efSearch}{=}64 < k{=}200$ with $\alpha{=}0.80$ that neither Bayesian nor
 random methods locate within 30 iterations.
-The agent reaches Score\,$\approx$\,3.97 in 5~iterations versus 27 for Optuna TPE
+The agent reaches Score\,$\approx$\,3.97 in 6~iterations versus 27 for Optuna TPE
 and 28 for Random Search, and achieves a mean Score\,$=$\,4.44
 ($\text{mAP} \times \text{QPS}$) across seeds --- a $\mathbf{2.6\times}$
 improvement over the CLIP FaissFlat baseline and $\mathbf{13.9\times}$ over
@@ -954,7 +954,7 @@ on the full history of observed outcomes.
     (mean $\pm 1\sigma$ across 3 seeds; 2 runs for Grid).
     Best Score ($\text{mAP} \times \text{QPS}$) achieved so far is plotted at
     each iteration.
-    The LLM agent reaches Score $\approx 3.97$ by iteration~5 --- a level that
+    The LLM agent reaches Score $\approx 3.97$ by iteration~6 --- a level that
     Optuna TPE first matches at iteration~27 and Random Search first matches at
     iteration~28 --- and continues improving to Score $= 4.44$ at iteration~30.
     Grid Search plateaus at iteration~19, having exhausted its fixed 30-configuration sweep.}
@@ -969,7 +969,7 @@ on the full history of observed outcomes.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.
   $^\dagger$~Grid Search ran all 30 iterations, plateauing at iteration 19.
   All metrics are means across 3 seeds (LLM, Optuna, Random); Grid is the mean of 2 runs.
-  The LLM agent achieves the highest Score and reaches Score $\approx 3.97$ within 5 iterations ---
+  The LLM agent achieves the highest Score and reaches Score $\approx 3.97$ within 6 iterations ---
   a level requiring 27 iterations for Optuna TPE and 28 for Random Search.
   $^\ddagger$~P@10 was not recorded for Grid Search runs.
   $^\S$~QDS uses a single run with query difficulty-weighted objective (Section~\ref{sec:ablation});
@@ -1039,10 +1039,10 @@ baseline at $k{=}2000$ (mAP $= 0.240$).
 
 \noindent\textbf{Sample efficiency.}
 The LLM agent's primary advantage lies in \emph{sample efficiency}: its mean convergence curve
-reaches Score $\approx 3.97$ by iteration~5, already exceeding Grid Search's final best
-(mean Score $= 3.44$) and surpassing both Optuna TPE (mean Score $= 3.13$ at iteration~5)
-and Random Search (mean Score $= 3.58$ at iteration~5).
-Optuna TPE first exceeds the LLM agent's iteration-5 threshold at iteration~27;
+reaches Score $\approx 3.97$ by iteration~6, already exceeding Grid Search's final best
+(mean Score $= 3.44$) and surpassing both Optuna TPE (mean Score $= 3.41$ at iteration~6)
+and Random Search (mean Score $= 3.58$ at iteration~6).
+Optuna TPE first exceeds the LLM agent's iteration-6 threshold at iteration~27;
 Random Search does not match it until iteration~28.
 At ${\approx}7$--$8$ minutes of wall-clock time per evaluation, this translates to
 concrete practical savings: the LLM agent reaches Score~$\geq 3.97$ approximately
@@ -1346,7 +1346,7 @@ of (configuration, Score) pairs and reasons about engine architecture, graph con
 search depth, and fusion weight as an integrated system, discovering cross-stage
 compensatory configurations that neither Bayesian nor non-adaptive baselines locate
 within a 30-iteration budget.
-The agent reaches Score $\approx 3.97$ within 5 iterations --- a threshold that requires
+The agent reaches Score $\approx 3.97$ within 6 iterations --- a threshold that requires
 27 iterations for Optuna TPE and 28 for Random Search, saving approximately $3$ hours
 and $3.5$ hours of compute respectively.
 Across three independent seeds, the LLM agent achieves a mean Score $= 4.44$
