@@ -165,12 +165,13 @@ production scale.
 A system such as VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, or
 GaussDB-Vector~\cite{sun2025gaussdb} serving semantic similarity queries over tens
 of millions of embeddings requires setting
-graph connectivity ($M$), construction depth (\textit{efConstruction}), search
-depth (\textit{efSearch}), candidate pool size ($k$), and cross-modal fusion
-weight $\alpha$ --- a 6-parameter space in which each evaluation requires a full
-index rebuild and query execution across tens of thousands of embeddings, incurring
-significant wall-clock cost per trial~\cite{yang2024vdtuner} --- making convergence
-speed a first-class system concern.
+graph connectivity ($M$), search depth (\textit{efSearch}), candidate pool
+size ($k$), cross-modal fusion weight $\alpha$, reranker reference count
+($n_{\mathrm{refs}}$), and reference selection strategy --- a 7-parameter space
+in which each evaluation requires a full index rebuild and query execution across
+tens of thousands of embeddings, incurring significant wall-clock cost per
+trial~\cite{yang2024vdtuner} --- making convergence speed a first-class system
+concern.
 The interactions among parameters are highly non-linear: the optimal value of each
 parameter depends on the values of the others in ways that resist independent
 analysis.
@@ -243,7 +244,7 @@ dependencies across three self-regulated optimization phases --- exploration,
 exploitation, and fine-tuning --- with stagnation detection and anti-collapse
 mechanisms.
 The agent is deployed on Intel's VDMS and evaluated across three datasets of
-increasing parameter-space simplicity: HICO-DET (6-parameter, cross-modal, full
+increasing parameter-space simplicity: HICO-DET (7-parameter, cross-modal, full
 cross-stage coupling), Google Landmarks v2~\cite{weyand2020gld} (GLDv2, 762K
 images, image-to-image retrieval), and SIFT1M~\cite{jegou2011pq} (4-parameter,
 pure ANN search).
@@ -357,7 +358,7 @@ interaction labels from a given image.
 We identify and fill the orthogonal \emph{retrieval} direction: given a natural-language
 HOI query, rank all 47{,}776 database images by relevance.
 The compositional verb--object label structure that makes HOI detection challenging
-creates an equally demanding retrieval workload, one with a 6-parameter coupled ANN
+creates an equally demanding retrieval workload, one with a 7-parameter coupled ANN
 configuration space that exposes the structural limits of blind optimizers.
 
 \subsection{Cross-Modal Image Retrieval}
@@ -633,9 +634,10 @@ requiring any additional index: a per-class reference vector $\mathbf{r}_h$ is
 computed once at initialization from the DINOv2 embeddings of a small representative
 subset of $\mathcal{I}_h$, and the CLIP and DINOv2 distances of each candidate are
 fused into a single score.
-The five configuration parameters $\{$engine, $M$ or \textit{nlist}, \textit{efSearch}
-or \textit{nprobe}, $k$, $\alpha\}$ jointly govern the accuracy--throughput trade-off
-and are selected by the LLM optimizer described in Section~\ref{sec:optimizer}.
+Seven configuration parameters $\{$engine, $M$ or \textit{nlist}, \textit{efSearch}
+or \textit{nprobe}, $k$, $\alpha$, $n_{\mathrm{refs}}$, \textit{ref\_strategy}$\}$
+jointly govern the accuracy--throughput trade-off and are selected by the LLM
+optimizer described in Section~\ref{sec:optimizer}.
 
 \subsection{Stage 1: CLIP-Based ANN Retrieval}
 
@@ -1261,7 +1263,8 @@ cross-stage coupling, we evaluate all four methods on SIFT1M~\cite{jegou2011pq}
 under the same 30-iteration budget.
 Unlike HICO-DET, SIFT1M involves no reranking stage and no fusion weight $\alpha$:
 the optimizer tunes only HNSW graph connectivity $M$, construction depth
-\textit{efConstruction}, and search depth \textit{efSearch}.
+\textit{efConstruction}, search depth \textit{efSearch}, and candidate pool size
+$k$ --- four parameters with no cross-stage coupling.
 This reduced, structurally simpler space admits no cross-stage dependencies by
 construction, providing a clean complexity-matched control.
 
@@ -1297,12 +1300,12 @@ HICO-DET, where the LLM leads by $8.8\%$ over Optuna and $9.0\%$ over Random.
 \noindent\textbf{Complexity-proportional advantage.}
 The result confirms the paper's central theoretical prediction: the LLM agent's
 advantage is complexity-proportional.
-On HICO-DET, the 6-parameter coupled space ($\mathit{efSearch}$--$k$--$\alpha$
+On HICO-DET, the 7-parameter coupled space ($\mathit{efSearch}$--$k$--$\alpha$
 interaction across stages) rewards history-conditioned architectural reasoning;
 removing the cross-stage coupling, as on SIFT1M, eliminates the advantage because
-the residual 3-parameter HNSW space ($M$, $\mathit{efConstruction}$,
-$\mathit{efSearch}$) is shallow enough for random and grid search to locate the
-optimum within the same 30-iteration budget.
+the residual 4-parameter ANN search space (engine, $M$, $\mathit{efSearch}$, $k$)
+is shallow enough for random and grid search to locate the optimum within the same
+30-iteration budget.
 This pattern is consistent with the abstract's theoretical prediction that the
 agent's benefit scales with the coupling complexity of the configuration landscape.
 
