@@ -334,130 +334,161 @@ Section~\ref{sec:conclusion} concludes.
 
 \subsection{Human-Object Interaction Detection}
 HOI detection has been studied extensively since the introduction of HICO-DET~\cite{chao2018hico},
-which defined the two-stage paradigm of detecting human--object pairs and classifying their
-interactions across 600 fine-grained categories.
-Early approaches used instance-centric attention to model spatial and appearance relationships
-between detected instances~\cite{gao2018ican}.
+which defined the two-stage paradigm of detecting human--object pairs and classifying
+their interactions across 600 fine-grained verb--object categories.
+Early approaches modeled spatial and appearance relationships between detected instances
+via instance-centric attention~\cite{gao2018ican}.
 The adoption of transformer architectures enabled end-to-end
 detection~\cite{kim2021hotr,zhang2021cdn}, and subsequent work leveraged vision-language
 pre-training to transfer interaction semantics from large-scale
 models~\cite{liao2022genvlkt,ning2023hoiclip,li2024dphoi}.
-HOICLIP~\cite{ning2023hoiclip} (CVPR 2023) distills CLIP knowledge into a detector via
-interaction semantics transfer, while DP-HOI~\cite{li2024dphoi} (CVPR 2024) uses disentangled
-pre-training to improve HOI recognition without exhaustive instance-level annotation.
-Despite sustained progress, every published use of HICO-DET is restricted to the detection
-paradigm --- predicting bounding boxes and interaction labels from a given image.
+HOICLIP~\cite{ning2023hoiclip} (CVPR 2023) distills CLIP interaction semantics into a
+detector via knowledge transfer, while DP-HOI~\cite{li2024dphoi} (CVPR 2024) applies
+disentangled pre-training to reduce annotation dependence.
+Despite sustained progress on mean Average Precision for detection, every published use
+of HICO-DET is restricted to the detection paradigm --- predicting bounding boxes and
+interaction labels from a given image.
 We identify and fill the orthogonal \emph{retrieval} direction: given a natural-language
-query, rank all images by HOI relevance.
+HOI query, rank all 47{,}776 database images by relevance.
+The compositional verb--object label structure that makes HOI detection challenging
+creates an equally demanding retrieval workload, one with a 6-parameter coupled ANN
+configuration space that exposes the structural limits of blind optimizers.
 
 \subsection{Cross-Modal Image Retrieval}
-Early text-image retrieval research established benchmark datasets using caption
-annotations~\cite{young2014flickr30k,lin2014coco} and proposed embedding losses designed to
-bring matching (image, caption) pairs close in a shared
+Text-image retrieval research established benchmark datasets from caption
+annotations~\cite{young2014flickr30k,lin2014coco} and proposed contrastive embedding
+losses to bring matching pairs close in a shared
 space~\cite{faghri2018vsepp}.
-The landscape changed fundamentally with CLIP~\cite{radford2021clip}, whose joint
-vision-language embedding enables zero-shot retrieval across diverse domains without
-task-specific fine-tuning.
+CLIP~\cite{radford2021clip} transformed the field: its joint vision-language embedding
+enables zero-shot retrieval across diverse domains without task-specific fine-tuning.
 BLIP-2~\cite{li2023blip2} extended this paradigm by bridging frozen visual encoders and
-large language models via a lightweight querying transformer, achieving strong generalization
-with substantially fewer trainable parameters.
-UniIR~\cite{wei2023uniir}, an ECCV 2024 Oral, unified eight multimodal retrieval tasks within
-a single model and constructed the M-BEIR benchmark spanning 1.5M queries over 10 datasets;
-we adopt UniIR as our primary baseline.
+large language models via a lightweight querying transformer, achieving strong
+generalization with substantially fewer trainable parameters.
+UniIR~\cite{wei2023uniir} (ECCV 2024 Oral) unified eight multimodal retrieval tasks in a
+single instruction-tuned model, constructing the M-BEIR benchmark spanning 1.5M queries
+over 10 datasets; we adopt UniIR and standalone CLIP as primary baselines.
 LamRA~\cite{liu2025lamra} (CVPR 2025) repurposes generative large multimodal models for
 universal retrieval via lightweight LoRA adaptation, achieving strong cross-task
 generalization on M-BEIR without task-specific fine-tuning.
-No prior work has constructed a retrieval benchmark from HOI annotations or analyzed
-the relative merits of text versus image queries on compositionally structured datasets.
-We fill both gaps: we introduce the first HOI retrieval benchmark and provide a principled
-geometric explanation of why text queries are better suited to this task.
+None of these works constructs a retrieval benchmark from HOI annotations, analyzes the
+relative merits of text versus image queries on compositionally structured data, or
+addresses the downstream ANN index configuration problem that arises when deploying such
+a retrieval system in a production VDMS.
+We fill all three gaps.
 
-\subsection{Approximate Nearest Neighbor Search and Vector Databases}
-ANN index research has produced a rich family of scalable methods: graph-based indices
-(HNSW~\cite{malkov2018hnsw}, DiskANN~\cite{subramanya2019diskann}), inverted file structures
-combined with product quantization~\cite{jegou2011pq}, and GPU-accelerated flat
+\subsection{Vector Database Management Systems and ANN Indexing}
+ANN index research has produced a rich family of algorithms: graph-based indices
+(HNSW~\cite{malkov2018hnsw}, DiskANN~\cite{subramanya2019diskann}), inverted file
+structures with product quantization~\cite{jegou2011pq}, and GPU-accelerated flat
 search~\cite{johnson2019billion}.
-DiskANN~\cite{subramanya2019diskann} extends billion-scale graph search to SSD-resident indices,
-achieving state-of-the-art recall at 1B-scale on a single commodity server.
-Systematic benchmarking in ANN-Benchmarks~\cite{aumuller2020ann} and the NeurIPS 2021
-billion-scale competition~\cite{simhadri2022neurips} characterize the accuracy--throughput
-Pareto frontier across these methods and datasets.
-Purpose-built vector database management systems such as Milvus~\cite{wang2021milvus} and
-VDMS~\cite{pan2023vdms} integrate ANN indexing with metadata management and production-grade
-data persistence, enabling efficient multimodal workloads.
-Despite this rich infrastructure, index configuration --- choosing the engine type, graph
-connectivity, search depth, and candidate pool size for a given embedding distribution and
-throughput target --- is universally left to blind grid or random search.
-We replace these procedures with an LLM agent that reasons over all previously measured
-outcomes to propose the next configuration.
+HNSW~\cite{malkov2018hnsw} constructs a hierarchical proximity graph supporting
+$O(\log n)$-complexity search with tunable accuracy--throughput trade-offs governed by
+$M$ and \textit{efSearch}; DiskANN~\cite{subramanya2019diskann} extends billion-scale
+graph search to SSD-resident indices.
+ANN-Benchmarks~\cite{aumuller2020ann} and the NeurIPS 2021 billion-scale
+competition~\cite{simhadri2022neurips} systematically characterize the Pareto frontier
+of recall versus throughput across these algorithms and datasets.
+
+Production VDBMSs integrate ANN indexing with metadata management, persistent storage,
+and query planning.
+Milvus~\cite{wang2021milvus} supports multiple index backends with a unified query
+interface; VDMS~\cite{pan2023vdms} co-locates PMGD graph-property metadata with vector
+data, enabling structured pre-filters on ANN queries --- a feature we exploit as the
+\texttt{constraint\_strategy} optimization dimension.
+GaussDB-Vector~\cite{sun2025gaussdb} (VLDB 2025) addresses LLM-scale real-time ingestion
+by decoupling indexing from serving, supporting mixed query types at billion-vector scale.
+VSAG~\cite{zhong2025vsag} (VLDB 2025) eliminates costly index rebuilds during parameter
+sweeps by exploiting analytical subgraph monotonicity, making parameter-search over graph
+indices significantly cheaper.
+Despite this infrastructure richness, \emph{index configuration} --- choosing engine
+type, graph connectivity $M$, search depth \textit{efSearch}, candidate pool size $k$,
+and cross-stage fusion weight $\alpha$ for a given embedding distribution and throughput
+target --- is universally left to blind grid or random search.
+Our LLM agent replaces these procedures with history-conditioned sequential reasoning over
+the full mixed-type parameter space.
 
 \subsection{Hyperparameter Optimization}
-Classical HPO methods range from grid and random search~\cite{bergstra2012random} --- the
-latter empirically superior in high-dimensional spaces --- to Gaussian-process-based Bayesian
-optimization~\cite{snoek2012bayesian}, bandit-based methods such as
-Hyperband~\cite{li2018hyperband}, and hybrid approaches such as BOHB~\cite{falkner2018bohb}
-that combine kernel density estimation with successive halving.
+Classical HPO methods span grid and random search~\cite{bergstra2012random} --- the
+latter empirically superior in high-dimensional spaces --- Gaussian-process-based
+Bayesian optimization~\cite{snoek2012bayesian}, bandit-based methods such as
+Hyperband~\cite{li2018hyperband}, and hybrid approaches such as
+BOHB~\cite{falkner2018bohb} that combine kernel density estimation with successive
+halving.
 Automated machine learning frameworks such as Auto-sklearn~\cite{feurer2015autosklearn}
 apply these methods to joint algorithm selection and hyperparameter configuration.
-ML-guided database configuration tuning --- selecting DBMS knobs such as buffer pool sizes,
-parallelism settings, and I/O parameters --- was pioneered by OtterTune~\cite{vanaken2017ottertune},
-which applied Gaussian process regression to map workload features to optimal knob settings.
-Subsequent systems applied deep reinforcement learning and online learning to this problem,
-but all operate on a continuous or integer knob space without structural type-dependencies.
+ML-guided DBMS configuration was pioneered by OtterTune~\cite{vanaken2017ottertune},
+which applied Gaussian process regression to map workload features to optimal knob
+settings; subsequent systems applied reinforcement learning, but all operate on
+continuous or integer knob spaces without structural type-dependencies.
 
-Most closely related to our work, VDTuner~\cite{yang2024vdtuner} applies multi-objective
-Bayesian optimization to tune both index parameters and system parameters in Milvus,
-using a successive-abandon strategy to allocate the evaluation budget across index types
-with non-fixed parameter spaces.
-VDTuner is the first dedicated auto-configuration system for vector database management
-systems, achieving up to $3.57\times$ faster convergence than baselines on pure vector
-search workloads.
-However, VDTuner models all parameters independently via a Gaussian process surrogate
-and does not account for the cross-stage coupling between ANN retrieval depth and
-reranking fusion weight that arises in multi-stage retrieval pipelines --- the structural
-dependency that our LLM agent is specifically designed to exploit.
-Furthermore, VDTuner evaluates on pure vector search benchmarks (GloVe, keyword-match)
-without semantic structure; our work introduces the first compositionally structured
-retrieval benchmark and formally characterizes the geometry of cross-modal query
-superiority.
+Most closely related on the VDMS side, VDTuner~\cite{yang2024vdtuner} applies
+multi-objective Bayesian optimization to tune both index parameters and system
+parameters in Milvus, using a successive-abandon strategy to allocate the evaluation
+budget across index types with non-fixed parameter spaces, achieving up to $3.57\times$
+faster convergence than baselines.
+However, VDTuner evaluates on pure vector search benchmarks (GloVe, keyword-match)
+without semantic structure and models all parameters independently via a Gaussian
+process surrogate --- it does not account for the cross-stage coupling between ANN
+search depth and reranker fusion weight that arises in multi-stage retrieval pipelines.
 
-A key limitation of all classical HPO methods for ANN index selection is that the
-search space is \emph{mixed-type}: it includes discrete engine choices (HNSW
-vs.\ IVFFlat), integer parameters ($M$, \textit{efSearch}, \textit{nlist}, $k$), and
-continuous parameters ($\alpha$), with structural dependencies between parameters and
-engine choice.
+The fundamental limitation of all classical HPO methods for ANN index selection is that
+the search space is \emph{mixed-type}: discrete engine choices (\textit{HNSW}
+vs.\ \textit{IVFFlat}), integer parameters ($M$, \textit{efSearch}, \textit{nlist},
+$k$), and continuous parameters ($\alpha$), with hard structural dependencies between
+parameters and engine choice.
 Gaussian process surrogates assume stationarity over a continuous space, making them
-poorly suited to this setting; Bayesian methods also typically require warm-start priors
-that are unavailable for new embedding modalities.
+ill-suited to this setting.
 Tree-structured Parzen Estimators (TPE), as implemented in
 Optuna~\cite{akiba2019optuna}, handle mixed-type spaces more gracefully by modeling the
 density of good and bad configurations separately, but they treat each parameter
-independently and cannot exploit architectural knowledge about ANN indices (e.g., that
-$M$ and \textit{efSearch} must be co-tuned, or that IVFFlat is preferable when
-$n$-probe covers a large fraction of the cluster count).
+independently and structurally cannot exploit the knowledge that reducing
+\textit{efSearch} compresses the candidate pool fed to a reranker --- an effect that
+must be compensated by raising $\alpha$.
+This independence assumption causes TPE to miss the compensatory operating point
+$\mathit{efSearch}{=}64$, $\alpha{=}0.80$ even within a 30-iteration budget.
 
-\subsection{LLM Agents for Optimization}
-Recent work has demonstrated that large language models can act as black-box optimizers by
+\subsection{LLM-Guided System Configuration}
+Recent work established that large language models can act as black-box optimizers by
 iteratively proposing candidate solutions and refining them based on observed
 outcomes~\cite{yang2024opro}.
 OPRO~\cite{yang2024opro} encodes the history of (solution, score) pairs directly in the
-prompt context, enabling the LLM to generate improved solutions without gradient information.
-Follow-up work has applied this paradigm to machine learning hyperparameter
-optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}, showing that LLMs can match or
-surpass Bayesian optimization in sample efficiency on tabular HPO benchmarks by exploiting
-domain knowledge embedded in pre-training.
+prompt, enabling the LLM to generate improved solutions without gradient information.
+Follow-up work applied this paradigm to machine learning hyperparameter
+optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}, showing that LLMs match or
+surpass Bayesian optimization in sample efficiency on tabular HPO benchmarks by
+exploiting domain knowledge embedded in pre-training.
 
-Most closely related is GPTuner~\cite{lao2024gpttuner} (VLDB 2024), which uses GPT-4 to
-extract priors from DBMS manuals and guide Bayesian optimization of continuous configuration
-knobs (buffer pool size, parallelism) for PostgreSQL and MySQL, building on earlier
-ML-guided DBMS tuning~\cite{vanaken2017ottertune}.
-Our work addresses a structurally different problem: ANN index architecture selection over
-a mixed-type space with hard conditional dependencies, where the LLM is the optimizer rather
-than a prior-extraction module, and the objective $\text{Score} = \text{mAP} \times
-\text{QPS}$ couples retrieval quality with throughput --- requiring cross-stage reasoning
-with no analogue in DBMS knob tuning.
+In the database configuration domain, GPTuner~\cite{lao2024gpttuner} (VLDB 2024) uses
+GPT-4 to extract structured priors from DBMS manuals and guide a coarse-to-fine Bayesian
+optimization of PostgreSQL and MySQL knobs, building on OtterTune~\cite{vanaken2017ottertune}
+with substantially reduced tuning cost.
+$\lambda$-Tune~\cite{giannakouris2025lambdatune} (SIGMOD 2025) harnesses LLMs for
+automated database system tuning, using LLM-generated workload analysis to warm-start
+configuration search and demonstrating that LLM reasoning transfers to heterogeneous knob
+spaces.
+Both systems operate on flat, scalar knob spaces (buffer pool sizes, parallelism settings,
+I/O parameters) where parameters are conditionally independent by construction: no engine
+type gates valid parameters, and no cross-stage coupling arises because DBMS knob tuning
+has a single-objective, single-stage evaluation loop.
+
+Our work occupies the intersection that neither the HPO thread
+(VDTuner~\cite{yang2024vdtuner}, Optuna~\cite{akiba2019optuna}, random
+search~\cite{bergstra2012random}) nor the LLM-guided DBMS tuning thread
+(GPTuner~\cite{lao2024gpttuner}, $\lambda$-Tune~\cite{giannakouris2025lambdatune},
+OtterTune~\cite{vanaken2017ottertune}) reaches: a history-conditioned LLM agent designed
+specifically for ANN index spaces with \emph{hard conditional type-dependencies} (engine
+type gates valid parameters) and \emph{cross-stage coupling} (\textit{efSearch} and
+$\alpha$ must be jointly optimized when ANN retrieval feeds a reranker).
+Methods from the HPO thread are structurally incapable of modeling this coupling
+regardless of iteration budget; methods from the LLM-DBMS thread do not encounter it by
+construction.
+Mechanistic ablations confirm that history conditioning and phase-aware transitions are
+both independently necessary to navigate this coupled space: removing either prevents the
+agent from locating the compensatory $\mathit{efSearch}{=}64$, $\alpha{=}0.80$ operating
+point across all seeds.
 To our knowledge, this is the first application of LLM-guided optimization to ANN index
-architecture selection for vector databases.
+architecture selection with cross-stage parameter coupling in a vector database management
+system.
 
 \section{The HICO-DET Retrieval Benchmark}
 \label{sec:benchmark}
