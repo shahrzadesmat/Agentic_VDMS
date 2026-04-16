@@ -117,13 +117,15 @@ Finally, we evaluate across three datasets of increasing parameter-space
 simplicity to characterize when LLM-guided reasoning provides the greatest
 advantage over classical methods.
 
-Compared to state-of-the-art approaches, the agent converges to the target
-operating point in $\mathbf{6}$~iterations versus 27 for Optuna and achieves
-$+$9.7\% accuracy--throughput Score on HICO-DET\@.
-On a large-scale cross-domain benchmark, the agent identifies the optimal
-configuration $\mathbf{25\times}$ faster, with performance gaps narrowing on
-simpler spaces --- validating that the agent's advantage scales with the coupling
-complexity of the configuration landscape.
+Compared to classical and learned optimizers, the agent achieves
+$+$9.7\% accuracy--throughput Score over Optuna~TPE and $+$3.3\% over
+GP-BO (a VDTuner-style Gaussian Process surrogate) on HICO-DET\@,
+converging in $\sim$13~iterations on average versus $\sim$20 for Optuna~TPE\@.
+On a large-scale cross-domain benchmark, the agent reaches near-optimal
+quality in $\sim$1--2~iterations versus $\sim$13 for Optuna~TPE, with
+performance gaps narrowing on simpler spaces --- validating that the
+agent's advantage scales with the coupling complexity of the configuration
+landscape.
 \end{abstract}
 
 \maketitle
