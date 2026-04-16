@@ -522,20 +522,38 @@ HICO-DET~\cite{chao2018hico} contains 47{,}776 images (38{,}118 train / 9{,}658 
 annotated across 600 HOI categories with per-instance bounding boxes and interaction
 labels, where each category is a \emph{verb--object} pair drawn from 117 action verbs
 and 80 MS-COCO object classes.
-Every published use of HICO-DET has been restricted to the detection paradigm:
-given an image, predict bounding boxes and interaction class labels.
-We repurpose these annotations to construct the first text-query image retrieval
-benchmark from HICO-DET.
+Category sizes are highly skewed: the largest categories exceed 1{,}000 positive images
+while the smallest have as few as 5, producing a long-tailed relevance distribution
+that challenges retrieval systems tuned for uniform recall.
+The 600 categories partition into 80 COCO object classes, each appearing with up to
+117 distinct verbs, so categories that share the same object (e.g., \textit{ride horse},
+\textit{sit\_on horse}, \textit{straddle horse}) differ only in the action verb ---
+making fine-grained discrimination a strict requirement.
+Every published use of HICO-DET has been restricted to the detection
+paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}: given an image,
+predict bounding boxes and interaction class labels.
+We repurpose these rich compositional annotations to construct the first text-query
+image retrieval benchmark from HICO-DET, opening an orthogonal evaluation axis that
+the detection literature has not explored.
 
 \subsection{Benchmark Construction}
 \noindent\textbf{Retrieval corpus.}
-We use all 47{,}776 images as a single retrieval corpus, ignoring the train/test split
-(which was designed for detection, not retrieval).
-CLIP ViT-L/14 embeddings are pre-computed for every image using the OpenAI weights and
+We use all 47{,}776 images as a single retrieval corpus.
+The original HICO-DET train/test split was designed for supervised detection training
+and carries no meaning for retrieval evaluation, where the task is to rank corpus images
+given a query, not to generalize across a detection boundary.
+Merging both splits maximizes the positive-pair density needed for meaningful mAP
+computation across 600 categories.
+CLIP ViT-L/14 embeddings are pre-computed offline using the OpenAI weights and
 stored in VDMS as a 768-dimensional L2 DescriptorSet of 47{,}776 vectors.
 
 \noindent\textbf{Query set.}
-We construct one natural-language text query per HOI category, yielding 600 queries.
+We construct exactly one canonical natural-language text query per HOI category,
+yielding 600 queries.
+A single canonical query per category eliminates inter-query variance from paraphrase
+choice and ensures that each of the 600 HICO-DET categories contributes equally to
+the mean Average Precision score --- a design decision motivated by the same
+reproducibility principle used in standard IR evaluation~\cite{manning2008ir}.
 Each query follows the template \textit{``a person \{verb\} a \{object\}''}, with the
 special case \textit{``a person near a \{object\}''} for the \texttt{no\_interaction}
 verb class.
@@ -557,13 +575,20 @@ We evaluate retrieval quality using mean Average Precision at $k{=}10$ (mAP@10),
 Precision@10, NDCG@10, and Recall@10 over all 600 queries.
 mAP@10 is our primary metric: it rewards systems that place relevant images in the
 top-10 positions and is the standard metric for ranked retrieval with multiple relevant
-documents~\cite{manning2008ir}.
-Throughput is measured in queries per second (QPS) averaged over 600 queries issued as
-a single batch.
-The joint optimization objective is Score $= \text{mAP} \times \text{QPS}$, which
-encodes the accuracy--throughput trade-off as a single scalar: a configuration that
-doubles QPS at half the mAP is penalized equally to one that halves QPS at double the
-mAP, preserving the symmetry expected of a production deployment objective.
+documents per query~\cite{manning2008ir}.
+Throughput is measured in queries per second (QPS), computed as the harmonic average
+over 600 queries issued as a single batch to a live VDMS container --- the protocol
+reflects the steady-state serving throughput a production deployment would observe.
+The joint optimization objective is
+\begin{equation}
+  \text{Score} = \text{mAP} \times \text{QPS} ,
+  \label{eq:score}
+\end{equation}
+which encodes the accuracy--throughput trade-off as a single scalar: a configuration
+that doubles QPS at half the mAP receives the same Score as one that halves QPS at
+double the mAP, preserving the symmetry expected of a production deployment objective.
+This compound metric is used as the optimization target throughout Sections~\ref{sec:optimizer}
+and~\ref{sec:experiments}.
 
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
