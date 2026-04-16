@@ -6,6 +6,8 @@
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
 \usepackage{makecell}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
 % ── Float placement tuning ───────────────────────────────────────────────────
 % pipeline_figure.pdf has a full-page bounding box (~93% of textheight when
 % scaled to textwidth). Default \dbltopfraction=0.7 rejects it every page and
@@ -529,13 +531,27 @@ HICO-DET~\cite{chao2018hico} contains 47{,}776 images (38{,}118 train / 9{,}658 
 annotated across 600 HOI categories with per-instance bounding boxes and interaction
 labels, where each category is a \emph{verb--object} pair drawn from 117 action verbs
 and 80 MS-COCO object classes.
-Category sizes are highly skewed: the largest categories exceed 1{,}000 positive images
-while the smallest have as few as 5, producing a long-tailed relevance distribution
-that stresses any retrieval metric that weights all queries equally.
-The 600 categories span 80 COCO object classes and 117 verb types, so categories
+Three structural properties make HICO-DET distinctively demanding as a benchmark
+for ANN index configuration optimization.
+\textbf{P1 --- Compositional fine-grained discrimination.}
+The 600 categories span 80 COCO object classes and 117 verb types; categories
 sharing the same object (e.g., \textit{ride horse}, \textit{sit\_on horse},
-\textit{straddle horse}) differ only in the action verb ---
-making fine-grained semantic discrimination a strict requirement.
+\textit{straddle horse}) differ only in the action verb.
+Single-encoder retrieval conflates these closely related categories, making the joint
+selection of ANN engine and Stage-2 fusion weight critical to performance.
+\textbf{P2 --- Long-tail relevance.}
+Category sizes are highly skewed: the largest categories exceed 1{,}000 positive
+images while the smallest have as few as 5.
+An optimizer that maximizes mean mAP without attending to per-category variance
+will exploit high-frequency categories while failing on rare but equally weighted
+queries.
+\textbf{P3 --- Dual-encoder modality gap.}
+CLIP retrieves by language-aligned semantic similarity; DINOv2 captures fine-grained
+visual structure complementary to CLIP's representations~\cite{oquab2024dinov2}.
+Neither encoder alone achieves optimal mAP@10, making the Stage-2 fusion weight
+$\alpha$ a data-dependent parameter that cannot be fixed by hand and must be tuned
+jointly with the Stage-1 ANN configuration.
+
 Every published use of HICO-DET has been restricted to the detection
 paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}: given an image,
 predict bounding boxes and interaction class labels.
@@ -544,18 +560,20 @@ the first text-query image retrieval benchmark from HICO-DET, opening an orthogo
 evaluation axis that the detection literature has not explored.
 
 \subsection{Benchmark Construction}
-\noindent\textbf{Retrieval corpus.}
+\noindent\textbf{Retrieval Corpus: Why Merge Train and Test Splits.}
 We use all 47{,}776 images as a single retrieval corpus.
 The original HICO-DET train/test split was designed for supervised detection training
 and carries no meaning for retrieval evaluation, where the task is to rank corpus images
 given a query, not to generalize across a detection boundary.
 Merging both splits maximizes the positive-pair density needed for meaningful mAP
-computation across 600 categories.
+computation across 600 categories; restricting evaluation to the 9{,}658-image test
+split alone would reduce per-category positive counts below the minimum threshold
+for reliable mAP@10 computation across all 600 classes.
 CLIP ViT-L/14~\cite{radford2021clip} embeddings are pre-computed offline using the
 official OpenAI weights and stored in VDMS as a 768-dimensional L2 DescriptorSet
 of 47{,}776 vectors.
 
-\noindent\textbf{Query set.}
+\noindent\textbf{Query Design: One Canonical Query per HOI Class.}
 We construct exactly one canonical natural-language text query per HOI category,
 yielding 600 queries.
 A single canonical query per category eliminates inter-query variance from paraphrase
@@ -569,7 +587,7 @@ Queries are encoded with the same CLIP ViT-L/14 text encoder, producing
 768-dimensional unit-norm text embeddings that reside in the same embedding space as
 the indexed image vectors.
 
-\noindent\textbf{Ground truth.}
+\noindent\textbf{Ground Truth: Multi-Label Positive Structure.}
 An image is relevant to a query if it carries the corresponding HOI annotation in
 the HICO-DET ground truth.
 A single image may be relevant to multiple queries (e.g., an image annotated with both
@@ -586,8 +604,12 @@ top-10 positions and is the standard metric for ranked retrieval with multiple r
 documents per query~\cite{manning2008ir}.
 Throughput is measured in queries per second (QPS), computed as 600 divided by the
 total wall-clock time for all queries issued as a single batch to a live VDMS
-container --- the protocol reflects the steady-state serving throughput a production
-deployment would observe.
+container.
+Batch QPS is the appropriate production metric: a deployed HOI retrieval system
+serves queries at steady-state rates that are best captured by batch throughput;
+single-query latency at this scale is dominated by container and network overhead
+rather than by the ANN index structure, which would mask precisely the index
+differences the optimizer is designed to exploit.
 The joint optimization objective is
 \begin{equation}
   \text{Score} = \text{mAP} \times \text{QPS} .
@@ -596,8 +618,83 @@ The joint optimization objective is
 This scalar encodes the accuracy--throughput trade-off symmetrically: gains in QPS
 and gains in mAP contribute multiplicatively, so neither axis can be sacrificed
 without penalizing the objective.
-Score is used as the optimization target throughout Sections~\ref{sec:optimizer}
-and~\ref{sec:experiments}.
+Section~\ref{sec:probstmt} below formalizes the configuration space and the
+optimization problem whose objective is this Score.
+
+\subsection{Problem Statement}
+\label{sec:probstmt}
+
+\begin{definition}[Configuration Space]\label{def:space}
+Let $\Theta$ denote the joint configuration space of the two-stage pipeline
+(Section~\ref{sec:pipeline}).
+$\Theta$ is the Cartesian product of seven parameter domains ---
+\emph{engine}, $M$/$\mathit{nlist}$, $\mathit{efSearch}$/$\mathit{nprobe}$,
+$k$, $\alpha$, $n_{\mathrm{refs}}$, and $\mathit{ref\_strategy}$ ---
+whose individual value domains are enumerated in Section~\ref{sec:pipeline}.
+The total cardinality is $|\Theta| = 102{,}144$.
+\end{definition}
+
+\begin{definition}[Evaluation Oracle]\label{def:oracle}
+For any configuration $\theta \in \Theta$, the evaluation oracle
+$\mathcal{O}(\theta) = \bigl(\mathrm{mAP}(\theta),\,\mathrm{QPS}(\theta)\bigr)$
+is obtained by (i)~rebuilding the VDMS ANN index under $\theta$, and
+(ii)~issuing all 600 HICO-DET text queries to the live container and recording
+mAP@10 (Section~\ref{sec:benchmark}) and batch QPS.
+The oracle is \emph{black-box}: no closed-form gradient with respect to
+$\theta$ is available, and each call requires a full index rebuild followed by
+600 retrieval operations.
+\end{definition}
+
+\begin{definition}[Optimization Problem]\label{def:optproblem}
+Given $\Theta$ (Definition~\ref{def:space}) and $\mathcal{O}$ (Definition~\ref{def:oracle}),
+find
+\begin{equation}
+  \theta^{*} \;=\; \arg\max_{\theta \in \Theta}\;
+  \mathrm{Score}(\theta) ,
+  \label{eq:optproblem}
+\end{equation}
+where $\mathrm{Score}(\theta) = \mathrm{mAP}(\theta) \times \mathrm{QPS}(\theta)$
+(Eq.~\eqref{eq:score}).
+\end{definition}
+
+\noindent\textbf{Intractability.}
+Exhaustive search over $|\Theta| = 102{,}144$ configurations is infeasible under any
+practical budget: each oracle call requires $3$--$10$~minutes of wall-clock time
+(index rebuild plus 600 query evaluations on a GPU node), so evaluating the full
+space would require thousands of GPU-hours.
+At the $N{=}30$-iteration budget used in our study, a non-adaptive strategy covers
+at most $0.03\%$ of $\Theta$; evaluation feedback is additionally noisy due to VDMS
+runtime variability.
+This combination --- a black-box, expensive oracle with an exponential search space
+and a tiny sample budget --- is precisely the regime where LLM-guided reasoning
+offers the greatest advantage over grid and random baselines.
+
+\noindent\textbf{Cross-Stage Parameter Coupling.}
+The seven parameters decompose into two coupled groups:
+Stage-1 parameters $\{$engine, $M$, $\mathit{efSearch}$, $\mathit{nprobe}$, $k\}$
+govern ANN recall and throughput, while Stage-2 parameters $\{\alpha$,
+$n_{\mathrm{refs}}$, $\mathit{ref\_strategy}\}$ govern DINOv2 reranking.
+The optimal pool size $k$ and fusion weight $\alpha$ are \emph{jointly determined}:
+at small $k$, Stage~1 returns only high-confidence CLIP candidates so DINOv2
+reranking adds marginally, favouring small $\alpha$; at large $k$, the pool
+contains visually diverse images that benefit from DINOv2 reranking, favouring
+larger $\alpha$.
+This structural coupling invalidates the parameter-independence assumption underlying
+GP-based Bayesian methods~\cite{yang2024vdtuner} and Optuna
+TPE~\cite{akiba2019optuna}, which model each parameter's marginal contribution
+independently and cannot represent cross-stage interactions.
+Our LLM agent explicitly reasons about these inter-parameter dependencies in its
+natural-language analysis of prior outcomes (Section~\ref{sec:optimizer}).
+
+\noindent\textbf{Section Outline.}
+Section~\ref{sec:pipeline} constructs the two-stage pipeline that implements oracle
+$\mathcal{O}$, mapping any $\theta \in \Theta$ to a
+$(\mathrm{mAP},\,\mathrm{QPS})$ pair and formally enumerating all parameter domains.
+Section~\ref{sec:optimizer} presents the LLM-guided optimizer that solves
+$\arg\max_{\theta \in \Theta}\,\mathrm{Score}(\theta)$ adaptively within
+$N{=}30$ oracle evaluations.
+Section~\ref{sec:experiments} validates the solution on HICO-DET, GLDv2, and SIFT1M,
+reporting mean Score across three random seeds against five optimization baselines.
 
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
