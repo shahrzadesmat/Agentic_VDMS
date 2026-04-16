@@ -486,19 +486,20 @@ has a single-objective, single-stage evaluation loop.
 \caption{Comparison of closely related configuration optimization methods.
   \checkmark/\texttimes\ indicate whether the property is present.}
 \label{tab:rw-comparison}
-\small
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Method} & \textbf{LLM-Guided} & \makecell{\textbf{Cross-Stage}\\\textbf{Coupling}} & \makecell{\textbf{Mixed-Type}\\\textbf{Space}} & \makecell{\textbf{Semantic}\\\textbf{Benchmark}} \\
 \midrule
-OtterTune~\cite{vanaken2017ottertune}     & \texttimes & \texttimes & \texttimes & \texttimes \\
-GPTuner~\cite{lao2024gpttuner}            & \checkmark & \texttimes & \texttimes & \texttimes \\
+OtterTune~\cite{vanaken2017ottertune}            & \texttimes & \texttimes & \texttimes & \texttimes \\
+GPTuner~\cite{lao2024gpttuner}                   & \checkmark & \texttimes & \texttimes & \texttimes \\
 $\lambda$-Tune~\cite{giannakouris2025lambdatune} & \checkmark & \texttimes & \texttimes & \texttimes \\
-VDTuner~\cite{yang2024vdtuner}            & \texttimes & \texttimes & \checkmark & \texttimes \\
-Optuna TPE~\cite{akiba2019optuna}         & \texttimes & \texttimes & \checkmark & \checkmark \\
-\textbf{Ours}                             & \checkmark & \checkmark & \checkmark & \checkmark \\
+VDTuner~\cite{yang2024vdtuner}                   & \texttimes & \texttimes & \checkmark & \texttimes \\
+Optuna TPE~\cite{akiba2019optuna}                & \texttimes & \texttimes & \checkmark & \texttimes \\
+\textbf{Ours}                                    & \checkmark & \checkmark & \checkmark & \checkmark \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Our work occupies the intersection that neither the HPO thread
@@ -790,24 +791,29 @@ directly to higher recall at any fixed $k$, and therefore to higher mAP.
 \label{sec:optimizer}
 
 Figure~\ref{fig:workflow} illustrates the overall optimization framework.
-Four methods --- LLM Agent, Optuna TPE, Grid Search, and Random Search --- each propose
-a joint index configuration (engine, $M$, \textit{efSearch}/\textit{nlist}/\textit{nprobe},
-pool size $k$, fusion weight $\alpha$, reference count $n_r$, reference strategy) over $N=30$ iterations.
-Each proposed configuration is loaded into a VDMS Apptainer container, which builds the
-ANN index and executes all 600 HICO-DET queries; the resulting mAP and QPS are
+Five methods --- LLM Agent, Optuna TPE, GP-BO, Grid Search, and Random Search ---
+each propose a joint index configuration (engine, $M$,
+\textit{efSearch}/\textit{nlist}/\textit{nprobe}, pool size $k$, fusion weight
+$\alpha$, reference count $n_r$, reference strategy) over $N=30$ iterations.
+Each proposed configuration is loaded into a VDMS Apptainer container, which builds
+the ANN index and executes all 600 HICO-DET queries; the resulting mAP and QPS are
 combined into Score $= \text{mAP} \times \text{QPS}$ (HICO-DET and GLDv2).
-Only adaptive methods --- the LLM Agent and Optuna TPE --- receive the score signal as
-feedback to inform subsequent proposals; Grid Search and Random Search are non-adaptive
-baselines that do not condition on observed outcomes.
+Adaptive methods --- LLM Agent, Optuna TPE, and GP-BO --- receive the score signal
+as feedback; Grid Search and Random Search are non-adaptive baselines that do not
+condition on observed outcomes.
+GP-BO uses \texttt{optuna.samplers.GPSampler} (Gaussian Process surrogate with
+Expected Improvement), directly replicating VDTuner's~\cite{yang2024vdtuner}
+parameter-independent GP paradigm adapted to our single-objective Score.
 
 \begin{figure*}[t]
   \centering
     {\includegraphics[width=\textwidth]{figures/workflow.pdf}}
   \caption{Overview of the Agentic VDMS optimization framework.
-    Four methods --- \textbf{LLM Agent} (phase-aware, adaptive) and \textbf{Optuna TPE}
-    (Bayesian, adaptive) vs.\ \textbf{Grid Search} and \textbf{Random Search}
-    (non-adaptive baselines) --- each propose ANN index configurations evaluated by VDMS
-    over $N{=}30$ iterations.
+    Five methods --- \textbf{LLM Agent} (phase-aware, adaptive), \textbf{Optuna TPE}
+    (Tree Parzen Estimator, adaptive), and \textbf{GP-BO} (Gaussian Process surrogate,
+    adaptive) vs.\ \textbf{Grid Search} and \textbf{Random Search} (non-adaptive
+    baselines) --- each propose ANN index configurations evaluated by VDMS over
+    $N{=}30$ iterations.
     Score $= \text{mAP} \times \text{QPS}$ (HICO-DET and GLDv2).
     Red dashed arrows indicate score feedback; only adaptive methods receive it.}
   \label{fig:workflow}
@@ -1259,8 +1265,10 @@ substitutes for exhaustive search even at large scale.
 % ══════════════════════════════════════════════════════════════════════════════
 
 To test whether the LLM agent's advantage is specific to search spaces with
-cross-stage coupling, we evaluate all four methods on SIFT1M~\cite{jegou2011pq}
-under the same 30-iteration budget.
+cross-stage coupling, we evaluate four methods (LLM Agent, Optuna TPE, Grid
+Search, Random Search) on SIFT1M~\cite{jegou2011pq} under the same 30-iteration
+budget; GP-BO is omitted from this ablation as it targets the coupled-space
+comparison on HICO-DET and GLDv2.
 Unlike HICO-DET, SIFT1M involves no reranking stage and no fusion weight $\alpha$:
 the optimizer tunes only HNSW graph connectivity $M$, construction depth
 \textit{efConstruction}, search depth \textit{efSearch}, and candidate pool size
@@ -1295,7 +1303,8 @@ All four methods converge to FaissHNSWFlat with \textit{efSearch}$\in\{24,32\}$
 as the optimal operating point, yielding final Scores of
 $1036.0$ (LLM), $1035.0$ (Grid), $1021.1$ (Optuna), and $1014.2$ (Random).
 The spread across all four methods is only $2.1\%$ --- a stark contrast to
-HICO-DET, where the LLM leads by $8.8\%$ over Optuna and $9.0\%$ over Random.
+HICO-DET, where the LLM leads by $9.7\%$ over Optuna~TPE, $10.4\%$ over Random,
+and $3.3\%$ over GP-BO.
 
 \noindent\textbf{Complexity-proportional advantage.}
 The result confirms the paper's central theoretical prediction: the LLM agent's
@@ -1521,22 +1530,26 @@ $14.7\times$ throughput gain (QPS $= 16.98$ vs.\ $1.15$) that brute-force cannot
 
 Across three datasets, our evaluation tells a consistent and theoretically grounded
 story.
-On HICO-DET, the LLM agent achieves the highest mean Score ($4.44$) and reaches
-Score $\approx 3.97$ within 6 iterations --- a threshold requiring 27 iterations
-for Optuna TPE and 28 for Random Search.
+On HICO-DET, the LLM agent achieves the highest mean Score ($4.44$), converging
+to $\sim$95\% of its best in $\sim$13~iterations on average versus $\sim$20 for
+Optuna~TPE --- and leads by $+$9.7\% over Optuna~TPE, $+$10.4\% over Random
+Search, and $+$3.3\% over GP-BO (VDTuner-style).
 On GLDv2 (762K landmark images, $16\times$ scale), the LLM agent again ranks first
-(Score $= 3.7093$) and finds its best configuration at iteration~1, demonstrating
-that LLM architectural priors transfer across scale and retrieval modality.
+(mean Score $= 3.66$) and reaches near-optimal quality in $\sim$1--2~iterations,
+demonstrating that LLM architectural priors transfer across scale and retrieval
+modality.
 On SIFT1M --- a structurally simpler, single-stage HNSW benchmark with no
-cross-stage coupling --- all four methods converge within $2.1\%$ of each other,
-confirming that the agent's advantage scales with the coupling complexity of the
-configuration landscape and is not an artifact of a favorable benchmark.
+cross-stage coupling --- all four methods (GP-BO excluded) converge within
+$2.1\%$ of each other, confirming that the agent's advantage scales with the
+coupling complexity of the configuration landscape and is not an artifact of a
+favorable benchmark.
 
 Looking forward, three directions are most immediate.
-First, extending the multi-seed evaluation (currently 3 seeds for LLM, Optuna, and
-Random Search) to Grid Search and to additional LLM model families will quantify
-whether the sample-efficiency advantage is model-specific or a general property of
-history-conditioned optimization in coupled search spaces.
+First, extending the multi-seed evaluation (currently 3 seeds for all adaptive
+methods --- LLM, Optuna~TPE, GP-BO, and Random Search) to Grid Search and to
+additional LLM model families will quantify whether the sample-efficiency
+advantage is model-specific or a general property of history-conditioned
+optimization in coupled search spaces.
 Second, scaling to billion-scale corpora --- where memory locality, quantization effects,
 and IVFFlat sharding introduce additional coupling dimensions not present at 47K or 762K
 scale --- will test the limits of LLM architectural reasoning and motivate extensions
