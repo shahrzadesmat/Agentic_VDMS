@@ -277,6 +277,11 @@ average versus $\sim$20 for Optuna~TPE, and achieves a mean Score\,$=$\,4.44
 ($\text{mAP} \times \text{QPS}$) across seeds --- a $\mathbf{2.6\times}$
 improvement over the CLIP FaissFlat baseline and $\mathbf{13.9\times}$ over
 brute-force CLIP$+$DINOv2 reranking.
+Mechanistic ablations confirm that \emph{both} components are independently
+necessary: removing history conditioning degrades mean Score by 3.2\% and
+removing phase-aware transitions by 5.2\%, with neither ablation locating the
+compensatory $\mathit{efSearch}{=}64$, $\alpha{=}0.80$ operating point across
+any seed.
 
 \smallskip
 \noindent\textbf{(2) The first HOI retrieval benchmark.}
