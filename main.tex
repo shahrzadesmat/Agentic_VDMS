@@ -247,11 +247,13 @@ increasing parameter-space simplicity: HICO-DET (6-parameter, cross-modal, full
 cross-stage coupling), Google Landmarks v2~\cite{weyand2020gld} (GLDv2, 762K
 images, image-to-image retrieval), and SIFT1M~\cite{jegou2011pq} (4-parameter,
 pure ANN search).
-Compared to state-of-the-art baselines, the agent converges in 6~iterations versus
-27 for Optuna TPE and achieves $+$9.7\% accuracy--throughput Score on HICO-DET,
+Compared to state-of-the-art baselines, the agent achieves $+$9.7\%
+accuracy--throughput Score over Optuna~TPE and $+$3.3\% over GP-BO
+(a VDTuner-style Gaussian Process surrogate) on HICO-DET,
+converging in $\sim$13~iterations on average versus $\sim$20 for Optuna~TPE ---
 a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline.
-On GLDv2, the agent reaches the optimal configuration in $25\times$ fewer
-iterations than Optuna.
+On GLDv2, the agent reaches near-optimal quality in $\sim$1--2~iterations
+versus $\sim$13 for Optuna~TPE\@.
 On SIFT1M, all methods converge within 2\% of each other --- confirming that the
 agent's advantage scales with the structural coupling of the configuration
 landscape.
@@ -268,8 +270,8 @@ We present a phase-aware LLM agent that conditions each proposal on the full his
 of (configuration, Score) pairs, discovering the compensatory operating point
 $\mathit{efSearch}{=}64 < k{=}200$ with $\alpha{=}0.80$ that neither Bayesian nor
 random methods locate within 30 iterations.
-The agent reaches Score\,$\approx$\,3.97 in 6~iterations versus 27 for Optuna TPE
-and 28 for Random Search, and achieves a mean Score\,$=$\,4.44
+The agent converges to $\sim$95\% of its best Score in $\sim$13~iterations on
+average versus $\sim$20 for Optuna~TPE, and achieves a mean Score\,$=$\,4.44
 ($\text{mAP} \times \text{QPS}$) across seeds --- a $\mathbf{2.6\times}$
 improvement over the CLIP FaissFlat baseline and $\mathbf{13.9\times}$ over
 brute-force CLIP$+$DINOv2 reranking.
@@ -314,9 +316,10 @@ queries over image queries on compositionally structured datasets.
 We evaluate across HICO-DET, GLDv2, and SIFT1M --- datasets of systematically
 increasing parameter-space simplicity --- to characterize when and why LLM-guided
 reasoning outperforms classical methods.
-On HICO-DET the agent achieves $+$9.7\% over all baselines; on GLDv2 it identifies
-the optimal configuration in $25\times$ fewer iterations than Optuna; on SIFT1M all
-methods converge within 2\%.
+On HICO-DET the agent achieves $+$9.7\% over Optuna~TPE and $+$3.3\% over
+GP-BO (VDTuner-style); on GLDv2 it reaches near-optimal quality in
+$\sim$1--2~iterations versus $\sim$13 for Optuna~TPE; on SIFT1M all methods
+converge within 2\%.
 This graded evaluation establishes that the agent's advantage is proportional to
 the structural coupling of the configuration landscape, providing a principled
 framework for predicting optimizer behavior across retrieval workloads.
