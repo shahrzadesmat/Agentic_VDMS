@@ -524,17 +524,17 @@ labels, where each category is a \emph{verb--object} pair drawn from 117 action 
 and 80 MS-COCO object classes.
 Category sizes are highly skewed: the largest categories exceed 1{,}000 positive images
 while the smallest have as few as 5, producing a long-tailed relevance distribution
-that challenges retrieval systems tuned for uniform recall.
-The 600 categories partition into 80 COCO object classes, each appearing with up to
-117 distinct verbs, so categories that share the same object (e.g., \textit{ride horse},
-\textit{sit\_on horse}, \textit{straddle horse}) differ only in the action verb ---
-making fine-grained discrimination a strict requirement.
+that stresses any retrieval metric that weights all queries equally.
+The 600 categories span 80 COCO object classes and 117 verb types, so categories
+sharing the same object (e.g., \textit{ride horse}, \textit{sit\_on horse},
+\textit{straddle horse}) differ only in the action verb ---
+making fine-grained semantic discrimination a strict requirement.
 Every published use of HICO-DET has been restricted to the detection
 paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}: given an image,
 predict bounding boxes and interaction class labels.
-We repurpose these rich compositional annotations to construct the first text-query
-image retrieval benchmark from HICO-DET, opening an orthogonal evaluation axis that
-the detection literature has not explored.
+We repurpose these rich compositional annotations to construct, to our knowledge,
+the first text-query image retrieval benchmark from HICO-DET, opening an orthogonal
+evaluation axis that the detection literature has not explored.
 
 \subsection{Benchmark Construction}
 \noindent\textbf{Retrieval corpus.}
@@ -544,8 +544,9 @@ and carries no meaning for retrieval evaluation, where the task is to rank corpu
 given a query, not to generalize across a detection boundary.
 Merging both splits maximizes the positive-pair density needed for meaningful mAP
 computation across 600 categories.
-CLIP ViT-L/14 embeddings are pre-computed offline using the OpenAI weights and
-stored in VDMS as a 768-dimensional L2 DescriptorSet of 47{,}776 vectors.
+CLIP ViT-L/14~\cite{radford2021clip} embeddings are pre-computed offline using the
+official OpenAI weights and stored in VDMS as a 768-dimensional L2 DescriptorSet
+of 47{,}776 vectors.
 
 \noindent\textbf{Query set.}
 We construct exactly one canonical natural-language text query per HOI category,
@@ -557,7 +558,7 @@ reproducibility principle used in standard IR evaluation~\cite{manning2008ir}.
 Each query follows the template \textit{``a person \{verb\} a \{object\}''}, with the
 special case \textit{``a person near a \{object\}''} for the \texttt{no\_interaction}
 verb class.
-Queries are encoded with the same CLIP ViT-L/14 model (OpenAI weights), producing
+Queries are encoded with the same CLIP ViT-L/14 text encoder, producing
 768-dimensional unit-norm text embeddings that reside in the same embedding space as
 the indexed image vectors.
 
@@ -576,18 +577,19 @@ Precision@10, NDCG@10, and Recall@10 over all 600 queries.
 mAP@10 is our primary metric: it rewards systems that place relevant images in the
 top-10 positions and is the standard metric for ranked retrieval with multiple relevant
 documents per query~\cite{manning2008ir}.
-Throughput is measured in queries per second (QPS), computed as the harmonic average
-over 600 queries issued as a single batch to a live VDMS container --- the protocol
-reflects the steady-state serving throughput a production deployment would observe.
+Throughput is measured in queries per second (QPS), computed as 600 divided by the
+total wall-clock time for all queries issued as a single batch to a live VDMS
+container --- the protocol reflects the steady-state serving throughput a production
+deployment would observe.
 The joint optimization objective is
 \begin{equation}
-  \text{Score} = \text{mAP} \times \text{QPS} ,
+  \text{Score} = \text{mAP} \times \text{QPS} .
   \label{eq:score}
 \end{equation}
-which encodes the accuracy--throughput trade-off as a single scalar: a configuration
-that doubles QPS at half the mAP receives the same Score as one that halves QPS at
-double the mAP, preserving the symmetry expected of a production deployment objective.
-This compound metric is used as the optimization target throughout Sections~\ref{sec:optimizer}
+This scalar encodes the accuracy--throughput trade-off symmetrically: gains in QPS
+and gains in mAP contribute multiplicatively, so neither axis can be sacrificed
+without penalizing the objective.
+Score is used as the optimization target throughout Sections~\ref{sec:optimizer}
 and~\ref{sec:experiments}.
 
 \section{Two-Stage Retrieval Pipeline}
