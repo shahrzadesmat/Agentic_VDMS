@@ -171,17 +171,18 @@ of millions of embeddings requires setting
 graph connectivity ($M$), search depth (\textit{efSearch}), candidate pool
 size ($k$), cross-modal fusion weight $\alpha$, reranker reference count
 ($n_{\mathrm{refs}}$), and reference selection strategy --- a 7-parameter space
-in which each evaluation requires a full index rebuild and query execution,
-incurring significant wall-clock cost per trial~\cite{yang2024vdtuner} --- making
-convergence speed a first-class concern, with parameters interacting non-linearly
-in ways that resist independent analysis.
+in which each evaluation requires a full index rebuild and query execution across
+tens of thousands of embeddings, incurring significant wall-clock cost per
+trial~\cite{yang2024vdtuner} --- making convergence speed a first-class system
+concern, with parameters interacting non-linearly in ways that resist independent
+analysis.
 
-State-of-the-art approaches automate this search via grid enumeration, random
-sampling, or Bayesian optimization~\cite{snoek2012bayesian,bergstra2012random},
-following a trial-and-error strategy with no cross-parameter memory: grid and
-random search evaluate every candidate independently, while Bayesian methods such
-as Optuna TPE~\cite{akiba2019optuna} model each parameter with independent marginal
-distributions~\cite{bergstra2012random}.
+State-of-the-art approaches automate the search via grid enumeration, random
+sampling, or Bayesian optimization~\cite{snoek2012bayesian,bergstra2012random}.
+These methods follow a trial-and-error strategy with no cross-parameter memory: grid
+and random search evaluate every candidate independently, while Bayesian methods
+such as Optuna TPE~\cite{akiba2019optuna} model each parameter with independent
+marginal distributions~\cite{bergstra2012random}.
 This independence assumption is harmless on scalar parameter spaces, but it causes
 \emph{structural} failure on multi-stage retrieval pipelines, where Stage-1 search
 depth (\textit{efSearch}) and Stage-2 fusion weight ($\alpha$) are jointly
@@ -192,10 +193,14 @@ three method families to systematically miss compensatory operating points ---
 configurations that are globally optimal yet structurally invisible to blind
 optimizers regardless of iteration budget.
 
-Addressing this requires a benchmark with sufficient coupling complexity to
-distinguish optimizer sophistication from random luck --- pure vector search
-datasets such as SIFT1M~\cite{jegou2011pq} expose near-independent parameter
-spaces where any competent optimizer converges quickly.
+The core challenge is therefore: \emph{how do we build an optimizer that reasons
+over the full history of (configuration, Score) pairs while respecting conditional
+parameter dependencies and cross-stage coupling?}
+A necessary precondition is a benchmark with sufficient coupling complexity to
+distinguish optimizer sophistication from random luck.
+Pure vector search datasets such as SIFT1M~\cite{jegou2011pq} and
+ANN-Benchmarks~\cite{aumuller2020ann} expose a small, near-independent parameter
+space where any competent optimizer converges within tens of iterations.
 We address this gap by constructing the first text-query image retrieval benchmark
 derived from HICO-DET~\cite{chao2018hico} --- 47{,}776 images across 600
 fine-grained verb--object interaction categories, deployed on Intel's VDMS vector
@@ -204,11 +209,13 @@ expose the structural limits of blind ANN optimizers.
 Every prior use of HICO-DET has been restricted to the detection
 paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}; we identify
 and fill the orthogonal retrieval direction.
-We further pair CLIP ViT-L/14 ANN retrieval with zero-cost DINOv2 ViT-L/14-reg4
+To evaluate on this benchmark we further construct a two-stage retrieval pipeline
+pairing CLIP ViT-L/14 ANN retrieval with zero-cost DINOv2 ViT-L/14-reg4
 pseudo-relevance-feedback reranking, and formally prove that CLIP text embeddings
-occupy the semantic centroid of each HOI category's visual cluster --- making text
-queries structurally superior to image queries on compositional data and directly
-justifying the reranker design without a secondary index.
+occupy the semantic centroid of each HOI category's visual cluster --- a geometric
+result that makes text queries structurally superior to image queries on
+compositionally structured data and directly justifies the reranker design without
+a secondary index.
 
 Two parallel threads of prior work address orthogonal aspects of this problem, yet
 neither reaches the intersection our setting requires.
@@ -229,22 +236,29 @@ Our work occupies the intersection that neither thread reaches: the first LLM-gu
 optimizer designed specifically for ANN index spaces with hard conditional
 type-dependencies and cross-stage coupling, reasoning over the joint
 $\mathit{efSearch}$--$\alpha$ trade-off that all parameter-independent methods
-structurally cannot model, regardless of iteration budget or LLM capability.
+structurally cannot model.
 
 To address these challenges, we propose a \emph{phase-aware LLM agent} that
 conditions each configuration proposal on the complete history of measured
 (configuration, Score) pairs, reasoning explicitly over cross-stage parameter
-dependencies across three self-regulated phases --- exploration, exploitation, and
-fine-tuning --- with stagnation detection and anti-collapse mechanisms.
-Deployed on Intel's VDMS across HICO-DET (7-parameter, cross-modal, full coupling),
-GLDv2~\cite{weyand2020gld} (762K images, image-to-image), and SIFT1M~\cite{jegou2011pq}
-(4-parameter, pure ANN), the agent achieves $+$9.7\% Score over Optuna~TPE and
-$+$3.3\% over GP-BO (VDTuner-style Gaussian Process) on HICO-DET, converging in
-$\sim$13~iterations versus $\sim$20 for Optuna~TPE --- a $\mathbf{2.6\times}$
-improvement over the CLIP FaissFlat baseline.
-On GLDv2 it reaches near-optimal in $\sim$1--2~iterations versus $\sim$13 for
-Optuna~TPE; on SIFT1M all methods converge within 2\% --- confirming the agent's
-advantage scales with configuration-landscape coupling.
+dependencies across three self-regulated optimization phases --- exploration,
+exploitation, and fine-tuning --- with stagnation detection and anti-collapse
+mechanisms.
+The agent is deployed on Intel's VDMS and evaluated across three datasets of
+increasing parameter-space simplicity: HICO-DET (7-parameter, cross-modal, full
+cross-stage coupling), Google Landmarks v2~\cite{weyand2020gld} (GLDv2, 762K
+images, image-to-image retrieval), and SIFT1M~\cite{jegou2011pq} (4-parameter,
+pure ANN search).
+Compared to state-of-the-art baselines, the agent achieves $+$9.7\%
+accuracy--throughput Score over Optuna~TPE and $+$3.3\% over GP-BO
+(a VDTuner-style Gaussian Process surrogate) on HICO-DET,
+converging in $\sim$13~iterations on average versus $\sim$20 for Optuna~TPE ---
+a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline.
+On GLDv2, the agent reaches near-optimal quality in $\sim$1--2~iterations
+versus $\sim$13 for Optuna~TPE\@.
+On SIFT1M, all methods converge within 2\% of each other --- confirming that the
+agent's advantage scales with the structural coupling of the configuration
+landscape.
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 
