@@ -5,6 +5,7 @@
 
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
+\usepackage{makecell}
 % ── Float placement tuning ───────────────────────────────────────────────────
 % pipeline_figure.pdf has a full-page bounding box (~93% of textheight when
 % scaled to textwidth). Default \dbltopfraction=0.7 rejects it every page and
@@ -408,14 +409,17 @@ Our LLM agent replaces these procedures with history-conditioned sequential reas
 the full mixed-type parameter space.
 
 \subsection{Hyperparameter Optimization}
-Classical HPO methods span grid and random search~\cite{bergstra2012random} --- the
-latter empirically superior in high-dimensional spaces --- Gaussian-process-based
-Bayesian optimization~\cite{snoek2012bayesian}, bandit-based methods such as
-Hyperband~\cite{li2018hyperband}, and hybrid approaches such as
-BOHB~\cite{falkner2018bohb} that combine kernel density estimation with successive
-halving.
-Automated machine learning frameworks such as Auto-sklearn~\cite{feurer2015autosklearn}
-apply these methods to joint algorithm selection and hyperparameter configuration.
+HPO methods divide into three families.
+\textbf{Heuristic search:} Grid and random search~\cite{bergstra2012random} are the
+dominant baselines; random search is empirically superior in high-dimensional spaces
+because it covers more of the marginal space of each parameter.
+\textbf{Bayesian optimization (BO):} Gaussian-process-based BO~\cite{snoek2012bayesian}
+fits a probabilistic surrogate and acquires the next configuration by maximizing
+expected improvement; BOHB~\cite{falkner2018bohb} hybridizes kernel density estimation
+with successive halving for additional efficiency.
+\textbf{Bandit and meta-learning:} Hyperband~\cite{li2018hyperband} treats configuration
+selection as a pure-exploration bandit problem; Auto-sklearn~\cite{feurer2015autosklearn}
+applies BO to joint algorithm selection and hyperparameter configuration.
 ML-guided DBMS configuration was pioneered by OtterTune~\cite{vanaken2017ottertune},
 which applied Gaussian process regression to map workload features to optimal knob
 settings; subsequent systems applied reinforcement learning, but all operate on
@@ -450,7 +454,7 @@ $\mathit{efSearch}{=}64$, $\alpha{=}0.80$ even within a 30-iteration budget.
 \subsection{LLM-Guided System Configuration}
 Recent work established that large language models can act as black-box optimizers by
 iteratively proposing candidate solutions and refining them based on observed
-outcomes~\cite{yang2024opro}.
+outcomes.
 OPRO~\cite{yang2024opro} encodes the history of (solution, score) pairs directly in the
 prompt, enabling the LLM to generate improved solutions without gradient information.
 Follow-up work applied this paradigm to machine learning hyperparameter
@@ -470,6 +474,26 @@ Both systems operate on flat, scalar knob spaces (buffer pool sizes, parallelism
 I/O parameters) where parameters are conditionally independent by construction: no engine
 type gates valid parameters, and no cross-stage coupling arises because DBMS knob tuning
 has a single-objective, single-stage evaluation loop.
+
+\begin{table}[t]
+\centering
+\caption{Comparison of closely related configuration optimization methods.
+  \checkmark/\texttimes\ indicate whether the property is present.}
+\label{tab:rw-comparison}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{LLM-Guided} & \makecell{\textbf{Cross-Stage}\\\textbf{Coupling}} & \makecell{\textbf{Mixed-Type}\\\textbf{Space}} & \makecell{\textbf{Semantic}\\\textbf{Benchmark}} \\
+\midrule
+OtterTune~\cite{vanaken2017ottertune}     & \texttimes & \texttimes & \texttimes & \texttimes \\
+GPTuner~\cite{lao2024gpttuner}            & \checkmark & \texttimes & \texttimes & \texttimes \\
+$\lambda$-Tune~\cite{giannakouris2025lambdatune} & \checkmark & \texttimes & \texttimes & \texttimes \\
+VDTuner~\cite{yang2024vdtuner}            & \texttimes & \texttimes & \checkmark & \texttimes \\
+Optuna TPE~\cite{akiba2019optuna}         & \texttimes & \texttimes & \checkmark & \checkmark \\
+\textbf{Ours}                             & \checkmark & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 Our work occupies the intersection that neither the HPO thread
 (VDTuner~\cite{yang2024vdtuner}, Optuna~\cite{akiba2019optuna}, random
