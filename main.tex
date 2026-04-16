@@ -174,7 +174,9 @@ size ($k$), cross-modal fusion weight $\alpha$, reranker reference count
 in which each evaluation requires a full index rebuild and query execution across
 tens of thousands of embeddings, incurring significant wall-clock cost per
 trial~\cite{yang2024vdtuner} --- making convergence speed a first-class system
-concern, with parameters interacting non-linearly in ways that resist independent
+concern.
+The interactions among parameters are highly non-linear: the optimal value of each
+parameter depends on the values of the others in ways that resist independent
 analysis.
 
 State-of-the-art approaches automate the search via grid enumeration, random
@@ -193,6 +195,21 @@ three method families to systematically miss compensatory operating points ---
 configurations that are globally optimal yet structurally invisible to blind
 optimizers regardless of iteration budget.
 
+The practical severity of this failure is amplified by the cost structure of ANN
+index tuning.
+Each evaluation in a production-scale system requires a full index rebuild followed
+by query execution across tens of thousands of embeddings --- 7--8 minutes of
+wall-clock time per iteration on representative hardware, capping a realistic
+tuning budget at approximately 30 iterations (3.5--4 hours per method).
+Under this constraint, a method that spends even 10--15 early iterations in
+suboptimal regions of the \textit{efSearch}--$\alpha$ landscape does not merely
+converge slowly: it \emph{fails} to locate the globally optimal configuration
+entirely.
+The LLM agent's ability to reason explicitly about inter-stage dependencies is
+therefore not a convenience --- it is the mechanism that transforms a 30-iteration
+budget from insufficient to \emph{sufficient} for navigating a coupled
+configuration landscape.
+
 The core challenge is therefore: \emph{how do we build an optimizer that reasons
 over the full history of (configuration, Score) pairs while respecting conditional
 parameter dependencies and cross-stage coupling?}
@@ -209,6 +226,18 @@ expose the structural limits of blind ANN optimizers.
 Every prior use of HICO-DET has been restricted to the detection
 paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}; we identify
 and fill the orthogonal retrieval direction.
+The compositional structure of the 600 HOI categories --- spanning fine-grained
+verb--object pairings such as \emph{ride bicycle}, \emph{hold book}, and
+\emph{pet cat} --- creates a retrieval workload qualitatively harder than
+scene-level or object-level benchmarks: a successful query must locate images
+matching a specific \emph{interaction}, not merely the presence of the involved
+entities.
+This structural complexity translates directly into a more sensitive configuration
+landscape, where the optimal \textit{efSearch}--$\alpha$ trade-off differs
+substantially from that on simpler datasets, and where even exhaustive exact-search
+with modality fusion reaches only mAP\,$=$\,0.276 --- confirming that performance
+differences across optimizer methods reflect optimizer quality rather than dataset
+saturation.
 To evaluate on this benchmark we further construct a two-stage retrieval pipeline
 pairing CLIP ViT-L/14 ANN retrieval with zero-cost DINOv2 ViT-L/14-reg4
 pseudo-relevance-feedback reranking, and formally prove that CLIP text embeddings
@@ -236,7 +265,7 @@ Our work occupies the intersection that neither thread reaches: the first LLM-gu
 optimizer designed specifically for ANN index spaces with hard conditional
 type-dependencies and cross-stage coupling, reasoning over the joint
 $\mathit{efSearch}$--$\alpha$ trade-off that all parameter-independent methods
-structurally cannot model.
+structurally cannot model, regardless of iteration budget or LLM capability.
 
 To address these challenges, we propose a \emph{phase-aware LLM agent} that
 conditions each configuration proposal on the complete history of measured
