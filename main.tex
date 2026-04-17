@@ -114,33 +114,30 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Tuning an approximate nearest neighbor index for multimodal retrieval is bottlenecked
-by two compounding difficulties: every configuration requires a full rebuild-and-query
-oracle evaluation costing several minutes of wall-clock time, and the governing
-parameters are not independent --- engine type gates valid index parameters, while
-Stage-1 search depth and Stage-2 fusion weight are coupled such that the optimal
-operating point on the joint frontier is structurally invisible to any univariate
-marginal estimator.
-Existing HPO methods --- including Bayesian TPE and Gaussian Process BO --- assume
-parameter independence by construction; for multi-stage retrieval pipelines, this
-assumption is not merely suboptimal but constitutes a structural failure that
-persists regardless of evaluation budget.
-We present a phase-aware LLM optimization agent that treats configuration search as
-sequential structural reasoning: each proposal is conditioned on the full empirical
-history of (configuration, score) pairs, enabling the agent to navigate the coupled
-$(k,\alpha)$ frontier and allocate its evaluation budget across self-regulated
-exploration, exploitation, and fine-tuning phases without a surrogate model.
-Deployed on Intel VDMS for human-object interaction retrieval over HICO-DET
-(47{,}776 images, 600 verb--object categories), the agent achieves mean
-Score\,$=$\,4.44 ($\mathrm{mAP}{\times}\mathrm{QPS}$), outperforming Optuna~TPE
-by $9.7\%$ and Gaussian Process BO by $3.3\%$, with substantially superior
-sample efficiency on the coupled configuration space.
-We validate a \emph{complexity-proportional thesis} across three datasets of
-increasing parameter-space simplicity: the advantage compresses from $9.7\%$ on the
-fully coupled HICO-DET space to under $1.7\%$ on GLDv2 and \emph{inverts} on
-SIFT1M --- where the near-independent four-parameter space is navigable by any
-competent optimizer --- demonstrating that the agent's superiority is a direct
-function of configuration-landscape coupling, not a general-purpose HPO improvement.
+Deploying a multimodal retrieval system on a production vector database requires
+jointly tuning ANN index parameters and cross-modal reranking weights under a sample
+budget constrained by expensive rebuild-and-query evaluations.
+The fundamental obstacle is \emph{cross-stage parameter coupling}: search depth
+determines the candidate pool delivered to the reranker, so the optimal fusion weight
+shifts with every change to the index configuration.
+State-of-the-art HPO methods --- Bayesian TPE and Gaussian Process BO --- model
+parameters with independent marginals and are therefore structurally incapable of
+representing this joint dependency, regardless of evaluation budget.
+We present a phase-aware LLM agent that addresses this through history-conditioned
+structural reasoning: each configuration proposal is conditioned on the full observed
+trajectory of (configuration, score) pairs, enabling explicit navigation of the
+coupled $(k,\alpha)$ frontier across self-regulated exploration, exploitation, and
+fine-tuning phases without a surrogate model.
+Evaluated on Intel VDMS, the agent achieves mean Score\,$=$\,4.44
+($\mathrm{mAP}{\times}\mathrm{QPS}$) on HICO-DET --- a 47{,}776-image,
+600-category human-object interaction benchmark with a fully coupled 7-parameter
+configuration space --- outperforming Optuna~TPE by $9.7\%$ and Gaussian Process BO
+by $3.3\%$.
+We further validate a \emph{complexity-proportional thesis}: the advantage compresses
+to under $1.7\%$ on GLDv2 and \emph{inverts} on SIFT1M, where the near-independent
+configuration space makes all methods competitive --- establishing that the agent's
+gains are a precise function of configuration-landscape coupling, not a
+general-purpose HPO improvement.
 \end{abstract}
 
 \maketitle
