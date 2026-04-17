@@ -1440,12 +1440,8 @@ the LLM agent with QDS objective discovers (FaissHNSWFlat, $M{=}16$, $\mathit{ef
 \noindent\textbf{Theory-to-experiment alignment.}
 Table~\ref{tab:baselines} confirms the centroid-displacement prediction (Section~\ref{sec:centroid}): at $k{=}2000$ FaissFlat, CLIP text queries achieve mAP\,$=$\,0.240 versus DINOv2 image-based retrieval at mAP\,$=$\,0.217 ($-9.6\%$ relative), consistent with image queries incurring positive centroid bias $\varepsilon_j^2 > 0$ that is largest for the long-tailed, visually diverse HOI categories dominating HICO-DET.
 
-\noindent\textbf{Limitations.}
-All corpora are smaller than production billion-scale databases, where memory-locality and network-storage coupling introduce dimensions not encountered here.
-Statistical confidence has been quantified for 3 seeds per method (LLM, Optuna, Random); extending to Grid Search and additional LLM families remains future work.
-The agent's behavior is specific to MiniMax-M2.1; different model families may differ in convergence speed and sensitivity to the per-iteration diagnostic labels.
 
-\section{Conclusion}
+\section{Conclusion and Outlook}
 \label{sec:conclusion}
 
 Standard parameter-independent HPO methods fail structurally on two-stage ANN retrieval
@@ -1467,10 +1463,14 @@ decreases --- with the SIFT1M convergence ordering inverting to favor Optuna TPE
 (iteration~14) over the LLM agent (iteration~17) --- confirming that the agent's benefit
 scales proportionally with configuration-landscape coupling complexity.
 
-Three extensions follow directly.
-First, billion-scale corpora introduce memory-topology and NUMA-locality coupling; hardware-profile telemetry must extend the agent's context.
-Second, multi-tenant workloads require online history-weighting that discounts stale evaluations as the query mix shifts.
-Third, closed-loop feedback from a live VDMS engine --- streaming QPS updates to $\mathcal{H}_t$ --- would enable re-optimization without full index rebuilds, eliminating the dominant 8--9-minute per-call cost.
+\paragraph{Billion-scale hardware-aware tuning.}
+Having established Pareto-efficient configuration discovery at hundred-thousand scale, the direct extension targets billion-scale corpora, where memory-topology and NUMA-locality coupling demand hardware-profile telemetry as an additional agent context channel.
+
+\paragraph{Online and multi-tenant optimization.}
+Multi-tenant workloads require history-weighting that discounts stale evaluations as the query distribution shifts; closed-loop feedback from a live VDMS engine --- streaming QPS updates directly to $\mathcal{H}_t$ --- would eliminate the dominant 8--9-minute per-call rebuild cost, enabling continuous re-optimization.
+
+\paragraph{Multi-model generalization.}
+The current evaluation uses MiniMax-M2.1 as the sole LLM backbone; a systematic study across model families would quantify the sensitivity of phase-transition detection and convergence speed to model capability, establishing the empirical portability boundary of the agentic framework.
 
 \begin{acks}
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
