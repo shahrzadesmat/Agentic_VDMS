@@ -152,7 +152,7 @@ On HICO-DET, a 47{,}776-image, 600-category human-object interaction retrieval
 benchmark deployed on Intel VDMS, the agent outperforms Optuna~TPE by $9.7\%$ and
 Gaussian Process BO by $3.3\%$ in accuracy--throughput score.
 We further validate a \emph{complexity-proportional thesis} across three benchmarks:
-the advantage compresses to under $1.7\%$ on GLDv2 and \emph{inverts} on SIFT1M,
+the advantage compresses to under $0.5\%$ on GLDv2 and \emph{inverts} on SIFT1M,
 where the near-independent configuration space makes all methods competitive ---
 establishing that the agent's gains are a precise function of
 configuration-landscape coupling, not a general-purpose HPO improvement.
@@ -286,8 +286,8 @@ accuracy--throughput Score over Optuna~TPE and $+$3.3\% over GP-BO
 (a VDTuner-style Gaussian Process surrogate) on HICO-DET,
 converging in $\sim$13~iterations on average versus $\sim$20 for Optuna~TPE ---
 a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline.
-On GLDv2, the agent reaches near-optimal quality in $\sim$1--2~iterations
-versus $\sim$13 for Optuna~TPE\@.
+On GLDv2, the agent reaches near-optimal quality in $\sim$6~iterations
+versus $\sim$25 for Optuna~TPE\@.
 On SIFT1M, all methods converge within 2\% of each other --- confirming that the
 agent's advantage scales with the structural coupling of the configuration
 landscape.
@@ -314,7 +314,7 @@ establishing text-query superiority on compositionally structured data.
 
 \noindent\textbf{(3) A complexity-matched evaluation characterizing when LLM reasoning pays off.}
 We evaluate across HICO-DET (7-parameter, cross-stage coupled, $+$9.7\% LLM advantage),
-GLDv2 (image-to-image, near-optimal at iteration 1--2), and SIFT1M (pure ANN, all
+GLDv2 (image-to-image, near-optimal at iteration~6), and SIFT1M (pure ANN, all
 methods within 2\%) --- establishing that the agent's advantage is proportional to
 structural configuration coupling.
 
@@ -1038,9 +1038,9 @@ ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2 reranking,
 all under exact FaissFlat search (Section~\ref{sec:baselines}).
 
 \noindent\textbf{Metrics.}
-Retrieval quality: mAP (primary), P@10, Recall@10~\cite{manning2008ir}.
+Retrieval quality: mAP, P@10, Recall@10~\cite{manning2008ir}.
 Throughput: batch QPS.
-Joint objective: Score\,$=$\,mAP\,$\times$\,QPS (Eq.~\eqref{eq:score});
+Joint optimization objective: Score\,$=$\,mAP\,$\times$\,QPS (Eq.~\eqref{eq:score});
 for SIFT1M, Score\,$=$\,Recall@10\,$\times$\,QPS.
 
 \noindent\textbf{Implementation.}
@@ -1090,10 +1090,13 @@ $N{=}30$ covers under 1\% of $\Theta$ (e.g., 5{,}940 HNSW configs on SIFT1M), to
 \end{table*}
 
 \noindent\textbf{Compositional difficulty.}
-Even with exhaustive search and DINOv2 reranking, the best achievable mAP is only
-$0.276$ --- reflecting fine-grained categories such as \textit{ride horse},
-\textit{sit\_on horse}, and \textit{straddle horse} that share the same object but
-differ only in verb.
+Even with exhaustive FaissFlat search and single-query DINOv2 reranking ($n_\text{refs}{=}1$),
+the best achievable mAP is $0.276$ --- reflecting fine-grained categories such as
+\textit{ride horse}, \textit{sit\_on horse}, and \textit{straddle horse} that share
+the same object but differ only in verb.
+(With pseudo-relevance feedback at $n_\text{refs}{=}10$, the FaissFlat oracle reaches
+mAP $= 0.424$ at $\alpha{=}0.80$, confirming that PRF and index tuning are complementary
+axes of optimization.)
 
 \noindent\textbf{UniIR comparison.}
 UniIR's fine-tuned CLIP-SF achieves mAP $= 0.095$ in VDMS --- a $2.6\times$ drop
@@ -1261,36 +1264,36 @@ The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from te
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Optuna TPE                    & 3.5959            & 0.1618            & 0.1968              & 22.22             & 23/30 \\
+Optuna TPE                    & 3.6398            & 0.1786            & 0.2129              & 20.38             & 25/30 \\
 Random Search                 & 3.6491            & 0.1784            & 0.2131              & 20.45             & 8/30 \\
 Grid Search                   & 3.6566            & 0.1789            & 0.2125              & 20.43             & 21/30 \\
 \midrule
-\textbf{LLM Agent (Ours)}     & \textbf{3.6567}   & \textbf{0.1790}   & \textbf{0.2126}     & \textbf{20.43}    & \textbf{15/30} \\
+\textbf{LLM Agent (Ours)}     & \textbf{3.6575}   & \textbf{0.1790}   & \textbf{0.2124}     & \textbf{20.44}    & \textbf{6/30} \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 \noindent\textbf{Overall performance.}
-The LLM agent achieves Score $= \textbf{3.657}$, the best result across all methods,
+The LLM agent achieves Score $= \textbf{3.658}$, the best result across all methods,
 marginally outperforming Grid Search (Score $= 3.657$), Random Search (Score $= 3.649$),
-and Optuna TPE (Score $= 3.596$).
+and Optuna TPE (Score $= 3.640$).
 The LLM agent ranks first on both datasets despite the $16\times$ scale increase and the shift
 from text-to-image to image-to-image retrieval; however, the performance gap between methods
-is substantially compressed relative to HICO-DET (${\lesssim}1.7\%$ spread vs.\ $9.7\%$),
+is substantially compressed relative to HICO-DET (${\lesssim}0.5\%$ spread vs.\ $9.7\%$),
 a pattern we return to in Section~\ref{sec:sift1m}.
 
 \noindent\textbf{Scale effects.}
 Each GLDv2 iteration completes in $\approx$5\,min (HNSW build: $\approx$272\,s), slightly faster than HICO-DET (8--9\,min) since image-to-image retrieval incurs no per-query HOI-category overhead; all 30-iteration budgets complete in $\approx$2.5\,h.
 
 \noindent\textbf{Sample efficiency.}
-The LLM agent reaches its best Score at iteration~15; Grid Search at iteration~21,
-and Optuna TPE at iteration~23.
-Random Search locates a competitive configuration at iteration~8, ahead of the LLM agent,
+The LLM agent reaches its best Score at iteration~6; Grid Search at iteration~21,
+and Optuna TPE at iteration~25.
+Random Search locates a competitive configuration at iteration~8, behind the LLM agent,
 reflecting the compressed performance landscape at 762K scale where high-QPS HNSW
 configurations are easily discovered without conditioning on empirical history.
-Despite converging later than Random Search, the LLM agent identifies a better
-final Score ($3.657$ vs.\ $3.649$), and reaches a Score exceeding all baselines'
-final performance within 15 iterations.
+The LLM agent identifies both the best final Score ($3.658$ vs.\ $3.649$ for Random Search)
+and converges fastest among all methods, reaching a Score exceeding all baselines'
+final performance within 6 iterations.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \subsection{Complexity-Matched Validation: SIFT1M}
@@ -1411,7 +1414,7 @@ achieves mean Score $= 4.44$, reaching Score ${\geq}\,3.97$ at iteration~6, a th
 that requires 27 iterations for Optuna TPE and 28 for Random Search (${\approx}2.7$ hours
 of compute saved at 8--9 minutes per oracle call).
 The $+9.7\%$ advantage over both Optuna TPE and Random Search, and $+3.3\%$ over GP-BO,
-compresses to ${\lesssim}1.7\%$ on GLDv2 and $2.1\%$ on SIFT1M as coupling complexity
+compresses to ${\lesssim}0.5\%$ on GLDv2 and $2.1\%$ on SIFT1M as coupling complexity
 decreases --- with the SIFT1M convergence ordering inverting to favor Optuna TPE
 (iteration~14) over the LLM agent (iteration~17) --- confirming that the agent's benefit
 scales proportionally with configuration-landscape coupling complexity.
