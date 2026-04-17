@@ -617,11 +617,10 @@ reporting mean Score across three random seeds against five optimization baselin
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.70\textwidth]{figures/pipeline_figure.pdf}
-  \caption{\textbf{Two-stage retrieval pipeline (oracle $\mathcal{O}(\theta)$).}
-    Stage~1: CLIP ViT-L/14 ANN retrieval produces a top-$k$ candidate pool.
-    Stage~2: DINOv2 ViT-L/14-reg4 distances are fused via convex combination
-    $s_j{=}(1{-}\alpha)\hat{c}_j+\alpha\hat{d}_j$, re-ranking candidates at zero
-    additional indexing cost. Score $= \mathrm{mAP}\times\mathrm{QPS}$.}
+  \caption{\textbf{Two-stage retrieval pipeline.}
+    CLIP ViT-L/14 ANN retrieval (Stage~1) produces a top-$k$ candidate pool;
+    DINOv2 ViT-L/14-reg4 reranking (Stage~2) fuses scores via
+    $s_j{=}(1{-}\alpha)\hat{c}_j+\alpha\hat{d}_j$ at zero additional indexing cost.}
   \label{fig:pipeline}
 \end{figure*}
 
