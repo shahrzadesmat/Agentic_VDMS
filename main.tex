@@ -1040,13 +1040,11 @@ of $\Theta$ to allocate its $N$-iteration budget efficiently.
 \subsection{Search Space and Coupling Structure}
 
 The configuration space decomposes as
-
 \begin{equation}
   \Theta \;=\; \Theta_{\mathrm{HNSW}} \;\cup\; \Theta_{\mathrm{IVF}}
                \;\cup\; \Theta_{\mathrm{Flat}},
   \label{eq:space}
 \end{equation}
-
 where each component is defined by its engine-conditional index parameters together
 with shared parameters
 $k \in \{50, 100, 200, 300, 500, 750, 1000\}$,
@@ -1089,13 +1087,11 @@ structural choices before continuous ones.
 Let $h_t = \bigl(\theta_t,\,\mathrm{mAP}(\theta_t),\,\mathrm{QPS}(\theta_t)\bigr)$
 denote the evaluation record at iteration $t$ and define the
 \emph{search history trajectory}
-
 \begin{equation}
   \mathcal{H}_t \;=\; \bigl(h_1,\,h_2,\,\ldots,\,h_t\bigr),
   \quad t \geq 0,\quad \mathcal{H}_0 = \emptyset.
   \label{eq:history}
 \end{equation}
-
 $\mathcal{H}_t$ is the agent's complete internal state: no surrogate model,
 gradient estimate, or kernel is maintained between iterations.
 At each iteration the agent receives a single structured prompt built from four
@@ -1113,7 +1109,6 @@ a \textit{reasoning} field that articulates its rationale (Figure~\ref{fig:promp
 Let $\mathrm{Score}^*_{t} = \max_{s \leq t}\mathrm{Score}(\theta_s)$ denote the
 running best at the end of iteration $t$.
 The diagnostic class
-
 \begin{equation}
   g(\mathcal{H}_{t}) =
   \begin{cases}
@@ -1130,7 +1125,6 @@ The diagnostic class
   \end{cases}
   \label{eq:guidance}
 \end{equation}
-
 is injected into the prompt as a targeted natural-language directive.
 \textit{Excellent} reinforces the current structural region and encourages
 incremental $\alpha$ or $n_r$ refinement; \textit{low\_mAP} directs the agent to
@@ -1155,12 +1149,10 @@ guaranteeing loop progress.
 \subsection{Phase-Aware Budget Partition}
 
 The $N$-iteration budget is divided into three phases with boundaries
-
 \begin{align}
   t_{\mathrm{exp}}  &= \lfloor 0.40\,N \rfloor, \label{eq:texp}\\
   t_{\mathrm{expl}} &= \lfloor 0.75\,N \rfloor, \label{eq:texpl}
 \end{align}
-
 defining \textbf{Exploration} ($1 \leq t \leq t_{\mathrm{exp}}$),
 \textbf{Exploitation} ($t_{\mathrm{exp}} < t \leq t_{\mathrm{expl}}$),
 and \textbf{Fine-tuning} ($t_{\mathrm{expl}} < t \leq N$) --- for $N{=}30$:
@@ -1191,7 +1183,6 @@ Embedding these rules in the prompt rather than as external rejection filters ma
 structural diversity an explicit part of the agent's reasoning.
 
 Algorithm~\ref{alg:agent} gives the complete procedure.
-
 \begin{algorithm}[t]
 \caption{LLM-Guided ANN Optimizer}
 \label{alg:agent}
@@ -1225,7 +1216,6 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
 \State \Return $\theta^*,\;\mathcal{H}_N$
 \end{algorithmic}
 \end{algorithm}
-
 GP-BO replicates the VDTuner~\cite{yang2024vdtuner} paradigm using
 \texttt{optuna.samplers.GPSampler} (Gaussian Process surrogate, Expected Improvement
 acquisition) applied to our single-objective Score.
@@ -1779,18 +1769,10 @@ sensitive to index configuration.
 We introduce a \emph{Query Difficulty Score} (QDS) that identifies structurally hard
 queries and upweights their contribution to the optimization objective.
 For query $j$, QDS combines two complementary signals:
-
-\vspace{0.5em}
-$H_j = -\sum_i p_{ji} \log p_{ji}$,\quad where $p_{ji} = \mathrm{softmax}(\mathbf{f}_{q_j}^\top \mathbf{f}_{d_i}/\tau)$
-\vspace{0.5em}
-
+$H_j = -\sum_i p_{ji} \log p_{ji}$ (where $p_{ji} = \mathrm{softmax}(\mathbf{f}_{q_j}^\top \mathbf{f}_{d_i}/\tau)$)
 measures \emph{gallery entropy} --- how uniformly the CLIP query mass spreads over
 the gallery (high $H_j$: CLIP is confused, many candidates look equally relevant); and
-
-\vspace{0.5em}
 $\mathrm{CPR}_j = \|\mathbf{f}_{q_j} - \boldsymbol{\mu}_j\|^2 / \sigma_j^2$
-\vspace{0.5em}
-
 measures the \emph{centroid displacement ratio} --- how far the text query embedding
 lies from the visual centroid $\boldsymbol{\mu}_j$ of its ground-truth positives
 (high CPR$_j$: the text query is not well-anchored to its class's visual region).
