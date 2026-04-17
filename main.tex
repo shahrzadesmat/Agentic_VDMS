@@ -294,8 +294,8 @@ landscape.
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 
-\noindent\textbf{(1) A phase-aware LLM agent for coupled ANN index optimization.}
-We present a history-conditioned, phase-aware LLM optimizer that explicitly models
+\noindent\textbf{(1) A phase-aware agentic protocol for coupled ANN index optimization.}
+We present a history-conditioned, phase-aware LLM agent that explicitly models
 the structural coupling between Stage-1 search depth (\textit{efSearch}) and Stage-2
 fusion weight~($\alpha$) --- discovering the compensatory operating point
 $\mathit{efSearch}{=}64$, $\alpha{=}0.80$ that no parameter-independent method
@@ -917,6 +917,7 @@ until a novel configuration is accepted or a uniformly random fallback is applie
 guaranteeing loop progress.
 
 \subsection{Phase-Aware Budget Partition}
+\label{sec:phases}
 
 The $N$-iteration budget is divided into three phases with boundaries
 \begin{align}
@@ -932,13 +933,17 @@ determine the achievable QPS ceiling and must be resolved before $\alpha$ and $n
 are refined---a conditional dependency that Optuna TPE, which models each parameter
 independently via univariate kernel density estimation, cannot exploit.
 
-During Exploration, the \textit{excellent} directive instructs the agent to continue
-sampling structurally distinct (engine, $M$, $k$) combinations rather than converging
-prematurely; the $\mathcal{U}_t$ hint set is suppressed.
-During Exploitation, $\mathcal{U}_t$ is activated and \textit{excellent} shifts to
-reinforcing the best engine region while broadening $\alpha$--$n_r$ coverage.
-During Fine-tuning, hints narrow to unexplored reference-strategy variants and
-proposals are restricted to coordinate-wise perturbations of the current best.
+\paragraph{Exploration ($1 \leq t \leq 12$).}
+Diversity-focused engine coverage: the \textit{excellent} directive instructs the agent
+to sample structurally distinct (engine, $M$, $k$) combinations;
+the $\mathcal{U}_t$ hint set is suppressed to prevent premature convergence.
+\paragraph{Exploitation ($13 \leq t \leq 22$).}
+$\mathcal{U}_t$ is activated; \textit{excellent} shifts to reinforcing the best-engine
+region while broadening $(\alpha, n_r)$ coverage on the identified Pareto frontier.
+\paragraph{Fine-tuning ($23 \leq t \leq 30$).}
+Hints narrow to unexplored reference-strategy variants; proposals are restricted to
+coordinate-wise micro-adjustments of the current best
+($\mathit{efSearch}$, $n_r$) for latency-targeted gains.
 
 \paragraph{Anti-collapse and stagnation constraints.}
 Let $c_t$ count consecutive proposals in which only $\alpha$ changed
@@ -1406,9 +1411,10 @@ Removing \emph{history conditioning} degrades mean Score $4.44{\to}4.29$
 cannot detect the $(k,\alpha)$ coupling, settling for high-QPS, low-mAP configs
 (mAP falls $0.259{\to}0.236$) --- confirming the gain reflects quality recovery, not
 throughput exploitation.
-Removing \emph{phase structure} causes the larger drop to $4.21$ ($\mathbf{-5.2\%}$):
-without ordered transitions the agent fine-tunes $\alpha$ and $n_r$ before resolving
-engine and $k$, wasting budget on locally optimal but globally suboptimal configs.
+Removing \emph{phase structure} (Section~\ref{sec:phases}) causes the larger drop to $4.21$ ($\mathbf{-5.2\%}$):
+without the ordered Exploration$\to$Exploitation$\to$Fine-tuning transitions the agent
+fine-tunes $\alpha$ and $n_r$ before resolving engine and $k$, wasting budget on
+locally optimal but globally suboptimal configs.
 Both components are \emph{independently necessary}; together they account for
 $8.4$\,pp of the $9.7\%$ advantage over Optuna~TPE.
 
