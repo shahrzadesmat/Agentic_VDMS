@@ -1338,6 +1338,10 @@ Grid Search at iteration~25, and Random Search at iteration~23.
 This inversion reinforces the complexity-proportional thesis: on the uncoupled
 4-parameter space, TPE's univariate acquisition surface is sufficient, and
 the LLM's architectural history provides no additional navigational advantage.
+The LLM agent's per-iteration Score variance on SIFT1M (range: 404--1036) further
+confirms this: without cross-stage coupling to reason over, history conditioning
+reduces to informed initialization at iteration~1 rather than sustained
+directional guidance.
 
 \subsection{Ablation Study}
 \label{sec:ablation}
