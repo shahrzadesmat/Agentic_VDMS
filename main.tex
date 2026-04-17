@@ -114,29 +114,33 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Approximate nearest neighbor index configuration in multimodal retrieval systems
-exposes a joint search space where index structure, search depth, and cross-modal
-reranking weights must be tuned simultaneously against an expensive rebuild-and-query
-oracle.
-This is a challenging optimization problem: each evaluation requires a full index
-rebuild followed by a large-scale query sweep, making exhaustive search impractical.
-Existing hyperparameter optimization methods treat parameters as independent, which
-leads to structural failures when search depth and fusion weight are coupled across
-retrieval stages --- such compensatory dependencies are invisible to
-parameter-independent methods regardless of iteration budget.
-We propose a phase-aware LLM optimization agent that conditions each configuration
-proposal on the full empirical history of (configuration, score) pairs, reasoning
-explicitly over cross-stage dependencies without a surrogate model.
-The agent self-regulates across exploration, exploitation, and fine-tuning phases
-using structured prompts that encode both parameter physics and the observed
-trajectory.
-We deploy the agent on Intel VDMS for human-object interaction retrieval over
-HICO-DET (47{,}776 images, 600 verb--object categories) and evaluate across three
-datasets of increasing parameter-space simplicity.
-Compared to state-of-the-art baselines, the agent outperforms Optuna~TPE by $9.7\%$
-and Gaussian Process BO by $3.3\%$ on the primary benchmark.
-Performance advantages compress as coupling complexity decreases, confirming that
-the agent's benefit is specific to structurally dependent configuration spaces.
+Tuning an approximate nearest neighbor index for multimodal retrieval is bottlenecked
+by two compounding difficulties: every configuration requires a full rebuild-and-query
+oracle evaluation costing several minutes of wall-clock time, and the governing
+parameters are not independent --- engine type gates valid index parameters, while
+Stage-1 search depth and Stage-2 fusion weight are coupled such that the optimal
+operating point on the joint frontier is structurally invisible to any univariate
+marginal estimator.
+Classical hyperparameter optimization methods, including Bayesian TPE and Gaussian
+Process BO, assume parameter independence by construction; for multi-stage retrieval
+pipelines, this assumption is not merely suboptimal but constitutes a structural
+failure that persists regardless of iteration budget.
+We present a phase-aware LLM optimization agent that treats configuration search as
+sequential structural reasoning: each proposal is conditioned on the full empirical
+history of (configuration, score) pairs, enabling the agent to navigate the coupled
+$(k,\alpha)$ frontier and allocate its evaluation budget across self-regulated
+exploration, exploitation, and fine-tuning phases without a surrogate model.
+Deployed on Intel VDMS for human-object interaction retrieval over HICO-DET
+(47{,}776 images, 600 verb--object categories), the agent achieves mean
+Score\,$=$\,4.44 ($\mathrm{mAP}{\times}\mathrm{QPS}$), outperforming Optuna~TPE
+by $9.7\%$ and Gaussian Process BO by $3.3\%$, recovering approximately 2.7~hours
+of compute over the best classical alternative.
+We validate a \emph{complexity-proportional thesis} across three datasets of
+increasing parameter-space simplicity: the advantage compresses from $9.7\%$ on the
+fully coupled HICO-DET space to under $1.7\%$ on GLDv2 and \emph{inverts} on
+SIFT1M --- where the near-independent four-parameter space is navigable by any
+competent optimizer --- demonstrating that the agent's superiority is a direct
+function of configuration-landscape coupling, not a general-purpose HPO improvement.
 \end{abstract}
 
 \maketitle
