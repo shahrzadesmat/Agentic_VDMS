@@ -5,6 +5,7 @@
 
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
+\setlist{noitemsep,topsep=2pt,parsep=0pt,partopsep=0pt}
 \usepackage{makecell}
 \usepackage{booktabs}
 \usepackage{algorithm}
@@ -26,6 +27,14 @@
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{6}
 \setcounter{dbltopnumber}{4}
+% ── Float and caption spacing ────────────────────────────────────────────────
+\setlength{\textfloatsep}{8pt plus 2pt minus 4pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 4pt}
+\setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt plus 1pt minus 1pt}
+\setlength{\belowcaptionskip}{2pt plus 1pt minus 1pt}
 
 \raggedbottom
 
@@ -342,23 +351,6 @@ converge within 2\%.
 This graded evaluation establishes that the agent's advantage is proportional to
 the structural coupling of the configuration landscape, providing a principled
 framework for predicting optimizer behavior across retrieval workloads.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
-  \caption{\textbf{Motivating example: LLM-guided optimization converges faster than
-    all baselines on HICO-DET.}
-    Best Score ($\text{mAP} \times \text{QPS}$) achieved so far versus iteration
-    (mean $\pm 1\sigma$, 3 seeds).
-    The LLM agent reaches Score\,$\approx\!3.97$ at iteration~6 --- a level that
-    Optuna~TPE first matches at iteration~27 and that GP-BO and Random Search
-    do not exceed within 30 iterations at comparable scores.
-    The advantage stems from explicit reasoning over cross-stage parameter
-    dependencies ($k$--$\alpha$ coupling) that parameter-independent methods
-    structurally cannot model.
-    Full empirical breakdown in Section~\ref{sec:experiments}.}
-  \label{fig:teaser}
-\end{figure}
 
 The remainder of this paper is organized as follows.
 Section~\ref{sec:related} reviews related work on HOI understanding, image
@@ -795,7 +787,7 @@ reporting mean Score across three random seeds against five optimization baselin
 
 \begin{figure*}[!t]
   \centering
-    \includegraphics[width=\textwidth]{figures/pipeline_figure.pdf}
+    \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{figures/pipeline_figure.pdf}
   \caption{\textbf{Two-stage retrieval pipeline implementing oracle $\mathcal{O}(\theta)$
     (Definition~\ref{def:oracle}).}
     A configuration $\theta \in \Theta$ parameterizes both stages simultaneously
@@ -863,7 +855,7 @@ FaissIVFFlat, VDMS returns a high-recall approximation whose tightness is govern
 by the engine-specific search parameters.
 
 Three ANN engines expose qualitatively distinct accuracy--throughput operating points:
-\begin{itemize}[noitemsep,topsep=2pt]
+\begin{itemize}
   \item \textbf{FaissFlat}: exact exhaustive L2 search over all $N$ embeddings;
     provides the recall upper bound for Stage~1 at the cost of the lowest QPS.
   \item \textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: hierarchical navigable small-world
@@ -1012,7 +1004,7 @@ by $O(1/\sqrt{n_r})$ relative to a single reference image.
 
 \begin{figure*}[t]
   \centering
-    {\includegraphics[width=\textwidth]{figures/workflow.pdf}}
+    {\includegraphics[width=\textwidth,height=0.32\textheight,keepaspectratio]{figures/workflow.pdf}}
   \caption{Overview of the optimization framework.
     Five methods --- \textbf{LLM Agent} (phase-aware, adaptive), \textbf{Optuna TPE}
     (Tree Parzen Estimator, adaptive), and \textbf{GP-BO} (Gaussian Process surrogate,
@@ -1075,7 +1067,7 @@ structural choices before continuous ones.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figures/prompts.pdf}
+  \includegraphics[width=\textwidth,height=0.35\textheight,keepaspectratio]{figures/prompts.pdf}
   \caption{LLM prompt structure for ANN index hyperparameter optimization.
     The system prompt establishes the optimization objective and parameter physics;
     the user prompt supplies the diagnostic class $g(\mathcal{H}_{t-1})$,
@@ -1252,7 +1244,7 @@ any reranking stage; the optimization objective is Score $= \text{Recall@10} \ti
 
 \noindent\textbf{Compared Methods.}
 We compare five optimization strategies, each run for $N{=}30$ iterations over $\Theta$:
-\begin{itemize}[noitemsep,topsep=2pt]
+\begin{itemize}
   \item \textbf{LLM Agent (Ours):} at each iteration, the agent receives the full
     history $\mathcal{H}_{t-1}$ and a phase-conditioned prompt
     (Section~\ref{sec:optimizer}), proposing the next configuration via
