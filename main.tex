@@ -1172,7 +1172,7 @@ by conditioning each proposal on the full history of observed outcomes.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
-  \caption{Best Score ($\mathrm{mAP}{\times}\mathrm{QPS}$) vs.\ iteration on HICO-DET
+  \caption{Best Score vs.\ iteration on HICO-DET
     (mean $\pm 1\sigma$, 3 seeds; 2 runs for Grid).
     LLM reaches Score $\approx 3.97$ at iteration~6; Optuna TPE at iteration~27,
     Random Search at iteration~28.}
@@ -1323,7 +1323,6 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
 \begin{table}[t]
 \centering
 \caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries, 30 iterations, seed~42).
-  Score $= \text{mAP} \times \text{QPS}$.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
 \label{tab:gldv2}
 \resizebox{\columnwidth}{!}{%
