@@ -17,10 +17,10 @@
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
 \setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}
-% Suppress spurious \CheckCommand warning from microtype/acmart conflict
-\makeatletter\let\@orig@CheckCommand\CheckCommand\let\CheckCommand\@gobble\makeatother
+% Suppress acmart/microtype \showhyphens conflict warning
+\makeatletter\let\@sf@latexwarn\@latex@warning\let\@latex@warning\@gobble\makeatother
 \usepackage{microtype}
-\makeatletter\let\CheckCommand\@orig@CheckCommand\makeatother
+\makeatletter\let\@latex@warning\@sf@latexwarn\makeatother
 \usepackage{makecell}
 \usepackage{booktabs}
 \usepackage{algorithm}
