@@ -5,12 +5,16 @@
 
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
-\setlist{noitemsep,topsep=2pt,parsep=0pt,partopsep=0pt}
+\setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}
 \usepackage{microtype}
 \usepackage{makecell}
 \usepackage{booktabs}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{subcaption}
+\usepackage[compact]{titlesec}
+\titlespacing*{\section}{0pt}{4pt plus 1pt minus 1pt}{2pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{3pt plus 1pt minus 1pt}{1pt plus 0pt minus 1pt}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 % ── Float placement tuning ───────────────────────────────────────────────────
@@ -40,6 +44,11 @@
 \raggedbottom
 \renewcommand{\bibfont}{\small}
 \setlength{\parskip}{3pt plus 1pt minus 1pt}
+% Tighten display math spacing
+\setlength{\abovedisplayskip}{4pt plus 2pt minus 2pt}
+\setlength{\belowdisplayskip}{4pt plus 2pt minus 2pt}
+\setlength{\abovedisplayshortskip}{2pt plus 1pt minus 1pt}
+\setlength{\belowdisplayshortskip}{2pt plus 1pt minus 1pt}
 
 %% The following content must be adapted for the final version
 % paper-specific
@@ -105,30 +114,24 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Multimodal vector database management systems expose joint configuration spaces
-where ANN index parameters and cross-modal reranking weights must be tuned against
-an expensive rebuild-and-query oracle costing 8--9 minutes per evaluation.
-Classical HPO methods fail structurally: grid and random search carry no memory
-across evaluations, while Bayesian TPE with univariate marginals cannot represent
-the conditional dependencies that arise when engine-type gating and
-search-depth--fusion-weight coupling render parameters inherently non-separable;
-Gaussian Process surrogates (GP-BO) partially address this but remain sensitive
-to the non-stationarity introduced by categorical engine transitions.
-We present a phase-aware LLM optimization agent that compresses the full empirical
-trajectory $\mathcal{H}_t$ of (configuration, Score) pairs into structured prompts,
-enabling the model to reason over cross-stage dependencies and allocate its
-30-iteration budget across exploration, exploitation, and refinement phases without
-a surrogate model.
-On HICO-DET --- a 47{,}776-image, 600-category HOI retrieval benchmark with a
-7-parameter coupled configuration space --- the agent achieves mean
-Score $= 4.44$ ($\text{mAP} \times \text{QPS}$), outperforming Optuna~TPE and
-Random~Search by $+9.7\%$ and GP-BO by $+3.3\%$, reaching Score ${\geq}\,3.97$
-at iteration~6 versus iteration~27 for Optuna~TPE and iteration~28 for
-Random~Search (${\approx}2.7$ hours of compute saved).
-Across two generalization benchmarks, performance gaps compress proportionally with
-coupling complexity --- ${\lesssim}1.7\%$ spread on GLDv2 (762K images) and
-$2.1\%$ on SIFT1M, where the convergence ordering inverts to favor Optuna~TPE ---
-validating that the agent's advantage scales with configuration-landscape coupling.
+Multimodal vector database systems must co-tune ANN index parameters and cross-modal
+reranking weights against an 8--9-minute-per-evaluation rebuild oracle.
+Classical HPO fails structurally: grid and random search carry no cross-evaluation
+memory; Bayesian TPE assumes independent marginals and cannot model the
+\textit{efSearch}--$\alpha$ coupling from engine-type gating; GP-BO surrogates
+struggle with categorical non-stationarity.
+We present a phase-aware LLM agent that encodes the empirical trajectory
+$\mathcal{H}_t$ of (configuration, Score) pairs into structured prompts, reasoning
+over cross-stage dependencies across exploration, exploitation, and refinement phases
+without a surrogate.
+On HICO-DET --- a 47{,}776-image, 600-category HOI benchmark with a 7-parameter
+coupled configuration space --- the agent achieves mean Score $= 4.44$
+($\text{mAP}{\times}\text{QPS}$), outperforming Optuna~TPE and Random~Search by
+$+9.7\%$ and GP-BO by $+3.3\%$, reaching Score ${\geq}\,3.97$ at iteration~6
+versus iteration~27 for Optuna~TPE (${\approx}2.7$ hours saved).
+Performance gaps compress with coupling complexity: ${\lesssim}1.7\%$ on GLDv2
+(762K images) and $2.1\%$ on SIFT1M, validating that the agent's advantage scales
+with configuration-landscape coupling.
 \end{abstract}
 
 \maketitle
@@ -611,7 +614,7 @@ reporting mean Score across three random seeds against five optimization baselin
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.52\textwidth]{figures/pipeline_figure.pdf}
+  \includegraphics[width=0.70\textwidth]{figures/pipeline_figure.pdf}
   \caption{\textbf{Two-stage retrieval pipeline (oracle $\mathcal{O}(\theta)$).}
     Stage~1: CLIP ViT-L/14 ANN retrieval produces a top-$k$ candidate pool.
     Stage~2: DINOv2 ViT-L/14-reg4 distances are fused via convex combination
@@ -815,15 +818,6 @@ by $O(1/\sqrt{n_r})$ relative to a single reference image.
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
 
-\begin{figure*}[t]
-  \centering
-    {\includegraphics[width=\textwidth]{figures/workflow.pdf}}
-  \caption{Optimization framework: five methods propose VDMS configurations over
-    $N{=}30$ iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive
-    score feedback (red arrows); Grid and Random Search do not.}
-  \label{fig:workflow}
-\end{figure*}
-
 The pipeline of Section~\ref{sec:pipeline} exposes a seven-parameter joint configuration
 $\theta \in \Theta$: engine, two engine-conditional index parameters, pool size $k$,
 fusion weight $\alpha$, reference count $n_r$, and reference strategy.
@@ -870,11 +864,23 @@ structural choices before continuous ones.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{figures/prompts.pdf}
-  \caption{LLM prompt structure. The system prompt encodes parameter physics; the
-    user prompt supplies $g(\mathcal{H}_{t-1})$, history, and untried-value hints,
-    eliciting a structured JSON configuration response.}
-  \label{fig:prompts}
+  \begin{subfigure}[t]{0.50\textwidth}
+    \includegraphics[width=\linewidth]{figures/workflow.pdf}
+    \caption{Optimization framework: five methods propose VDMS configurations over
+      $N{=}30$ iterations. Adaptive methods (LLM, Optuna TPE, GP-BO) receive score
+      feedback (red arrows); Grid and Random Search do not.}
+    \label{fig:workflow}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=\linewidth,height=0.28\textheight,keepaspectratio]{figures/prompts.pdf}
+    \caption{LLM prompt structure. System prompt encodes parameter physics; user
+      prompt supplies $g(\mathcal{H}_{t-1})$, history, and untried-value hints,
+      eliciting a structured JSON response.}
+    \label{fig:prompts}
+  \end{subfigure}
+  \caption{LLM-guided ANN optimizer: framework and prompt design.}
+  \label{fig:optimizer}
 \end{figure*}
 
 Let $h_t = \bigl(\theta_t,\,\mathrm{mAP}(\theta_t),\,\mathrm{QPS}(\theta_t)\bigr)$
@@ -1622,7 +1628,7 @@ iteration budget.
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
 \end{acks}
 
-\bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{abbrv}
 \bibliography{sample}
 
 \end{document}
