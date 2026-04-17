@@ -3,8 +3,8 @@
 % https://www.acm.org/publications/proceedings-template
 % The ACM Latex guide provides further information about the ACM template
 
-\documentclass[sigconf, nonacm]{acmart}
-\usepackage{silence}
+% silence must load before \documentclass so filters are active during class init
+\RequirePackage{silence}
 \WarningFilter{acmart}{\vspace should only be used}
 \WarningFilter{acmart}{A possible image without description}
 \WarningFilter{acmart}{Some images may lack descriptions}
@@ -13,6 +13,8 @@
 \WarningFilter{LaTeX}{Command}
 \WarningFilter{LaTeX}{Text page}
 \WarningFilter{balance}{You have called}
+
+\documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
 \setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}
 \usepackage{microtype}
