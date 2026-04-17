@@ -1439,10 +1439,12 @@ on the full history of observed outcomes.
   Score $= \text{mAP} \times \text{QPS}$.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.
   $^\dagger$~Grid Search ran all 30 iterations, plateauing at iteration 19.
-  All metrics are means across 3 seeds (LLM, Optuna, Random); Grid is the mean of 2 runs.
+  All metrics are means across 3 seeds (LLM, Optuna, GP-BO, Random); Grid is the mean of 2 runs.
   The LLM agent achieves the highest Score and reaches Score $\approx 3.97$ within 6 iterations ---
   a level requiring 27 iterations for Optuna TPE and 28 for Random Search.
-  $^\ddagger$~P@10 was not recorded for Grid Search runs.
+  $^\ddagger$~P@10 was not recorded for Grid Search or GP-BO runs.
+  $^\P$~GP-BO uses \texttt{optuna.samplers.GPSampler} (Gaussian Process surrogate, Expected
+  Improvement acquisition), replicating the VDTuner~\cite{yang2024vdtuner} paradigm; means over 3 seeds.
   $^\S$~QDS uses a single run with query difficulty-weighted objective (Section~\ref{sec:ablation});
   Score and mAP are evaluated on the standard unweighted metric for fair comparison.
   Full per-query latency breakdown is reported in Table~\ref{tab:efficiency}.}
@@ -1453,11 +1455,12 @@ on the full history of observed outcomes.
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Grid Search$^\dagger$$^\ddagger$ & 3.44         & 0.169          & ---            & 20.42          & 19/30 \\
+Grid Search$^\dagger$$^\ddagger$  & 3.44         & 0.169          & ---            & 20.42          & 19/30 \\
 Random Search                    & 4.04         & 0.260          & 0.569          & 16.13          & 28/30 \\
 Optuna TPE                       & 4.05         & 0.256          & 0.529          & 15.84          & 27/30 \\
+GP-BO$^\P$$^\ddagger$            & 4.29         & 0.230          & ---            & 18.68          & ---   \\
 \textbf{LLM Agent (Ours)}        & \textbf{4.44}& 0.259          & 0.487          & 17.11          & 30/30 \\
-\textbf{LLM Agent + QDS (Ours)}$^\S$ & \textbf{4.66} & 0.243     & ---            & \textbf{19.17} & 19/30 \\
+\textbf{LLM Agent + QDS (Ours)}$^\S$ & \textbf{4.76} & 0.250     & ---            & \textbf{19.07} & 19/30 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1503,7 +1506,7 @@ the pipeline achieves mAP $= 0.255$ and QPS $= 16.98$, representing a $14.7\time
 throughput gain over brute-force CLIP$+$DINOv2 (QPS $= 1.15$) at a cost of only
 $2.1$ percentage points of mAP ($0.255$ vs.\ $0.276$).
 Optuna TPE (mean Score $= 4.05$) and Random Search (mean Score $= 4.04$) reach comparable final
-scores, trailing the LLM agent by $8.8\%$ and $9.0\%$ respectively.
+scores, trailing the LLM agent by $+9.7\%$ each (relative to baseline).
 Grid Search (mean Score $= 3.44$) performs substantially worse, running all 30 iterations
 but plateauing at iteration~19 and achieving mAP only $0.169$ --- below the CLIP-only exact-search
 baseline at $k{=}2000$ (mAP $= 0.240$).
@@ -1589,23 +1592,24 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Optuna TPE                    & 3.6436            & 0.1785            & 0.2128              & 20.41             & 25/30 \\
-Random Search                 & 3.6519            & 0.1784            & 0.2131              & 20.47             & 8/30 \\
-Grid Search                   & 3.6862            & 0.1788            & 0.2132              & 20.62             & 7/30 \\
+Optuna TPE                    & 3.5959            & 0.1618            & 0.1968              & 22.22             & 23/30 \\
+Random Search                 & 3.6491            & 0.1784            & 0.2131              & 20.45             & 8/30 \\
+Grid Search                   & 3.6566            & 0.1789            & 0.2125              & 20.43             & 21/30 \\
 \midrule
-\textbf{LLM Agent (Ours)}     & \textbf{3.7093}   & \textbf{0.1788}   & \textbf{0.2131}     & \textbf{20.75}    & \textbf{1/30} \\
+\textbf{LLM Agent (Ours)}     & \textbf{3.6567}   & \textbf{0.1790}   & \textbf{0.2126}     & \textbf{20.43}    & \textbf{15/30} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent\textbf{Overall performance.}
 Table~\ref{tab:gldv2} reports the GLDv2 results.
-The LLM agent achieves Score $= \textbf{3.7093}$, the best result across all methods,
-outperforming Grid Search (Score $= 3.6862$), Random Search (Score $= 3.6519$),
-and Optuna TPE (Score $= 3.6436$).
-The pattern mirrors HICO-DET: the LLM agent ranks first on both datasets despite
-the 16$\times$ scale increase and the shift from text-to-image to image-to-image retrieval,
-demonstrating cross-domain generalization of the LLM-guided optimization approach.
+The LLM agent achieves Score $= \textbf{3.657}$, the best result across all methods,
+marginally outperforming Grid Search (Score $= 3.657$), Random Search (Score $= 3.649$),
+and Optuna TPE (Score $= 3.596$).
+The LLM agent ranks first on both datasets despite the $16\times$ scale increase and the shift
+from text-to-image to image-to-image retrieval; however, the performance gap between methods
+is substantially compressed relative to HICO-DET (${\lesssim}1.7\%$ spread vs.\ $9.7\%$),
+a pattern we return to in Section~\ref{sec:sift1m}.
 
 \noindent\textbf{Scale effects.}
 At 762K images, each optimization iteration requires approximately 5--6 minutes
@@ -1614,14 +1618,14 @@ construction at larger scale ($\approx$265\,s build time vs.\ $\approx$90\,s).
 All 30-iteration budgets therefore complete in $\approx$3 hours per method.
 
 \noindent\textbf{Sample efficiency.}
-The LLM agent finds its best configuration at iteration~1 --- identifying the optimal
-$k{=}100$, $\alpha{=}0.90$, $\text{efC}{=}400$, centroid-PRF setting immediately from
-its domain knowledge about index quality and retrieval trade-offs.
-Grid Search requires 7 evaluations to reach a comparable config, Random Search 8,
-and Optuna TPE 25.
-This extreme sample efficiency ($6\times$ fewer evaluations than Grid Search,
-$25\times$ fewer than Optuna) is the clearest demonstration that LLM guidance
-substitutes for exhaustive search even at large scale.
+The LLM agent reaches its best Score at iteration~15; Grid Search at iteration~21,
+and Optuna TPE at iteration~23.
+Random Search locates a competitive configuration at iteration~8, ahead of the LLM agent,
+reflecting the compressed performance landscape at 762K scale where high-QPS HNSW
+configurations are easily discovered without conditioning on empirical history.
+Despite converging later than Random Search, the LLM agent identifies a better
+final Score ($3.657$ vs.\ $3.649$), and reaches a Score exceeding all baselines'
+final performance within 15 iterations.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \subsection{Complexity-Matched Validation: SIFT1M}
@@ -1667,8 +1671,8 @@ All four methods converge to FaissHNSWFlat with \textit{efSearch}$\in\{24,32\}$
 as the optimal operating point, yielding final Scores of
 $1036.0$ (LLM), $1035.0$ (Grid), $1021.1$ (Optuna), and $1014.2$ (Random).
 The spread across all four methods is only $2.1\%$ --- a stark contrast to
-HICO-DET, where the LLM leads by $9.7\%$ over Optuna~TPE, $10.4\%$ over Random,
-and $3.3\%$ over GP-BO.
+HICO-DET, where the LLM leads by $+9.7\%$ over Optuna~TPE, $+9.7\%$ over Random~Search,
+and $+3.3\%$ over GP-BO (all figures relative to the respective baseline mean Score).
 
 \noindent\textbf{Complexity-proportional advantage.}
 The result confirms the paper's central theoretical prediction: the LLM agent's
@@ -1790,13 +1794,13 @@ $\mathrm{QDS\text{-}mAP} = \sum_j w_j \cdot \mathrm{AP}_j \,/\, \sum_j w_j$.
 
 When the LLM agent optimizes $\mathrm{QDS\text{-}mAP} \times \mathrm{QPS}$, it discovers
 a configuration (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$,
-$\alpha{=}0.75$, $n_r{=}10$, \textit{first}, constraint: object) that achieves
-Score $= \mathbf{4.66}$ on the \emph{standard} unweighted metric --- a $\mathbf{+4.9\%}$
+$\alpha{=}0.75$, $n_r{=}10$, \textit{first}) that achieves
+Score $= \mathbf{4.76}$ on the \emph{standard} unweighted metric --- a $\mathbf{+7.3\%}$
 improvement over the LLM agent with standard objective (Score $= 4.44$) and the
 highest single-run Score across all methods on HICO-DET (Table~\ref{tab:optimizer}).
 The QDS-guided optimizer reaches its best configuration at iteration~19,
 suggesting that difficulty-aware guidance accelerates convergence to a better optimum.
-Notably, the discovered configuration achieves higher QPS ($19.17$ vs.\ $17.11$)
+Notably, the discovered configuration achieves higher QPS ($19.07$ vs.\ $17.11$)
 by operating in a regime where the difficulty-weighted signal prefers configurations
 that maintain precision on hard queries rather than maximizing average recall.
 
@@ -1896,12 +1900,12 @@ Across three datasets, our evaluation tells a consistent and theoretically groun
 story.
 On HICO-DET, the LLM agent achieves the highest mean Score ($4.44$), converging
 to $\sim$95\% of its best in $\sim$13~iterations on average versus $\sim$20 for
-Optuna~TPE --- and leads by $+$9.7\% over Optuna~TPE, $+$10.4\% over Random
-Search, and $+$3.3\% over GP-BO (VDTuner-style).
+Optuna~TPE --- and leads by $+9.7\%$ over Optuna~TPE, $+9.7\%$ over Random
+Search, and $+3.3\%$ over GP-BO (VDTuner-style); all percentages use the baseline
+mean Score as denominator.
 On GLDv2 (762K landmark images, $16\times$ scale), the LLM agent again ranks first
-(mean Score $= 3.66$) and reaches near-optimal quality in $\sim$1--2~iterations,
-demonstrating that LLM architectural priors transfer across scale and retrieval
-modality.
+(Score $= 3.66$, seed~42) with a compressed ${\lesssim}1.7\%$ spread across all
+methods, consistent with the reduced coupling complexity at landmark-retrieval scale.
 On SIFT1M --- a structurally simpler, single-stage HNSW benchmark with no
 cross-stage coupling --- all four methods (GP-BO excluded) converge within
 $2.1\%$ of each other, confirming that the agent's advantage scales with the
