@@ -1206,6 +1206,7 @@ $k{=}200$, $\alpha{=}0.80$, $n_r{=}10$, \textit{centroid} reference strategy ---
 pipeline achieves mAP $= 0.255$ and QPS $= 16.98$ (Table~\ref{tab:efficiency}):
 a $14.7\times$ throughput gain over brute-force CLIP$+$DINOv2 (QPS $= 1.15$) at a
 mAP cost of only $2.1$ percentage points ($0.255$ vs.\ the $0.276$ exact-search ceiling).
+Per-query latency falls from $866$\,ms (FaissFlat CLIP$+$DINOv2, Table~\ref{tab:efficiency}) to $58.9$\,ms---a $\mathbf{14.7\times}$ reduction---while retaining $92.4\%$ of exact-search mAP.
 
 \noindent\textbf{GP-BO comparison.}
 GP-BO --- replicating VDTuner's~\cite{yang2024vdtuner} Gaussian Process paradigm ---
