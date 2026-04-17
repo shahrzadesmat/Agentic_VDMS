@@ -114,30 +114,26 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Deploying a multimodal retrieval system on a production vector database requires
-jointly tuning ANN index parameters and cross-modal reranking weights under a sample
-budget constrained by expensive rebuild-and-query evaluations.
-The fundamental obstacle is \emph{cross-stage parameter coupling}: search depth
-determines the candidate pool delivered to the reranker, so the optimal fusion weight
-shifts with every change to the index configuration.
-State-of-the-art HPO methods --- Bayesian TPE and Gaussian Process BO --- model
-parameters with independent marginals and are therefore structurally incapable of
-representing this joint dependency, regardless of evaluation budget.
+The standard assumption of parameter independence in hyperparameter optimization
+breaks down for multi-stage retrieval: ANN search depth and cross-modal reranking
+weight are fundamentally coupled, and the optimal point on their joint frontier is
+unreachable by any method that models them in isolation.
+State-of-the-art HPO methods --- Bayesian TPE and Gaussian Process BO --- are built
+on this independence assumption and therefore fail structurally on this problem
+class, regardless of evaluation budget.
 We present a phase-aware LLM agent that addresses this through history-conditioned
-structural reasoning: each configuration proposal is conditioned on the full observed
-trajectory of (configuration, score) pairs, enabling explicit navigation of the
-coupled $(k,\alpha)$ frontier across self-regulated exploration, exploitation, and
-fine-tuning phases without a surrogate model.
-Evaluated on Intel VDMS, the agent achieves mean Score\,$=$\,4.44
-($\mathrm{mAP}{\times}\mathrm{QPS}$) on HICO-DET --- a 47{,}776-image,
-600-category human-object interaction benchmark with a fully coupled 7-parameter
-configuration space --- outperforming Optuna~TPE by $9.7\%$ and Gaussian Process BO
-by $3.3\%$.
-We further validate a \emph{complexity-proportional thesis}: the advantage compresses
-to under $1.7\%$ on GLDv2 and \emph{inverts} on SIFT1M, where the near-independent
-configuration space makes all methods competitive --- establishing that the agent's
-gains are a precise function of configuration-landscape coupling, not a
-general-purpose HPO improvement.
+reasoning: each configuration proposal is conditioned on the full observed trajectory
+of (configuration, score) pairs, enabling explicit navigation of the coupled
+search-depth--fusion-weight frontier across self-regulated exploration, exploitation,
+and fine-tuning phases without a surrogate model.
+On HICO-DET, a 47{,}776-image, 600-category human-object interaction retrieval
+benchmark deployed on Intel VDMS, the agent outperforms Optuna~TPE by $9.7\%$ and
+Gaussian Process BO by $3.3\%$ in accuracy--throughput score.
+We further validate a \emph{complexity-proportional thesis} across three benchmarks:
+the advantage compresses to under $1.7\%$ on GLDv2 and \emph{inverts} on SIFT1M,
+where the near-independent configuration space makes all methods competitive ---
+establishing that the agent's gains are a precise function of
+configuration-landscape coupling, not a general-purpose HPO improvement.
 \end{abstract}
 
 \maketitle
