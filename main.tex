@@ -4,6 +4,12 @@
 % The ACM Latex guide provides further information about the ACM template
 
 \documentclass[sigconf, nonacm]{acmart}
+\usepackage{silence}
+\WarningFilter{acmart}{\vspace should only be used}
+\WarningFilter{acmart}{A possible image without description}
+\WarningFilter{acmart}{Some images may lack descriptions}
+\WarningFilter{LaTeX}{Command \string\showhyphens has changed}
+\WarningFilter{LaTeX}{Text page}
 \usepackage{enumitem}
 \setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}
 \usepackage{microtype}
@@ -12,15 +18,9 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{subcaption}
-\usepackage{silence}
-\WarningFilter{acmart}{\vspace should only be used}
-\WarningFilter{acmart}{A possible image without description}
-\WarningFilter{acmart}{Some images may lack descriptions}
-\WarningFilter{LaTeX}{Command \string\showhyphens has changed}
-\WarningFilter{LaTeX}{Text page}
 \usepackage[compact]{titlesec}
-\titlespacing*{\section}{0pt}{4pt plus 1pt minus 1pt}{2pt plus 1pt minus 1pt}
-\titlespacing*{\subsection}{0pt}{3pt plus 1pt minus 1pt}{1pt plus 0pt minus 1pt}
+\titlespacing*{\section}{0pt}{6pt plus 2pt minus 1pt}{3pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{4pt plus 2pt minus 1pt}{2pt plus 1pt minus 1pt}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 % ── Float placement tuning ───────────────────────────────────────────────────
@@ -39,22 +39,22 @@
 \setcounter{totalnumber}{6}
 \setcounter{dbltopnumber}{4}
 % ── Float and caption spacing ────────────────────────────────────────────────
-\setlength{\textfloatsep}{8pt plus 2pt minus 4pt}
-\setlength{\floatsep}{6pt plus 2pt minus 2pt}
-\setlength{\intextsep}{6pt plus 2pt minus 2pt}
-\setlength{\dbltextfloatsep}{8pt plus 2pt minus 4pt}
-\setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{4pt plus 1pt minus 1pt}
-\setlength{\belowcaptionskip}{2pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 4pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{10pt plus 2pt minus 4pt}
+\setlength{\dblfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{5pt plus 1pt minus 1pt}
+\setlength{\belowcaptionskip}{3pt plus 1pt minus 1pt}
 
 \raggedbottom
 \emergencystretch=2em
 \hfuzz=5pt
 \renewcommand{\bibfont}{\small}
-\setlength{\parskip}{3pt plus 1pt minus 1pt}
-% Tighten display math spacing
-\setlength{\abovedisplayskip}{4pt plus 2pt minus 2pt}
-\setlength{\belowdisplayskip}{4pt plus 2pt minus 2pt}
+\setlength{\parskip}{4pt plus 1pt minus 1pt}
+% Display math spacing
+\setlength{\abovedisplayskip}{5pt plus 2pt minus 2pt}
+\setlength{\belowdisplayskip}{5pt plus 2pt minus 2pt}
 \setlength{\abovedisplayshortskip}{2pt plus 1pt minus 1pt}
 \setlength{\belowdisplayshortskip}{2pt plus 1pt minus 1pt}
 
