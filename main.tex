@@ -12,6 +12,10 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{subcaption}
+\usepackage{silence}
+\WarningFilter{acmart}{\vspace should only be used}
+\WarningFilter{acmart}{A possible image without description}
+\WarningFilter{acmart}{Some images may lack descriptions}
 \usepackage[compact]{titlesec}
 \titlespacing*{\section}{0pt}{4pt plus 1pt minus 1pt}{2pt plus 1pt minus 1pt}
 \titlespacing*{\subsection}{0pt}{3pt plus 1pt minus 1pt}{1pt plus 0pt minus 1pt}
@@ -274,7 +278,6 @@ landscape.
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 
-\smallskip
 \noindent\textbf{(1) A phase-aware LLM agent for coupled ANN index optimization.}
 We present a history-conditioned, phase-aware LLM optimizer that explicitly models
 the structural coupling between Stage-1 search depth (\textit{efSearch}) and Stage-2
@@ -285,7 +288,6 @@ locates within 30 iterations --- achieving mean Score\,$=$\,4.44
 converging in $\sim$13~iterations versus $\sim$20; mechanistic ablations confirm
 that history conditioning and phase-aware transitions are both independently necessary.
 
-\smallskip
 \noindent\textbf{(2) The first HOI retrieval benchmark and a zero-cost two-stage pipeline.}
 We construct the first text-query image retrieval benchmark from HICO-DET (47{,}776
 images, 600 verb--object categories) deployed in Intel's VDMS, pair CLIP ViT-L/14
@@ -294,7 +296,6 @@ indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency), and prove geometrical
 that CLIP text embeddings occupy the semantic centroid of each HOI visual cluster ---
 establishing text-query superiority on compositionally structured data.
 
-\smallskip
 \noindent\textbf{(3) A complexity-matched evaluation characterizing when LLM reasoning pays off.}
 We evaluate across HICO-DET (7-parameter, cross-stage coupled, $+$9.7\% LLM advantage),
 GLDv2 (image-to-image, near-optimal at iteration 1--2), and SIFT1M (pure ANN, all
@@ -579,6 +580,7 @@ natural-language analysis of prior outcomes (Section~\ref{sec:optimizer}).
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.70\textwidth]{figures/pipeline_figure.pdf}
+  \Description{Two-stage retrieval pipeline diagram.}
   \caption{\textbf{Two-stage retrieval pipeline.}
     CLIP ViT-L/14 ANN retrieval (Stage~1) produces a top-$k$ candidate pool;
     DINOv2 ViT-L/14-reg4 reranking (Stage~2) fuses scores via
@@ -775,6 +777,7 @@ by $O(1/\sqrt{n_r})$ relative to a single reference image.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.85\textwidth]{figures/workflow.pdf}
+  \Description{Optimization framework diagram showing five methods.}
   \caption{Optimization framework: five methods propose VDMS configurations over
     $N{=}30$ iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive
     score feedback (red arrows); Grid and Random Search do not.}
@@ -828,6 +831,7 @@ structural choices before continuous ones.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.82\textwidth]{figures/prompts.pdf}
+  \Description{LLM prompt structure showing system and user prompt components.}
   \caption{LLM prompt structure. The system prompt encodes parameter physics; the
     user prompt supplies $g(\mathcal{H}_{t-1})$, history, and untried-value hints,
     eliciting a structured JSON configuration response.}
@@ -1097,6 +1101,7 @@ by conditioning each proposal on the full history of observed outcomes.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
+  \Description{Convergence curves showing best Score vs.\ iteration for all five optimizer methods on HICO-DET.}
   \caption{Best Score vs.\ iteration on HICO-DET
     (mean $\pm 1\sigma$, 3 seeds; 2 runs for Grid).
     LLM reaches Score $\approx 3.97$ at iteration~6; Optuna TPE at iteration~27,
