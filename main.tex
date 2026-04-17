@@ -829,20 +829,16 @@ reporting mean Score across three random seeds against five optimization baselin
 
 \subsection{Oracle Instantiation and Notation}
 
-This section provides the concrete implementation of oracle $\mathcal{O}$
-(Definition~\ref{def:oracle}): given any configuration $\theta \in \Theta$,
-the pipeline maps $\theta$ to a $(\mathrm{mAP},\,\mathrm{QPS})$ pair from which
-the optimizer computes $\mathrm{Score}(\theta) = \mathrm{mAP}(\theta) \times
-\mathrm{QPS}(\theta)$.
-
+Oracle $\mathcal{O}$ (Definition~\ref{def:oracle}) maps any $\theta \in \Theta$ to a
+$(\mathrm{mAP},\,\mathrm{QPS})$ pair; the optimizer maximizes
+$\mathrm{Score}(\theta) = \mathrm{mAP}(\theta) \times \mathrm{QPS}(\theta)$.
 Let $\mathcal{C} = \{(\mathbf{c}_i,\,\mathbf{d}_i)\}_{i=1}^{N}$ denote the corpus
 of $N{=}47{,}776$ images, where $\mathbf{c}_i \in \mathbb{R}^{768}$ is the
 unit-normalized CLIP ViT-L/14 embedding and $\mathbf{d}_i \in \mathbb{R}^{1024}$
-is the DINOv2 ViT-L/14-reg4 embedding of image $i$.
-For HOI class $h$, let $\mathcal{I}_h \subseteq [N]$ denote the annotated relevant
-image set.
+is the DINOv2 ViT-L/14-reg4 embedding of image $i$,
+and $\mathcal{I}_h \subseteq [N]$ the annotated relevant set for HOI class $h$.
 Given a text query $q_h$ (e.g., \textit{``a person riding a horse''}), the pipeline
-proceeds in two stages, as illustrated in Figure~\ref{fig:pipeline}.
+proceeds in two stages as illustrated in Figure~\ref{fig:pipeline}.
 
 \textbf{Stage~1} encodes $q_h$ into a unit-norm vector $\mathbf{q}_c \in \mathbb{R}^{768}$
 via the frozen CLIP ViT-L/14 text encoder and issues an ANN search over the VDMS
@@ -905,96 +901,70 @@ Batch QPS is defined as
 where $|Q|{=}600$ is the number of HOI text queries and $T_{\mathrm{total}}(\theta)$
 is the elapsed wall-clock time for all queries issued in a single batch to the live
 VDMS container under configuration $\theta$.
-This end-to-end latency encompasses the VDMS round-trip for Stage~1, the numpy
-reranking in Stage~2, and all inter-process communication overhead.
+This end-to-end latency encompasses the VDMS round-trip for Stage~1, the in-memory
+reranking computation in Stage~2, and all inter-process communication overhead.
 
 \subsection{Stage 2: Feature Fusion and Reranking}
 \label{sec:stage2}
 
-\noindent\textbf{Per-class visual reference.}
-DINOv2 ViT-L/14-reg4~\cite{oquab2024dinov2} is a self-supervised vision encoder whose
-1024-dimensional features capture fine-grained appearance structure --- object identity,
-texture, and spatial layout --- complementary to CLIP's language-aligned semantics.
-Each HOI class $h$ is characterized by a visual reference vector
-$\mathbf{r}_h \in \mathbb{R}^{1024}$, constructed offline as the mean DINOv2 embedding
-of a selected subset $\mathcal{S}_h \subseteq \mathcal{I}_h$ of $n_r$ images:
+Stage~2 reranks $\mathcal{T}_k(q_h)$ using DINOv2 ViT-L/14-reg4~\cite{oquab2024dinov2}
+visual features --- capturing fine-grained appearance structure complementary to
+CLIP's language-aligned semantics --- without constructing any additional index.
+Each HOI class $h$ is represented by a visual reference vector
+$\mathbf{r}_h \in \mathbb{R}^{1024}$, built offline as the mean DINOv2 embedding
+of a selected subset $\mathcal{S}_h \subseteq \mathcal{I}_h$:
 \begin{equation}
   \mathbf{r}_h \;=\; \frac{1}{|\mathcal{S}_h|} \sum_{i \in \mathcal{S}_h} \mathbf{d}_i ,
   \label{eq:refvec}
 \end{equation}
-where $n_r = |\mathcal{S}_h| \in \{1, 3, 5, 10\}$ is the reference count.
-For $n_r{=}1$ (the default), $\mathbf{r}_h$ is the DINOv2 embedding of the query image
-itself --- the first image in the HOI category --- which constitutes the most accessible
-visual proxy for the interaction.
+where $n_r = |\mathcal{S}_h| \in \{1, 3, 5, 10\}$.
+For $n_r{=}1$ (the default), $\mathbf{r}_h$ is the DINOv2 embedding of the first image
+in the HOI category.
 For $n_r{>}1$, three strategies populate $\mathcal{S}_h$:
 \textbf{first} takes the initial $n_r$ images in dataset order;
 \textbf{centroid} selects the $n_r$ images nearest to the DINOv2 class mean
 $\boldsymbol{\mu}_h^d = \frac{1}{|\mathcal{I}_h|}\sum_{i \in \mathcal{I}_h}\mathbf{d}_i$,
 anchoring $\mathbf{r}_h$ at the visual core of the class;
-\textbf{diverse} applies greedy farthest-point sampling, seeding from the most central
-image and iteratively selecting the image most distant from the current selection,
-maximising intra-subset appearance spread.
-Reference construction is a one-time pre-computation (${<}1$\,ms per class) that incurs
-no per-query overhead and does not contribute to $T_{\mathrm{total}}$ in Eq.~\eqref{eq:qps}.
+\textbf{diverse} applies greedy farthest-point sampling from the most central image.
+Reference construction requires ${<}1$\,ms per class and does not contribute to
+$T_{\mathrm{total}}$ in Eq.~\eqref{eq:qps}.
 
-\noindent\textbf{Distance normalization.}
-CLIP L2 distances $\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$ and
-DINOv2 L2 distances $\delta_j^d = \|\mathbf{d}_j - \mathbf{r}_h\|_2$ operate
-at different absolute scales and cannot be directly combined.
-We apply min-max normalization \emph{within} the candidate pool $\mathcal{T}_k(q_h)$
-to place both modalities on a common $[0,\,1]$ scale:
+CLIP distances $\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$ and DINOv2 distances
+$\delta_j^d = \|\mathbf{d}_j - \mathbf{r}_h\|_2$ operate at different absolute scales;
+both are min-max normalized within $\mathcal{T}_k(q_h)$ onto $[0,\,1]$:
 \begin{equation}
-  \hat{c}_j =
-    \frac{\delta_j^c - \min_{i \in \mathcal{T}_k}\delta_i^c}
-         {\max_{i \in \mathcal{T}_k}\delta_i^c
-          - \min_{i \in \mathcal{T}_k}\delta_i^c + \varepsilon} ,
-  \label{eq:clipnorm}
+  \hat{\delta}_j^m \;=\;
+    \frac{\delta_j^m - \min_{i \in \mathcal{T}_k}\delta_i^m}
+         {\max_{i \in \mathcal{T}_k}\delta_i^m
+          - \min_{i \in \mathcal{T}_k}\delta_i^m + \varepsilon} ,
+  \quad m \in \{c,\,d\},
+  \label{eq:norm}
 \end{equation}
-\begin{equation}
-  \hat{d}_j =
-    \frac{\delta_j^d - \min_{i \in \mathcal{T}_k}\delta_i^d}
-         {\max_{i \in \mathcal{T}_k}\delta_i^d
-          - \min_{i \in \mathcal{T}_k}\delta_i^d + \varepsilon} ,
-  \label{eq:dinonorm}
-\end{equation}
-where $\varepsilon = 10^{-10}$ prevents division by zero.
-Normalizing within the retrieved pool --- rather than against a global corpus
-statistic --- ensures the two signals remain commensurate across queries regardless
-of per-query distance scale variation.
-Empirically, pool-local normalization preserves the fine-grained distance ordering
-within $\mathcal{T}_k(q_h)$; this is critical because the CLIP L2 distances within
-the top-$k$ pool vary over a narrow range (${\approx}1.55$--$1.75$ for unit-normalized
-768-d embeddings), so intra-pool relative distances carry meaningful discriminative
-signal that global normalization would compress.
+where $\varepsilon = 10^{-10}$, $\hat{c}_j \equiv \hat{\delta}_j^c$, and
+$\hat{d}_j \equiv \hat{\delta}_j^d$.
+Pool-local normalization preserves the fine-grained relative ordering of CLIP distances
+within $\mathcal{T}_k(q_h)$: intra-pool CLIP L2 values span a narrow range
+(${\approx}1.55$--$1.75$ for unit-normalized 768-d embeddings), a signal that a
+global corpus statistic would collapse.
 
-\noindent\textbf{Fusion and final ranking.}
 The fused relevance score for candidate $j \in \mathcal{T}_k(q_h)$ is the
 convex combination~\cite{bruch2023tois}
 \begin{equation}
   s_j \;=\; (1-\alpha)\,\hat{c}_j \;+\; \alpha\,\hat{d}_j ,
   \label{eq:fusion}
 \end{equation}
-where $\alpha \in \{0.0, 0.05, \ldots, 0.90\}$ (19 values) controls the relative
-weight of the DINOv2 reranking signal.
-Lower $s_j$ denotes higher predicted relevance; the final output list is
-$\mathcal{T}_k(q_h)$ sorted by $s_j$ in ascending order.
+where $\alpha \in \{0.0, 0.05, \ldots, 0.90\}$ (19 values); lower $s_j$ indicates
+higher predicted relevance.
 Setting $\alpha{=}0$ degenerates to CLIP-only retrieval; $\alpha{=}1$ to
 DINOv2-only reranking.
-We select Eq.~\eqref{eq:fusion} over reciprocal rank fusion because CLIP text
-queries on a tight unit-normalized space produce meaningful intra-pool distance
-values whose fine-grained ordering is destroyed when converted to ranks;
-empirically, the weighted distance sum achieves higher mAP than weighted RRF on
-this benchmark.
-The optimal $\alpha$ is configuration-dependent and is learned jointly with the
-Stage~1 parameters by the LLM optimizer (Section~\ref{sec:optimizer}).
+The convex combination is preferred over reciprocal rank fusion because CLIP text
+queries on a unit-normalized 768-d space produce meaningful intra-pool distance values
+whose fine-grained ordering is destroyed when converted to ranks.
+The optimal $\alpha$ is configuration-dependent and is learned jointly with Stage~1
+parameters by the LLM optimizer (Section~\ref{sec:optimizer}).
 
 \subsection{Text Query Superiority: Centroid-Displacement Theory}
 \label{sec:centroid}
-
-We provide a formal geometric characterization of why text queries achieve
-systematically higher recall than single reference images on compositionally
-structured HOI categories, grounding the argument in the metric geometry of
-CLIP's joint embedding space.
 
 Let $\boldsymbol{\mu}_h^c = \frac{1}{|\mathcal{I}_h|}\sum_{i\in\mathcal{I}_h}\mathbf{c}_i$
 denote the visual centroid of HOI class $h$ in the CLIP space, and let
