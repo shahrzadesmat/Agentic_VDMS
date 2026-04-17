@@ -6,6 +6,7 @@
 \documentclass[sigconf, nonacm]{acmart}
 \usepackage{enumitem}
 \setlist{noitemsep,topsep=2pt,parsep=0pt,partopsep=0pt}
+\usepackage{microtype}
 \usepackage{makecell}
 \usepackage{booktabs}
 \usepackage{algorithm}
@@ -427,13 +428,12 @@ Production VDBMSs integrate ANN indexing with metadata management, persistent st
 and query planning.
 Milvus~\cite{wang2021milvus} supports multiple index backends with a unified query
 interface; VDMS~\cite{pan2023vdms} co-locates PMGD graph-property metadata with vector
-data, enabling structured pre-filters on ANN queries --- a feature we exploit as the
-\texttt{constraint\_strategy} optimization dimension.
-GaussDB-Vector~\cite{sun2025gaussdb} (VLDB 2025) addresses LLM-scale real-time ingestion
-by decoupling indexing from serving, supporting mixed query types at billion-vector scale.
-VSAG~\cite{zhong2025vsag} (VLDB 2025) eliminates costly index rebuilds during parameter
-sweeps by exploiting analytical subgraph monotonicity, making parameter-search over graph
-indices significantly cheaper.
+data, enabling structured pre-filters on ANN queries --- a feature we exploit
+as one optimization dimension.
+GaussDB-Vector~\cite{sun2025gaussdb} (VLDB 2025) decouples indexing from serving
+for billion-vector scale.
+VSAG~\cite{zhong2025vsag} (VLDB 2025) eliminates costly rebuilds during parameter
+sweeps via subgraph monotonicity.
 Despite this infrastructure richness, \emph{index configuration} --- choosing engine
 type, graph connectivity $M$, search depth \textit{efSearch}, candidate pool size $k$,
 and cross-stage fusion weight $\alpha$ for a given embedding distribution and throughput
@@ -652,11 +652,10 @@ optimization problem whose objective is this Score.
 \begin{definition}[Configuration Space]\label{def:space}
 Let $\Theta$ denote the joint configuration space of the two-stage pipeline
 (Section~\ref{sec:pipeline}).
-$\Theta$ is the Cartesian product of seven parameter domains ---
-\emph{engine}, $M$/$\mathit{nlist}$, $\mathit{efSearch}$/$\mathit{nprobe}$,
-$k$, $\alpha$, $n_{\mathrm{refs}}$, and $\mathit{ref\_strategy}$ ---
-whose individual value domains are enumerated in Section~\ref{sec:pipeline}.
-The total cardinality is $|\Theta| = 102{,}144$.
+$\Theta$ is the Cartesian product of seven parameter domains
+(\emph{engine}; $M$, $\mathit{nlist}$; $\mathit{efSearch}$, $\mathit{nprobe}$;
+$k$; $\alpha$; $n_{\mathrm{refs}}$; $\mathit{ref\_strategy}$)
+enumerated in Table~\ref{tab:config-space}; $|\Theta| = 102{,}144$.
 \end{definition}
 
 \begin{definition}[Evaluation Oracle]\label{def:oracle}
@@ -788,22 +787,11 @@ reporting mean Score across three random seeds against five optimization baselin
 \begin{figure*}[!t]
   \centering
     \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{figures/pipeline_figure.pdf}
-  \caption{\textbf{Two-stage retrieval pipeline implementing oracle $\mathcal{O}(\theta)$
-    (Definition~\ref{def:oracle}).}
-    A configuration $\theta \in \Theta$ parameterizes both stages simultaneously
-    (Table~\ref{tab:config-space}).
-    \textbf{Stage~1:} the frozen CLIP ViT-L/14 text encoder maps the HOI category label
-    to a 768-d query embedding $\mathbf{q}_c$, which VDMS resolves via a configurable
-    ANN index (FaissFlat, FaissHNSWFlat, or FaissIVFFlat) to a top-$k$ candidate pool
-    $\mathcal{T}_k(q)$ (Eq.~\ref{eq:stage1}).
-    \textbf{Stage~2:} each candidate's normalized CLIP distance $\hat{c}_j$ and
-    DINOv2 ViT-L/14-reg4 distance $\hat{d}_j$ to a per-class visual reference
-    $\mathbf{r}_h$ are fused via the convex combination
-    $s_j = (1{-}\alpha)\hat{c}_j + \alpha\hat{d}_j$ (Eq.~\ref{eq:fusion}),
-    re-ranking $\mathcal{T}_k(q)$ at zero additional indexing cost.
-    The oracle records mAP and batch QPS; $\mathrm{Score}(\theta) =
-    \mathrm{mAP}(\theta) \times \mathrm{QPS}(\theta)$ is the scalar objective
-    maximized by the LLM optimizer (Section~\ref{sec:optimizer}).}
+  \caption{\textbf{Two-stage retrieval pipeline (oracle $\mathcal{O}(\theta)$).}
+    Stage~1: CLIP ViT-L/14 ANN retrieval produces a top-$k$ candidate pool.
+    Stage~2: DINOv2 ViT-L/14-reg4 distances are fused via convex combination
+    $s_j{=}(1{-}\alpha)\hat{c}_j+\alpha\hat{d}_j$, re-ranking candidates at zero
+    additional indexing cost. Score $= \mathrm{mAP}\times\mathrm{QPS}$.}
   \label{fig:pipeline}
 \end{figure*}
 
@@ -1005,14 +993,9 @@ by $O(1/\sqrt{n_r})$ relative to a single reference image.
 \begin{figure*}[t]
   \centering
     {\includegraphics[width=\textwidth,height=0.32\textheight,keepaspectratio]{figures/workflow.pdf}}
-  \caption{Overview of the optimization framework.
-    Five methods --- \textbf{LLM Agent} (phase-aware, adaptive), \textbf{Optuna TPE}
-    (Tree Parzen Estimator, adaptive), and \textbf{GP-BO} (Gaussian Process surrogate,
-    adaptive) vs.\ \textbf{Grid Search} and \textbf{Random Search} (non-adaptive
-    baselines) --- each propose ANN index configurations evaluated by VDMS over
-    $N{=}30$ iterations.
-    $\mathrm{Score} = \mathrm{mAP} \times \mathrm{QPS}$ (HICO-DET and GLDv2).
-    Red dashed arrows indicate score feedback; only adaptive methods receive it.}
+  \caption{Optimization framework: five methods propose VDMS configurations over
+    $N{=}30$ iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive
+    score feedback (red arrows); Grid and Random Search do not.}
   \label{fig:workflow}
 \end{figure*}
 
@@ -1038,19 +1021,14 @@ The configuration space decomposes as
   \label{eq:space}
 \end{equation}
 where each component is defined by its engine-conditional index parameters together
-with shared parameters
-$k \in \{50, 100, 200, 300, 500, 750, 1000\}$,
-$\alpha \in \{0.00, 0.05, \ldots, 0.90\}$,
-$n_r \in \{1,3,5,10\}$, and
-$\mathrm{ref\_strategy} \in \{\textit{first},\,\textit{centroid},\,\textit{diverse}\}$.
-FaissHNSWFlat contributes $M \in \{8,16,32,48,64\}$ and
-$\mathit{efSearch} \in \{32,64,100,150,200,300,500\}$;
-FaissIVFFlat contributes $\mathit{nlist} \in \{64,128,256,512\}$ and
-$\mathit{nprobe} \in \{4,8,16,32,64\}$.
-The oracle $\mathcal{O}(\theta) = \bigl(\mathrm{mAP}(\theta),\,\mathrm{QPS}(\theta)\bigr)$
-loads $\theta$ into a fresh VDMS Apptainer instance, indexes the corpus, and evaluates
-all $|Q|{=}600$ HOI queries, returning
-$\mathrm{Score}(\theta) = \mathrm{mAP}(\theta)\times\mathrm{QPS}(\theta)$.
+with shared parameters $k$, $\alpha$, $n_r$, and $\mathrm{ref\_strategy}$
+(full value sets in Table~\ref{tab:config-space}).
+FaissHNSWFlat contributes $M$ and $\mathit{efSearch}$;
+FaissIVFFlat contributes $\mathit{nlist}$ and $\mathit{nprobe}$.
+The oracle $\mathcal{O}(\theta)$ loads $\theta$ into a fresh VDMS instance,
+indexes the corpus, and evaluates all $|Q|{=}600$ HOI queries, returning the pair
+$\bigl(\mathrm{mAP}(\theta),\mathrm{QPS}(\theta)\bigr)$
+and $\mathrm{Score}(\theta)=\mathrm{mAP}(\theta){\times}\mathrm{QPS}(\theta)$.
 
 Two cross-parameter couplings invalidate the independence assumption shared by
 GP-BO~\cite{yang2024vdtuner} and Optuna TPE.
@@ -1068,11 +1046,9 @@ structural choices before continuous ones.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth,height=0.35\textheight,keepaspectratio]{figures/prompts.pdf}
-  \caption{LLM prompt structure for ANN index hyperparameter optimization.
-    The system prompt establishes the optimization objective and parameter physics;
-    the user prompt supplies the diagnostic class $g(\mathcal{H}_{t-1})$,
-    the ordered history $\mathcal{H}_{t-1}$, and untried-value hints,
-    eliciting a structured JSON response specifying the next configuration.}
+  \caption{LLM prompt structure. The system prompt encodes parameter physics; the
+    user prompt supplies $g(\mathcal{H}_{t-1})$, history, and untried-value hints,
+    eliciting a structured JSON configuration response.}
   \label{fig:prompts}
 \end{figure*}
 
@@ -1101,6 +1077,7 @@ a \textit{reasoning} field that articulates its rationale (Figure~\ref{fig:promp
 Let $\mathrm{Score}^*_{t} = \max_{s \leq t}\mathrm{Score}(\theta_s)$ denote the
 running best at the end of iteration $t$.
 The diagnostic class
+{\small
 \begin{equation}
   g(\mathcal{H}_{t}) =
   \begin{cases}
@@ -1116,7 +1093,7 @@ The diagnostic class
     \textit{moderate}    & \text{otherwise,}
   \end{cases}
   \label{eq:guidance}
-\end{equation}
+\end{equation}}
 is injected into the prompt as a targeted natural-language directive.
 \textit{Excellent} reinforces the current structural region and encourages
 incremental $\alpha$ or $n_r$ refinement; \textit{low\_mAP} directs the agent to
@@ -1128,9 +1105,8 @@ and \textit{moderate} suggests coordinated adjustment of $k$ and $\alpha$.
 \label{sec:hints}
 
 During EXPLOITATION and FINE-TUNING, the prompt additionally provides
-$\mathcal{U}_t$: the set of $\alpha$ values and $(n_r,\,\mathrm{ref\_strategy})$ pairs
-not yet evaluated under the current best engine configuration, derived at inference time
-from $\mathcal{H}_t$.
+$\mathcal{U}_t$: untried $\alpha$ values and $(n_r, \mathrm{ref\_strategy})$ pairs
+under the current best engine, derived from $\mathcal{H}_t$.
 These hints prevent the agent from re-proposing already-evaluated
 continuous-parameter combinations once the structural choice is settled.
 Each proposed $\theta_{t+1}$ is checked against $\mathcal{H}_t$ before evaluation;
@@ -1240,7 +1216,7 @@ For HICO-DET, image embeddings are 768-dimensional CLIP ViT-L/14 vectors.
 For GLDv2, each image is represented by a 768-dimensional CLIP ViT-L/14 embedding
 and a 1024-dimensional DINOv2 ViT-L/14-reg4 embedding, both stored in VDMS.
 For SIFT1M, raw 128-dimensional SIFT vectors are stored directly in VDMS without
-any reranking stage; the optimization objective is Score $= \text{Recall@10} \times \text{QPS}$.
+any reranking stage; Score $= \text{Recall@10} \times \text{QPS}$.
 
 \noindent\textbf{Compared Methods.}
 We compare five optimization strategies, each run for $N{=}30$ iterations over $\Theta$:
@@ -1261,11 +1237,9 @@ We compare five optimization strategies, each run for $N{=}30$ iterations over $
   \item \textbf{Grid Search}: lexicographic enumeration of a fixed 1-D parameter
     sweep; non-adaptive (2~runs).
 \end{itemize}
-As system baselines we include UniIR~\cite{wei2023uniir} (CLIP ViT-L/14),
-standalone CLIP ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2
-reranking --- all evaluated under exact FaissFlat exhaustive search to establish
-accuracy upper bounds independent of ANN approximation
-(Section~\ref{sec:baselines}).
+As system baselines we include UniIR~\cite{wei2023uniir}, standalone CLIP
+ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2 reranking,
+all under exact FaissFlat search (Section~\ref{sec:baselines}).
 
 \noindent\textbf{Metrics.}
 Retrieval quality is measured by mean Average Precision (mAP), computed over all
@@ -1311,13 +1285,9 @@ LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}
 % ── Table 1: System baselines ─────────────────────────────────────────────────
 \begin{table*}[t]
 \centering
-\caption{System baselines on HICO-DET (47{,}776 images, FaissFlat exact search).
-  Score $= \text{mAP} \times \text{QPS}$.
-  $\alpha$ is the DINOv2 reranking weight ($\alpha{=}0$: CLIP only; $\alpha{=}1$: DINOv2 only);
-  ``---'' indicates not applicable.
-  UniIR variants are measured in VDMS under identical conditions (FaissFlat, sequential
-  client-server QPS); UniIR zero-shot is a brute-force numpy reference with no database QPS.
-  System efficiency (latency, build time) is reported in Table~\ref{tab:efficiency}.}
+\caption{System baselines on HICO-DET (FaissFlat exact search).
+  Score $= \mathrm{mAP}\times\mathrm{QPS}$; $\alpha$: DINOv2 reranking weight
+  ($0$=CLIP only, $1$=DINOv2 only). Latency in Table~\ref{tab:efficiency}.}
 \label{tab:baselines}
 \small
 \setlength{\tabcolsep}{5pt}
@@ -1401,33 +1371,22 @@ on the full history of observed outcomes.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
-  \caption{Convergence of optimization methods on HICO-DET over 30 iterations
-    (mean $\pm 1\sigma$ across 3 seeds; 2 runs for Grid).
-    Best Score ($\text{mAP} \times \text{QPS}$) achieved so far is plotted at
-    each iteration.
-    The LLM agent reaches Score $\approx 3.97$ by iteration~6 --- a level that
-    Optuna TPE first matches at iteration~27 and Random Search first matches at
-    iteration~28 --- and continues improving to Score $= 4.44$ at iteration~30.
-    Grid Search plateaus at iteration~19, having exhausted its fixed 30-configuration sweep.}
+  \caption{Best Score ($\mathrm{mAP}{\times}\mathrm{QPS}$) vs.\ iteration on HICO-DET
+    (mean $\pm 1\sigma$, 3 seeds; 2 runs for Grid).
+    LLM reaches Score $\approx 3.97$ at iteration~6; Optuna TPE at iteration~27,
+    Random Search at iteration~28.}
   \label{fig:convergence}
 \end{figure}
 
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
 \centering
-\caption{Comparison of ANN index hyperparameter optimization methods on HICO-DET (30 iterations, best config reported).
-  Score $= \text{mAP} \times \text{QPS}$.
-  \emph{Iters$\to$Best}: first iteration achieving the reported best score.
-  $^\dagger$~Grid Search ran all 30 iterations, plateauing at iteration 19.
-  All metrics are means across 3 seeds (LLM, Optuna, GP-BO, Random); Grid is the mean of 2 runs.
-  The LLM agent achieves the highest Score and reaches Score $\approx 3.97$ within 6 iterations ---
-  a level requiring 27 iterations for Optuna TPE and 28 for Random Search.
-  $^\ddagger$~P@10 was not recorded for Grid Search or GP-BO runs.
-  $^\P$~GP-BO uses \texttt{optuna.samplers.GPSampler} (Gaussian Process surrogate, Expected
-  Improvement acquisition), replicating the VDTuner~\cite{yang2024vdtuner} paradigm; means over 3 seeds.
-  $^\S$~QDS uses a single run with query difficulty-weighted objective (Section~\ref{sec:ablation});
-  Score and mAP are evaluated on the standard unweighted metric for fair comparison.
-  Full per-query latency breakdown is reported in Table~\ref{tab:efficiency}.}
+\caption{ANN optimizer comparison on HICO-DET (30 iterations, means over 3 seeds; Grid: 2 runs).
+  Score $= \mathrm{mAP} \times \mathrm{QPS}$; \emph{Iters$\to$Best}: first iteration at best score.
+  $^\dagger$Grid plateaus at iter.~19.
+  $^\ddagger$P@10 not recorded for Grid/GP-BO.
+  $^\P$GP-BO: \texttt{GPSampler} + Expected Improvement~\cite{yang2024vdtuner}.
+  $^\S$QDS: single run, difficulty-weighted objective; scores on standard metric.}
 \label{tab:optimizer}
 \small
 \setlength{\tabcolsep}{6pt}
@@ -1447,11 +1406,8 @@ GP-BO$^\P$$^\ddagger$            & 4.29         & 0.230          & ---          
 
 \begin{table*}[t]
 \centering
-\caption{System efficiency for representative configurations on HICO-DET (47K images, 600 queries,
-  averaged over 5 runs). \emph{Build(s)}: one-time index construction time.
-  \emph{CLIP(ms)}, \emph{DINO(ms)}: per-query stage latencies.
-  \emph{Lat(ms)}: total end-to-end latency per query. \emph{QPS}: queries per second.
-  HNSW builds are slower than Flat due to graph construction but retrieve far faster.}
+\caption{System efficiency on HICO-DET (47K images, 600 queries, 5 runs).
+  \emph{Build(s)}: index build; \emph{Lat(ms)}: end-to-end per-query latency.}
 \label{tab:efficiency}
 \small
 \setlength{\tabcolsep}{5pt}
@@ -1476,10 +1432,10 @@ Grid Search       & HNSW          & --- & $\sim$445 & --- & --- & --- & 20.51 \\
 
 Table~\ref{tab:optimizer} and Figure~\ref{fig:convergence} report the complete
 HICO-DET results across all five optimization methods.
-The LLM agent achieves the highest mean Score $= 4.44$, outperforming every baseline:
-GP-BO ($4.29$, $+3.3\%$), Optuna TPE ($4.05$, $+9.7\%$), Random Search ($4.04$,
-$+9.7\%$), and Grid Search ($3.44$, $+28.8\%$) --- all improvements expressed relative
-to the respective baseline mean.
+The LLM agent achieves the highest mean Score $= 4.44$, outperforming every
+baseline: GP-BO ($4.29$, $+3.3\%$), Optuna TPE ($4.05$, $+9.7\%$), Random
+Search ($4.04$, $+9.7\%$), and Grid Search ($3.44$, $+28.8\%$) --- all
+relative to the respective baseline mean.
 This translates to a $\mathbf{2.5\times}$ improvement over the unoptimized CLIP FaissFlat
 baseline (Score $= 1.707$) and $\mathbf{13.9\times}$ over brute-force CLIP$+$DINOv2
 reranking (Score $= 0.319$).
@@ -1569,8 +1525,9 @@ Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are use
   Score $= \text{mAP} \times \text{QPS}$.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
 \label{tab:gldv2}
+\resizebox{\columnwidth}{!}{%
 \small
-\setlength{\tabcolsep}{6pt}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccccc}
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
@@ -1581,7 +1538,7 @@ Grid Search                   & 3.6566            & 0.1789            & 0.2125  
 \midrule
 \textbf{LLM Agent (Ours)}     & \textbf{3.6567}   & \textbf{0.1790}   & \textbf{0.2126}     & \textbf{20.43}    & \textbf{15/30} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \noindent\textbf{Overall performance.}
@@ -1636,8 +1593,9 @@ construction, providing a clean complexity-matched control.
   30 iterations, seed~42). Score $= \text{Recall@10} \times \text{QPS}$.
   \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
 \label{tab:sift1m}
+\resizebox{\columnwidth}{!}{%
 \small
-\setlength{\tabcolsep}{6pt}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{Recall@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
@@ -1647,7 +1605,7 @@ Optuna TPE                & 1021.1 & 0.888 & 1150.0 & 14/30 \\
 Grid Search               & 1035.0 & 0.952 & 1087.1 & 25/30 \\
 \textbf{LLM Agent (Ours)} & \textbf{1036.0} & \textbf{0.941} & \textbf{1100.8} & \textbf{17/30} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \noindent\textbf{Overall performance.}
@@ -1760,19 +1718,15 @@ visually compact categories (e.g., \textit{hold cup}), making per-query AP more
 sensitive to index configuration.
 We introduce a \emph{Query Difficulty Score} (QDS) that identifies structurally hard
 queries and upweights their contribution to the optimization objective.
-For query $j$, QDS combines two complementary signals:
-$H_j = -\sum_i p_{ji} \log p_{ji}$ (where $p_{ji} = \mathrm{softmax}(\mathbf{f}_{q_j}^\top \mathbf{f}_{d_i}/\tau)$)
-measures \emph{gallery entropy} --- how uniformly the CLIP query mass spreads over
-the gallery (high $H_j$: CLIP is confused, many candidates look equally relevant); and
-$\mathrm{CPR}_j = \|\mathbf{f}_{q_j} - \boldsymbol{\mu}_j\|^2 / \sigma_j^2$
-measures the \emph{centroid displacement ratio} --- how far the text query embedding
-lies from the visual centroid $\boldsymbol{\mu}_j$ of its ground-truth positives
-(high CPR$_j$: the text query is not well-anchored to its class's visual region).
-Normalizing both to $[0,1]$ and combining:
-$\mathrm{QDS}_j = \tilde{H}_j - \widetilde{\mathrm{CPR}}_j$,
-the per-query weight is $w_j = 1 + \tilde{I}_j \in [1,2]$,
-and the weighted objective becomes
-$\mathrm{QDS\text{-}mAP} = \sum_j w_j \cdot \mathrm{AP}_j \,/\, \sum_j w_j$.
+For query $j$, QDS combines two signals.
+\emph{Gallery entropy} $H_j = -\sum_i p_{ji} \log p_{ji}$
+($p_{ji} = \mathrm{softmax}(\mathbf{f}_{q_j}^\top \mathbf{f}_{d_i}/\tau)$)
+measures how uniformly CLIP mass spreads over the gallery.
+\emph{Centroid displacement} $\mathrm{CPR}_j = \|\mathbf{f}_{q_j} - \boldsymbol{\mu}_j\|^2 / \sigma_j^2$
+measures how far the text query lies from the visual centroid of its positives.
+Normalizing and combining gives $\mathrm{QDS}_j = \tilde{H}_j - \widetilde{\mathrm{CPR}}_j$
+with per-query weight $w_j = 1 + \tilde{I}_j \in [1,2]$ and objective
+$\mathrm{QDS\text{-}mAP} = \sum_j w_j \cdot \mathrm{AP}_j / \sum_j w_j$.
 
 When the LLM agent optimizes $\mathrm{QDS\text{-}mAP} \times \mathrm{QPS}$, it discovers
 a configuration (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$,
