@@ -816,6 +816,15 @@ by $O(1/\sqrt{n_r})$ relative to a single reference image.
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/workflow.pdf}
+  \caption{Optimization framework: five methods propose VDMS configurations over
+    $N{=}30$ iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive
+    score feedback (red arrows); Grid and Random Search do not.}
+  \label{fig:workflow}
+\end{figure*}
+
 The pipeline of Section~\ref{sec:pipeline} exposes a seven-parameter joint configuration
 $\theta \in \Theta$: engine, two engine-conditional index parameters, pool size $k$,
 fusion weight $\alpha$, reference count $n_r$, and reference strategy.
@@ -862,23 +871,11 @@ structural choices before continuous ones.
 
 \begin{figure*}[t]
   \centering
-  \begin{subfigure}[t]{0.50\textwidth}
-    \includegraphics[width=\linewidth]{figures/workflow.pdf}
-    \caption{Optimization framework: five methods propose VDMS configurations over
-      $N{=}30$ iterations. Adaptive methods (LLM, Optuna TPE, GP-BO) receive score
-      feedback (red arrows); Grid and Random Search do not.}
-    \label{fig:workflow}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[t]{0.48\textwidth}
-    \includegraphics[width=\linewidth,height=0.28\textheight,keepaspectratio]{figures/prompts.pdf}
-    \caption{LLM prompt structure. System prompt encodes parameter physics; user
-      prompt supplies $g(\mathcal{H}_{t-1})$, history, and untried-value hints,
-      eliciting a structured JSON response.}
-    \label{fig:prompts}
-  \end{subfigure}
-  \caption{LLM-guided ANN optimizer: framework and prompt design.}
-  \label{fig:optimizer}
+  \includegraphics[width=\textwidth]{figures/prompts.pdf}
+  \caption{LLM prompt structure. The system prompt encodes parameter physics; the
+    user prompt supplies $g(\mathcal{H}_{t-1})$, history, and untried-value hints,
+    eliciting a structured JSON configuration response.}
+  \label{fig:prompts}
 \end{figure*}
 
 Let $h_t = \bigl(\theta_t,\,\mathrm{mAP}(\theta_t),\,\mathrm{QPS}(\theta_t)\bigr)$
