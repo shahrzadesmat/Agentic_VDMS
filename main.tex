@@ -684,7 +684,7 @@ For any configuration $\theta \in \Theta$, the evaluation oracle
 $\mathcal{O}(\theta) = \bigl(\mathrm{mAP}(\theta),\,\mathrm{QPS}(\theta)\bigr)$
 is obtained by (i)~rebuilding the VDMS ANN index under $\theta$, and
 (ii)~issuing all 600 HICO-DET text queries to the live container and recording
-mAP@10 (Section~\ref{sec:benchmark}) and batch QPS.
+mAP (Section~\ref{sec:benchmark}) and batch QPS.
 The oracle is \emph{black-box}: no closed-form gradient with respect to
 $\theta$ is available, and each call requires a full index rebuild followed by
 600 retrieval operations.
@@ -838,7 +838,7 @@ the optimizer computes $\mathrm{Score}(\theta) = \mathrm{mAP}(\theta) \times
 Let $\mathcal{C} = \{(\mathbf{c}_i,\,\mathbf{d}_i)\}_{i=1}^{N}$ denote the corpus
 of $N{=}47{,}776$ images, where $\mathbf{c}_i \in \mathbb{R}^{768}$ is the
 unit-normalized CLIP ViT-L/14 embedding and $\mathbf{d}_i \in \mathbb{R}^{1024}$
-is the unit-normalized DINOv2 ViT-L/14-reg4 embedding of image $i$.
+is the DINOv2 ViT-L/14-reg4 embedding of image $i$.
 For HOI class $h$, let $\mathcal{I}_h \subseteq [N]$ denote the annotated relevant
 image set.
 Given a text query $q_h$ (e.g., \textit{``a person riding a horse''}), the pipeline
@@ -1046,8 +1046,8 @@ translates directly to higher expected recall at any fixed $k$, and therefore to
 higher mAP.
 This result formally justifies the design choice of text queries for Stage~1 and
 additionally motivates the $n_r{>}1$ reference aggregation in Stage~2: averaging
-$n_r$ class embeddings reduces the effective centroid bias of $\mathbf{r}_h$
-by $O(1/n_r)$ relative to a single reference image.
+$n_r$ class embeddings reduces the expected $L_2$ centroid bias of $\mathbf{r}_h$
+by $O(1/\sqrt{n_r})$ relative to a single reference image.
 
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
