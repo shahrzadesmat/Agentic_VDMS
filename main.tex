@@ -329,8 +329,7 @@ pre-training~\cite{ning2023hoiclip,li2024dphoi}, but every published use of HICO
 remains restricted to the bounding-box detection paradigm.
 Text-image retrieval was transformed by CLIP~\cite{radford2021clip}, enabling zero-shot
 retrieval across domains; UniIR~\cite{wei2023uniir} (ECCV 2024) unified eight multimodal
-retrieval tasks over the M-BEIR benchmark, and LamRA~\cite{liu2025lamra} (CVPR 2025)
-extends this to generative models via LoRA.
+retrieval tasks over the M-BEIR benchmark.
 We fill the orthogonal HOI \emph{retrieval} direction and adopt CLIP and UniIR as
 primary baselines.
 
@@ -1014,11 +1013,10 @@ normalised), weight $w_j{=}1{+}\tilde{I}_j{\in}[1,2]$, and replace the standard
 mAP with $\mathrm{QDS\text{-}mAP}{=}\sum_j w_j\mathrm{AP}_j/\sum_j w_j$ as the
 oracle signal.
 The QDS objective is ablated in Section~\ref{sec:ablation}.
-QDS applies exclusively to interaction-level benchmarks (HICO-DET), where semantic
-verb--object category structure admits per-query difficulty decomposition;
-instance-level benchmarks (GLDv2: landmark-instance ground truth; SIFT1M: exact
-$k$-nearest-neighbor ground truth) provide no analogous categorical difficulty signal
-and use their standard objectives unchanged.
+QDS applies exclusively to HICO-DET: its semantic verb--object category structure
+admits per-query difficulty decomposition; GLDv2 (landmark-instance ground truth)
+and SIFT1M (exact $k$-NN ground truth) provide no analogous categorical difficulty
+signal and retain their standard objectives.
 
 \section{Experiments}
 \label{sec:experiments}
