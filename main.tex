@@ -1873,84 +1873,39 @@ the five feedback class labels used in the per-iteration diagnostic.
 \section{Conclusion}
 \label{sec:conclusion}
 
-We addressed two intertwined problems that arise when deploying vision-language embeddings
-in a production vector database: the absence of a semantically demanding retrieval benchmark
-that tests compositional understanding, and the lack of principled methods for jointly
-optimizing ANN index accuracy and throughput.
+Standard parameter-independent HPO methods fail structurally on two-stage ANN retrieval
+pipelines because engine-type gating, search-depth--fusion-weight cross-stage coupling,
+and the latency--recall trade-off form conditional dependencies that univariate acquisition
+surfaces cannot model.
+We presented a phase-aware LLM optimization agent that conditions each configuration
+proposal on the full trajectory $\mathcal{H}_t$ of evaluated (configuration, Score) pairs,
+partitions its 30-iteration budget into exploration, exploitation, and refinement phases,
+and enforces an anti-collapse constraint to prevent stagnation in high-scoring but
+structurally similar regions.
+On HICO-DET --- the most compositionally coupled of our three benchmarks --- the agent
+achieves mean Score $= 4.44$, reaching Score ${\geq}\,3.97$ at iteration~6, a threshold
+that requires 27 iterations for Optuna TPE and 28 for Random Search (${\approx}2.7$ hours
+of compute saved at 8--9 minutes per oracle call).
+The $+9.7\%$ advantage over both Optuna TPE and Random Search, and $+3.3\%$ over GP-BO,
+compresses to ${\lesssim}1.7\%$ on GLDv2 and $2.1\%$ on SIFT1M as coupling complexity
+decreases --- with the SIFT1M convergence ordering inverting to favor Optuna TPE
+(iteration~14) over the LLM agent (iteration~17) --- confirming that the agent's benefit
+scales proportionally with configuration-landscape coupling complexity.
 
-On the benchmark side, we introduced the first text-query image retrieval benchmark derived
-from HICO-DET --- 47{,}776 images, 600 HOI categories, and 90{,}641 ground-truth positive
-pairs --- and demonstrated that HICO-DET's compositional structure creates a retrieval task
-that is qualitatively harder than scene- or object-level benchmarks: even exhaustive
-exact-nearest-neighbor search with modality fusion reaches only mAP $= 0.276$, exposing a
-persistent semantic ceiling that reflects genuine language--vision alignment difficulty rather
-than any indexing limitation.
-
-On the retrieval pipeline side, we proposed a two-stage architecture that pairs CLIP
-ViT-L/14 ANN retrieval with DINOv2 ViT-L/14-reg4 visual reranking at deployment cost
-of a single index.
-DINOv2 reranking improves mAP by $3.65$ percentage points ($+15.2\%$ relative) over
-CLIP-only retrieval at under $1\%$ additional query latency.
-We provided a formal geometric account of why text queries outperform reference image
-queries on compositionally structured datasets: a CLIP text embedding occupies the centroid
-of the HOI category's visual cluster, while any single reference image is displaced from
-that centroid by $\varepsilon_j > 0$, contributing a bias term $\varepsilon_j^2$ that
-increases expected L2 distance to every class member.
-This bias is largest for visually diverse categories with large within-class spread ---
-precisely the long-tailed regime that dominates HICO-DET.
-
-On the optimization side, we identified that ANN retrieval search spaces have hard
-conditional dependencies --- engine type gates valid parameters, and Stage-1 search
-depth couples to Stage-2 fusion weight --- that cause parameter-independent methods
-(Bayesian TPE with univariate marginals, random sampling) to fail structurally on this
-class of problems.
-We presented a phase-aware LLM agent that conditions each proposal on the full history
-of (configuration, Score) pairs and reasons about engine architecture, graph connectivity,
-search depth, and fusion weight as an integrated system, discovering cross-stage
-compensatory configurations that neither Bayesian nor non-adaptive baselines locate
-within a 30-iteration budget.
-The agent reaches Score $\approx 3.97$ within 6 iterations --- a threshold that requires
-27 iterations for Optuna TPE and 28 for Random Search, saving approximately $3$ hours
-and $3.5$ hours of compute respectively.
-Across three independent seeds, the LLM agent achieves a mean Score $= 4.44$
-($\text{mAP} \times \text{QPS}$), a $\mathbf{2.5\times}$ improvement over the CLIP
-FaissFlat baseline and $\mathbf{13.9\times}$ over brute-force CLIP$+$DINOv2 reranking,
-at only $2.1$ percentage points of mAP below the exact-search upper bound --- a
-$14.7\times$ throughput gain (QPS $= 16.98$ vs.\ $1.15$) that brute-force cannot approach.
-
-Across three datasets, our evaluation tells a consistent and theoretically grounded
-story.
-On HICO-DET, the LLM agent achieves the highest mean Score ($4.44$), converging
-to $\sim$95\% of its best in $\sim$13~iterations on average versus $\sim$20 for
-Optuna~TPE --- and leads by $+9.7\%$ over Optuna~TPE, $+9.7\%$ over Random
-Search, and $+3.3\%$ over GP-BO (VDTuner-style); all percentages use the baseline
-mean Score as denominator.
-On GLDv2 (762K landmark images, $16\times$ scale), the LLM agent again ranks first
-(Score $= 3.66$, seed~42) with a compressed ${\lesssim}1.7\%$ spread across all
-methods, consistent with the reduced coupling complexity at landmark-retrieval scale.
-On SIFT1M --- a structurally simpler, single-stage HNSW benchmark with no
-cross-stage coupling --- all four methods (GP-BO excluded) converge within
-$2.1\%$ of each other, confirming that the agent's advantage scales with the
-coupling complexity of the configuration landscape and is not an artifact of a
-favorable benchmark.
-
-Looking forward, three directions are most immediate.
-First, extending the multi-seed evaluation (currently 3 seeds for all adaptive
-methods --- LLM, Optuna~TPE, GP-BO, and Random Search) to Grid Search and to
-additional LLM model families will quantify whether the sample-efficiency
-advantage is model-specific or a general property of history-conditioned
-optimization in coupled search spaces.
-Second, scaling to billion-scale corpora --- where memory locality, quantization effects,
-and IVFFlat sharding introduce additional coupling dimensions not present at 47K or 762K
-scale --- will test the limits of LLM architectural reasoning and motivate extensions
-to the phase structure and stagnation detection components.
-Third, the LLM agent framework is not specific to HNSW or vector databases: any system
-where a small number of structured parameters governs a measurable accuracy--throughput
-objective --- including learned index structures, database query planners, and neural
-architecture selection --- is a candidate application.
-We release the benchmark, pipeline, and optimizer code to support reproducibility and
-to encourage the community to evaluate compositional retrieval beyond object- and
-scene-level tasks.
+Three systems-level extensions follow directly from this framing.
+First, billion-scale corpora introduce memory-topology coupling between HNSW graph
+partitioning and NUMA-node locality; extending the agent's context with hardware-profile
+telemetry is necessary to navigate these additional conditional dimensions without
+exhausting the per-iteration budget in construction overhead alone.
+Second, multi-tenant workloads introduce query-mix heterogeneity across the index
+lifetime; the agent must condition proposals on observed workload-distribution shifts
+rather than a static performance trajectory $\mathcal{H}_t$, requiring an online
+history-weighting scheme that discounts stale evaluations.
+Third, replacing the offline oracle $\mathcal{O}(\theta)$ with closed-loop feedback from
+a live VDMS execution engine --- where streaming QPS measurements update $\mathcal{H}_t$
+continuously --- would enable re-optimization without full index rebuilds, eliminating the
+dominant 8--9-minute per-call wall-clock cost that currently bounds the practical
+iteration budget.
 
 \begin{acks}
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
