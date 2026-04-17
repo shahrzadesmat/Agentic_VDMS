@@ -120,25 +120,21 @@ reranking weights must be tuned simultaneously against an expensive rebuild-and-
 oracle.
 This is a challenging optimization problem: each evaluation requires a full index
 rebuild followed by a large-scale query sweep, making exhaustive search impractical.
-Existing hyperparameter optimization methods --- grid search, random search, and
-Bayesian optimization --- treat parameters as independent, which leads to structural
-failures when search depth and fusion weight are coupled across retrieval stages.
-Such compensatory dependencies are invisible to parameter-independent methods
-regardless of iteration budget.
-
+Existing hyperparameter optimization methods treat parameters as independent, which
+leads to structural failures when search depth and fusion weight are coupled across
+retrieval stages --- such compensatory dependencies are invisible to
+parameter-independent methods regardless of iteration budget.
 We propose a phase-aware LLM optimization agent that conditions each configuration
 proposal on the full empirical history of (configuration, score) pairs, reasoning
 explicitly over cross-stage dependencies without a surrogate model.
 The agent self-regulates across exploration, exploitation, and fine-tuning phases
 using structured prompts that encode both parameter physics and the observed
 trajectory.
-
 We deploy the agent on Intel VDMS for human-object interaction retrieval over
 HICO-DET (47{,}776 images, 600 verb--object categories) and evaluate across three
 datasets of increasing parameter-space simplicity.
-Compared to state-of-the-art baselines, the agent outperforms Optuna~TPE and
-Random~Search by $9.7\%$ and Gaussian Process BO by $3.3\%$ on the primary
-benchmark.
+Compared to state-of-the-art baselines, the agent outperforms Optuna~TPE by $9.7\%$
+and Gaussian Process BO by $3.3\%$ on the primary benchmark.
 Performance advantages compress as coupling complexity decreases, confirming that
 the agent's benefit is specific to structurally dependent configuration spaces.
 \end{abstract}
