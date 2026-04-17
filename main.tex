@@ -1014,6 +1014,11 @@ normalised), weight $w_j{=}1{+}\tilde{I}_j{\in}[1,2]$, and replace the standard
 mAP with $\mathrm{QDS\text{-}mAP}{=}\sum_j w_j\mathrm{AP}_j/\sum_j w_j$ as the
 oracle signal.
 The QDS objective is ablated in Section~\ref{sec:ablation}.
+QDS applies exclusively to interaction-level benchmarks (HICO-DET), where semantic
+verb--object category structure admits per-query difficulty decomposition;
+instance-level benchmarks (GLDv2: landmark-instance ground truth; SIFT1M: exact
+$k$-nearest-neighbor ground truth) provide no analogous categorical difficulty signal
+and use their standard objectives unchanged.
 
 \section{Experiments}
 \label{sec:experiments}
