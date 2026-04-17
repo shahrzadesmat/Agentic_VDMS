@@ -215,41 +215,22 @@ therefore not a convenience --- it is the mechanism that transforms a 30-iterati
 budget from insufficient to \emph{sufficient} for navigating a coupled
 configuration landscape.
 
-The core challenge is therefore: \emph{how do we build an optimizer that reasons
-over the full history of (configuration, Score) pairs while respecting conditional
-parameter dependencies and cross-stage coupling?}
-A necessary precondition is a benchmark with sufficient coupling complexity to
-distinguish optimizer sophistication from random luck.
-Pure vector search datasets such as SIFT1M~\cite{jegou2011pq} and
-ANN-Benchmarks~\cite{aumuller2020ann} expose a small, near-independent parameter
-space where any competent optimizer converges within tens of iterations.
+The core challenge is: \emph{how to build an optimizer that reasons over the full
+history of (configuration, Score) pairs while respecting conditional parameter
+dependencies and cross-stage coupling?}
+Pure vector search datasets (SIFT1M~\cite{jegou2011pq},
+ANN-Benchmarks~\cite{aumuller2020ann}) expose near-independent parameter spaces
+where any optimizer converges within tens of iterations.
 We address this gap by constructing the first text-query image retrieval benchmark
-derived from HICO-DET~\cite{chao2018hico} --- 47{,}776 images across 600
-fine-grained verb--object interaction categories, deployed on Intel's VDMS vector
-DBMS --- whose compositional structure generates a retrieval workload rich enough to
-expose the structural limits of blind ANN optimizers.
-Every prior use of HICO-DET has been restricted to the detection
-paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}; we identify
-and fill the orthogonal retrieval direction.
-The compositional structure of the 600 HOI categories --- spanning fine-grained
-verb--object pairings such as \emph{ride bicycle}, \emph{hold book}, and
-\emph{pet cat} --- creates a retrieval workload qualitatively harder than
-scene-level or object-level benchmarks: a successful query must locate images
-matching a specific \emph{interaction}, not merely the presence of the involved
-entities.
-This structural complexity translates directly into a more sensitive configuration
-landscape, where the optimal \textit{efSearch}--$\alpha$ trade-off differs
-substantially from that on simpler datasets, and where even exhaustive exact-search
-with modality fusion reaches only mAP\,$=$\,0.276 --- confirming that performance
-differences across optimizer methods reflect optimizer quality rather than dataset
-saturation.
-To evaluate on this benchmark we further construct a two-stage retrieval pipeline
-pairing CLIP ViT-L/14 ANN retrieval with zero-cost DINOv2 ViT-L/14-reg4
-pseudo-relevance-feedback reranking, and formally prove that CLIP text embeddings
-occupy the semantic centroid of each HOI category's visual cluster --- a geometric
-result that makes text queries structurally superior to image queries on
-compositionally structured data and directly justifies the reranker design without
-a secondary index.
+from HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 fine-grained
+verb--object HOI categories on Intel VDMS --- whose compositional structure creates
+a retrieval workload rich enough to expose the structural limits of blind ANN
+optimizers (every prior use of HICO-DET is restricted to the detection
+paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
+We pair CLIP ViT-L/14 ANN retrieval with zero-cost DINOv2 reranking and prove
+geometrically that text queries occupy the visual centroid of each HOI category,
+making them structurally superior to image queries on compositionally structured
+data and directly justifying the reranker design without a secondary index.
 
 Two parallel threads of prior work address orthogonal aspects of this problem, yet
 neither reaches the intersection our setting requires.
@@ -266,11 +247,6 @@ VSAG~\cite{zhong2025vsag} (VLDB~2025) eliminates index rebuilds via analytical
 subgraph monotonicity --- but both treat parameters independently and neither models
 the coupling between \textit{efSearch} and $\alpha$ that emerges when ANN retrieval
 feeds a reranker.
-Our work occupies the intersection that neither thread reaches: the first LLM-guided
-optimizer designed specifically for ANN index spaces with hard conditional
-type-dependencies and cross-stage coupling, reasoning over the joint
-$\mathit{efSearch}$--$\alpha$ trade-off that all parameter-independent methods
-structurally cannot model, regardless of iteration budget or LLM capability.
 
 To address these challenges, we propose a \emph{phase-aware LLM agent} that
 conditions each configuration proposal on the complete history of measured
@@ -513,11 +489,7 @@ where $\mathrm{Score}(\theta) = \mathrm{mAP}(\theta) \times \mathrm{QPS}(\theta)
 
 \begin{table}[t]
 \centering
-\caption{Configuration space $\Theta$ (Definition~\ref{def:space}).
-  $^\dagger$Conditional on engine.
-  Total: HNSW $5{\times}7{\times}8{\times}19{\times}4{\times}3{=}63{,}840$;
-  IVF $4{\times}5{\times}8{\times}19{\times}4{\times}3{=}36{,}480$;
-  Flat $8{\times}19{\times}4{\times}3{=}1{,}824$.}
+\caption{Configuration space $\Theta$ (Definition~\ref{def:space}); $^\dagger$conditional on engine; total $|\Theta|{=}102{,}144$.}
 \label{tab:config-space}
 \resizebox{\columnwidth}{!}{%
 \setlength{\tabcolsep}{4pt}
@@ -580,9 +552,6 @@ space would require thousands of GPU-hours.
 At the $N{=}30$-iteration budget used in our study, a non-adaptive strategy covers
 at most $0.03\%$ of $\Theta$; evaluation feedback is additionally noisy due to VDMS
 runtime variability.
-This combination --- a black-box, expensive oracle with an exponential search space
-and a tiny sample budget --- is precisely the regime where LLM-guided reasoning
-offers the greatest advantage over grid and random baselines.
 
 \noindent\textbf{Cross-Stage Parameter Coupling.}
 The seven parameters decompose into two coupled groups:
@@ -601,15 +570,6 @@ independently and cannot represent cross-stage interactions.
 Our LLM agent explicitly reasons about these inter-parameter dependencies in its
 natural-language analysis of prior outcomes (Section~\ref{sec:optimizer}).
 
-\noindent\textbf{Section Outline.}
-Section~\ref{sec:pipeline} constructs the two-stage pipeline that implements oracle
-$\mathcal{O}$, mapping any $\theta \in \Theta$ to a
-$(\mathrm{mAP},\,\mathrm{QPS})$ pair and formally enumerating all parameter domains.
-Section~\ref{sec:optimizer} presents the LLM-guided optimizer that solves
-$\arg\max_{\theta \in \Theta}\,\mathrm{Score}(\theta)$ adaptively within
-$N{=}30$ oracle evaluations.
-Section~\ref{sec:experiments} validates the solution on HICO-DET, GLDv2, and SIFT1M,
-reporting mean Score across three random seeds against five optimization baselines.
 
 \section{Two-Stage Retrieval Pipeline}
 \label{sec:pipeline}
@@ -671,22 +631,10 @@ For FaissFlat, Eq.~\eqref{eq:stage1} is satisfied exactly; for FaissHNSWFlat and
 FaissIVFFlat, VDMS returns a high-recall approximation whose tightness is governed
 by the engine-specific search parameters.
 
-Three ANN engines expose qualitatively distinct accuracy--throughput operating points:
-\begin{itemize}
-  \item \textbf{FaissFlat}: exact exhaustive L2 search over all $N$ embeddings;
-    provides the recall upper bound for Stage~1 at the cost of the lowest QPS.
-  \item \textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: hierarchical navigable small-world
-    graph index; recall and latency are jointly controlled by graph connectivity
-    $M \in \{8, 16, 32, 48, 64\}$ and beam-search width
-    $\mathit{efSearch} \in \{32, 64, 100, 150, 200, 300, 500\}$.
-    Higher $M$ increases graph density (larger index, better recall per beam step);
-    higher $\mathit{efSearch}$ expands the candidate frontier (better recall, lower QPS).
-  \item \textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file index partitioning
-    the embedding space into $\mathit{nlist} \in \{64, 128, 256, 512\}$ Voronoi cells;
-    search probes $\mathit{nprobe} \in \{4, 8, 16, 32, 64\}$ cells.
-    Larger $\mathit{nlist}$ increases partition granularity; larger $\mathit{nprobe}$
-    increases recall at the cost of proportionally higher latency.
-\end{itemize}
+Three ANN engines expose qualitatively distinct accuracy--throughput operating points.
+\textbf{FaissFlat:} exact exhaustive L2 search; recall upper bound at lowest QPS.
+\textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: hierarchical navigable small-world graph; recall/latency controlled by $M \in \{8,16,32,48,64\}$ and $\mathit{efSearch} \in \{32,64,100,150,200,300,500\}$.
+\textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file index with $\mathit{nlist} \in \{64,128,256,512\}$ cells probed via $\mathit{nprobe} \in \{4,8,16,32,64\}$.
 
 The candidate pool size $k \in \{50, 100, 150, 200, 300, 500, 750, 1000\}$ determines
 the recall ceiling available to Stage~2 and is selected jointly with engine parameters.
@@ -1049,40 +997,20 @@ For SIFT1M, raw 128-dimensional SIFT vectors are stored directly in VDMS without
 any reranking stage; Score $= \text{Recall@10} \times \text{QPS}$.
 
 \noindent\textbf{Compared Methods.}
-We compare five optimization strategies, each run for $N{=}30$ iterations over $\Theta$:
-\begin{itemize}
-  \item \textbf{LLM Agent (Ours):} at each iteration, the agent receives the full
-    history $\mathcal{H}_{t-1}$ and a phase-conditioned prompt
-    (Section~\ref{sec:optimizer}), proposing the next configuration via
-    MiniMax-M2.1 through OpenRouter (3~seeds: 42, 99, 200).
-  \item \textbf{GP-BO}: Gaussian Process Bayesian Optimization using
-    \texttt{optuna.samplers.GPSampler} (Expected Improvement acquisition),
-    replicating VDTuner's~\cite{yang2024vdtuner} parameter-independent GP paradigm
-    on our single-objective Score (3~seeds: 42, 99, 200).
-  \item \textbf{Optuna TPE}~\cite{akiba2019optuna}: Tree-structured Parzen Estimator
-    with per-parameter univariate kernel density estimators; adaptive
-    (3~seeds: 42, 99, 200).
-  \item \textbf{Random Search}~\cite{bergstra2012random}: uniform random sampling
-    over $\Theta$; non-adaptive (3~seeds: 78, 99, 200).
-  \item \textbf{Grid Search}: lexicographic enumeration of a fixed 1-D parameter
-    sweep; non-adaptive (2~runs).
-\end{itemize}
+We compare five strategies, each for $N{=}30$ iterations.
+\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter (seeds: 42, 99, 200).
+\textbf{GP-BO:} \texttt{optuna.samplers.GPSampler} (Expected Improvement), replicating VDTuner~\cite{yang2024vdtuner} (seeds: 42, 99, 200).
+\textbf{Optuna TPE}~\cite{akiba2019optuna}: univariate kernel density estimators (seeds: 42, 99, 200).
+\textbf{Random Search}~\cite{bergstra2012random}: uniform random sampling (seeds: 78, 99, 200).
+\textbf{Grid Search:} lexicographic 1-D sweep (2~runs).
 As system baselines we include UniIR~\cite{wei2023uniir}, standalone CLIP
 ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2 reranking,
 all under exact FaissFlat search (Section~\ref{sec:baselines}).
 
 \noindent\textbf{Metrics.}
-Retrieval quality is measured by mean Average Precision (mAP), computed over all
-retrieved results per query and averaged across $|Q|{=}600$ HOI categories, together
-with Precision@10 and Recall@10~\cite{manning2008ir}.
-Throughput is measured in queries per second (QPS), issued as a single batch to
-the VDMS container.
-The joint optimization objective $\mathrm{Score} = \mathrm{mAP} \times \mathrm{QPS}$
-rewards configurations that simultaneously achieve high retrieval quality and
-throughput; configurations that sacrifice either axis are penalized multiplicatively.
-For SIFT1M, where no relevance annotations exist beyond 10-NN ground truth,
-quality is measured by Recall@10 and the objective is
-$\mathrm{Score} = \mathrm{Recall@10} \times \mathrm{QPS}$.
+Retrieval quality: mAP (primary), P@10, Recall@10~\cite{manning2008ir}.
+Throughput: QPS (single batch to the VDMS container).
+Joint objective: Score\,$=$\,mAP\,$\times$\,QPS (Eq.~\eqref{eq:score}); for SIFT1M, Score\,$=$\,Recall@10\,$\times$\,QPS.
 
 \noindent\textbf{Implementation.}
 All experiments run on the NCSA Delta GPU cluster (partition \texttt{gpuA40x4}): one
@@ -1096,18 +1024,7 @@ Each optimization iteration builds a complete ANN index from scratch and issues 
 The full 30-iteration budget therefore demands approximately 3.5--4 hours of compute
 per method, making sample efficiency --- how quickly each method reaches a high-scoring
 configuration --- a practically meaningful criterion.
-We fix $N{=}30$ for all methods and datasets for three reasons.
-First, 30 iterations represent under 1\% coverage of the valid configuration space
-(e.g., 5{,}940 HNSW configs on SIFT1M), placing all methods in a regime where
-optimizer choice is genuinely consequential rather than trivially solvable by
-exhaustive enumeration.
-Second, 3.5--4 hours of wall-clock tuning time per method is a realistic practitioner
-budget; extending to $N{=}100$ would require over 12 hours per method without
-changing the ranking, since our convergence analysis (Figure~\ref{fig:convergence})
-shows the LLM agent's advantage is established by iteration~10 and the gap only
-widens thereafter.
-Third, $N{=}30$ is consistent with the evaluation protocol of closely related
-LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}.
+$N{=}30$ covers under 1\% of $\Theta$ (e.g., 5{,}940 HNSW configs on SIFT1M), totals ${\approx}3.5$--$4$\,h of wall-clock compute per method, and matches the protocol of related LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}.
 
 \subsection{System Baselines}
 \label{sec:baselines}
@@ -1140,9 +1057,6 @@ LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}
 \bottomrule
 \end{tabular}
 \end{table*}
-
-Table~\ref{tab:baselines} reports exact-search baselines isolating retrieval accuracy
-from ANN approximation, establishing upper bounds for each modeling choice.
 
 \noindent\textbf{Compositional difficulty.}
 Even with exhaustive search and DINOv2 reranking, the best achievable mAP is only
@@ -1231,8 +1145,6 @@ Grid Search       & HNSW          & --- & $\sim$445 & --- & --- & --- & 20.51 \\
 \end{tabular}
 \end{table*}
 
-Table~\ref{tab:optimizer} and Figure~\ref{fig:convergence} report the complete
-HICO-DET results across all five optimization methods.
 The LLM agent achieves the highest mean Score $= 4.44$, outperforming every
 baseline: GP-BO ($4.29$, $+3.3\%$), Optuna TPE ($4.05$, $+9.7\%$), Random
 Search ($4.04$, $+9.7\%$), and Grid Search ($3.44$, $+28.8\%$) --- all
@@ -1265,13 +1177,7 @@ Grid Search's final mean ($3.44$) and substantially ahead of both Optuna TPE
 (mean $= 3.41$ at iteration~6) and Random Search ($3.58$ at iteration~6).
 Optuna TPE's mean curve first matches the LLM's iteration-6 threshold at
 iteration~27; Random Search at iteration~28.
-At ${\approx}8$--$9$ minutes per oracle call, this represents concrete practitioner
-savings: the LLM agent delivers Score~$\geq 3.97$ approximately $2.7$ hours ahead of
-either adaptive baseline --- a gain of 21--22 evaluations within a $3.5$--$4$ hour
-total budget.
-This efficiency stems from the phase-aware schedule that resolves structural choices
-(engine, $M$) before continuous choices ($\alpha$, $n_r$) --- a conditional dependency
-that neither univariate density estimators nor blind sampling can exploit.
+At ${\approx}8$--$9$ minutes per oracle call, the LLM agent delivers Score~$\geq 3.97$ approximately $2.7$ hours ahead of either adaptive baseline --- a gain of 21--22 evaluations within a $3.5$--$4$ hour total budget.
 
 \noindent\textbf{Non-obvious operating point.}
 The LLM agent's optimal configuration discloses an operating region inaccessible to
@@ -1307,17 +1213,8 @@ refining $\alpha$ and $n_r$.
 \label{sec:gldv2}
 % ══════════════════════════════════════════════════════════════════════════════
 
-To test whether the LLM agent's advantage generalizes beyond the HICO-DET benchmark,
-we evaluate all four optimization methods on the Google Landmarks Dataset v2
-(GLDv2)~\cite{weyand2020gld}, a large-scale image-to-image retrieval benchmark with
-$762{,}000$ gallery images and $1{,}129$ public queries spanning global landmarks.
-GLDv2 differs from HICO-DET in two key respects: the corpus is $16\times$ larger
-(762K vs.\ 47K images), stressing ANN index construction time and memory, and the
-retrieval task is image-to-image rather than text-to-image, removing the text-query
-centroid advantage described in Section~\ref{sec:pipeline}.
-Each gallery image is represented by a 768-dimensional CLIP ViT-L/14 embedding and
-a 1024-dimensional DINOv2 ViT-L/14-reg4 embedding stored in VDMS; the same
-Score $= \text{mAP} \times \text{QPS}$ objective and 30-iteration budget are used.
+We evaluate on GLDv2~\cite{weyand2020gld} ($762{,}000$ gallery images, $1{,}129$ queries) to test cross-domain generalization.
+The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from text-to-image to image-to-image (removing the text-query centroid advantage), and each image is represented by CLIP ViT-L/14 and DINOv2 ViT-L/14-reg4 embeddings in VDMS under the same Score $= \text{mAP} \times \text{QPS}$ objective.
 
 % ── Table: GLDv2 optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
@@ -1342,7 +1239,6 @@ Grid Search                   & 3.6566            & 0.1789            & 0.2125  
 \end{table}
 
 \noindent\textbf{Overall performance.}
-Table~\ref{tab:gldv2} reports the GLDv2 results.
 The LLM agent achieves Score $= \textbf{3.657}$, the best result across all methods,
 marginally outperforming Grid Search (Score $= 3.657$), Random Search (Score $= 3.649$),
 and Optuna TPE (Score $= 3.596$).
@@ -1352,12 +1248,7 @@ is substantially compressed relative to HICO-DET (${\lesssim}1.7\%$ spread vs.\ 
 a pattern we return to in Section~\ref{sec:sift1m}.
 
 \noindent\textbf{Scale effects.}
-At 762K images each optimization iteration completes in approximately 5 minutes,
-with HNSW index construction accounting for $\approx$272\,s of that budget.
-Because HICO-DET incurs an additional per-query HOI-category overhead absent from
-image-to-image retrieval, GLDv2 per-iteration wall-clock time is slightly
-\emph{lower} than HICO-DET ($\approx$5\,min vs.\ 8--9\,min), and all 30-iteration
-budgets complete in $\approx$2.5 hours per method.
+Each GLDv2 iteration completes in $\approx$5\,min (HNSW build: $\approx$272\,s), slightly faster than HICO-DET (8--9\,min) since image-to-image retrieval incurs no per-query HOI-category overhead; all 30-iteration budgets complete in $\approx$2.5\,h.
 
 \noindent\textbf{Sample efficiency.}
 The LLM agent reaches its best Score at iteration~15; Grid Search at iteration~21,
@@ -1374,17 +1265,8 @@ final performance within 15 iterations.
 \label{sec:sift1m}
 % ══════════════════════════════════════════════════════════════════════════════
 
-To test whether the LLM agent's advantage is specific to search spaces with
-cross-stage coupling, we evaluate four methods (LLM Agent, Optuna TPE, Grid
-Search, Random Search) on SIFT1M~\cite{jegou2011pq} under the same 30-iteration
-budget; GP-BO is omitted from this ablation as it targets the coupled-space
-comparison on HICO-DET and GLDv2.
-Unlike HICO-DET, SIFT1M involves no reranking stage and no fusion weight $\alpha$:
-the optimizer tunes only HNSW graph connectivity $M$, construction depth
-\textit{efConstruction}, search depth \textit{efSearch}, and candidate pool size
-$k$ --- four parameters with no cross-stage coupling.
-This reduced, structurally simpler space admits no cross-stage dependencies by
-construction, providing a clean complexity-matched control.
+SIFT1M~\cite{jegou2011pq} ($1$M 128-d SIFT vectors, $10{,}000$ queries) provides a complexity-matched control: the optimizer tunes only $M$, \textit{efConstruction}, \textit{efSearch}, and $k$ --- four uncoupled HNSW parameters with no reranking stage or fusion weight $\alpha$.
+We evaluate four methods (LLM Agent, Optuna TPE, Grid, Random; GP-BO omitted) under the same 30-iteration budget.
 
 % ── Table: SIFT1M optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
@@ -1409,7 +1291,6 @@ Grid Search               & 1035.0 & 0.952 & 1087.1 & 25/30 \\
 \end{table}
 
 \noindent\textbf{Overall performance.}
-Table~\ref{tab:sift1m} reports the results.
 All four methods converge to FaissHNSWFlat with \textit{efSearch}$\in\{24,32\}$
 as the optimal operating point, yielding final Scores of
 $1036.0$ (LLM), $1035.0$ (Grid), $1021.1$ (Optuna), and $1014.2$ (Random).
@@ -1426,8 +1307,6 @@ removing the cross-stage coupling, as on SIFT1M, eliminates the advantage becaus
 the residual 4-parameter ANN search space (engine, $M$, $\mathit{efSearch}$, $k$)
 is shallow enough for random and grid search to locate the optimum within the same
 30-iteration budget.
-This pattern is consistent with the abstract's theoretical prediction that the
-agent's benefit scales with the coupling complexity of the configuration landscape.
 
 \noindent\textbf{Sample efficiency.}
 The LLM agent reaches Score $\geq 1000$ from iteration~1, while Grid Search
@@ -1438,151 +1317,41 @@ Grid Search at iteration~25, and Random Search at iteration~23.
 This inversion reinforces the complexity-proportional thesis: on the uncoupled
 4-parameter space, TPE's univariate acquisition surface is sufficient, and
 the LLM's architectural history provides no additional navigational advantage.
-None of the methods exhibits the premature convergence plateau observed in HICO-DET's
-Optuna and Grid runs, consistent with the simpler landscape having no deep local optima.
 
 \subsection{Ablation Study}
 \label{sec:ablation}
 
-We isolate the contribution of individual pipeline decisions by comparing performance
-across systematically varied configurations, using exact-search baselines (Table~\ref{tab:baselines})
-to control for ANN approximation.
-
 \noindent\textbf{DINOv2 reranking weight ($\alpha$).}
-Table~\ref{tab:baselines} provides a controlled three-point ablation of $\alpha$ under
-FaissFlat exact search at $k{=}2000$, where approximation error does not confound the comparison.
-At $\alpha{=}0.0$ (CLIP alone), mAP $= 0.240$.
-At $\alpha{=}0.5$, mAP rises to $0.276$ ($+3.65$\,pp, $+15.2\%$ relative), with QPS
-essentially unchanged at $1.15$ vs.\ $1.17$ --- a near-free accuracy improvement.
-At $\alpha{=}1.0$ (DINOv2 alone), mAP falls to $0.217$, confirming that the visual
-encoder cannot resolve action-level distinctions without language-aligned Stage-1 retrieval.
-Together, these three points establish that $\alpha \in (0,1)$ strictly dominates both
-pure-CLIP and pure-DINOv2 retrieval, and that the optimal $\alpha$ under exact search
-lies near $0.5$.
-In the ANN setting, the LLM agent discovers $\alpha{=}0.80$ --- substantially higher than
-the exact-search optimum --- a shift consistent with the reranker serving as an \emph{error
-corrector} for Stage-1 approximation: at $\mathit{efSearch}{=}64 < k{=}200$, HNSW
-necessarily misses some relevant neighbors, and increasing $\alpha$ compensates by
-weighting fine-grained visual reranking more heavily over the returned pool.
+Under FaissFlat at $k{=}2000$: $\alpha{=}0.0$ (CLIP) gives mAP\,$=$\,0.240; $\alpha{=}0.5$ gives mAP\,$=$\,0.276 ($+3.65$\,pp) at only 0.6\% extra latency; $\alpha{=}1.0$ (DINOv2 alone) falls to mAP\,$=$\,0.217 --- $\alpha{\in}(0,1)$ strictly dominates both pure encoders.
+In the ANN setting the LLM agent discovers $\alpha{=}0.80$: at $\mathit{efSearch}{=}64 < k{=}200$, HNSW misses some neighbors and increasing $\alpha$ uses visual reranking as an \emph{error corrector} for Stage-1 approximation.
 
 \noindent\textbf{Candidate pool size ($k$).}
-Pool size $k$ controls how many items the DINOv2 reranker sees, trading Stage-1 recall
-coverage against Stage-2 reranking latency.
-From Table~\ref{tab:baselines}, increasing $k$ from $500$ to $2000$ at $\alpha{=}0$
-(FaissFlat) improves mAP from $0.208$ to $0.240$ ($+3.2$\,pp) but reduces QPS from
-$8.21$ to $1.17$ ($7.0\times$ throughput loss), yielding a net Score reduction from
-$1.707$ to $0.280$.
-The Score objective therefore strongly favors smaller $k$: each additional candidate
-examined adds roughly equal latency whether or not it is relevant, while the mAP gains
-from a larger pool are subject to diminishing returns as $k$ already covers the majority
-of relevant items.
-The LLM agent selects $k{=}200$ --- smaller than any of the exact-search baseline values
---- on the reasoning that a larger reference set ($n_r{=}10$) and higher reranking weight
-($\alpha{=}0.80$) compensate for the narrower initial pool, maintaining mAP $= 0.255$
-while preserving the throughput advantage that Score rewards.
+Increasing $k$ from 500 to 2000 at $\alpha{=}0$ (FaissFlat) improves mAP $0.208{\to}0.240$ ($+3.2$\,pp) but reduces QPS $8.21{\to}1.17$ ($7.0\times$), collapsing Score $1.707{\to}0.280$.
+The LLM agent selects $k{=}200$, compensating with $n_r{=}10$ and $\alpha{=}0.80$ to maintain mAP\,$=$\,0.255 while preserving the throughput advantage.
 
-\noindent\textbf{Reference selection strategy and count ($n_r$, ref\_strategy).}
-The DINOv2 reranker constructs a class reference vector from $n_r$ corpus images via one
-of three strategies: \textit{first} (top-1 CLIP-ranked image), \textit{centroid} (mean
-DINOv2 embedding of the $n_r$ images closest to the class centroid), and \textit{diverse}
-(greedy farthest-point selection for maximum within-class spread).
-The LLM agent converges to \textit{centroid} with $n_r{=}10$, consistent with the geometric
-analysis in Section~\ref{sec:pipeline}: the centroid strategy explicitly minimizes the
-expected displacement $\varepsilon_j$ between the reference vector and the HOI class mean,
-reducing the reranking bias term $\varepsilon_j^2$ in Eq.~\eqref{eq:imagequery}.
-The \textit{first} strategy depends on a single CLIP-ranked image that may lie arbitrarily
-far from the class mean --- particularly harmful for the long-tailed categories that
-dominate HICO-DET.
-The \textit{diverse} strategy maximizes spread at the cost of mean proximity, yielding a
-reference vector that spans the class but does not minimize bias.
-Averaging $n_r{=}10$ centroid-proximal images produces a reference that is simultaneously
-low-bias and low-variance, making it the most reliable proxy for the category distribution.
+\noindent\textbf{Reference selection ($n_r$, ref\_strategy).}
+The LLM agent converges to \textit{centroid} with $n_r{=}10$: the centroid strategy minimizes displacement $\varepsilon_j$ (Eq.~\eqref{eq:imagequery}), and averaging 10 proximal images yields a low-bias, low-variance reference.
+\textit{First} (single CLIP-ranked image) is fragile on long-tailed categories; \textit{diverse} (farthest-point sampling) maximizes spread at the cost of mean proximity.
 
 \noindent\textbf{ANN engine selection.}
-Both the LLM agent and Optuna TPE converge to FaissHNSWFlat as the optimal engine.
-HNSW's graph-based traversal achieves QPS $= 17.11$--$15.84$ for the two best
-configurations at mAP $= 0.259$--$0.256$, versus Grid Search's FaissHNSWFlat/IVFFlat
-configurations at mean QPS $= 20.42$ but mAP $= 0.169$.
-The Score contrast is stark: $4.44$ and $4.05$ for HNSW-based methods vs.\ $3.44$ for
-Grid's sweep --- confirming that high-QPS, low-recall configurations are penalized by the
-Score objective whenever mAP drops below a critical threshold.
-HNSW's navigable graph structure, with graph connectivity $M{=}48$ tuned to maintain
-sufficient Stage-1 recall, provides the best balance between ANN approximation quality
-and query throughput for 768-dimensional CLIP embeddings at $k{=}200$.
+Both LLM agent and Optuna TPE converge to FaissHNSWFlat ($M{=}48$): Score\,$=$\,4.44--4.05 (mAP\,$=$\,0.259--0.256, QPS\,$=$\,17.11--15.84) versus Grid's Score\,$=$\,3.44 (mAP\,$=$\,0.169, QPS\,$=$\,20.42), confirming that high-QPS, low-recall configurations are penalized by the Score objective once mAP drops below the critical threshold.
 
 \noindent\textbf{Query Difficulty-Weighted Optimization (QDS).}
-The standard Score $= \text{mAP} \times \text{QPS}$ objective weights all queries equally,
-yet HOI queries vary substantially in retrieval difficulty: categories with high visual
-diversity (e.g., \textit{ride horse}) span a wider region of CLIP space than
-visually compact categories (e.g., \textit{hold cup}), making per-query AP more
-sensitive to index configuration.
-We introduce a \emph{Query Difficulty Score} (QDS) that identifies structurally hard
-queries and upweights their contribution to the optimization objective.
-For query $j$, QDS combines two signals.
-\emph{Gallery entropy} $H_j = -\sum_i p_{ji} \log p_{ji}$
-($p_{ji} = \mathrm{softmax}(\mathbf{f}_{q_j}^\top \mathbf{f}_{d_i}/\tau)$)
-measures how uniformly CLIP mass spreads over the gallery.
-\emph{Centroid displacement} $\mathrm{CPR}_j = \|\mathbf{f}_{q_j} - \boldsymbol{\mu}_j\|^2 / \sigma_j^2$
-measures how far the text query lies from the visual centroid of its positives.
-Normalizing and combining gives $\mathrm{QDS}_j = \tilde{H}_j - \widetilde{\mathrm{CPR}}_j$
-with per-query weight $w_j = 1 + \tilde{I}_j \in [1,2]$ and objective
-$\mathrm{QDS\text{-}mAP} = \sum_j w_j \cdot \mathrm{AP}_j / \sum_j w_j$.
+HOI queries vary in retrieval difficulty; we introduce QDS to upweight structurally hard queries.
+For query $j$: \emph{gallery entropy} $H_j{=}{-}\sum_i p_{ji}\log p_{ji}$ ($p_{ji}{=}\mathrm{softmax}(\mathbf{f}_{q_j}^\top\mathbf{f}_{d_i}/\tau)$) measures spread of CLIP mass; \emph{centroid displacement} $\mathrm{CPR}_j{=}\|\mathbf{f}_{q_j}-\boldsymbol{\mu}_j\|^2/\sigma_j^2$ measures query-to-centroid distance.
+Combining: $\mathrm{QDS}_j{=}\tilde{H}_j-\widetilde{\mathrm{CPR}}_j$, weight $w_j{=}1+\tilde{I}_j{\in}[1,2]$, objective $\mathrm{QDS\text{-}mAP}{=}\sum_j w_j{\cdot}\mathrm{AP}_j/\sum_j w_j$.
 
-When the LLM agent optimizes $\mathrm{QDS\text{-}mAP} \times \mathrm{QPS}$, it discovers
-a configuration (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$,
-$\alpha{=}0.75$, $n_r{=}10$, \textit{first}) that achieves
-Score $= \mathbf{4.76}$ on the \emph{standard} unweighted metric --- a $\mathbf{+7.3\%}$
-improvement over the LLM agent with standard objective (Score $= 4.44$) and the
-highest single-run Score across all methods on HICO-DET (Table~\ref{tab:optimizer}).
-The QDS-guided optimizer reaches its best configuration at iteration~19,
-suggesting that difficulty-aware guidance accelerates convergence to a better optimum.
-Notably, the discovered configuration achieves higher QPS ($19.07$ vs.\ $17.11$)
-by operating in a regime where the difficulty-weighted signal prefers configurations
-that maintain precision on hard queries rather than maximizing average recall.
+The LLM agent with QDS objective discovers (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$, $\alpha{=}0.75$, $n_r{=}10$) achieving Score\,$=$\,$\mathbf{4.76}$ on the standard metric --- $+7.3\%$ over standard LLM (4.44), the highest single-run Score (Table~\ref{tab:optimizer}), converging at iteration~19 with QPS\,$=$\,19.07 by favoring configurations that preserve precision on hard queries.
 
 \subsection{Discussion}
 
 \noindent\textbf{Theory-to-experiment alignment.}
-Section~\ref{sec:pipeline} predicts that CLIP text queries should systematically outperform
-single reference image queries for HOI retrieval, because the text embedding lies near the
-visual centroid of the HOI class while any individual image is displaced by $\varepsilon_j > 0$.
-The system baselines in Table~\ref{tab:baselines} provide a controlled empirical test:
-at identical $k{=}2000$ and FaissFlat exact search, CLIP text queries achieve
-mAP $= 0.240$ while DINOv2 image-based retrieval achieves mAP $= 0.217$ ($-2.3$\,pp).
-This $9.6\%$ relative deficit in favor of text is consistent with the geometric prediction
-that image queries incur a positive bias $\varepsilon_j^2 > 0$ that text queries avoid.
-The advantage is expected to be largest for visually diverse HOI categories (large
-$\varepsilon_j$), where any single reference image is a poor proxy for the class distribution
---- precisely the setting that dominates HICO-DET's long-tailed structure.
-
-\noindent\textbf{LLM architectural reasoning.}
-Beyond sample efficiency, the LLM agent demonstrates a qualitatively different form of
-reasoning from Bayesian and non-adaptive baselines: it explicitly reasons about the
-interaction structure of the pipeline before proposing configurations.
-During the exploitation phase, the agent selects $\mathit{efSearch}{=}64 < k{=}200$ ---
-a configuration that deliberately accepts ANN recall loss --- while simultaneously
-compensating by raising $\alpha$ to $0.80$.
-This cross-stage compensatory reasoning, in which a relaxed upstream constraint is
-offset by a tighter downstream parameter, requires modeling the pipeline as an integrated
-system rather than a product of independent components.
-Optuna TPE's univariate marginal density model and Random Search's independence assumption
-are both structurally incapable of encoding this dependency, explaining why both methods
-identify high-QPS configurations with weaker reranking (QPS $= 20.47$, mAP $= 0.200$ for
-Random's best) rather than the balanced operating point the LLM discovers.
+Table~\ref{tab:baselines} confirms the centroid-displacement prediction (Section~\ref{sec:centroid}): at $k{=}2000$ FaissFlat, CLIP text queries achieve mAP\,$=$\,0.240 versus DINOv2 image-based retrieval at mAP\,$=$\,0.217 ($-9.6\%$ relative), consistent with image queries incurring positive centroid bias $\varepsilon_j^2 > 0$ that is largest for the long-tailed, visually diverse HOI categories dominating HICO-DET.
 
 \noindent\textbf{Limitations.}
-The present evaluation spans three datasets (HICO-DET at 47K, GLDv2 at 762K, SIFT1M
-at 1M vectors) covering both semantic and non-semantic retrieval, but all corpora are
-considerably smaller than production-grade vector databases at billion scale.
-Generalization to billion-scale corpora, where memory locality, IVFFlat's coarser
-quantization effects, and network storage latency introduce coupling dimensions not
-encountered in the present experiments, remains an open question.
-Statistical confidence across seeds has been quantified for LLM, Optuna TPE, and Random
-Search (3 seeds each); extending this to Grid Search and additional LLM families remains
-future work.
-Finally, the LLM agent's behavior is specific to MiniMax-M2.1 via OpenRouter; different
-model families may differ in convergence speed, architectural priors, and sensitivity to
-the five feedback class labels used in the per-iteration diagnostic.
+All corpora are smaller than production billion-scale databases, where memory-locality and network-storage coupling introduce dimensions not encountered here.
+Statistical confidence has been quantified for 3 seeds per method (LLM, Optuna, Random); extending to Grid Search and additional LLM families remains future work.
+The agent's behavior is specific to MiniMax-M2.1; different model families may differ in convergence speed and sensitivity to the per-iteration diagnostic labels.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -1606,20 +1375,10 @@ decreases --- with the SIFT1M convergence ordering inverting to favor Optuna TPE
 (iteration~14) over the LLM agent (iteration~17) --- confirming that the agent's benefit
 scales proportionally with configuration-landscape coupling complexity.
 
-Three systems-level extensions follow directly from this framing.
-First, billion-scale corpora introduce memory-topology coupling between HNSW graph
-partitioning and NUMA-node locality; extending the agent's context with hardware-profile
-telemetry is necessary to navigate these additional conditional dimensions without
-exhausting the per-iteration budget in construction overhead alone.
-Second, multi-tenant workloads introduce query-mix heterogeneity across the index
-lifetime; the agent must condition proposals on observed workload-distribution shifts
-rather than a static performance trajectory $\mathcal{H}_t$, requiring an online
-history-weighting scheme that discounts stale evaluations.
-Third, replacing the offline oracle $\mathcal{O}(\theta)$ with closed-loop feedback from
-a live VDMS execution engine --- where streaming QPS measurements update $\mathcal{H}_t$
-continuously --- would enable re-optimization without full index rebuilds, eliminating the
-dominant 8--9-minute per-call wall-clock cost that currently bounds the practical
-iteration budget.
+Three extensions follow directly.
+First, billion-scale corpora introduce memory-topology and NUMA-locality coupling; hardware-profile telemetry must extend the agent's context.
+Second, multi-tenant workloads require online history-weighting that discounts stale evaluations as the query mix shifts.
+Third, closed-loop feedback from a live VDMS engine --- streaming QPS updates to $\mathcal{H}_t$ --- would enable re-optimization without full index rebuilds, eliminating the dominant 8--9-minute per-call cost.
 
 \begin{acks}
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
