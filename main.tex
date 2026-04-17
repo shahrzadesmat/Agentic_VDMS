@@ -1189,7 +1189,7 @@ CLIP$+$DINOv2 ($\alpha{=}0.5$)   & FaissFlat & 2000 & 430.1 & 855.2 & 4.82  & 86
 LLM Agent (Ours)  & HNSW $M{=}48$ & 200 & 441.8 & 58.2 & 0.49 & 58.9 & 16.98 \\
 Optuna TPE        & HNSW $M{=}32$ & 200 & 423.3 & 62.0 & 0.47 & 62.6 & 15.97 \\
 Random Search     & HNSW $M{=}32$ & 200 & 444.3 & 48.3 & 0.32 & 48.9 & 20.47 \\
-Grid Search       & HNSW          & --- & $\sim$445 & --- & --- & --- & 20.51 \\
+Grid Search       & HNSW $M{=}32$ & 100 & 445.4 & 48.5 & 0.49 & 49.2 & 20.33 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1206,7 +1206,7 @@ $k{=}200$, $\alpha{=}0.80$, $n_r{=}10$, \textit{centroid} reference strategy ---
 pipeline achieves mAP $= 0.255$ and QPS $= 16.98$ (Table~\ref{tab:efficiency}):
 a $14.7\times$ throughput gain over brute-force CLIP$+$DINOv2 (QPS $= 1.15$) at a
 mAP cost of only $2.1$ percentage points ($0.255$ vs.\ the $0.276$ exact-search ceiling).
-Per-query latency falls from $866$\,ms (FaissFlat CLIP$+$DINOv2, Table~\ref{tab:efficiency}) to $58.9$\,ms---a $\mathbf{14.7\times}$ reduction---while retaining $92.4\%$ of exact-search mAP.
+Per-query latency falls from $866$\,ms (FaissFlat CLIP$+$DINOv2, Table~\ref{tab:efficiency}) to $58.9$\,ms for the LLM agent---a $\mathbf{14.7\times}$ reduction retaining $92.4\%$ of exact-search mAP---Pareto-dominating Optuna TPE ($62.6$\,ms, Score\,$=$\,$4.05$); Grid Search, Random Search, and GP-BO each settle near $49$\,ms but sacrifice mAP to $0.17$--$0.22$, yielding mean Scores of only $3.44$--$4.29$.
 
 \noindent\textbf{GP-BO comparison.}
 GP-BO --- replicating VDTuner's~\cite{yang2024vdtuner} Gaussian Process paradigm ---
