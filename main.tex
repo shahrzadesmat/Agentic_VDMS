@@ -7,6 +7,8 @@
 \usepackage{enumitem}
 \usepackage{makecell}
 \usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 % ── Float placement tuning ───────────────────────────────────────────────────
@@ -1022,99 +1024,229 @@ by $O(1/\sqrt{n_r})$ relative to a single reference image.
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
 
-Figure~\ref{fig:workflow} illustrates the overall optimization framework.
-Five methods --- LLM Agent, Optuna TPE, GP-BO, Grid Search, and Random Search ---
-each propose a joint index configuration (engine, $M$,
-\textit{efSearch}/\textit{nlist}/\textit{nprobe}, pool size $k$, fusion weight
-$\alpha$, reference count $n_r$, reference strategy) over $N=30$ iterations.
-Each proposed configuration is loaded into a VDMS Apptainer container, which builds
-the ANN index and executes all 600 HICO-DET queries; the resulting mAP and QPS are
-combined into Score $= \text{mAP} \times \text{QPS}$ (HICO-DET and GLDv2).
-Adaptive methods --- LLM Agent, Optuna TPE, and GP-BO --- receive the score signal
-as feedback; Grid Search and Random Search are non-adaptive baselines that do not
-condition on observed outcomes.
-GP-BO uses \texttt{optuna.samplers.GPSampler} (Gaussian Process surrogate with
-Expected Improvement), directly replicating VDTuner's~\cite{yang2024vdtuner}
-parameter-independent GP paradigm adapted to our single-objective Score.
-
 \begin{figure*}[t]
   \centering
     {\includegraphics[width=\textwidth]{figures/workflow.pdf}}
-  \caption{Overview of the Agentic VDMS optimization framework.
+  \caption{Overview of the optimization framework.
     Five methods --- \textbf{LLM Agent} (phase-aware, adaptive), \textbf{Optuna TPE}
     (Tree Parzen Estimator, adaptive), and \textbf{GP-BO} (Gaussian Process surrogate,
     adaptive) vs.\ \textbf{Grid Search} and \textbf{Random Search} (non-adaptive
     baselines) --- each propose ANN index configurations evaluated by VDMS over
     $N{=}30$ iterations.
-    Score $= \text{mAP} \times \text{QPS}$ (HICO-DET and GLDv2).
+    $\mathrm{Score} = \mathrm{mAP} \times \mathrm{QPS}$ (HICO-DET and GLDv2).
     Red dashed arrows indicate score feedback; only adaptive methods receive it.}
   \label{fig:workflow}
 \end{figure*}
 
-\subsection{Agent Design}
+The pipeline of Section~\ref{sec:pipeline} exposes a seven-parameter joint configuration
+$\theta \in \Theta$: engine, two engine-conditional index parameters, pool size $k$,
+fusion weight $\alpha$, reference count $n_r$, and reference strategy.
+Because engine choice renders some parameters inapplicable---$M$ and
+$\mathit{efSearch}$ are undefined for IVF; $\mathit{nlist}$ and $\mathit{nprobe}$
+are undefined for HNSW---the joint space $|\Theta|{=}102{,}144$ is
+engine-conditional and mixed-type.
+Each evaluation requires a full VDMS rebuild plus a 600-query pass
+(${\approx}8$--$9$ min per oracle call), ruling out exhaustive or
+surrogate-heavy strategies that require thousands of evaluations.
+We address this with a sequential LLM optimizer that exploits structural knowledge
+of $\Theta$ to allocate its $N$-iteration budget efficiently.
 
-The LLM agent operates as a closed-loop optimizer over a mixed-type search space of
-approximately $102{,}000$ configurations.
-Engine-conditional parameters are $M \in \{8,16,32,48,64\}$ and
-$\mathit{efSearch} \in \{32,64,100,150,200,300,500\}$ for FaissHNSWFlat, and
-$\mathit{nlist} \in \{64,128,256,512\}$ with $\mathit{nprobe} \in \{4,8,16,32,64\}$
-for FaissIVFFlat.
-Shared parameters are pool size $k \in \{50,\ldots,1000\}$, fusion weight
-$\alpha \in \{0.0, 0.05, \ldots, 0.90\}$, reference count $n_r \in \{1,3,5,10\}$,
-and reference strategy $\in \{\textit{first},\,\textit{centroid},\,\textit{diverse}\}$.
+\subsection{Search Space and Coupling Structure}
 
-\noindent\textbf{Prompt structure.}
-At each iteration $t$, the agent receives a single prompt containing:
-(i) a description of the VDMS two-stage pipeline architecture and per-engine parameter
-physics --- including the known dependency that $\mathit{efSearch}$ and $M$ must be
-co-tuned, and that \textit{efSearch} $\ll k$ accepts ANN approximation error in exchange
-for throughput;
-(ii) a \emph{per-iteration diagnostic} derived from the observed Score relative to the
-running best, selecting one of five feedback classes
-(\textit{excellent}, \textit{explore\_more}, \textit{low\_mAP}, \textit{low\_QPS},
-or \textit{moderate}) and providing targeted guidance on which parameter axis to adjust;
-(iii) the complete ordered history of all $t{-}1$ evaluated
-(configuration, Score, mAP, QPS) tuples;
-(iv) a dynamically computed list of untried $\alpha$ values and untried
-$(n_r, \text{ref\_strategy})$ pairs, derived at inference time from the history;
-and (v) seven decision rules governing structural diversity, stagnation escape, and
-an anti-collapse constraint that prohibits consecutive iterations that vary only
-$\alpha$ without any structural change.
-The agent responds with a structured JSON object specifying the next configuration
-and a \textit{reasoning} field articulating its rationale.
-Figure~\ref{fig:prompts} illustrates the prompt template.
+The configuration space decomposes as
+
+\begin{equation}
+  \Theta \;=\; \Theta_{\mathrm{HNSW}} \;\cup\; \Theta_{\mathrm{IVF}}
+               \;\cup\; \Theta_{\mathrm{Flat}},
+  \label{eq:space}
+\end{equation}
+
+where each component is defined by its engine-conditional index parameters together
+with shared parameters
+$k \in \{50, 100, 200, 300, 500, 750, 1000\}$,
+$\alpha \in \{0.00, 0.05, \ldots, 0.90\}$,
+$n_r \in \{1,3,5,10\}$, and
+$\mathrm{ref\_strategy} \in \{\textit{first},\,\textit{centroid},\,\textit{diverse}\}$.
+FaissHNSWFlat contributes $M \in \{8,16,32,48,64\}$ and
+$\mathit{efSearch} \in \{32,64,100,150,200,300,500\}$;
+FaissIVFFlat contributes $\mathit{nlist} \in \{64,128,256,512\}$ and
+$\mathit{nprobe} \in \{4,8,16,32,64\}$.
+The oracle $\mathcal{O}(\theta) = \bigl(\mathrm{mAP}(\theta),\,\mathrm{QPS}(\theta)\bigr)$
+loads $\theta$ into a fresh VDMS Apptainer instance, indexes the corpus, and evaluates
+all $|Q|{=}600$ HOI queries, returning
+$\mathrm{Score}(\theta) = \mathrm{mAP}(\theta)\times\mathrm{QPS}(\theta)$.
+
+Two cross-parameter couplings invalidate the independence assumption shared by
+GP-BO~\cite{yang2024vdtuner} and Optuna TPE.
+First, pool size $k$ determines the candidate set passed from Stage~1 to Stage~2;
+increasing $k$ raises Stage~2 mAP recall but reduces throughput, so the joint
+$(k,\alpha)$ frontier is not separable: optimizing $\alpha$ at a suboptimal $k$
+cannot reach the Score achievable by joint search.
+Second, engine selection sets the QPS range available to any $\mathit{efSearch}$
+sweep, so structural decisions must precede continuous refinement.
+These coupled dependencies motivate a phase-partitioned budget that resolves
+structural choices before continuous ones.
+
+\subsection{History Trajectory and Prompt Generation}
 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/prompts.pdf}
-  \caption{LLM prompt structure used by the agent for ANN index hyperparameter
-    optimization. The system prompt establishes the optimization objective;
-    the user prompt supplies the measured Score history and asks the agent to
-    propose the next configuration.}
+  \caption{LLM prompt structure for ANN index hyperparameter optimization.
+    The system prompt establishes the optimization objective and parameter physics;
+    the user prompt supplies the diagnostic class $g(\mathcal{H}_{t-1})$,
+    the ordered history $\mathcal{H}_{t-1}$, and untried-value hints,
+    eliciting a structured JSON response specifying the next configuration.}
   \label{fig:prompts}
 \end{figure*}
 
-\noindent\textbf{Phase-aware strategy.}
-The $N$-iteration budget is partitioned into three phases whose boundaries scale with $N$:
-\textbf{Exploration} (iterations $1$--$\lfloor 0.4N \rfloor$) broadly varies engine,
-$M$, and $k$ across structurally distinct regions to map the Score landscape;
-\textbf{Exploitation} (iterations $\lfloor 0.4N \rfloor{+}1$--$\lfloor 0.75N \rfloor$)
-refines the most promising engine--$M$ combination found during exploration, focusing
-on $\alpha$, $n_r$, and reference strategy;
-and \textbf{Fine-tuning} (iterations $\lfloor 0.75N \rfloor{+}1$--$N$) performs
-narrow coordinate refinement of $\alpha$ and reference strategy around the current best.
-This schedule encodes the domain insight that structural choices (engine, $M$) determine
-the achievable QPS ceiling and must be resolved before continuous choices ($\alpha$, $n_r$)
-are optimized --- a conditional dependency between parameters that Optuna TPE, which models
-each parameter independently via univariate kernel density estimation, cannot exploit.
+Let $h_t = \bigl(\theta_t,\,\mathrm{mAP}(\theta_t),\,\mathrm{QPS}(\theta_t)\bigr)$
+denote the evaluation record at iteration $t$ and define the
+\emph{search history trajectory}
 
-\noindent\textbf{Duplicate avoidance.}
-Each proposal is checked against the complete evaluation history.
-If a duplicate configuration is detected, the prompt is resubmitted with an explicit
-rejection notice listing the already-evaluated configuration and its score.
-Up to four retries are attempted; after four consecutive duplicates, a uniformly random
-valid configuration is selected as a fallback, ensuring the optimization loop continues
-without stalling.
+\begin{equation}
+  \mathcal{H}_t \;=\; \bigl(h_1,\,h_2,\,\ldots,\,h_t\bigr),
+  \quad t \geq 0,\quad \mathcal{H}_0 = \emptyset.
+  \label{eq:history}
+\end{equation}
+
+$\mathcal{H}_t$ is the agent's complete internal state: no surrogate model,
+gradient estimate, or kernel is maintained between iterations.
+At each iteration the agent receives a single structured prompt built from four
+components: (i) fixed system context encoding the VDMS pipeline architecture and
+per-engine parameter physics; (ii) the diagnostic class $g(\mathcal{H}_{t-1})$
+(Section~\ref{sec:guidance}); (iii) the complete ordered history $\mathcal{H}_{t-1}$
+as structured text; and (iv) dynamically computed untried-value hints
+(Section~\ref{sec:hints}).
+The agent responds with a structured JSON object specifying the next $\theta_t$ and
+a \textit{reasoning} field that articulates its rationale (Figure~\ref{fig:prompts}).
+
+\subsubsection{Diagnostic Guidance Function}
+\label{sec:guidance}
+
+Let $\mathrm{Score}^*_{t} = \max_{s \leq t}\mathrm{Score}(\theta_s)$ denote the
+running best at the end of iteration $t$.
+The diagnostic class
+
+\begin{equation}
+  g(\mathcal{H}_{t}) =
+  \begin{cases}
+    \textit{excellent}   & \text{if } \mathrm{Score}(\theta_{t})
+                           \;\geq\; 0.98\;\mathrm{Score}^*_{t},\\[2pt]
+    \textit{low\_mAP}    & \text{if } \mathrm{mAP}(\theta_{t}) < 0.20
+                           \text{ and } \mathrm{Score}(\theta_{t})
+                           < 0.80\;\mathrm{Score}^*_{t},\\[2pt]
+    \textit{low\_QPS}    & \text{if } \mathrm{mAP}(\theta_{t}) \geq 0.20
+                           \text{ and } \mathrm{QPS}(\theta_{t}) < 4.0,\\[2pt]
+    \textit{below\_best} & \text{if } \mathrm{Score}(\theta_{t})
+                           < 0.90\;\mathrm{Score}^*_{t},\\[2pt]
+    \textit{moderate}    & \text{otherwise,}
+  \end{cases}
+  \label{eq:guidance}
+\end{equation}
+
+is injected into the prompt as a targeted natural-language directive.
+\textit{Excellent} reinforces the current structural region and encourages
+incremental $\alpha$ or $n_r$ refinement; \textit{low\_mAP} directs the agent to
+increase $k$ or $M$; \textit{low\_QPS} directs it to reduce $\mathit{efSearch}$
+or switch engines; \textit{below\_best} encourages structural divergence;
+and \textit{moderate} suggests coordinated adjustment of $k$ and $\alpha$.
+
+\subsubsection{Untried-Value Hints and Duplicate Avoidance}
+\label{sec:hints}
+
+During EXPLOITATION and FINE-TUNING, the prompt additionally provides
+$\mathcal{U}_t$: the set of $\alpha$ values and $(n_r,\,\mathrm{ref\_strategy})$ pairs
+not yet evaluated under the current best engine configuration, derived at inference time
+from $\mathcal{H}_t$.
+These hints prevent the agent from re-proposing already-evaluated
+continuous-parameter combinations once the structural choice is settled.
+Each proposed $\theta_{t+1}$ is checked against $\mathcal{H}_t$ before evaluation;
+if a duplicate is detected, the prompt is resubmitted with an explicit rejection notice
+until a novel configuration is accepted or a uniformly random fallback is applied,
+guaranteeing loop progress.
+
+\subsection{Phase-Aware Budget Partition}
+
+The $N$-iteration budget is divided into three phases with boundaries
+
+\begin{align}
+  t_{\mathrm{exp}}  &= \lfloor 0.40\,N \rfloor, \label{eq:texp}\\
+  t_{\mathrm{expl}} &= \lfloor 0.75\,N \rfloor, \label{eq:texpl}
+\end{align}
+
+defining \textbf{Exploration} ($1 \leq t \leq t_{\mathrm{exp}}$),
+\textbf{Exploitation} ($t_{\mathrm{exp}} < t \leq t_{\mathrm{expl}}$),
+and \textbf{Fine-tuning} ($t_{\mathrm{expl}} < t \leq N$) --- for $N{=}30$:
+12, 10, and 8 iterations respectively.
+The boundaries encode the structural-before-continuous principle: engine and $M$
+determine the achievable QPS ceiling and must be resolved before $\alpha$ and $n_r$
+are refined---a conditional dependency that Optuna TPE, which models each parameter
+independently via univariate kernel density estimation, cannot exploit.
+
+During Exploration, the \textit{excellent} directive instructs the agent to continue
+sampling structurally distinct (engine, $M$, $k$) combinations rather than converging
+prematurely; the $\mathcal{U}_t$ hint set is suppressed.
+During Exploitation, $\mathcal{U}_t$ is activated and \textit{excellent} shifts to
+reinforcing the best engine region while broadening $\alpha$--$n_r$ coverage.
+During Fine-tuning, hints narrow to unexplored reference-strategy variants and
+proposals are restricted to coordinate-wise perturbations of the current best.
+
+\paragraph{Anti-collapse and stagnation constraints.}
+Let $c_t$ count consecutive proposals in which only $\alpha$ changed
+relative to the preceding configuration, and let $\iota_t$ count iterations elapsed
+without improvement to $\mathrm{Score}^*_t$.
+Two hard rules are encoded in the system prompt:
+(1) if $c_t > 2$, the next proposal must differ structurally---by changing engine,
+$M$, $k$, or $n_r$---before any further $\alpha$ refinement;
+(2) if $\iota_t$ exceeds a phase-dependent threshold, a stagnation escape directive
+overrides the current phase instruction and reverts to broad-coverage exploration.
+Embedding these rules in the prompt rather than as external rejection filters makes
+structural diversity an explicit part of the agent's reasoning.
+
+Algorithm~\ref{alg:agent} gives the complete procedure.
+
+\begin{algorithm}[t]
+\caption{LLM-Guided ANN Optimizer}
+\label{alg:agent}
+\begin{algorithmic}[1]
+\Require Configuration space $\Theta$; oracle $\mathcal{O}$; budget $N$
+\Ensure Best configuration $\theta^*$ and history $\mathcal{H}_N$
+\State $\mathcal{H}_0 \gets \emptyset$;\enspace
+       $\mathrm{Score}^* \gets 0$;\enspace
+       $t_{\mathrm{exp}} \gets \lfloor 0.40N \rfloor$;\enspace
+       $t_{\mathrm{expl}} \gets \lfloor 0.75N \rfloor$
+\For{$t = 1, 2, \ldots, N$}
+  \State $\phi_t \gets \mathrm{Phase}(t,\,t_{\mathrm{exp}},\,t_{\mathrm{expl}})$
+         \hfill\Comment{EXPLORATION / EXPLOITATION / FINE-TUNING}
+  \State $g_t \gets g(\mathcal{H}_{t-1})$ \hfill\Comment{Eq.~\eqref{eq:guidance}}
+  \State $\mathcal{U}_t \gets \mathrm{UntriedHints}(\mathcal{H}_{t-1},\,\phi_t)$
+         \hfill\Comment{$\emptyset$ during EXPLORATION}
+  \State $p_t \gets \mathrm{BuildPrompt}(\phi_t,\,g_t,\,\mathcal{H}_{t-1},\,\mathcal{U}_t)$
+  \State $\theta_t \gets \mathrm{LLM}(p_t)$
+         \hfill\Comment{structured JSON response}
+  \If{$\theta_t \in \{\theta_s : s < t\}$}
+         \hfill\Comment{duplicate check}
+    \State $\theta_t \gets \mathrm{Fallback}\!\left(\Theta \setminus \{\theta_s : s < t\}\right)$
+  \EndIf
+  \State $\bigl(\mathrm{mAP}_t,\,\mathrm{QPS}_t\bigr) \gets \mathcal{O}(\theta_t)$
+  \State $\mathcal{H}_t \gets \mathcal{H}_{t-1} \cup \{(\theta_t,\,\mathrm{mAP}_t,\,\mathrm{QPS}_t)\}$
+  \If{$\mathrm{mAP}_t \times \mathrm{QPS}_t > \mathrm{Score}^*$}
+    \State $\mathrm{Score}^* \gets \mathrm{mAP}_t \times \mathrm{QPS}_t$;\enspace
+           $\theta^* \gets \theta_t$
+  \EndIf
+\EndFor
+\State \Return $\theta^*,\;\mathcal{H}_N$
+\end{algorithmic}
+\end{algorithm}
+
+GP-BO replicates the VDTuner~\cite{yang2024vdtuner} paradigm using
+\texttt{optuna.samplers.GPSampler} (Gaussian Process surrogate, Expected Improvement
+acquisition) applied to our single-objective Score.
+Optuna TPE fits univariate kernel density estimators over each parameter independently.
+Neither baseline encodes the $(k,\alpha)$ coupling or the engine-conditional
+structure of $\Theta$; the LLM agent exploits both through its phase-partitioned
+prompt and guidance function.
 
 \section{Experiments}
 \label{sec:experiments}
