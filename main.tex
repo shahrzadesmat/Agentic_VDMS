@@ -114,24 +114,22 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Multimodal vector database systems must co-tune ANN index parameters and cross-modal
-reranking weights against an 8--9-minute-per-evaluation rebuild oracle.
-Classical HPO fails structurally: grid and random search carry no cross-evaluation
-memory; Bayesian TPE assumes independent marginals and cannot model the
-\textit{efSearch}--$\alpha$ coupling from engine-type gating; GP-BO surrogates
-struggle with categorical non-stationarity.
-We present a phase-aware LLM agent that encodes the empirical trajectory
-$\mathcal{H}_t$ of (configuration, Score) pairs into structured prompts, reasoning
-over cross-stage dependencies across exploration, exploitation, and refinement phases
-without a surrogate.
-On HICO-DET --- a 47{,}776-image, 600-category HOI benchmark with a 7-parameter
-coupled configuration space --- the agent achieves mean Score $= 4.44$
-($\text{mAP}{\times}\text{QPS}$), outperforming Optuna~TPE and Random~Search by
-$+9.7\%$ and GP-BO by $+3.3\%$, reaching Score ${\geq}\,3.97$ at iteration~6
-versus iteration~27 for Optuna~TPE (${\approx}2.7$ hours saved).
-Performance gaps compress with coupling complexity: ${\lesssim}1.7\%$ on GLDv2
-(762K images) and $2.1\%$ on SIFT1M, validating that the agent's advantage scales
-with configuration-landscape coupling.
+Configuring an ANN retrieval system for multimodal data requires tuning index
+structure, search depth, and cross-modal reranking weights simultaneously.
+These parameters are not independent: search depth determines the candidate pool
+passed to a reranker, and the optimal fusion weight shifts accordingly.
+Classical HPO methods---grid search, random search, and Bayesian optimization---assume
+parameter separability and structurally miss the compensatory operating points that
+maximize the joint accuracy--throughput objective.
+
+We present a phase-aware LLM agent that conditions each configuration proposal on
+the full empirical history of (configuration, score) pairs, reasoning over cross-stage
+dependencies through structured exploration, exploitation, and fine-tuning phases.
+
+On HICO-DET, a 47{,}776-image HOI retrieval benchmark, the agent outperforms
+Optuna~TPE and Random~Search by $+9.7\%$ and Gaussian Process BO by $+3.3\%$.
+Across three datasets of increasing parameter-space simplicity, the performance
+advantage scales proportionally with configuration-landscape coupling.
 \end{abstract}
 
 \maketitle
