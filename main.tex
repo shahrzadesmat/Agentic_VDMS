@@ -42,6 +42,8 @@
 \setlength{\belowcaptionskip}{2pt plus 1pt minus 1pt}
 
 \raggedbottom
+\emergencystretch=2em
+\hfuzz=5pt
 \renewcommand{\bibfont}{\small}
 \setlength{\parskip}{3pt plus 1pt minus 1pt}
 % Tighten display math spacing
@@ -632,11 +634,14 @@ FaissIVFFlat, VDMS returns a high-recall approximation whose tightness is govern
 by the engine-specific search parameters.
 
 Three ANN engines expose qualitatively distinct accuracy--throughput operating points.
-\textbf{FaissFlat:} exact exhaustive L2 search; recall upper bound at lowest QPS.
-\textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: hierarchical navigable small-world graph; recall/latency controlled by $M \in \{8,16,32,48,64\}$ and $\mathit{efSearch} \in \{32,64,100,150,200,300,500\}$.
-\textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file index with $\mathit{nlist} \in \{64,128,256,512\}$ cells probed via $\mathit{nprobe} \in \{4,8,16,32,64\}$.
 
-The candidate pool size $k \in \{50, 100, 150, 200, 300, 500, 750, 1000\}$ determines
+\noindent\textbf{FaissFlat:} exact exhaustive L2 search; recall upper bound at lowest QPS.
+
+\noindent\textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: hierarchical navigable small-world graph; recall/latency controlled by graph connectivity $M$ and beam width $\mathit{efSearch}$ (values in Table~\ref{tab:config-space}).
+
+\noindent\textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file index; search probes $\mathit{nprobe}$ of $\mathit{nlist}$ Voronoi cells (values in Table~\ref{tab:config-space}).
+
+The candidate pool size $k$ (8 values: 50--1000, Table~\ref{tab:config-space}) determines
 the recall ceiling available to Stage~2 and is selected jointly with engine parameters.
 Batch QPS is defined as
 \begin{equation}
@@ -851,10 +856,9 @@ a \textit{reasoning} field that articulates its rationale (Figure~\ref{fig:promp
 \subsubsection{Diagnostic Guidance Function}
 \label{sec:guidance}
 
-Let $\mathrm{Score}^*_{t} = \max_{s \leq t}\mathrm{Score}(\theta_s)$ denote the
-running best at the end of iteration $t$.
+Let $\mathrm{Score}^*_{t}$ denote the best Score seen through iteration~$t$.
 The diagnostic class
-{\small
+{\footnotesize%
 \begin{equation}
   g(\mathcal{H}_{t}) =
   \begin{cases}
@@ -870,7 +874,8 @@ The diagnostic class
     \textit{moderate}    & \text{otherwise,}
   \end{cases}
   \label{eq:guidance}
-\end{equation}}
+\end{equation}%
+}
 is injected into the prompt as a targeted natural-language directive.
 \textit{Excellent} reinforces the current structural region and encourages
 incremental $\alpha$ or $n_r$ refinement; \textit{low\_mAP} directs the agent to
@@ -998,19 +1003,25 @@ any reranking stage; Score $= \text{Recall@10} \times \text{QPS}$.
 
 \noindent\textbf{Compared Methods.}
 We compare five strategies, each for $N{=}30$ iterations.
-\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter (seeds: 42, 99, 200).
-\textbf{GP-BO:} \texttt{optuna.samplers.GPSampler} (Expected Improvement), replicating VDTuner~\cite{yang2024vdtuner} (seeds: 42, 99, 200).
-\textbf{Optuna TPE}~\cite{akiba2019optuna}: univariate kernel density estimators (seeds: 42, 99, 200).
-\textbf{Random Search}~\cite{bergstra2012random}: uniform random sampling (seeds: 78, 99, 200).
-\textbf{Grid Search:} lexicographic 1-D sweep (2~runs).
+
+\noindent\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter (seeds: 42, 99, 200).
+
+\noindent\textbf{GP-BO:} \texttt{optuna.samplers.\allowbreak GPSampler} (Expected Improvement), replicating VDTuner~\cite{yang2024vdtuner} (seeds: 42, 99, 200).
+
+\noindent\textbf{Optuna TPE}~\cite{akiba2019optuna}: univariate kernel density estimators (seeds: 42, 99, 200).
+
+\noindent\textbf{Random Search}~\cite{bergstra2012random}: uniform random sampling (seeds: 78, 99, 200).
+
+\noindent\textbf{Grid Search:} lexicographic 1-D sweep (2~runs).
 As system baselines we include UniIR~\cite{wei2023uniir}, standalone CLIP
 ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2 reranking,
 all under exact FaissFlat search (Section~\ref{sec:baselines}).
 
 \noindent\textbf{Metrics.}
 Retrieval quality: mAP (primary), P@10, Recall@10~\cite{manning2008ir}.
-Throughput: QPS (single batch to the VDMS container).
-Joint objective: Score\,$=$\,mAP\,$\times$\,QPS (Eq.~\eqref{eq:score}); for SIFT1M, Score\,$=$\,Recall@10\,$\times$\,QPS.
+Throughput: batch QPS.
+Joint objective: Score\,$=$\,mAP\,$\times$\,QPS (Eq.~\eqref{eq:score});
+for SIFT1M, Score\,$=$\,Recall@10\,$\times$\,QPS.
 
 \noindent\textbf{Implementation.}
 All experiments run on the NCSA Delta GPU cluster (partition \texttt{gpuA40x4}): one
@@ -1338,8 +1349,13 @@ Both LLM agent and Optuna TPE converge to FaissHNSWFlat ($M{=}48$): Score\,$=$\,
 
 \noindent\textbf{Query Difficulty-Weighted Optimization (QDS).}
 HOI queries vary in retrieval difficulty; we introduce QDS to upweight structurally hard queries.
-For query $j$: \emph{gallery entropy} $H_j{=}{-}\sum_i p_{ji}\log p_{ji}$ ($p_{ji}{=}\mathrm{softmax}(\mathbf{f}_{q_j}^\top\mathbf{f}_{d_i}/\tau)$) measures spread of CLIP mass; \emph{centroid displacement} $\mathrm{CPR}_j{=}\|\mathbf{f}_{q_j}-\boldsymbol{\mu}_j\|^2/\sigma_j^2$ measures query-to-centroid distance.
-Combining: $\mathrm{QDS}_j{=}\tilde{H}_j-\widetilde{\mathrm{CPR}}_j$, weight $w_j{=}1+\tilde{I}_j{\in}[1,2]$, objective $\mathrm{QDS\text{-}mAP}{=}\sum_j w_j{\cdot}\mathrm{AP}_j/\sum_j w_j$.
+For query $j$: \emph{gallery entropy} $H_j{=}{-}\sum_i p_{ji}\log p_{ji}$
+($p_{ji}{=}\mathrm{softmax}(\mathbf{f}_{q_j}^\top\mathbf{f}_{d_i}/\tau)$) measures spread of CLIP mass;
+\emph{centroid displacement} $\mathrm{CPR}_j{=}\|\mathbf{f}_{q_j}{-}\boldsymbol{\mu}_j\|^2/\sigma_j^2$
+measures query-to-centroid distance.
+We define $\mathrm{QDS}_j{=}\tilde{H}_j{-}\widetilde{\mathrm{CPR}}_j$, weight
+$w_j{=}1{+}\tilde{I}_j{\in}[1,2]$, and objective
+$\mathrm{QDS\text{-}mAP}{=}\sum_j w_j\mathrm{AP}_j/\sum_j w_j$.
 
 The LLM agent with QDS objective discovers (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$, $\alpha{=}0.75$, $n_r{=}10$) achieving Score\,$=$\,$\mathbf{4.76}$ on the standard metric --- $+7.3\%$ over standard LLM (4.44), the highest single-run Score (Table~\ref{tab:optimizer}), converging at iteration~19 with QPS\,$=$\,19.07 by favoring configurations that preserve precision on hard queries.
 
