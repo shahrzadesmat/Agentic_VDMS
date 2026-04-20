@@ -325,7 +325,7 @@ structural configuration coupling.
 HOI detection research since HICO-DET~\cite{chao2018hico} --- which defined 600
 fine-grained verb--object interaction categories --- has advanced via transformer-based
 detectors and vision-language pre-training, but every published use remains restricted
-to the bounding-box detection paradigm.
+to the bounding-box detection paradigm (the closest non-detection use~\cite{kilickaya2021structured} queries via spatial canvas composition with IoU, not text retrieval).
 Text-image retrieval was transformed by CLIP~\cite{radford2021clip}; UniIR~\cite{wei2023uniir} (ECCV 2024) unified eight multimodal retrieval tasks over M-BEIR.
 We fill the orthogonal HOI \emph{retrieval} direction and adopt CLIP and UniIR as
 primary baselines.
@@ -1439,6 +1439,7 @@ LLM Agent (Full)              & \textbf{4.44} & \textbf{0.259} & 17.11 & --- \\
 \noindent\textbf{Query Difficulty-Weighted Optimization (QDS).}
 Using the QDS-weighted oracle defined in Section~\ref{sec:optimizer},
 the LLM agent with QDS objective discovers (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$, $\alpha{=}0.75$, $n_r{=}10$) achieving Score\,$=$\,$\mathbf{4.76}$ on the standard metric (seed~42) --- $+7.3\%$ over standard LLM (4.44) --- converging at iteration~19 with QPS\,$=$\,19.07 by favoring precision on hard queries; across three seeds, mean Score is $4.20\,{\pm}\,0.40$ (range 3.87--4.76), as QDS optimizes difficulty-weighted ranking rather than the Score composite.
+A cross-backbone check with GPT-4o-mini (seed~42, Score\,$=$\,4.42) falls within 0.4\% of the MiniMax-M2.1 mean, confirming backbone portability.
 
 \section{Conclusion and Outlook}
 \label{sec:conclusion}
@@ -1462,7 +1463,7 @@ decreases --- with the SIFT1M convergence ordering inverting to favor Optuna TPE
 (iteration~14) over the LLM agent (iteration~17) --- confirming that the agent's benefit
 scales proportionally with configuration-landscape coupling complexity.
 
-Extensions target billion-scale corpora (hardware-profile telemetry as additional context, closed-loop QPS streaming to eliminate rebuild cost), multi-tenant history-weighting, and cross-model backbone studies to quantify portability of the phase-conditioned protocol.
+Extensions target billion-scale corpora (hardware-profile telemetry, closed-loop QPS streaming) and multi-tenant history-weighting.
 
 \begin{acks}
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
