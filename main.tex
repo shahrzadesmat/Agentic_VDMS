@@ -1153,7 +1153,7 @@ by conditioning each proposal on the full history of observed outcomes.
   $^\dagger$Grid plateaus at iter.~19.
   $^\ddagger$P@10 not recorded for Grid/GP-BO.
   $^\P$GP-BO: \texttt{GPSampler} + Expected Improvement~\cite{yang2024vdtuner}.
-  $^\S$QDS: single run, difficulty-weighted objective; scores on standard metric.}
+  $^\S$QDS: difficulty-weighted objective; mean Score\,$=$\,4.20\,$\pm$\,0.40 (3 seeds; seed-42 peak shown).}
 \label{tab:optimizer}
 \small
 \setlength{\tabcolsep}{6pt}
@@ -1438,7 +1438,7 @@ LLM Agent (Full)              & \textbf{4.44} & \textbf{0.259} & 17.11 & --- \\
 
 \noindent\textbf{Query Difficulty-Weighted Optimization (QDS).}
 Using the QDS-weighted oracle defined in Section~\ref{sec:optimizer},
-the LLM agent with QDS objective discovers (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$, $\alpha{=}0.75$, $n_r{=}10$) achieving Score\,$=$\,$\mathbf{4.76}$ on the standard metric --- $+7.3\%$ over standard LLM (4.44), the highest single-run Score (Table~\ref{tab:optimizer}), converging at iteration~19 with QPS\,$=$\,19.07 by favoring configurations that preserve precision on hard queries.
+the LLM agent with QDS objective discovers (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$, $\alpha{=}0.75$, $n_r{=}10$) achieving Score\,$=$\,$\mathbf{4.76}$ on the standard metric (seed~42) --- $+7.3\%$ over standard LLM (4.44) --- converging at iteration~19 with QPS\,$=$\,19.07 by favoring precision on hard queries; across three seeds, mean Score is $4.20\,{\pm}\,0.40$ (range 3.87--4.76), as QDS optimizes difficulty-weighted ranking rather than the Score composite.
 
 \section{Conclusion and Outlook}
 \label{sec:conclusion}
@@ -1462,8 +1462,7 @@ decreases --- with the SIFT1M convergence ordering inverting to favor Optuna TPE
 (iteration~14) over the LLM agent (iteration~17) --- confirming that the agent's benefit
 scales proportionally with configuration-landscape coupling complexity.
 
-The direct extension targets billion-scale corpora where memory-topology and NUMA-locality coupling demand hardware-profile telemetry as an additional context channel; multi-tenant deployments call for history-weighting that discounts stale evaluations and closed-loop QPS streaming to eliminate the 8--9-minute rebuild cost.
-A cross-model backbone study would quantify the sensitivity of phase-transition detection and convergence speed, establishing the portability boundary of the phase-conditioned protocol across model families.
+Extensions target billion-scale corpora (hardware-profile telemetry as additional context, closed-loop QPS streaming to eliminate rebuild cost), multi-tenant history-weighting, and cross-model backbone studies to quantify portability of the phase-conditioned protocol.
 
 \begin{acks}
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
