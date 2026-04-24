@@ -1159,11 +1159,11 @@ by conditioning each proposal on the full history of observed outcomes.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
-  \Description{Convergence curves showing best Score vs.\ iteration for all five optimizer methods on HICO-DET.}
-  \caption{Best Score vs.\ iteration on HICO-DET
-    (mean $\pm 1\sigma$, 3 seeds; 2 runs for Grid).
-    LLM reaches Score $\approx 3.97$ at iteration~6; Optuna TPE at iteration~27,
-    Random Search at iteration~28.}
+  \Description{Convergence curves showing best SIEVE Score (QPS if mAP≥τ) vs. iteration for five optimizer methods on HICO-DET. LLM Agent rises steeply to ~300 by iteration 5 with near-zero variance; all other methods plateau below 230.}
+  \caption{Best Score vs.\ iteration on HICO-DET, SIEVE metric
+    (mean $\pm 1\sigma$, 3 seeds; 1 run for Grid).
+    LLM Agent reaches Score $\approx 295$ at iteration~5 with near-zero variance;
+    Optuna TPE, GP-BO, Grid, and Random plateau below $230$.}
   \label{fig:convergence}
 \end{figure}
 
