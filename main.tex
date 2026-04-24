@@ -1174,12 +1174,10 @@ by conditioning each proposal on the full history of observed outcomes.
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
 \centering
-\caption{ANN optimizer comparison on HICO-DET (30 iterations, means over 3 seeds; Grid: 2 runs).
-  Score $= \mathrm{mAP} \times \mathrm{QPS}$; \emph{Iters$\to$Best}: first iteration at best score.
-  $^\dagger$Grid plateaus at iter.~19.
-  $^\ddagger$P@10 not recorded for Grid/GP-BO.
+\caption{ANN optimizer comparison on HICO-DET (50 iterations, means over 3 seeds; Grid: 1 run).
+  Score $= \mathrm{QPS}$ if $\mathrm{mAP}\geq\tau$ else $0$ ($\tau{=}0.15$); \emph{Iters$\to$Best}: first iteration at best score (mean over seeds).
   $^\P$GP-BO: \texttt{GPSampler} + Expected Improvement~\cite{yang2024vdtuner}.
-  $^\S$QDS: difficulty-weighted objective; mean Score\,$=$\,4.20\,$\pm$\,0.40 (3 seeds; seed-42 peak shown).}
+  $^\S$QDS: difficulty-weighted objective; mean Score\,$=$\,1362\,$\pm$\,5 (3 seeds).}
 \label{tab:optimizer}
 \small
 \setlength{\tabcolsep}{6pt}
@@ -1187,12 +1185,12 @@ by conditioning each proposal on the full history of observed outcomes.
 \toprule
 \textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Grid Search$^\dagger$$^\ddagger$  & 3.44         & 0.169          & ---            & 20.42          & 19/30 \\
-Random Search                    & 4.04         & 0.260          & 0.569          & 16.13          & 28/30 \\
-Optuna TPE                       & 4.05         & 0.256          & 0.529          & 15.84          & 27/30 \\
-GP-BO$^\P$$^\ddagger$            & 4.29         & 0.230          & ---            & 18.68          & ---   \\
-\textbf{LLM Agent (Ours)}        & \textbf{4.44}& 0.259          & 0.487          & 17.11          & 30/30 \\
-\textbf{LLM Agent + QDS (Ours)}$^\S$ & \textbf{4.76} & 0.250     & ---            & \textbf{19.07} & 19/30 \\
+Grid Search                               & 183.0          & 0.178 & 0.508 & 183.0          & 41/50 \\
+Random Search                             & 111.4          & 0.179 & 0.455 & 111.4          & 29/50 \\
+Optuna TPE                                & 225.2          & 0.164 & 0.465 & 225.2          & 41/50 \\
+GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 199.3          & 39/50 \\
+\textbf{LLM Agent (Ours)}                 & \textbf{300.3} & 0.161 & 0.438 & \textbf{300.3} & 23/50 \\
+\textbf{LLM Agent + QDS (Ours)}$^\S$      & \textbf{1362.0}& 0.175 & 0.292 & \textbf{1362.0}& 39/50 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1215,10 +1213,11 @@ DINOv2 only ($\alpha{=}1$)        & FaissFlat & 2000 & 432.9 & 851.6 & 5.18  & 8
 CLIP$+$DINOv2 ($\alpha{=}0.5$)   & FaissFlat & 2000 & 430.1 & 855.2 & 4.82  & 860.0 & 1.15 \\
 \midrule
 \multicolumn{8}{l}{\textit{Optimizer best configurations}} \\
-LLM Agent (Ours)  & HNSW $M{=}48$ & 200 & 441.8 & 58.2 & 0.49 & 58.9 & 16.98 \\
-Optuna TPE        & HNSW $M{=}32$ & 200 & 423.3 & 62.0 & 0.47 & 62.6 & 15.97 \\
-Random Search     & HNSW $M{=}32$ & 200 & 444.3 & 48.3 & 0.32 & 48.9 & 20.47 \\
-Grid Search       & HNSW $M{=}32$ & 100 & 445.4 & 48.5 & 0.49 & 49.2 & 20.33 \\
+LLM Agent (Ours)             & HNSW $M{=}64$        &  50 &  12.6 &  3.21 & 0.08 &  3.33 &  300.5 \\
+LLM Agent + QDS (Ours)       & IVFFlat $nl{=}128$   & 500 &  17.2 &  0.35 & 0.34 &  0.74 & 1357.6 \\
+Optuna TPE                   & HNSW $M{=}16$        &  50 &  13.3 &  3.19 & 0.11 &  3.33 &  300.7 \\
+Random Search                & HNSW $M{=}8$         & 100 &  11.7 &  6.95 & 0.13 &  7.13 &  140.2 \\
+Grid Search                  & HNSW $M{=}64$        & 100 &  13.2 &  5.40 & 0.04 &  5.46 &  183.0 \\
 \bottomrule
 \end{tabular}
 \end{table*}
