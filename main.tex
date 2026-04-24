@@ -1108,27 +1108,27 @@ $N{=}30$ covers under 1\% of $\Theta$ (e.g., 5{,}940 HNSW configs on SIFT1M), to
 \begin{table*}[t]
 \centering
 \caption{System baselines on HICO-DET (FaissFlat exact search).
-  Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$); $\alpha$: DINOv2 reranking weight
+  Score $=$ QPS; $\alpha$: DINOv2 reranking weight
   ($0$=CLIP only, $1$=DINOv2 only). Latency in Table~\ref{tab:efficiency}.}
 \label{tab:baselines}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabular}{p{4.0cm}lcccccc}
+\begin{tabular}{p{4.0cm}lccccc}
 \toprule
-\textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{R@10} & \textbf{QPS} & \textbf{Score} \\
+\textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{R@10} & \textbf{Score (QPS)} \\
 \midrule
-\multicolumn{8}{l}{\textit{UniIR~\cite{wei2023uniir} baselines}} \\
-\quad Zero-shot CLIP ViT-L/14 (brute-force) & --- & ---  & 0.2461 & 0.3370 & 0.0967 & ---   & ---   \\
-\quad CLIP-SF Large, image-only (VDMS)      & --- & 10   & 0.0951 & 0.4477 & 0.1327 & 19.67 & 0     \\
-\quad CLIP-SF Large, multimodal (VDMS)      & --- & 10   & 0.0894 & 0.4415 & 0.1206 & 19.46 & 0     \\
-\quad BLIP-FF Large, image-only (VDMS)      & --- & 10   & 0.0889 & 0.4420 & 0.1213 & 19.69 & 0     \\
-\quad BLIP-FF Large, multimodal (VDMS)      & --- & 10   & 0.0745 & 0.4097 & 0.1019 & 19.72 & 0     \\
+\multicolumn{7}{l}{\textit{UniIR~\cite{wei2023uniir} baselines}} \\
+\quad Zero-shot CLIP ViT-L/14 (brute-force) & --- & ---  & 0.2461 & 0.3370 & 0.0967 & ---   \\
+\quad CLIP-SF Large, image-only (VDMS)      & --- & 10   & 0.0951 & 0.4477 & 0.1327 & 19.67 \\
+\quad CLIP-SF Large, multimodal (VDMS)      & --- & 10   & 0.0894 & 0.4415 & 0.1206 & 19.46 \\
+\quad BLIP-FF Large, image-only (VDMS)      & --- & 10   & 0.0889 & 0.4420 & 0.1213 & 19.69 \\
+\quad BLIP-FF Large, multimodal (VDMS)      & --- & 10   & 0.0745 & 0.4097 & 0.1019 & 19.72 \\
 \midrule
-\multicolumn{8}{l}{\textit{Our CLIP\,+\,DINOv2 pipeline (FaissFlat exact)}} \\
-\quad CLIP ViT-L/14                          & 0.0 & 500  & 0.2079 & 0.3370 & 0.0967 &  8.21 & 8.21  \\
-\quad CLIP ViT-L/14                          & 0.0 & 2000 & 0.2398 & 0.3370 & 0.0967 &  1.17 & 1.17  \\
-\quad DINOv2 ViT-L/14-reg4                   & 1.0 & 2000 & 0.2165 & 0.3232 & 0.0800 &  1.16 & 1.16  \\
-\quad CLIP\,+\,DINOv2 rerank                 & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.1138} & 1.15 & 1.15  \\
+\multicolumn{7}{l}{\textit{Our CLIP\,+\,DINOv2 pipeline (FaissFlat exact)}} \\
+\quad CLIP ViT-L/14                          & 0.0 & 500  & 0.2079 & 0.3370 & 0.0967 &  8.21 \\
+\quad CLIP ViT-L/14                          & 0.0 & 2000 & 0.2398 & 0.3370 & 0.0967 &  1.17 \\
+\quad DINOv2 ViT-L/14-reg4                   & 1.0 & 2000 & 0.2165 & 0.3232 & 0.0800 &  1.16 \\
+\quad CLIP\,+\,DINOv2 rerank                 & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.1138} & 1.15 \\
 \bottomrule
 \end{tabular}
 \end{table*}
