@@ -1161,7 +1161,7 @@ by conditioning each proposal on the full history of observed outcomes.
   \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
   \Description{Convergence curves showing best SIEVE Score (QPS if mAP≥τ) vs. iteration for five optimizer methods on HICO-DET. LLM Agent rises steeply to ~300 by iteration 5 with near-zero variance; all other methods plateau below 230.}
   \caption{Best Score vs.\ iteration on HICO-DET, SIEVE metric
-    (mean $\pm 1\sigma$, 3 seeds; 1 run for Grid).
+    (mean curves; $\pm 1\sigma$ band shown for LLM Agent; 3 seeds except Grid: 1 run).
     LLM Agent reaches Score $\approx 295$ at iteration~5 with near-zero variance;
     Optuna TPE, GP-BO, Grid, and Random plateau below $230$.}
   \label{fig:convergence}
