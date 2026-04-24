@@ -1175,22 +1175,23 @@ by conditioning each proposal on the full history of observed outcomes.
 \begin{table*}[t]
 \centering
 \caption{ANN optimizer comparison on HICO-DET (50 iterations, means over 3 seeds; Grid: 1 run).
-  Score $= \mathrm{QPS}$ if $\mathrm{mAP}\geq\tau$ else $0$ ($\tau{=}0.15$); \emph{Iters$\to$Best}: first iteration at best score (mean over seeds).
+  Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$); all best configs meet $\tau$.
+  \emph{Iters$\to$Best}: first iteration at best score (mean over seeds).
   $^\P$GP-BO: \texttt{GPSampler} + Expected Improvement~\cite{yang2024vdtuner}.
   $^\S$QDS: difficulty-weighted objective; mean Score\,$=$\,1362\,$\pm$\,5 (3 seeds).}
 \label{tab:optimizer}
 \small
 \setlength{\tabcolsep}{6pt}
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
+\textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Grid Search                               & 183.0          & 0.178 & 0.508 & 183.0          & 41/50 \\
-Random Search                             & 111.4          & 0.179 & 0.455 & 111.4          & 29/50 \\
-Optuna TPE                                & 225.2          & 0.164 & 0.465 & 225.2          & 41/50 \\
-GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 199.3          & 39/50 \\
-\textbf{LLM Agent (Ours)}                 & \textbf{300.3} & 0.161 & 0.438 & \textbf{300.3} & 23/50 \\
-\textbf{LLM Agent + QDS (Ours)}$^\S$      & \textbf{1362.0}& 0.175 & 0.292 & \textbf{1362.0}& 39/50 \\
+Grid Search                               & 183.0          & 0.178 & 0.508 & 41/50 \\
+Random Search                             & 111.4          & 0.179 & 0.455 & 29/50 \\
+Optuna TPE                                & 225.2          & 0.164 & 0.465 & 41/50 \\
+GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/50 \\
+\textbf{LLM Agent (Ours)}                 & \textbf{300.3} & 0.161 & 0.438 & 23/50 \\
+\textbf{LLM Agent + QDS (Ours)}$^\S$      & \textbf{1362.0}& 0.175 & 0.292 & 39/50 \\
 \bottomrule
 \end{tabular}
 \end{table*}
