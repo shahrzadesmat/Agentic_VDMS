@@ -1173,6 +1173,7 @@ by conditioning each proposal on the full history of observed outcomes.
 \caption{ANN optimizer comparison on HICO-DET (50 iterations, means over 3 seeds; Grid: 1 run).
   Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$); all best configs meet $\tau$.
   \emph{Iters$\to$Best}: first iteration at best score (mean over seeds).
+  $^\dagger$Score\,=\,0 because mAP\,$<\tau$; raw QPS\,=\,19.67/19.46.
   $^\P$GP-BO: \texttt{GPSampler} + Expected Improvement~\cite{yang2024vdtuner}.
   $^\S$QDS: difficulty-weighted objective; mean Score\,$=$\,1362\,$\pm$\,5 (3 seeds).}
 \label{tab:optimizer}
@@ -1183,8 +1184,8 @@ by conditioning each proposal on the full history of observed outcomes.
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
 \multicolumn{5}{l}{\textit{Baselines}} \\
-UniIR CLIP-SF Large, image-only~\cite{wei2023uniir} & 0              & 0.095 & 0.448 & --- \\
-UniIR CLIP-SF Large, multimodal~\cite{wei2023uniir} & 0              & 0.089 & 0.442 & --- \\
+UniIR CLIP-SF Large, image-only~\cite{wei2023uniir} & $0^\dagger$    & 0.095 & 0.448 & --- \\
+UniIR CLIP-SF Large, multimodal~\cite{wei2023uniir} & $0^\dagger$    & 0.089 & 0.442 & --- \\
 Grid Search                               & 183.0          & 0.178 & 0.508 & 41/50 \\
 Random Search                             & 111.4          & 0.179 & 0.455 & 29/50 \\
 Optuna TPE                                & 225.2          & 0.164 & 0.465 & 41/50 \\
