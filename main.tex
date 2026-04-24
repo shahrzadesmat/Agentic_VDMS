@@ -1313,46 +1313,46 @@ The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from te
 % ── Table: GLDv2 optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
 \centering
-\caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries, 30 iterations, seed~42).
-  \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
+\caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries,
+  50 iterations, seed~42; Grid: 30 iterations).
+  Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$).
+  \emph{Iters$\to$Best}: first iteration achieving the reported best score.
+  $^\dagger$LLM result pending (job in queue).}
 \label{tab:gldv2}
 \resizebox{\columnwidth}{!}{%
 \small
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccccc}
 \toprule
-\textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
+\textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-Optuna TPE                    & 3.6398            & 0.1786            & 0.2129              & 20.38             & 25/30 \\
-Random Search                 & 3.6491            & 0.1784            & 0.2131              & 20.45             & 8/30 \\
-Grid Search                   & 3.6566            & 0.1789            & 0.2125              & 20.43             & 21/30 \\
+Random Search                 & 255.97 & 0.1597 & 0.1954 & 255.97 & 48/50 \\
+Optuna TPE                    & 272.98 & 0.1614 & 0.1968 & 272.98 & 41/50 \\
+\textbf{Grid Search}          & \textbf{273.79} & \textbf{0.1615} & \textbf{0.1965} & \textbf{273.79} & \textbf{6/30} \\
 \midrule
-\textbf{LLM Agent (Ours)}     & \textbf{3.6575}   & \textbf{0.1790}   & \textbf{0.2124}     & \textbf{20.44}    & \textbf{6/30} \\
+\textbf{LLM Agent (Ours)}$^\dagger$ & --- & --- & --- & --- & --- \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 \noindent\textbf{Overall performance.}
-The LLM agent achieves Score $= \textbf{3.658}$, the best result across all methods,
-marginally outperforming Grid Search (Score $= 3.657$), Random Search (Score $= 3.649$),
-and Optuna TPE (Score $= 3.640$).
-The LLM agent ranks first on both datasets despite the $16\times$ scale increase and the shift
-from text-to-image to image-to-image retrieval; however, the performance gap between methods
-is substantially compressed relative to HICO-DET (${\lesssim}0.5\%$ spread vs.\ $9.7\%$),
-a pattern we return to in Section~\ref{sec:sift1m}.
+Among the completed runs (Grid Search, Optuna TPE, Random Search; LLM Agent pending),
+Grid Search currently leads with Score $= \textbf{273.79}$ (QPS when mAP$\geq\tau{=}0.15$),
+marginally ahead of Optuna TPE ($272.98$) and Random Search ($255.97$).
+The performance gap between methods is substantially compressed relative to HICO-DET
+(${\lesssim}0.7\%$ spread among grid/Optuna vs.\ $9.7\%$), a pattern we analyse further
+in Section~\ref{sec:sift1m}.
 
 \noindent\textbf{Scale effects.}
-Each GLDv2 iteration completes in $\approx$5\,min (HNSW build: $\approx$272\,s), slightly faster than HICO-DET (8--9\,min) since image-to-image retrieval incurs no per-query HOI-category overhead; all 30-iteration budgets complete in $\approx$2.5\,h.
+Each GLDv2 iteration completes in $\approx$5\,min (HNSW build: $\approx$272\,s), slightly faster than HICO-DET (8--9\,min) since image-to-image retrieval incurs no per-query HOI-category overhead; all 50-iteration budgets complete in $\approx$4\,h.
 
 \noindent\textbf{Sample efficiency.}
-The LLM agent reaches its best Score at iteration~6; Grid Search at iteration~21,
-and Optuna TPE at iteration~25.
-Random Search locates a competitive configuration at iteration~8, behind the LLM agent,
-reflecting the compressed performance landscape at 762K scale where high-QPS HNSW
-configurations are easily discovered without conditioning on empirical history.
-The LLM agent identifies both the best final Score ($3.658$ vs.\ $3.649$ for Random Search)
-and converges fastest among all methods, reaching a Score exceeding all baselines'
-final performance within 6 iterations.
+Grid Search reaches its best Score at iteration~6 out of 30,
+while Optuna TPE requires 41 and Random Search 48 iterations out of 50.
+This reflects the compressed performance landscape at 762K scale, where high-QPS HNSW
+configurations are relatively accessible and early grid points happen to land near
+the optimum; the LLM Agent result will clarify whether semantic guidance provides
+an advantage in this lower-coupling regime.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \subsection{Complexity-Matched Validation: SIFT1M}
