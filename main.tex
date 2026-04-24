@@ -1213,16 +1213,16 @@ CLIP-SF Large, image-only         & FaissFlat & 10   & 427.6 & 50.8  & ---   &  
 CLIP-SF Large, multimodal         & FaissFlat & 10   & 427.7 & 51.4  & ---   &  51.4 & 19.46 \\
 \midrule
 \multicolumn{8}{l}{\textit{Exact-search baselines}} \\
-CLIP only ($\alpha{=}0$)          & FaissFlat & 500  & 433.3 & 121.0 & 0.03  & 121.1 & 8.21 \\
+CLIP only ($\alpha{=}0$)          & FaissFlat & 500  & 433.3 & 121.0 & \textbf{0.03} & 121.1 & 8.21 \\
 CLIP only ($\alpha{=}0$)          & FaissFlat & 2000 & 431.2 & 850.0 & 0.09  & 850.1 & 1.17 \\
 DINOv2 only ($\alpha{=}1$)        & FaissFlat & 2000 & 432.9 & 851.6 & 5.18  & 856.8 & 1.16 \\
 CLIP$+$DINOv2 ($\alpha{=}0.5$)   & FaissFlat & 2000 & 430.1 & 855.2 & 4.82  & 860.0 & 1.15 \\
 \midrule
 \multicolumn{8}{l}{\textit{Optimizer best configurations}} \\
 LLM Agent (Ours)             & HNSW $M{=}64$        &  50 &  12.6 &  3.21 & 0.08 &  3.33 &  300.5 \\
-LLM Agent + QDS (Ours)       & IVFFlat $nl{=}128$   & 500 &  17.2 &  0.35 & 0.34 &  0.74 & 1357.6 \\
+\textbf{LLM Agent + QDS (Ours)} & IVFFlat $nl{=}128$ & 500 &  17.2 & \textbf{0.35} & 0.34 & \textbf{0.74} & \textbf{1357.6} \\
 Optuna TPE                   & HNSW $M{=}16$        &  50 &  13.3 &  3.19 & 0.11 &  3.33 &  300.7 \\
-Random Search                & HNSW $M{=}8$         & 100 &  11.7 &  6.95 & 0.13 &  7.13 &  140.2 \\
+Random Search                & HNSW $M{=}8$         & 100 & \textbf{11.7} &  6.95 & 0.13 &  7.13 &  140.2 \\
 Grid Search                  & HNSW $M{=}64$        & 100 &  13.2 &  5.40 & 0.04 &  5.46 &  183.0 \\
 \bottomrule
 \end{tabular}
