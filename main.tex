@@ -168,14 +168,15 @@ We propose a phase-aware LLM agent that reasons through a closed feedback loop.
 The history $\mathcal{H}_t$ grows with every trial; each new proposal builds on it.
 The agent self-regulates across exploration, exploitation, and fine-tuning.
 
-On HICO-DET, deployed on Intel VDMS, the agent delivers a $13.6\times$ throughput
-gain over UniIR. It outperforms Optuna~TPE by $+33.3\%$ in accuracy-throughput score
-and GP-BO by $+50.7\%$.
+Evaluated on the HICO-DET benchmark using Intel VDMS, our agent outperforms
+Optuna~TPE by $+33.3\%$ and GP-BO by $+50.7\%$ in accuracy-throughput score.
+It delivers a $13.6\times$ throughput gain over UniIR.
 
 We validate across a coupling spectrum: HICO-DET (high coupling), GLDv2 (moderate
 coupling), and SIFT1M (near-independent control). The agent's advantage grows with
 coupling: $+33.3\%$ on HICO-DET, $+1.2\%$ on GLDv2, $<+0.1\%$ on SIFT1M.
-Deploy the LLM agent where coupling dominates; standard methods suffice otherwise.
+These results position our agent as the method of choice for retrieval systems
+where parameter coupling is the dominant source of optimization complexity.
 \end{abstract}
 
 \maketitle
