@@ -4,7 +4,7 @@ Generate Figure 2 — faithful recreation of the April-17 drawio style
 with only the 10 required content fixes applied.
 Saves: figures/workflow.pdf
 """
-import os
+import os, io, base64
 import matplotlib
 matplotlib.use('Agg')
 matplotlib.rcParams.update({
@@ -14,8 +14,94 @@ matplotlib.rcParams.update({
     'ps.fonttype':  42,
 })
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, Polygon
+from matplotlib.patches import FancyBboxPatch, Polygon, Ellipse
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import numpy as np
+from PIL import Image
+import cairosvg
+
+# FontAwesome robot SVG (from original drawio)
+_ROBOT_B64 = (
+    'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIg'
+    'dmlld0JveD0iMCA4NSAyMDQ4IDE4MzUiIHdpZHRoPSI1MTIiIGhlaWdodD0iNDU4Ljc1Ij4m'
+    'I3hhOzxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwMDYsODUpIiBkPSJtMCAwaDM1bDE5'
+    'IDMgMjEgNiAxOSA4IDE2IDkgMTUgMTEgMTIgMTEgMTIgMTIgMTIgMTYgOSAxNiA4IDE3IDYg'
+    'MTkgNCAyMCAxIDh2MzFsLTQgMjMtNyAyMy05IDE5LTEwIDE2LTExIDE0LTEyIDEzLTExIDkt'
+    'MTUgMTEtMjUgMTMtMjAgN2gtM2wtMSAxNzdoNTI3bDI0IDMgMjIgNSAyMiA4IDE2IDggMTQg'
+    'OCAxMyA5IDEzIDEwIDE2IDE1djJoMmw5IDExIDEwIDEzIDExIDE4IDggMTYgNiAxNSA1IDE2'
+    'IDUgMjIgMiAxOXYxNDNoMTM1bDE4IDIgMTggNSAxOCA4IDE2IDEwIDEzIDEyIDkgOSAxMCAx'
+    'NCA5IDE3IDcgMjAgMyA5djQzM2gtMmwtNiAyMC05IDE5LTkgMTMtOSAxMS04IDctMTEgOS0x'
+    'NyAxMC0xNSA2LTE5IDUtMTcgMmgtMTMzdjMybC0xIDExMi0yIDE3LTQgMjAtNiAxOS02IDE1'
+    'LTEwIDIwLTEwIDE1LTggMTEtOSAxMC03IDgtMTMgMTItMTcgMTMtMjAgMTItMjEgMTAtMjEg'
+    'Ny0yMiA1LTI2IDNoLTExMzJsLTIyLTItMjMtNS0yNC04LTI1LTEyLTE3LTExLTEzLTEwLTEw'
+    'LTktMTgtMTgtMTMtMTctMTEtMTgtOC0xNi02LTE0LTYtMTktNC0xOS0yLTE1LTEtMTd2LTEz'
+    'MWgtMTM2bC0xNi0yLTIxLTYtMTctOC0xMi04LTExLTktMTItMTItMTAtMTMtOS0xNi03LTE4'
+    'LTQtMTZ2LTQyN2w5LTI3IDgtMTYgOC0xMiAxMC0xMSAxMi0xMiAxMy05IDE0LTggMTYtNiAx'
+    'OC00IDEwLTFoMTM3di0xMzJsMi0yNSA1LTI1IDgtMjQgOS0yMCAxMy0yMiAxMC0xMyA4LTEw'
+    'aDJsMi00IDExLTExIDExLTkgMTMtMTAgMjItMTMgMTctOCAyNy05IDIwLTQgMTctMmg1Mjh2'
+    'LTE2OWwxLTctMTEtMy0xNS02LTE2LTgtMTYtMTAtMjEtMTgtNy04LTEwLTEyLTktMTQtMTAt'
+    'MTktNy0yMC01LTIyLTItMjEgMS0yMSAzLTE5IDYtMjEgOC0xOSA5LTE2IDEwLTE0IDktMTFo'
+    'Mmwyf'  # truncate and use full known-good b64 below
+)
+
+def _render_robot(color_hex, px=96):
+    """Render the FA robot SVG to RGBA numpy array, recolored."""
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 85 2048 1835" '
+        'width="{px}" height="{px}"><style>path{{fill:{c};}}</style>'
+        '<path transform="translate(1006,85)" d="m0 0h35l19 3 21 6 19 8 16 9 15 11 '
+        '12 11 12 12 12 16 9 16 8 17 6 19 4 20 1 8v31l-4 23-7 23-9 19-10 16-11 14'
+        '-12 13-11 9-15 11-25 13-20 7h-3l-1 177h527l24 3 22 5 22 8 16 8 14 8 13 9'
+        ' 13 10 16 15v2h2l9 11 10 13 11 18 8 16 6 15 5 16 5 22 2 19v143h135l18 2 '
+        '18 5 18 8 16 10 13 12 9 9 10 14 9 17 7 20 3 9v433h-2l-6 20-9 19-9 13-9 '
+        '11-8 7-11 9-17 10-15 6-19 5-17 2h-133v32l-1 112-2 17-4 20-6 19-6 15-10 '
+        '20-10 15-8 11-9 10-7 8-13 12-17 13-20 12-21 10-21 7-22 5-26 3h-1132l-22'
+        '-2-23-5-24-8-25-12-17-11-13-10-10-9-18-18-13-17-11-18-8-16-6-14-6-19-4-'
+        '19-2-15-1-17v-131h-136l-16-2-21-6-17-8-12-8-11-9-12-12-10-13-9-16-7-18-'
+        '4-16v-427l9-27 8-16 8-12 10-11 12-12 13-9 14-8 16-6 18-4 10-1h137v-132l'
+        '2-25 5-25 8-24 9-20 13-22 10-13 8-10h2l2-4 11-11 11-9 13-10 22-13 17-8 '
+        '27-9 20-4 17-2h528v-169l1-7-11-3-15-6-16-8-16-10-21-18-7-8-10-12-9-14-'
+        '10-19-7-20-5-22-2-21 1-21 3-19 6-21 8-19 9-16 10-14 9-11h2l2-4 13-12 17'
+        '-12 14-8 15-7 18-6 20-4zm10 86-16 3-13 5-15 9-15 15-7 11-6 12-4 15-1 8v'
+        '15l3 15 5 13 6 11 8 10 9 9 14 9 11 5 10 3 7 1h24l16-4 17-8 13-10 7-7 7-'
+        '10 8-16 4-16 1-17-2-14-5-16-8-15-9-11-9-8-15-9-13-5-16-3zm-64 511-492 1'
+        '-16 2-15 4-17 7-15 9-10 8-12 11-11 14-8 13-8 19-5 21-1 9v918l3 19 7 21 '
+        '8 15 10 14 11 12 9 8 15 10 16 8 15 5 15 3 11 1h1124l16-2 19-5 16-7 15-9'
+        ' 11-9 10-9 11-14 8-13 7-17 4-13 3-21v-910l-2-18-4-16-6-15-8-15-9-12-9-'
+        '10-10-9-15-10-21-10-18-5-14-2-477-1zm-826 342-11 2-12 6-5 4v2h-2l-6 10-'
+        '3 7-1 5v397l3 11 7 11 9 7 10 5 10 2h130v-469zm1667 0-1 19v450h127l14-2 '
+        '13-7 8-8 6-12 2-9v-392l-2-10-6-12-5-6-11-7-10-3-7-1z"/>'
+        '<path transform="translate(1270,938)" d="m0 0h21l19 3 21 7 17 9 11 8 10 9'
+        ' 10 10 10 14 7 12 8 21 4 20v31l-4 20-6 16-7 14-9 13-9 11h-2l-2 4-14 11-'
+        '11 7-16 8-20 6-17 3h-23l-17-3-17-5-19-9-14-10-10-9-9-9-10-13-10-18-8-24'
+        '-3-21v-14l3-21 5-17 8-18 10-15 10-11 5-6 11-9 14-9 14-7 18-6zm9 86-12 2'
+        '-12 6-7 6-6 10-4 13v11l2 9 6 11 9 9 12 6 5 1h16l11-4 9-6 8-9 5-12 1-6v-'
+        '10l-4-13-7-11-11-8-11-4z"/>'
+        '<path transform="translate(758,938)" d="m0 0h21l19 3 21 7 17 9 11 8 10 9 '
+        '10 10 10 14 7 12 8 21 4 20v31l-4 20-6 16-7 14-9 13-9 11h-2l-2 4-14 11-11'
+        ' 7-16 8-20 6-17 3h-23l-17-3-17-5-19-9-14-10-10-9-9-9-10-13-10-18-7-20-3'
+        '-15-1-10v-14l3-21 5-17 8-18 10-15 10-11 5-6 11-9 14-9 14-7 18-6zm9 86-12'
+        ' 2-12 6-7 6-6 10-4 13v11l2 9 6 11 9 9 12 6 5 1h16l11-4 9-6 8-9 5-12 1-6'
+        'v-10l-4-13-7-11-11-8-11-4z"/>'
+        '<path transform="translate(806,1441)" d="m0 0h9l11 3 31 14 23 9 21 7 32 8'
+        ' 21 4 32 4 13 1h49l32-3 30-5 30-7 36-12 26-11 17-8 9-3 11-1 12 2 10 5 10'
+        ' 9 6 10 3 9v18l-4 10-6 9-9 8-17 9-25 11-27 10-25 8-32 8-26 5-29 4-21 2-'
+        '18 1h-37l-29-2-31-4-22-4-22-5-29-8-32-11-28-12-21-10-9-7-7-8-5-10-2-11 '
+        '1-12 5-12 6-8 8-7 10-5z"/></svg>'
+    ).format(px=px, c=color_hex)
+    png = cairosvg.svg2png(bytestring=svg.encode(), output_width=px, output_height=px)
+    img = Image.open(io.BytesIO(png)).convert('RGBA')
+    return np.array(img)
+
+def place_robot(x, y, w, color='#1a5c8a', px=96):
+    """Place robot icon centred at (x,y); w = width in data units.
+    Height is auto-corrected so the icon appears square in inches."""
+    arr = _render_robot(color, px=px)
+    # Axes are NOT square: FW=18in, FH=9.5in, data x=18, data y=10.5
+    # → 1 data-x unit = 1 in/unit, 1 data-y unit = 0.905 in/unit
+    h = w * (18.0 / 9.5) * (10.5 / 18.0)   # = w * (10.5/9.5) ≈ w*1.105
+    extent = [x - w/2, x + w/2, y - h/2, y + h/2]
+    ax.imshow(arr, extent=extent, aspect='auto', zorder=10, clip_on=False)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(SCRIPT_DIR, 'workflow.pdf')
@@ -84,6 +170,26 @@ def diamond(cx, cy, w, h, fc=ORN, ec=ORN_E, lw=2.0, z=3):
     verts = [[cx, cy+h/2], [cx+w/2, cy], [cx, cy-h/2], [cx-w/2, cy]]
     ax.add_patch(Polygon(verts, closed=True, fc=fc, ec=ec, lw=lw, zorder=z))
 
+def cyl(cx, cy, w, h, fc, ec, lw=1.5, z=3):
+    """Draw a database-style cylinder centred at (cx,cy)."""
+    import matplotlib.colors as mc
+    eh = w * 0.24          # ellipse height (top/bottom cap)
+    body_bot = cy - h/2 + eh/2
+    body_top = cy + h/2 - eh/2
+    bx = cx - w/2
+    # Body rectangle
+    ax.add_patch(plt.Polygon(
+        [[bx, body_bot],[bx+w, body_bot],[bx+w, body_top],[bx, body_top]],
+        closed=True, fc=fc, ec='none', zorder=z, clip_on=False))
+    ax.plot([bx,    bx   ], [body_bot, body_top], color=ec, lw=lw, zorder=z+1, clip_on=False)
+    ax.plot([bx+w, bx+w  ], [body_bot, body_top], color=ec, lw=lw, zorder=z+1, clip_on=False)
+    # Bottom cap ellipse
+    ax.add_patch(Ellipse((cx, body_bot), w, eh, fc=fc, ec=ec, lw=lw, zorder=z+1, clip_on=False))
+    # Top cap ellipse — slightly lighter
+    r,g,b = mc.to_rgb(fc)
+    fc_top = (min(r*1.25,1), min(g*1.25,1), min(b*1.25,1))
+    ax.add_patch(Ellipse((cx, body_top), w, eh, fc=fc_top, ec=ec, lw=lw, zorder=z+2, clip_on=False))
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # 1.  BENCHMARKS PANEL
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -143,7 +249,7 @@ T(LX+LW/2, TOP-0.30, 'Hyperparameter Optimization Loop',
 
 # ── 2a. Methods sub-panel ─────────────────────────────────────────────────────
 MPX = LX+0.18; MPW = LW-0.36
-MPY = BOT + H*0.510; MPH = TOP - 0.52 - MPY
+MPY = BOT + H*0.543; MPH = TOP - 0.52 - MPY
 R(MPX, MPY, MPW, MPH, fc='white', ec=GRN_E, lw=1.0, rr=0.10, z=2, alpha=0.9)
 T(MPX+MPW/2, MPY+MPH-0.24, 'Optimization Methods', fs=11, fw='bold')
 
@@ -174,9 +280,16 @@ def mbox(bx, bw, title, lines, style='blue'):
     for i, ln in enumerate(lines):
         T(cx, MBY+MBH-0.56-i*0.32, ln, fs=8)
 
-mbox(X_LLM,  LLM_W, 'LLM Agent',
+mbox(X_LLM,  LLM_W, '',            # title drawn manually below to accommodate icon
      ['MiniMax-M2.1 (OpenRouter)', 'Phase-aware prompting',
       'Dedup guard · 4 retries'])
+# Robot icon + title: icon left, title shifted right
+_LLM_CX   = X_LLM + LLM_W/2
+_TITLE_Y   = MBY + MBH - 0.26
+_ICON_W    = 0.28          # width in data-x units ≈ 0.28 inches
+_ICON_CX   = X_LLM + 0.20 + _ICON_W/2
+place_robot(_ICON_CX, _TITLE_Y, w=_ICON_W, color='#1a5c8a')
+T(_LLM_CX + 0.10, _TITLE_Y, 'LLM Agent', fs=9.5, fw='bold')
 
 # History Buffer H_t  — inside LLM Agent, at the bottom
 HBM = 0.12
@@ -184,7 +297,7 @@ HBX = X_LLM + HBM;  HBW = LLM_W - 2*HBM
 HBH = MBH * 0.30;   HBY = MBY + HBM
 R(HBX, HBY, HBW, HBH, fc=HIST, ec=HIST_E, lw=1.8, rr=0.08, z=4)
 HT_CX = HBX + HBW/2;  HT_CY = HBY + HBH/2
-T(HT_CX, HBY+HBH*0.68, r'$\mathcal{H}_t$  History Buffer',
+T(HT_CX, HBY+HBH*0.68, r'$H_t$  History Buffer',
   fs=8.5, fw='bold', c='#8B0000')
 T(HT_CX, HBY+HBH*0.28, 'past (config, score) pairs', fs=7.5, c='#555')
 
@@ -220,9 +333,6 @@ T(CC, CFG_Y+CFG_H-0.26, '≡  Config Proposal', fs=10.5, fw='bold')
 T(CC, CFG_Y+CFG_H-0.58, '{ engine: FaissFlat  |  FaissHNSWFlat }', fs=9.5)
 T(CC, CFG_Y+CFG_H-0.88,
   'M ∈ [8,64]  ·  efConstruction ∈ [100,500]  ·  efSearch ∈ [16,512]', fs=9)
-T(CC, CFG_Y+0.22,
-  '(FaissFlat: no extra params   ·   FaissIVFFlat: excluded at 1M scale)',
-  fs=7.5, c='#666', st='italic')
 
 # ── 2c. Phase bar ──────────────────────────────────────────────────────────────
 PH_X = LX+0.18;  PH_W = LW-0.36
@@ -287,12 +397,13 @@ R(VDMS_X, VDMS_Y, VDMS_W, VDMS_H, fc=GRN, ec=GRN_E, lw=2.0, rr=0.12, z=2)
 T(VDMS_X+VDMS_W/2, VDMS_Y+VDMS_H-0.28,
   'VDMS  (Apptainer container)', fs=11, fw='bold')
 
-# Vector Store
+# Vector Store — cylinder (matches original drawio database shape)
 VS_X = VDMS_X+0.22; VS_W = VDMS_W-0.44
 VS_Y = VDMS_Y+VDMS_H*0.35; VS_H = VDMS_H*0.53
-R(VS_X, VS_Y, VS_W, VS_H, fc=VS_F, ec=VS_E, lw=1.5, rr=0.10, z=3)
-T(VS_X+VS_W/2, VS_Y+VS_H*0.58, 'Vector Store', fs=11, fw='bold', c='white')
-T(VS_X+VS_W/2, VS_Y+VS_H*0.24, '(batch ≤ 50 per AddDescriptor)', fs=8, c='#ddd')
+VS_CX = VS_X + VS_W/2;  VS_CY = VS_Y + VS_H/2
+cyl(VS_CX, VS_CY, VS_W, VS_H, fc=VS_F, ec=VS_E, lw=1.5, z=3)
+T(VS_CX, VS_CY + VS_H*0.10, 'Vector Store', fs=11, fw='bold', c='white', z=5)
+T(VS_CX, VS_CY - VS_H*0.18, '(batch ≤ 50 per AddDescriptor)', fs=8, c='#ddd', z=5)
 
 # Engine rows
 EX = VDMS_X+0.22; EW = VDMS_W-0.44
