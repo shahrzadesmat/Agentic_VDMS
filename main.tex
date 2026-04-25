@@ -158,26 +158,22 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-The standard assumption of parameter independence in hyperparameter optimization
-breaks down for multi-stage retrieval: ANN search depth and cross-modal reranking
-weight are fundamentally coupled, and the optimal point on their joint frontier is
-unreachable by any method that models them in isolation.
-State-of-the-art HPO methods --- Bayesian TPE and Gaussian Process BO --- are built
-on this independence assumption and therefore fail structurally on this problem
-class, regardless of evaluation budget.
-We present a phase-aware LLM agent that addresses this through history-conditioned
-reasoning: each configuration proposal is conditioned on the full observed trajectory
-of (configuration, score) pairs, enabling explicit navigation of the coupled
-search-depth--fusion-weight frontier across self-regulated exploration, exploitation,
-and fine-tuning phases without a surrogate model.
-On HICO-DET, a 47{,}776-image, 600-category human-object interaction retrieval
-benchmark deployed on Intel VDMS, the agent outperforms Optuna~TPE by $9.7\%$ and
-Gaussian Process BO by $3.3\%$ in accuracy--throughput score.
-We further validate a \emph{complexity-proportional thesis} across three benchmarks:
-the advantage compresses to under $0.5\%$ on GLDv2 and \emph{inverts} on SIFT1M,
-where the near-independent configuration space makes all methods competitive ---
-establishing that the agent's gains are a precise function of
-configuration-landscape coupling, not a general-purpose HPO improvement.
+Parameter coupling is the hidden failure mode in retrieval system configuration.
+When ANN search depth and fusion weight interact, optimizers that assume independence
+explore the wrong frontier --- no matter how many trials they run.
+
+We propose an LLM agent that reasons through a closed feedback loop.
+The history $\mathcal{H}_t$ grows with every trial; each new proposal builds on it.
+The agent self-regulates across exploration, exploitation, and fine-tuning.
+
+On HICO-DET, deployed on Intel VDMS, the agent delivers a $13.6\times$ throughput
+gain over UniIR. It outperforms Optuna~TPE by $+33.3\%$ in accuracy-throughput score
+and GP-BO by $+50.7\%$.
+
+We validate across a coupling spectrum: HICO-DET (high coupling), GLDv2 (moderate
+coupling), and SIFT1M (near-independent control). The advantage compresses
+monotonically: $+33.3\%\to+1.2\%\to{<}+0.1\%$. Deploy the LLM agent where coupling
+dominates; standard methods suffice otherwise.
 \end{abstract}
 
 \maketitle
