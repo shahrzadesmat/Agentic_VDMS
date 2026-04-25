@@ -165,9 +165,9 @@ parameters, yet traditional hyperparameter optimization (HPO) methods ---
 including Bayesian TPE and Gaussian Process BO --- rely on an independence assumption
 that fundamentally prevents them from navigating these entangled configuration spaces.
 
-We propose a phase-aware LLM agent that reasons through a closed feedback loop.
-The history $\mathcal{H}_t$ grows with every trial; each new proposal builds on it.
-The agent self-regulates across exploration, exploitation, and fine-tuning.
+We address this limitation with a phase-aware LLM agent that learns from its own
+optimization history to intelligently navigate the coupled parameter space across
+self-regulated exploration, exploitation, and fine-tuning phases.
 
 Evaluated on the HICO-DET benchmark using Intel VDMS, our agent outperforms
 Optuna~TPE by $+33.3\%$ and GP-BO by $+50.7\%$ in accuracy-throughput score.
