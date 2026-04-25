@@ -164,15 +164,12 @@ Modern multi-stage retrieval systems require the joint optimization of highly co
 parameters, yet traditional hyperparameter optimization (HPO) methods ---
 including Bayesian TPE and Gaussian Process BO --- rely on an independence assumption
 that fundamentally prevents them from navigating these entangled configuration spaces.
-
 We address this limitation with a phase-aware LLM agent that operates as a
 feedback loop --- learning from its own optimization history to navigate the coupled
 parameter space across self-regulated exploration, exploitation, and fine-tuning phases.
-
 Evaluated on the HICO-DET benchmark using Intel VDMS, our agent outperforms
-Optuna~TPE by $+33.3\%$ and GP-BO by $+50.7\%$ in accuracy-throughput score.
-It delivers a $15.3\times$ throughput gain over UniIR.
-
+Optuna~TPE by $+33.3\%$ and GP-BO by $+50.7\%$ in accuracy-throughput score,
+delivering a $15.3\times$ throughput gain over UniIR.
 Validation across three benchmarks confirms that the agent's advantage grows with
 the degree of parameter coupling: $+33.3\%$ on HICO-DET (high coupling),
 $+1.2\%$ on GLDv2 (moderate coupling), and $<+0.1\%$ on SIFT1M (near-independent control).
