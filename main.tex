@@ -1367,8 +1367,7 @@ We evaluate four methods (LLM Agent, Optuna TPE, Grid, Random; GP-BO omitted) un
 \centering
 \caption{Optimizer comparison on SIFT1M (1M SIFT vectors, 10{,}000 queries,
   50 iterations, seed~42). Score $=$ QPS if Recall@10\,$\geq\tau$ else $0$ ($\tau{=}0.90$).
-  \emph{Iters$\to$Best}: first iteration achieving the reported best score.
-  $^\dagger$LLM result pending (job in queue).}
+  \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
 \label{tab:sift1m}
 \resizebox{\columnwidth}{!}{%
 \small
@@ -1379,8 +1378,8 @@ We evaluate four methods (LLM Agent, Optuna TPE, Grid, Random; GP-BO omitted) un
 \midrule
 Random Search             & 1160.4 & 0.9124 & 23/50 \\
 Optuna TPE                & 1163.5 & 0.9147 & 42/50 \\
-\textbf{Grid Search}      & \textbf{1174.4} & \textbf{0.9146} & \textbf{5/50} \\
-\textbf{LLM Agent (Ours)}$^\dagger$ & --- & --- & --- \\
+Grid Search               & 1174.4 & 0.9146 & 5/50 \\
+\textbf{LLM Agent (Ours)} & \textbf{1175.0} & \textbf{0.9141} & \textbf{31/50} \\
 \bottomrule
 \end{tabular}}
 \end{table}
