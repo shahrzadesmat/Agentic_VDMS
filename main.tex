@@ -1314,10 +1314,9 @@ The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from te
 \begin{table}[t]
 \centering
 \caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries,
-  50 iterations, seed~42; Grid: 30 iterations).
+  50 iterations, seed~42).
   Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$).
-  \emph{Iters$\to$Best}: first iteration achieving the reported best score.
-  $^\dagger$LLM result pending (job in queue).}
+  \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
 \label{tab:gldv2}
 \resizebox{\columnwidth}{!}{%
 \small
@@ -1326,21 +1325,23 @@ The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from te
 \toprule
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
+GP-BO                         & 3.65   & 0.1789 & 0.2131 & 20.39  & 24/50 \\
 Random Search                 & 255.97 & 0.1597 & 0.1954 & 255.97 & 48/50 \\
 Optuna TPE                    & 272.98 & 0.1614 & 0.1968 & 272.98 & 41/50 \\
-\textbf{Grid Search}          & \textbf{273.79} & \textbf{0.1615} & \textbf{0.1965} & \textbf{273.79} & \textbf{6/30} \\
+Grid Search                   & 272.98 & 0.1615 & 0.1965 & 272.98 & 6/50  \\
 \midrule
-\textbf{LLM Agent (Ours)}$^\dagger$ & --- & --- & --- & --- & --- \\
+\textbf{LLM Agent (Ours)}     & \textbf{276.30} & \textbf{0.1615} & \textbf{0.1964} & \textbf{276.30} & \textbf{40/50} \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 \noindent\textbf{Overall performance.}
-Among the completed runs (Grid Search, Optuna TPE, Random Search; LLM Agent pending),
-Grid Search currently leads with Score $= \textbf{273.79}$ (QPS when mAP$\geq\tau{=}0.15$),
-marginally ahead of Optuna TPE ($272.98$) and Random Search ($255.97$).
+The LLM Agent achieves the highest score of $\textbf{276.30}$ QPS (mAP$\geq\tau{=}0.15$),
+narrowly ahead of Optuna TPE and Grid Search (both $272.98$) and Random Search ($255.97$).
+GP-BO attains the highest mAP ($0.1789$) but low QPS ($20.39$), failing to balance
+accuracy and speed under the SIEVE objective.
 The performance gap between methods is substantially compressed relative to HICO-DET
-(${\lesssim}0.7\%$ spread among grid/Optuna vs.\ $9.7\%$), a pattern we analyse further
+(${\lesssim}1.3\%$ spread among the top-4 vs.\ $9.7\%$), a pattern we analyse further
 in Section~\ref{sec:sift1m}.
 
 \noindent\textbf{Scale effects.}
