@@ -158,6 +158,8 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
+Vector retrieval powers modern AI applications --- visual search, recommendation,
+and multimodal question answering all depend on it.
 Parameter coupling is the hidden failure mode in retrieval system configuration.
 When ANN search depth and fusion weight interact, optimizers that assume independence
 explore the wrong frontier --- no matter how many trials they run.
@@ -171,8 +173,8 @@ gain over UniIR. It outperforms Optuna~TPE by $+33.3\%$ in accuracy-throughput s
 and GP-BO by $+50.7\%$.
 
 We validate across a coupling spectrum: HICO-DET (high coupling), GLDv2 (moderate
-coupling), and SIFT1M (near-independent control). The advantage compresses
-from $+33.3\%$ on HICO-DET to $+1.2\%$ on GLDv2 to $<+0.1\%$ on SIFT1M.
+coupling), and SIFT1M (near-independent control). The agent's advantage grows with
+coupling: $+33.3\%$ on HICO-DET, $+1.2\%$ on GLDv2, $<+0.1\%$ on SIFT1M.
 Deploy the LLM agent where coupling dominates; standard methods suffice otherwise.
 \end{abstract}
 
