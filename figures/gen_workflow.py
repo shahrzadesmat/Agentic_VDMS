@@ -173,7 +173,7 @@ def diamond(cx, cy, w, h, fc=ORN, ec=ORN_E, lw=2.0, z=3):
 def cyl(cx, cy, w, h, fc, ec, lw=1.5, z=3):
     """Draw a database-style cylinder centred at (cx,cy)."""
     import matplotlib.colors as mc
-    eh = w * 0.24          # ellipse height (top/bottom cap)
+    eh = min(w * 0.24, h * 0.20)   # cap so it looks like a cylinder, not a disk
     body_bot = cy - h/2 + eh/2
     body_top = cy + h/2 - eh/2
     bx = cx - w/2
@@ -197,28 +197,31 @@ R(BX, BOT, BW, H, fc='none', ec='#888888', lw=1.5, rr=0.15, z=1,
   ls=DASH_PAT)
 T(BX+BW/2, TOP-0.30, 'Benchmarks', fs=12, fw='bold')
 
-# Three boxes stacked evenly, clear of the title
-TITLE_GAP = 0.70        # space reserved at top for "Benchmarks" label
-BOT_GAP   = 0.20        # small bottom margin inside panel
-B_GAP     = 0.18        # gap between boxes
-AVAIL_B   = H - TITLE_GAP - BOT_GAP - 2*B_GAP
-BH3       = AVAIL_B / 3                    # ≈ 2.06 in
+# Three boxes — fixed height, centred vertically in panel below title
+TITLE_GAP = 0.60
+BH3       = 1.60
+B_GAP     = 0.18
 BI_X      = BX + 0.15
 BI_W      = BW - 0.30
 
-HIC_Y  = BOT + BOT_GAP
+_slack   = H - TITLE_GAP - 3*BH3 - 2*B_GAP
+_bot_off = max(0.12, _slack / 2)
+HIC_Y  = BOT + _bot_off
 GLD_Y  = HIC_Y  + BH3 + B_GAP
 SIFT_Y = GLD_Y  + BH3 + B_GAP
 
 def bench(label, line1, line2, score_line, by):
     R(BI_X, by, BI_W, BH3, fc=BLU, ec=BLU_E, lw=1.5, rr=0.10, z=2)
     cx = BI_X + BI_W/2
-    T(cx, by+BH3-0.28, label,      fs=10.5, fw='bold')
-    T(cx, by+BH3-0.58, line1,      fs=8)
+    T(cx, by+BH3-0.26, label,      fs=10, fw='bold')
+    T(cx, by+BH3-0.52, line1,      fs=7.5)
     if line2:
-        T(cx, by+BH3-0.85, line2,  fs=8)
-    T(cx, by+0.46,     score_line, fs=7.5, st='italic', c='#333')
-    T(cx, by+0.18,     'else  0',  fs=7.5, st='italic', c='#333')
+        T(cx, by+BH3-0.76, line2,      fs=7.5)
+        T(cx, by+BH3-1.07, score_line, fs=7.5, st='italic', c='#333')
+        T(cx, by+BH3-1.33, 'else  0',  fs=7.5, st='italic', c='#333')
+    else:
+        T(cx, by+BH3-0.76, score_line, fs=7.5, st='italic', c='#333')
+        T(cx, by+BH3-1.02, 'else  0',  fs=7.5, st='italic', c='#333')
 
 bench('SIFT1M',
       '1,000,000 vectors · 128-dim',
@@ -249,7 +252,7 @@ T(LX+LW/2, TOP-0.30, 'Hyperparameter Optimization Loop',
 
 # ── 2a. Methods sub-panel ─────────────────────────────────────────────────────
 MPX = LX+0.18; MPW = LW-0.36
-MPY = BOT + H*0.590; MPH = TOP - 0.52 - MPY
+MPY = BOT + H*0.625; MPH = TOP - 0.52 - MPY
 R(MPX, MPY, MPW, MPH, fc='white', ec=GRN_E, lw=1.0, rr=0.10, z=2, alpha=0.9)
 T(MPX+MPW/2, MPY+MPH-0.24, 'Optimization Methods', fs=11, fw='bold')
 
@@ -278,7 +281,7 @@ def mbox(bx, bw, title, lines, style='blue'):
     cx = bx + bw/2
     T(cx, MBY+MBH-0.26, title, fs=9.5, fw='bold')
     for i, ln in enumerate(lines):
-        T(cx, MBY+MBH-0.48-i*0.27, ln, fs=8)
+        T(cx, MBY+MBH-0.48-i*0.25, ln, fs=8)
 
 mbox(X_LLM,  LLM_W, '',            # title drawn manually below to accommodate icon
      ['MiniMax-M2.1 (OpenRouter)', 'Phase-aware prompting',
@@ -294,7 +297,7 @@ T(_LLM_CX + 0.10, _TITLE_Y, 'LLM Agent', fs=9.5, fw='bold')
 # History Buffer H_t  — inside LLM Agent, at the bottom
 HBM = 0.12
 HBX = X_LLM + HBM;  HBW = LLM_W - 2*HBM
-HBH = MBH * 0.27;   HBY = MBY + HBM
+HBH = MBH * 0.25;   HBY = MBY + HBM
 R(HBX, HBY, HBW, HBH, fc=HIST, ec=HIST_E, lw=1.8, rr=0.08, z=4)
 HT_CX = HBX + HBW/2;  HT_CY = HBY + HBH/2
 T(HT_CX, HBY+HBH*0.68, r'$H_t$  History Buffer',
@@ -399,7 +402,7 @@ T(VDMS_X+VDMS_W/2, VDMS_Y+VDMS_H-0.28,
 
 # Vector Store — cylinder (matches original drawio database shape)
 VS_X = VDMS_X+0.22; VS_W = VDMS_W-0.44
-VS_Y = VDMS_Y+VDMS_H*0.35; VS_H = VDMS_H*0.53
+VS_Y = VDMS_Y+VDMS_H*0.42; VS_H = VDMS_H*0.42
 VS_CX = VS_X + VS_W/2;  VS_CY = VS_Y + VS_H/2
 cyl(VS_CX, VS_CY, VS_W, VS_H, fc=VS_F, ec=VS_E, lw=1.5, z=3)
 T(VS_CX, VS_CY + VS_H*0.10, 'Vector Store', fs=11, fw='bold', c='white', z=5)
