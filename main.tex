@@ -160,9 +160,9 @@
 \begin{abstract}
 Vector retrieval powers modern AI applications --- visual search, recommendation,
 and multimodal question answering all depend on it.
-Parameter coupling is the hidden failure mode in retrieval system configuration.
-When ANN search depth and fusion weight interact, optimizers that assume independence
-explore the wrong frontier --- no matter how many trials they run.
+Modern retrieval systems require joint optimization of highly coupled parameters.
+Bayesian TPE and Gaussian Process BO assume independence --- a structural mismatch
+that prevents them from navigating these spaces, no matter how many trials they run.
 
 We propose a phase-aware LLM agent that reasons through a closed feedback loop.
 The history $\mathcal{H}_t$ grows with every trial; each new proposal builds on it.
