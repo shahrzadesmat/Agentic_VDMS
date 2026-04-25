@@ -160,9 +160,10 @@
 \begin{abstract}
 Retrieval systems underpin modern AI applications --- spanning visual search,
 recommendation engines, and multimodal question answering at billion-scale.
-Modern retrieval systems require joint optimization of highly coupled parameters.
-Bayesian TPE and Gaussian Process BO assume independence --- a structural mismatch
-that prevents them from navigating these spaces, no matter how many trials they run.
+Modern multi-stage retrieval systems require the joint optimization of highly coupled
+parameters, yet traditional hyperparameter optimization (HPO) methods ---
+including Bayesian TPE and Gaussian Process BO --- rely on an independence assumption
+that fundamentally prevents them from navigating these entangled configuration spaces.
 
 We propose a phase-aware LLM agent that reasons through a closed feedback loop.
 The history $\mathcal{H}_t$ grows with every trial; each new proposal builds on it.
