@@ -124,7 +124,7 @@ ORN,  ORN_E  = '#ffe6cc', '#d79b00'
 GRY,  GRY_E  = '#f5f5f5', '#666666'
 VS_F, VS_E   = '#6d8764', '#4d6144'
 HNSW, HNSW_E = '#cbf0cb', '#1a7a1a'
-HIST, HIST_E = '#fce4d6', '#c0392b'
+HIST, HIST_E = '#f5b8d0', '#b84080'
 FBARR        = '#b85450'
 DASH_PAT     = (0, (7, 3))
 
@@ -249,7 +249,7 @@ T(LX+LW/2, TOP-0.30, 'Hyperparameter Optimization Loop',
 
 # ── 2a. Methods sub-panel ─────────────────────────────────────────────────────
 MPX = LX+0.18; MPW = LW-0.36
-MPY = BOT + H*0.543; MPH = TOP - 0.52 - MPY
+MPY = BOT + H*0.590; MPH = TOP - 0.52 - MPY
 R(MPX, MPY, MPW, MPH, fc='white', ec=GRN_E, lw=1.0, rr=0.10, z=2, alpha=0.9)
 T(MPX+MPW/2, MPY+MPH-0.24, 'Optimization Methods', fs=11, fw='bold')
 
@@ -278,7 +278,7 @@ def mbox(bx, bw, title, lines, style='blue'):
     cx = bx + bw/2
     T(cx, MBY+MBH-0.26, title, fs=9.5, fw='bold')
     for i, ln in enumerate(lines):
-        T(cx, MBY+MBH-0.56-i*0.32, ln, fs=8)
+        T(cx, MBY+MBH-0.48-i*0.27, ln, fs=8)
 
 mbox(X_LLM,  LLM_W, '',            # title drawn manually below to accommodate icon
      ['MiniMax-M2.1 (OpenRouter)', 'Phase-aware prompting',
@@ -294,7 +294,7 @@ T(_LLM_CX + 0.10, _TITLE_Y, 'LLM Agent', fs=9.5, fw='bold')
 # History Buffer H_t  — inside LLM Agent, at the bottom
 HBM = 0.12
 HBX = X_LLM + HBM;  HBW = LLM_W - 2*HBM
-HBH = MBH * 0.30;   HBY = MBY + HBM
+HBH = MBH * 0.27;   HBY = MBY + HBM
 R(HBX, HBY, HBW, HBH, fc=HIST, ec=HIST_E, lw=1.8, rr=0.08, z=4)
 HT_CX = HBX + HBW/2;  HT_CY = HBY + HBH/2
 T(HT_CX, HBY+HBH*0.68, r'$H_t$  History Buffer',
@@ -322,7 +322,7 @@ T(X_GRD+GRD_W/2, MBY+RND_H*0.25, 'Uniform sampling', fs=8)
 
 # Arrows: each method bottom → Config Proposal top
 for cx in [X_LLM+LLM_W/2, X_GPBO+NOm_W/2, X_OPT+NOm_W/2, X_GRD+GRD_W/2]:
-    routed([(cx, MBY), (cx, BOT+H*0.338)], BLU_E, lw=1.2)
+    routed([(cx, MBY), (cx, BOT+H*0.508)], BLU_E, lw=1.2)
 
 # ── 2b. Config Proposal ────────────────────────────────────────────────────────
 CFG_X = LX+0.75;  CFG_W = LW-1.50
