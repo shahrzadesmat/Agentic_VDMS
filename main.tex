@@ -1164,13 +1164,10 @@ by conditioning each proposal on the full history of observed outcomes.
     for five optimizer methods on HICO-DET over 50 iterations. LLM Agent outpaces all baselines
     by iteration 4, reaching a final mean score of 300.3; Optuna TPE and GP-BO plateau at
     225.2 and 199.3; Grid and Random Search plateau below 184.}
-  \caption{Best Score vs.\ iteration on HICO-DET, SIEVE metric
-    (mean curves; $\pm 1\sigma$ band shown for LLM Agent; 3 seeds except Grid: 1 run).
-    The LLM Agent outpaces all baselines within 5 iterations, reaching a final mean
-    score of $\mathbf{300.3}$; Optuna TPE and GP-BO plateau at $225.2$ and $199.3$
-    respectively.
-    The agent achieves $2{\times}$ faster convergence, reaching its peak at
-    iteration~23 compared to iteration~41 for Grid Search and Optuna TPE.}
+  \caption{Best SIEVE Score vs.\ iteration on HICO-DET
+    (mean; $\pm 1\sigma$ band for LLM Agent; 3 seeds except Grid).
+    LLM Agent surpasses all baselines within 5 iterations, reaching
+    $\mathbf{300.3}$ at iteration~23 vs.\ 225.2 (Optuna) and 183.0 (Grid) at iteration~41.}
   \label{fig:convergence}
 \end{figure}
 
