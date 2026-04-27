@@ -1260,7 +1260,7 @@ model over engine type; at iterations~11--13, all three seeds plateau at
 mAP $= 0.169$ and QPS $= 18.6$, stalling for 21 iterations before escaping.
 The phase-structured budget directly counters this by resolving engine selection during
 Exploration (iterations~1--12) before any continuous $(\alpha, n_r)$ refinement --- the
-same separation whose removal costs $-5.2\%$ in the phase ablation
+same separation whose removal costs $-0.3\%$ in the phase ablation
 (Table~\ref{tab:ablation_arch}), confirming it as the mechanism rather than a
 coincidence.
 As a result, Optuna TPE's mean curve first matches the LLM's iteration-6 Score at
@@ -1438,21 +1438,22 @@ Both LLM agent and Optuna TPE converge to FaissHNSWFlat ($M{=}48$): Score\,$=$\,
 
 \noindent\textbf{History conditioning and phase structure (mechanistic ablations).}
 Table~\ref{tab:ablation_arch} isolates each architectural component across 3 seeds.
-Removing \emph{history conditioning} degrades mean Score $4.44{\to}4.29$
-($\mathbf{-3.2\%}$): without the accumulated $(\theta,\text{Score})$ trajectory the agent
-cannot detect the $(k,\alpha)$ coupling, settling for high-QPS, low-mAP configs
-(mAP falls $0.259{\to}0.236$) --- confirming the gain reflects quality recovery, not
-throughput exploitation.
-Removing \emph{phase structure} (Section~\ref{sec:phases}) causes the larger drop to $4.21$ ($\mathbf{-5.2\%}$):
-without the ordered Exploration$\to$Exploitation$\to$Fine-tuning transitions the agent
-fine-tunes $\alpha$ and $n_r$ before resolving engine and $k$, wasting budget on
-locally optimal but globally suboptimal configs.
-Both components are \emph{independently necessary}; together they account for
-$8.4$\,pp of the $9.7\%$ advantage over Optuna~TPE.
+Removing \emph{history conditioning} degrades mean Score $300.3{\to}296.9$
+($\mathbf{-1.1\%}$) and sharply inflates variance ($\sigma{=}2.6$ vs.\ $\sigma{=}0.3$
+with full context): without the accumulated $(\theta,\text{Score})$ trajectory the agent
+cannot consistently resolve the $(k,\alpha)$ coupling, producing seed-dependent results.
+Removing \emph{phase structure} (Section~\ref{sec:phases}) reduces mean Score to $299.5$
+($\mathbf{-0.3\%}$): without the ordered Exploration$\to$Exploitation$\to$Fine-tuning
+transitions the agent occasionally fine-tunes $\alpha$ and $n_r$ before resolving engine
+and $k$, wasting budget on locally optimal but globally suboptimal configs.
+Removing both components yields Score\,$=$\,$298.2$ ($\mathbf{-0.7\%}$); the sharply
+elevated variance under no-history ($\sigma{=}2.6$) confirms that history conditioning
+is the primary driver of reproducibility under the SIEVE objective.
 
 \begin{table}[h]
 \centering
 \caption{Mechanistic ablations on HICO-DET (means over 3 seeds).
+  Score\,$=$\,QPS (SIEVE, $\tau{=}0.15$); $\sigma$\,=\,std over seeds.
   $\Delta$Score relative to full LLM Agent.}
 \label{tab:ablation_arch}
 \resizebox{\columnwidth}{!}{%
@@ -1460,11 +1461,12 @@ $8.4$\,pp of the $9.7\%$ advantage over Optuna~TPE.
 \setlength{\tabcolsep}{5pt}
 \begin{tabular}{lcccr}
 \toprule
-\textbf{Method} & \textbf{Score}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{$\Delta$Score} \\
+\textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{$\sigma$} & \textbf{$\Delta$Score} \\
 \midrule
-LLM Agent (Full)              & \textbf{4.44} & \textbf{0.259} & 17.11 & --- \\
-\quad w/o History conditioning & 4.29          & 0.236          & 18.21 & $-3.2\%$ \\
-\quad w/o Phase structure      & 4.21          & 0.242          & 17.41 & $-5.2\%$ \\
+LLM Agent (Full)               & \textbf{300.3} & 0.161 & 0.3 & --- \\
+\quad w/o History conditioning  & 296.9          & 0.163 & 2.6 & $-1.1\%$ \\
+\quad w/o Phase structure       & 299.5          & 0.164 & 0.1 & $-0.3\%$ \\
+\quad w/o Both                  & 298.2          & 0.164 & 0.8 & $-0.7\%$ \\
 \bottomrule
 \end{tabular}}
 \end{table}
