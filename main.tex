@@ -861,11 +861,15 @@ structural choices before continuous ones.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.82\textwidth]{figures/prompts.pdf}
-  \Description{LLM prompt structure showing system and user prompt components.}
-  \caption{LLM prompt structure. The system prompt encodes parameter physics; the
-    user prompt supplies $g(\mathcal{H}_{t-1})$, history, and untried-value hints,
-    eliciting a structured JSON configuration response.}
+  \includegraphics[width=0.90\textwidth]{figures/prompts.pdf}
+  \Description{LLM prompt structure: a single user message encodes parameter physics,
+    diagnostic class g(H), history, and untried-value hints, eliciting a structured
+    JSON configuration response including engine, k-neighbors, alpha, n-refs,
+    ref-strategy, constraint-strategy, and reasoning fields.}
+  \caption{LLM prompt structure. A single user message encodes parameter physics,
+    the diagnostic class $g(\mathcal{H}_{t-1})$, complete history $\mathcal{H}_{t-1}$,
+    and untried-value hints (Exploitation/Fine-Tuning only), eliciting a structured
+    JSON configuration response (including \texttt{constraint\_strategy}).}
   \label{fig:prompts}
 \end{figure*}
 
