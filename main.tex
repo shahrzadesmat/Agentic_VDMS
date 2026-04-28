@@ -208,8 +208,6 @@ The source code, data, and/or other artifacts have been made available at \url{\
 \section{Introduction}
 \label{sec:intro}
 
-\added[id=SG, comment=new abstract]{Retrieval systems underpin modern AI applications — spanning visual search, recommendation engines, and multimodal question answering at billion-scale. Modern multi-stage retrieval systems require the joint optimization of highly coupled parameters, yet traditional hyperparameter optimization (HPO) methods — including Bayesian TPE and Gaussian Process BO — rely on an independence assumption that fundamentally prevents them from navigating these entangled configuration spaces. We address this limitation with a phase-aware LLM agent that learns from its own optimization history to intelligently navigate the coupled parameter space across self-regulated exploration, exploitation, and fine-tuning phases.
-Evaluated on the HICO-DET benchmark using Intel VDMS, our agent outperforms Optuna TPE by 33.3\% and Gaussian Process BO by 50.7\% under the SIEVE throughput objective (Score\,$=$\,QPS if mAP\,$\geq\tau$, else $0$). Validation across three benchmarks tells a consistent story — the agent's advantage grows with the degree of parameter coupling, compressing to ${\leq}1.3\%$ on GLDv2 and inverting on SIFT1M where parameters are nearly independent. These results position our agent as the method of choice for retrieval systems where parameter coupling is the dominant source of optimization complexity.}
 
 
 Modern vector database management systems expose a multidimensional configuration
