@@ -235,15 +235,12 @@ These methods follow a trial-and-error strategy with no cross-parameter memory: 
 and random search evaluate every candidate independently, while Bayesian methods
 such as Optuna TPE~\cite{akiba2019optuna} model each parameter with independent
 marginal distributions~\cite{bergstra2012random}.
-This independence assumption is harmless on scalar parameter spaces, but it causes
-\emph{structural} failure on multi-stage retrieval pipelines, where Stage-1 search
-depth (\textit{efSearch}) and Stage-2 fusion weight ($\alpha$) are jointly
-determined: reducing \textit{efSearch} compresses the candidate pool fed to the
-reranker, an effect that can only be compensated by raising $\alpha$.
-No parameter-independent technique models this inter-stage coupling, causing all
-three method families to systematically miss compensatory operating points ---
-configurations that are globally optimal yet structurally invisible to blind
-optimizers regardless of iteration budget.
+This independence assumption is harmless on scalar parameter spaces, but causes
+\emph{structural} failure on multi-stage retrieval pipelines: no
+parameter-independent technique can represent the \textit{efSearch}--$\alpha$
+coupling described above, causing all three method families to systematically miss
+compensatory operating points --- configurations that are globally optimal yet
+structurally invisible to blind optimizers regardless of iteration budget.
 
 The practical severity of this failure is amplified by the cost structure of ANN
 index tuning.
@@ -312,7 +309,8 @@ pure ANN search).
 Compared to state-of-the-art baselines, the agent achieves $+$33.3\%
 Score over Optuna~TPE and $+$50.7\% over GP-BO
 (a VDTuner-style Gaussian Process surrogate) on HICO-DET under the SIEVE
-throughput objective, converging in $\sim$23~iterations on average versus $\sim$41
+quality-constrained throughput objective (Section~\ref{sec:metrics}),
+converging in $\sim$23~iterations on average versus $\sim$41
 for Optuna~TPE --- a $\mathbf{36.6\times}$ improvement over the unoptimized CLIP FaissFlat reference.
 On GLDv2, the agent reaches near-optimal quality in $\sim$6~iterations
 versus $\sim$32 for Optuna~TPE\@.
