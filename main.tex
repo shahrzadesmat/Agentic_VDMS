@@ -391,7 +391,7 @@ selection via Gaussian Process regression over workload representations.
 VDTuner~\cite{yang2024vdtuner} extends this approach to multi-objective Bayesian optimization
 for VDMS HNSW parameters, improving over manual baselines, but models each parameter
 independently.
-All of these methods --- standard HPO, AutoML~\cite{feurer2015autosklearn}, and system-specific Bayesian optimization
+All of these methods --- standard HPO~\cite{bergstra2012random,snoek2012bayesian,li2018hyperband,akiba2019optuna}, AutoML~\cite{feurer2015autosklearn}, and system-specific Bayesian optimization~\cite{vanaken2017ottertune,yang2024vdtuner}
 --- treat parameters as mutually independent, a structural limitation that prevents them
 from discovering compensatory configurations across coupled retrieval stages.
 
