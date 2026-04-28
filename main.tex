@@ -224,93 +224,74 @@ Closing it demands an optimizer that reasons over how parameters interact across
 retrieval stages, not one that searches blindly.
 
 Modern retrieval pipelines compound this challenge by chaining multiple stages:
-an ANN index that produces a candidate set subsequently refined by a reranker or
-cross-modal fusion module.
+an ANN index producing a candidate set refined by a reranker or cross-modal
+fusion module.
 Systems such as VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, and
 GaussDB-Vector~\cite{sun2025gaussdb} expose 4--7 interdependent parameters ---
 graph connectivity~($M$), search depth~(\textit{efSearch}), candidate pool
 size~($k$), cross-modal fusion weight~($\alpha$), reranker reference
 count~($n_{\mathrm{refs}}$), and reference selection strategy~\cite{yang2024vdtuner}
---- where each evaluation requires a full index rebuild and query execution across
-tens of thousands of embeddings, incurring significant wall-clock cost per trial.
-These interactions are not merely non-linear but structurally coupled: reducing
+--- whose joint configuration determines both retrieval quality and throughput.
+These parameters are not merely non-linear but structurally coupled: reducing
 Stage-1 search depth (\textit{efSearch}) compresses the candidate pool fed to the
 Stage-2 reranker, a recall deficit that can only be compensated by raising the
-cross-modal fusion weight~($\alpha$) --- an inter-stage dependency invisible to any
-parameter-independent optimizer.
+fusion weight~($\alpha$) --- a dependency invisible to any parameter-independent
+optimizer.
+Compounding this, each evaluation requires a full index rebuild and query execution
+across tens of thousands of embeddings --- several minutes of wall-clock time even
+on high-end GPU hardware --- capping realistic tuning budgets at approximately
+50~iterations per method.
 
-State-of-the-art approaches automate this search via grid enumeration, random
-sampling, or Bayesian optimization~\cite{snoek2012bayesian,bergstra2012random}.
-All operate under a parameter-independence assumption: grid and random search evaluate
-every candidate in isolation, while Bayesian methods such as Optuna
-TPE~\cite{akiba2019optuna} model each parameter with independent marginal
-distributions~\cite{bergstra2012random}.
-This assumption is harmless on flat scalar configuration spaces --- standard DBMS
-knobs, pure vector-only indexes --- but causes \emph{structural} failure on
-multi-stage retrieval pipelines: no parameter-independent technique can represent
-the \textit{efSearch}--$\alpha$ coupling described above, causing all three method
-families to systematically miss the globally optimal configuration regardless of
-iteration budget.
-
-The practical severity of this structural failure is amplified by evaluation cost.
-Each trial in a production-scale system requires a full index rebuild followed by
-query execution across tens of thousands of embeddings --- several minutes of
-wall-clock time even on high-end GPU hardware --- capping a realistic tuning budget
-at approximately 50~iterations per method.
-Under this constraint, a method that spends even 10--15~early iterations in
-suboptimal regions of the \textit{efSearch}--$\alpha$ landscape does not merely
-converge slowly: it \emph{fails} to locate the globally optimal configuration
-entirely.
-The LLM agent's ability to reason explicitly about inter-stage dependencies is
-therefore not an incremental improvement --- it is the mechanism that transforms a
-50-iteration budget from insufficient to \emph{sufficient} for navigating a coupled
-configuration landscape.
-
-Two parallel threads of prior work address orthogonal aspects of this problem, yet
-neither reaches the intersection our setting requires.
-On the \emph{LLM-guided tuning} side, GPTuner~\cite{lao2024gpttuner},
+Two parallel threads of prior work address orthogonal aspects of this problem.
+On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner},
 $\lambda$-Tune~\cite{giannakouris2025lambdatune}, and
-OtterTune~\cite{vanaken2017ottertune} show that LLM reasoning and learning-based
-methods outperform Bayesian and reinforcement-learning baselines on DBMS
-configuration --- but all three operate on flat, scalar knob spaces (PostgreSQL,
-MySQL) where parameters are conditionally independent and no cross-stage coupling
-exists by construction.
-On the \emph{ANN parameter tuning} side, VDTuner~\cite{yang2024vdtuner} applies
+OtterTune~\cite{vanaken2017ottertune} demonstrate that LLM reasoning and
+learning-based methods outperform Bayesian and reinforcement-learning baselines
+on DBMS knob tuning.
+On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner} applies
 multi-objective Bayesian optimization to VDMS index parameters, and
-VSAG~\cite{zhong2025vsag} eliminates index rebuilds via analytical
-subgraph monotonicity --- but both treat parameters independently and neither models
-the coupling between \textit{efSearch} and $\alpha$ that emerges when ANN retrieval
-feeds a reranker.
-Moreover, the Gaussian Process surrogate underlying GP-BO assumes a smooth
-objective landscape; it cannot represent the hard deployment quality threshold
-that separates feasible from infeasible configurations, causing it to average
-across the boundary and converge to a boundary-avoiding suboptimum regardless of
-budget.
+VSAG~\cite{zhong2025vsag} eliminates costly index rebuilds via analytical
+subgraph monotonicity.
 
-To address these challenges, we propose a \emph{phase-aware LLM agent} for coupled
-ANN index optimization, applicable to any VDBMS exposing tunable index parameters
-and instantiated in this work on Intel's VDMS~\cite{pan2023vdms}.
-The agent conditions each configuration proposal on the complete history of measured
-(configuration, Score) pairs, reasons explicitly over cross-stage parameter
-dependencies, and self-regulates across three optimization phases --- exploration,
-exploitation, and fine-tuning --- with stagnation detection and anti-collapse
-mechanisms.
-To expose the structural limits of parameter-independent optimizers, we construct
-the \emph{first text-query image retrieval benchmark} from
-HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 fine-grained verb--object
-human-object interaction (HOI) categories --- deployed on VDMS, pairing
-CLIP~ViT-L/14 ANN retrieval with DINOv2 pseudo-relevance-feedback reranking at
-zero additional indexing cost ($+$3.65\,pp~mAP at ${<}1\%$ extra latency); we
-establish geometrically that CLIP text embeddings occupy the semantic centroid of
-each HOI visual cluster, confirming text-query superiority on compositionally
-structured data (every prior use of HICO-DET is restricted to the detection
+Yet all existing methods share a structural limitation that prevents them from
+solving our setting.
+The LLM-guided DBMS tuners operate on flat, scalar knob spaces (PostgreSQL, MySQL)
+where parameters are conditionally independent --- no cross-stage coupling exists
+by construction.
+The ANN tuning methods --- VDTuner, Optuna TPE~\cite{akiba2019optuna}, grid and
+random search~\cite{snoek2012bayesian,bergstra2012random} --- model each parameter
+independently, structurally preventing them from representing the
+\textit{efSearch}--$\alpha$ coupling above and causing all to systematically miss
+the globally optimal configuration regardless of iteration budget.
+The Gaussian Process surrogate underlying GP-BO compounds this: its smooth surface
+cannot model the hard quality threshold that separates feasible from infeasible
+configurations, causing it to average across the boundary and converge to a
+boundary-avoiding suboptimum.
+
+We propose a \emph{phase-aware LLM agent} for coupled ANN index optimization,
+applicable to any VDBMS exposing tunable index parameters and instantiated in this
+work on Intel's VDMS~\cite{pan2023vdms}.
+The agent conditions each proposal on the complete history of (configuration, Score)
+pairs, reasons explicitly over cross-stage parameter dependencies, and
+self-regulates across three optimization phases --- exploration, exploitation, and
+fine-tuning --- with stagnation detection and anti-collapse mechanisms.
+A central contribution is the \emph{first text-query image retrieval benchmark}
+built from HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 fine-grained
+verb--object human-object interaction (HOI) categories, deployed on VDMS --- the
+only benchmark rich enough to expose the structural limits of blind ANN optimizers
+(every prior use of HICO-DET is restricted to the detection
 paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
+We pair CLIP~ViT-L/14 ANN retrieval with DINOv2 pseudo-relevance-feedback
+reranking at zero additional indexing cost ($+$3.65\,pp~mAP at ${<}1\%$ extra
+latency), and prove geometrically that CLIP text embeddings occupy the semantic
+centroid of each HOI visual cluster, establishing text-query superiority on
+compositionally structured data.
 Evaluated under the SIEVE quality-constrained throughput objective
 (Section~\ref{sec:metrics}) --- Score\,$=$\,QPS when mAP\,$\geq$\,$\tau$, else~0
---- the agent achieves $+$33.3\% over Optuna~TPE and $+$50.7\% over GP-BO
-(a VDTuner-style Gaussian Process surrogate) on HICO-DET, converging at
-$\sim$23~iterations versus $\sim$41 for Optuna~TPE and delivering a
-$\mathbf{36.6\times}$ improvement over the unoptimized CLIP FaissFlat reference.
+--- the agent achieves $+$33.3\% over Optuna~TPE and $+$50.7\% over GP-BO on
+HICO-DET, converging at $\sim$23~iterations versus $\sim$41 for Optuna~TPE and
+delivering a $\mathbf{36.6\times}$ improvement over the unoptimized CLIP FaissFlat
+reference.
 On GLDv2 (762K images, image-to-image retrieval), the agent reaches near-optimal
 quality at $\sim$6~iterations versus $\sim$32 for Optuna~TPE\@.
 On SIFT1M (pure ANN search), all methods converge within 2\% of each other ---
