@@ -208,18 +208,15 @@ The source code, data, and/or other artifacts have been made available at \url{\
 \section{Introduction}
 \label{sec:intro}
 
-Semantic similarity search over high-dimensional embeddings is a load-bearing
-component of modern AI applications --- product recommendation, visual question
-answering, medical image retrieval, and cross-modal content discovery --- each
-issuing millions of queries per day against collections of tens to hundreds of
-millions of vectors.
-Yet throughput and accuracy depend as much on how ANN index parameters are
-configured as on the index structure itself.
-On a production-scale collection, the gap between a default and an optimized
-configuration can exceed an \emph{order of magnitude} in queries per second on
-identical hardware.
+On a production-scale vector database serving tens of millions of
+high-dimensional embeddings, the throughput gap between a default and an optimized
+ANN index configuration can exceed an \emph{order of magnitude} on identical
+hardware.
+Such systems underpin modern AI applications --- product recommendation, visual
+question answering, medical image retrieval, and cross-modal content discovery ---
+each issuing millions of queries per day.
 That gap decides whether a deployed system meets production quality and throughput
-requirements --- or fails to.
+requirements --- or fails entirely.
 Closing it demands an optimizer that reasons over how parameters interact across
 retrieval stages, not one that searches blindly.
 
@@ -228,8 +225,8 @@ an ANN index producing a candidate set refined by a reranker or cross-modal
 fusion module.
 Systems such as VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, and
 GaussDB-Vector~\cite{sun2025gaussdb} expose 4--7 interdependent parameters ---
-including search depth~(\textit{efSearch}) and cross-modal fusion
-weight~($\alpha$) --- whose joint configuration determines both retrieval quality
+including search depth~(\textit{efSearch}~\cite{malkov2018hnsw}) and cross-modal
+fusion weight~($\alpha$) --- whose joint configuration determines both retrieval quality
 and throughput.
 These parameters are not merely non-linear but structurally coupled: reducing
 Stage-1 search depth (\textit{efSearch}) compresses the candidate pool fed to the
@@ -274,22 +271,16 @@ work on Intel's VDMS~\cite{pan2023vdms}.
 The agent conditions each proposal on the complete history of (configuration, Score)
 pairs, reasons explicitly over cross-stage parameter dependencies, and
 self-regulates its search strategy through history-conditioned phase transitions.
-A central contribution is the \emph{first text-query image retrieval benchmark}
-built from HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 fine-grained
-verb--object human-object interaction (HOI) categories, deployed on VDMS --- the
-only benchmark rich enough to expose the structural limits of blind ANN optimizers
-(every prior use of HICO-DET is restricted to the detection
-paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
-We pair CLIP~ViT-L/14 ANN retrieval with DINOv2 pseudo-relevance-feedback
-reranking at zero additional indexing cost ($+$3.65\,pp~mAP at ${<}1\%$ extra
-latency), and prove geometrically that CLIP text embeddings occupy the semantic
-centroid of each HOI visual cluster, establishing text-query superiority on
-compositionally structured data.
+We further contribute the \emph{first text-query image retrieval benchmark} from
+HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
+VDMS --- the only benchmark rich enough to expose the structural limits of blind
+ANN optimizers, as every prior use of HICO-DET is restricted to the detection
+paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
 Evaluated under the SIEVE quality-constrained throughput objective
 (Section~\ref{sec:metrics}), the agent achieves $+$33.3\% over Optuna~TPE and
 $+$50.7\% over GP-BO on HICO-DET, converging at $\sim$23~iterations versus
 $\sim$41 for Optuna~TPE and delivering a $\mathbf{36.6\times}$ improvement over
-the unoptimized CLIP FaissFlat reference.
+the unoptimized CLIP FaissFlat reference~\cite{johnson2019billion}.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
 SIFT1M~\cite{jegou2011pq} (pure ANN search) ---
 the advantage diminishes proportionally, confirming it scales with structural
