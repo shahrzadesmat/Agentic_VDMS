@@ -293,12 +293,17 @@ configuration coupling.
     The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
     600 verb--object categories, deployed on VDMS), pairing CLIP ANN retrieval with DINOv2 pseudo-relevance-feedback reranking at zero additional
     indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency).
+    This demonstrates that visual diversity features complement semantic alignment
+    without additional indexing or storage overhead, enabling quality improvement
+    at effectively zero deployment cost.
 
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
     We characterize when LLM-guided optimization pays off across three datasets
     spanning the full coupling-complexity spectrum: fully coupled 7-parameter
     cross-stage (HICO-DET), image-to-image (GLDv2), and pure ANN search (SIFT1M)
     --- showing that gains diminish proportionally as structural coupling decreases.
+    This gives practitioners a principled criterion for when LLM-guided optimization
+    justifies its overhead over simpler baselines.
 
   \item \textbf{SIEVE: a quality-constrained throughput objective for
     deployment-aware ANN evaluation.}
