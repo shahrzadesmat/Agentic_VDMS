@@ -1094,7 +1094,7 @@ As system baselines we include UniIR~\cite{wei2023uniir}, standalone CLIP
 ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2 reranking,
 all under exact FaissFlat search (Section~\ref{sec:baselines}).
 
-\noindent\textbf{Metrics.}
+\noindent\textbf{Metrics.}\label{sec:metrics}
 Retrieval quality: mAP, P@10, Recall@10~\cite{manning2008ir}.
 Throughput: batch QPS.
 Joint optimization objective: Score\,$=$\,QPS if mAP\,$\geq\tau$ else $0$,
