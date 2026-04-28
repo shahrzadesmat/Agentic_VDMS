@@ -299,8 +299,8 @@ configuration coupling.
   \item \textbf{Phase-aware LLM agent for coupled ANN index optimization.}
     A history-conditioned agent applicable to any VDBMS exposing ANN index parameters
     (instantiated on Intel's VDMS) that explicitly models the
-    \textit{efSearch}--$\alpha$ inter-stage coupling, discovering the compensatory
-    operating point $\mathit{efSearch}{=}64$, $\alpha{=}0.80$ that no
+    \textit{efSearch}--$\alpha$ inter-stage coupling, discovering compensatory
+    operating points (e.g., $\mathit{efSearch}{=}64$, $\alpha{=}0.80$) that no
     parameter-independent method locates within 50~iterations.
     Mean SIEVE Score\,$=$\,300.3 on HICO-DET, $+$33.3\% over Optuna~TPE,
     converging at iteration~23 vs.~41; mechanistic ablations confirm history
@@ -317,8 +317,9 @@ configuration coupling.
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
     Evaluation across HICO-DET (7-parameter, cross-stage coupled, $+$33.3\% LLM
     advantage), GLDv2 (image-to-image, near-optimal at iteration~6), and SIFT1M
-    (pure ANN, all methods within 2\%) --- establishing that the agent's advantage
-    is proportional to structural configuration coupling.
+    (pure ANN, LLM/Grid/Optuna/Random within 1.3\% of each other) ---
+    establishing that the agent's advantage is proportional to structural
+    configuration coupling.
 \end{itemize}
 
 \section{Related Work}
