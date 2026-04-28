@@ -269,7 +269,7 @@ configuration landscape.
 Two parallel threads of prior work address orthogonal aspects of this problem, yet
 neither reaches the intersection our setting requires.
 On the \emph{LLM-guided tuning} side, GPTuner~\cite{lao2024gpttuner},
-$\lambda$-Tune~\cite{giannakouris2025lambdatune} (SIGMOD~2025), and
+$\lambda$-Tune~\cite{giannakouris2025lambdatune}, and
 OtterTune~\cite{vanaken2017ottertune} show that LLM reasoning and learning-based
 methods outperform Bayesian and reinforcement-learning baselines on DBMS
 configuration --- but all three operate on flat, scalar knob spaces (PostgreSQL,
@@ -277,7 +277,7 @@ MySQL) where parameters are conditionally independent and no cross-stage couplin
 exists by construction.
 On the \emph{ANN parameter tuning} side, VDTuner~\cite{yang2024vdtuner} applies
 multi-objective Bayesian optimization to VDMS index parameters, and
-VSAG~\cite{zhong2025vsag} (VLDB~2025) eliminates index rebuilds via analytical
+VSAG~\cite{zhong2025vsag} eliminates index rebuilds via analytical
 subgraph monotonicity --- but both treat parameters independently and neither models
 the coupling between \textit{efSearch} and $\alpha$ that emerges when ANN retrieval
 feeds a reranker.
@@ -352,7 +352,7 @@ HOI detection research since HICO-DET~\cite{chao2018hico} --- which defined 600
 fine-grained verb--object interaction categories --- has advanced via transformer-based
 detectors and vision-language pre-training, but every published use remains restricted
 to the bounding-box detection paradigm (the closest non-detection use~\cite{kilickaya2021structured} queries via spatial canvas composition with IoU, not text retrieval).
-Text-image retrieval was transformed by CLIP~\cite{radford2021clip}; UniIR~\cite{wei2023uniir} (ECCV 2024) unified eight multimodal retrieval tasks over M-BEIR.
+Text-image retrieval was transformed by CLIP~\cite{radford2021clip}; UniIR~\cite{wei2023uniir} unified eight multimodal retrieval tasks over M-BEIR.
 We fill the orthogonal HOI \emph{retrieval} direction and adopt CLIP and UniIR as
 primary baselines.
 
@@ -362,8 +362,8 @@ DiskANN~\cite{subramanya2019diskann}), inverted file structures~\cite{jegou2011p
 GPU-accelerated flat search~\cite{johnson2019billion}.
 Production VDBMSs integrate indexing with metadata management: Milvus~\cite{wang2021milvus}
 supports multiple index backends; VDMS~\cite{pan2023vdms} co-locates graph-property
-metadata with vector data; GaussDB-Vector~\cite{sun2025gaussdb} (VLDB 2025) decouples
-indexing from serving at billion-vector scale; VSAG~\cite{zhong2025vsag} (VLDB 2025)
+metadata with vector data; GaussDB-Vector~\cite{sun2025gaussdb} decouples
+indexing from serving at billion-vector scale; VSAG~\cite{zhong2025vsag}
 eliminates costly rebuilds via subgraph monotonicity.
 Index \emph{configuration} --- engine type, $M$, \textit{efSearch}, $k$, $\alpha$ ---
 is universally left to blind search; our LLM agent replaces this with
@@ -382,8 +382,8 @@ $\mathit{efSearch}{=}64$, $\alpha{=}0.80$ operating point within 50 iterations.
 OPRO~\cite{yang2024opro} showed LLMs act as black-box optimizers by conditioning on
 (solution, score) history; follow-up work applied this to ML
 HPO~\cite{zhang2023llmhyperopt,liu2024agenthpo}.
-GPTuner~\cite{lao2024gpttuner} (VLDB 2024) and
-$\lambda$-Tune~\cite{giannakouris2025lambdatune} (SIGMOD 2025) apply LLM reasoning to
+GPTuner~\cite{lao2024gpttuner} and
+$\lambda$-Tune~\cite{giannakouris2025lambdatune} apply LLM reasoning to
 DBMS knob tuning --- but both operate on flat, scalar spaces where parameters are
 conditionally independent and no cross-stage coupling exists.
 Our work occupies the intersection neither thread reaches: a history-conditioned LLM
