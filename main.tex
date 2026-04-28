@@ -247,7 +247,7 @@ index tuning.
 Each evaluation in a production-scale system requires a full index rebuild followed
 by query execution across tens of thousands of embeddings --- several minutes of
 wall-clock time even on high-end GPU hardware --- capping a realistic tuning budget
-at approximately 50 iterations ($\approx$7 hours per method).
+at approximately 50 iterations per method.
 Under this constraint, a method that spends even 10--15 early iterations in
 suboptimal regions of the \textit{efSearch}--$\alpha$ landscape does not merely
 converge slowly: it \emph{fails} to locate the globally optimal configuration
