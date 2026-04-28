@@ -308,10 +308,10 @@ configuration coupling.
     deployment-aware ANN evaluation.}
     We propose SIEVE (Score\,$=$\,QPS if mAP\,$\geq\,\tau$, else~0), reflecting
     real deployment requirements where a system below minimum retrieval quality
-    is simply not usable; post-hoc analysis shows \textbf{9 of 12} (method, seed) pairs
-    have their product-metric-optimal configuration below $\tau$, yielding
-    SIEVE Score\,$=$\,0 --- demonstrating that smooth product metrics steer
-    optimization into the infeasible region.
+    is simply not usable; we show empirically that product-metric-optimal
+    configurations systematically fall below $\tau$, yielding SIEVE Score\,$=$\,0
+    across the majority of methods and seeds --- demonstrating that smooth product
+    metrics steer optimization into the infeasible region.
 \end{itemize}
 
 \section{Related Work}
