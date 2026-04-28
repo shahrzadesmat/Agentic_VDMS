@@ -228,7 +228,9 @@ depth (\textit{efSearch}) forces the fusion reranker to compensate via a higher
 fusion weight~($\alpha$) --- a cross-stage dependency invisible to any
 parameter-independent optimizer.
 On HICO-DET, the gap between an unoptimized baseline and our agent-optimized
-configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware.
+configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware ---
+on a single A40 GPU node, the difference between 8 and 300 queries per second,
+between a research prototype and a production-ready retrieval service.
 
 Yet no existing method is designed to close it.
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
@@ -246,14 +248,11 @@ LLM-guided DBMS tuners operate on flat knob spaces (PostgreSQL, MySQL)
 where parameters are independent --- no cross-stage coupling exists
 by construction.
 The ANN tuning methods --- Optuna TPE~\cite{akiba2019optuna}, grid and
-random search~\cite{snoek2012bayesian,bergstra2012random} --- model each parameter
-independently, structurally preventing them from capturing
-this cross-stage coupling and causing all to
-systematically miss the globally optimal configuration within any practical iteration budget.
-VDTuner~\cite{yang2024vdtuner}, the closest prior system, compounds this further:
-its smooth surrogate model cannot represent the hard threshold between
-feasible and infeasible configurations, steering optimization away from the
-global optimum.
+random search~\cite{snoek2012bayesian,bergstra2012random} --- treat each parameter
+independently, missing this cross-stage coupling;
+VDTuner~\cite{yang2024vdtuner}, the closest prior system, adds a further failure
+mode when its smooth surrogate model encounters the hard feasibility threshold
+our metric imposes.
 
 We propose a \emph{phase-aware LLM agent} for coupled ANN index optimization,
 applicable to any VDBMS exposing tunable index parameters and instantiated in this
@@ -261,6 +260,9 @@ work on Intel's VDMS~\cite{pan2023vdms}.
 The agent conditions each proposal on all prior configurations and their observed
 scores, reasons explicitly over cross-stage parameter dependencies, and
 self-regulates between exploration and exploitation phases.
+Text-query HOI retrieval --- returning images of specific human-object interactions
+in response to natural language queries --- serves direct applications in video
+surveillance, assistive robotics, and interactive multimodal search.
 We also introduce the \emph{first text-query image retrieval benchmark} from
 HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
 VDMS --- the first benchmark to expose the structural limits of blind
