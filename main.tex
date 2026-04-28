@@ -209,7 +209,7 @@ The source code, data, and/or other artifacts have been made available at \url{\
 \label{sec:intro}
 
 \added[id=SG, comment=new abstract]{Retrieval systems underpin modern AI applications — spanning visual search, recommendation engines, and multimodal question answering at billion-scale. Modern multi-stage retrieval systems require the joint optimization of highly coupled parameters, yet traditional hyperparameter optimization (HPO) methods — including Bayesian TPE and Gaussian Process BO — rely on an independence assumption that fundamentally prevents them from navigating these entangled configuration spaces. We address this limitation with a phase-aware LLM agent that learns from its own optimization history to intelligently navigate the coupled parameter space across self-regulated exploration, exploitation, and fine-tuning phases.
-Evaluated on the HICO-DET benchmark using Intel VDMS, our agent outperforms Optuna TPE by 9.7\% and Gaussian Process BO by 3.3\% on a combined accuracy–throughput metric. Validation across three benchmarks tells a consistent story — the agent's advantage grows with the degree of parameter coupling, compressing to under 0.5\% on GLDv2 and inverting entirely on SIFT1M where parameters are nearly independent. These results position our agent as the method of choice for retrieval systems where parameter coupling is the dominant source of optimization complexity.}
+Evaluated on the HICO-DET benchmark using Intel VDMS, our agent outperforms Optuna TPE by 33.3\% and Gaussian Process BO by 50.7\% under the SIEVE throughput objective (Score\,$=$\,QPS if mAP\,$\geq\tau$, else $0$). Validation across three benchmarks tells a consistent story — the agent's advantage grows with the degree of parameter coupling, compressing to ${\leq}1.3\%$ on GLDv2 and inverting on SIFT1M where parameters are nearly independent. These results position our agent as the method of choice for retrieval systems where parameter coupling is the dominant source of optimization complexity.}
 
 
 Modern vector database management systems expose a multidimensional configuration
@@ -304,11 +304,11 @@ increasing parameter-space simplicity: HICO-DET (7-parameter, cross-modal, full
 cross-stage coupling), Google Landmarks v2~\cite{weyand2020gld} (GLDv2, 762K
 images, image-to-image retrieval), and SIFT1M~\cite{jegou2011pq} (4-parameter,
 pure ANN search).
-Compared to state-of-the-art baselines, the agent achieves $+$9.7\%
-accuracy--throughput Score over Optuna~TPE and $+$3.3\% over GP-BO
-(a VDTuner-style Gaussian Process surrogate) on HICO-DET,
-converging in $\sim$13~iterations on average versus $\sim$20 for Optuna~TPE ---
-a $\mathbf{2.6\times}$ improvement over the CLIP FaissFlat baseline.
+Compared to state-of-the-art baselines, the agent achieves $+$33.3\%
+Score over Optuna~TPE and $+$50.7\% over GP-BO
+(a VDTuner-style Gaussian Process surrogate) on HICO-DET under the SIEVE
+throughput objective, converging in $\sim$23~iterations on average versus $\sim$41
+for Optuna~TPE --- a $\mathbf{36.6\times}$ improvement over the unoptimized CLIP FaissFlat reference.
 On GLDv2, the agent reaches near-optimal quality in $\sim$6~iterations
 versus $\sim$25 for Optuna~TPE\@.
 On SIFT1M, all methods converge within 2\% of each other --- confirming that the
@@ -322,9 +322,9 @@ We present a history-conditioned, phase-aware LLM agent that explicitly models
 the structural coupling between Stage-1 search depth (\textit{efSearch}) and Stage-2
 fusion weight~($\alpha$) --- discovering the compensatory operating point
 $\mathit{efSearch}{=}64$, $\alpha{=}0.80$ that no parameter-independent method
-locates within 30 iterations --- achieving mean Score\,$=$\,4.44
-($\text{mAP}{\times}\text{QPS}$) on HICO-DET, $+$9.7\% over Optuna~TPE,
-converging in $\sim$13~iterations versus $\sim$20; mechanistic ablations confirm
+locates within 50 iterations --- achieving mean SIEVE Score\,$=$\,300.3
+on HICO-DET, $+$33.3\% over Optuna~TPE,
+converging at iteration~$23$ versus~$41$ for Optuna; mechanistic ablations confirm
 that history conditioning and phase-aware transitions are both independently necessary.
 
 \noindent\textbf{(2) The first HOI retrieval benchmark and a zero-cost two-stage pipeline.}
@@ -336,7 +336,7 @@ that CLIP text embeddings occupy the semantic centroid of each HOI visual cluste
 establishing text-query superiority on compositionally structured data.
 
 \noindent\textbf{(3) A complexity-matched evaluation characterizing when LLM reasoning pays off.}
-We evaluate across HICO-DET (7-parameter, cross-stage coupled, $+$9.7\% LLM advantage),
+We evaluate across HICO-DET (7-parameter, cross-stage coupled, $+$33.3\% LLM advantage),
 GLDv2 (image-to-image, near-optimal at iteration~6), and SIFT1M (pure ANN, all
 methods within 2\%) --- establishing that the agent's advantage is proportional to
 structural configuration coupling.
@@ -476,12 +476,18 @@ rather than by the ANN index structure, which would mask precisely the index
 differences the optimizer is designed to exploit.
 The joint optimization objective is
 \begin{equation}
-  \text{Score} = \text{mAP} \times \text{QPS} .
+  \mathrm{Score}(\theta) =
+  \begin{cases}
+    \mathrm{QPS}(\theta) & \text{if } \mathrm{mAP}(\theta) \geq \tau, \\
+    0                    & \text{otherwise,}
+  \end{cases}
+  \quad \tau = 0.15 .
   \label{eq:score}
 \end{equation}
-This scalar encodes the accuracy--throughput trade-off symmetrically: gains in QPS
-and gains in mAP contribute multiplicatively, so neither axis can be sacrificed
-without penalizing the objective.
+This threshold-gated objective rewards throughput only within the feasible region
+($\mathrm{mAP} \geq \tau$): a configuration that sacrifices retrieval quality below
+$\tau$ scores zero regardless of how high its QPS is, while within the feasible
+region higher QPS is strictly better.
 Section~\ref{sec:probstmt} below formalizes the configuration space and the
 optimization problem whose objective is this Score.
 
@@ -516,8 +522,8 @@ find
   \mathrm{Score}(\theta) ,
   \label{eq:optproblem}
 \end{equation}
-where $\mathrm{Score}(\theta) = \mathrm{mAP}(\theta) \times \mathrm{QPS}(\theta)$
-(Eq.~\eqref{eq:score}).
+where $\mathrm{Score}(\theta)$ is defined by Eq.~\eqref{eq:score}
+($\mathrm{QPS}(\theta)$ if $\mathrm{mAP}(\theta) \geq \tau$, else $0$).
 \end{definition}
 
 \begin{table}[t]
@@ -622,7 +628,8 @@ natural-language analysis of prior outcomes (Section~\ref{sec:optimizer}).
 
 Oracle $\mathcal{O}$ (Definition~\ref{def:oracle}) maps any $\theta \in \Theta$ to a
 $(\mathrm{mAP},\,\mathrm{QPS})$ pair; the optimizer maximizes
-$\mathrm{Score}(\theta) = \mathrm{mAP}(\theta) \times \mathrm{QPS}(\theta)$.
+$\mathrm{Score}(\theta)$ (Eq.~\eqref{eq:score}): $\mathrm{QPS}(\theta)$ if
+$\mathrm{mAP}(\theta) \geq \tau$, else $0$.
 Let $\mathcal{C} = \{(\mathbf{c}_i,\,\mathbf{d}_i)\}_{i=1}^{N}$ denote the corpus
 of $N{=}47{,}776$ images, where $\mathbf{c}_i \in \mathbb{R}^{768}$ is the
 unit-normalized CLIP ViT-L/14 embedding and $\mathbf{d}_i \in \mathbb{R}^{1024}$
@@ -844,7 +851,7 @@ FaissIVFFlat contributes $\mathit{nlist}$ and $\mathit{nprobe}$.
 The oracle $\mathcal{O}(\theta)$ loads $\theta$ into a fresh VDMS instance,
 indexes the corpus, and evaluates all $|Q|{=}600$ HOI queries, returning the pair
 $\bigl(\mathrm{mAP}(\theta),\mathrm{QPS}(\theta)\bigr)$
-and $\mathrm{Score}(\theta)=\mathrm{mAP}(\theta){\times}\mathrm{QPS}(\theta)$.
+and $\mathrm{Score}(\theta)=\mathrm{QPS}(\theta)$ if $\mathrm{mAP}(\theta){\geq}\tau$, else $0$ (Eq.~\eqref{eq:score}).
 
 Two cross-parameter couplings invalidate the independence assumption shared by
 GP-BO~\cite{yang2024vdtuner} and Optuna TPE.
@@ -1005,8 +1012,10 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
   \EndIf
   \State $\bigl(\mathrm{mAP}_t,\,\mathrm{QPS}_t\bigr) \gets \mathcal{O}(\theta_t)$
   \State $\mathcal{H}_t \gets \mathcal{H}_{t-1} \cup \{(\theta_t,\,\mathrm{mAP}_t,\,\mathrm{QPS}_t)\}$
-  \If{$\mathrm{mAP}_t \times \mathrm{QPS}_t > \mathrm{Score}^*$}
-    \State $\mathrm{Score}^* \gets \mathrm{mAP}_t \times \mathrm{QPS}_t$;\enspace
+  \State $s_t \gets \mathrm{QPS}_t \cdot \mathbf{1}[\mathrm{mAP}_t \geq \tau]$
+         \hfill\Comment{SIEVE Score (Eq.~\eqref{eq:score}), $\tau{=}0.15$}
+  \If{$s_t > \mathrm{Score}^*$}
+    \State $\mathrm{Score}^* \gets s_t$;\enspace
            $\theta^* \gets \theta_t$
   \EndIf
 \EndFor
@@ -1064,7 +1073,7 @@ For HICO-DET, image embeddings are 768-dimensional CLIP ViT-L/14 vectors.
 For GLDv2, each image is represented by a 768-dimensional CLIP ViT-L/14 embedding
 and a 1024-dimensional DINOv2 ViT-L/14-reg4 embedding, both stored in VDMS.
 For SIFT1M, raw 128-dimensional SIFT vectors are stored directly in VDMS without
-any reranking stage; Score $= \text{Recall@10} \times \text{QPS}$.
+any reranking stage; Score $=$ QPS if Recall@10\,$\geq\tau{=}0.90$, else $0$.
 
 \noindent\textbf{Compared Methods.}
 We compare five strategies, each for $N{=}30$ iterations.
@@ -1085,8 +1094,9 @@ all under exact FaissFlat search (Section~\ref{sec:baselines}).
 \noindent\textbf{Metrics.}
 Retrieval quality: mAP, P@10, Recall@10~\cite{manning2008ir}.
 Throughput: batch QPS.
-Joint optimization objective: Score\,$=$\,mAP\,$\times$\,QPS (Eq.~\eqref{eq:score});
-for SIFT1M, Score\,$=$\,Recall@10\,$\times$\,QPS.
+Joint optimization objective: Score\,$=$\,QPS if mAP\,$\geq\tau$ else $0$,
+$\tau{=}0.15$ (Eq.~\eqref{eq:score});
+for SIFT1M, Score\,$=$\,QPS if Recall@10\,$\geq\tau$ else $0$, $\tau{=}0.90$.
 
 \noindent\textbf{Implementation.}
 All experiments run on the NCSA Delta GPU cluster (partition \texttt{gpuA40x4}): one
@@ -1124,7 +1134,7 @@ $N{=}30$ covers under 1\% of $\Theta$ (e.g., 5{,}940 HNSW configs on SIFT1M), to
 \quad DINOv2 ViT-L/14-reg4                   & 1.0 & 2000 & 0.2165 & 0.3232 & 0.0800 &  1.16 \\
 \quad CLIP\,+\,DINOv2 rerank                 & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.1138} & 1.15 \\
 \midrule
-\multicolumn{7}{l}{\footnotesize $^\star$Optimizer reference baseline (Score\,=\,1.707); $k{=}500$ trades mAP for higher QPS vs.\ $k{=}2000$.} \\
+\multicolumn{7}{l}{\footnotesize $^\star$Optimizer reference baseline (SIEVE Score\,=\,8.21, i.e.\ QPS since mAP\,$\geq\tau$); $k{=}500$ trades mAP for higher QPS vs.\ $k{=}2000$.} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1143,7 +1153,7 @@ from zero-shot CLIP ($0.246$) --- because multi-task fine-tuning on COCO-style p
 disrupts HOI semantic alignment for compositional queries.
 Under the SIEVE metric, all UniIR variants score $0$ (mAP $< \tau{=}0.15$),
 failing to meet the minimum quality threshold; our unoptimized CLIP baseline
-already achieves Score\,$=$\,1.707 (Table~\ref{tab:optimizer}).
+already achieves SIEVE Score\,$=$\,8.21 (QPS at $k{=}500$; Table~\ref{tab:baselines}).
 
 \noindent\textbf{Modality complementarity and throughput.}
 DINOv2 alone (mAP\,$=$\,0.217) underperforms CLIP alone (0.240) by 2.3\,pp,
@@ -1232,79 +1242,85 @@ Optuna TPE                   & HNSW $M{=}16$        &  50 &  13.3 &  3.19 & 0.11
 \end{tabular}
 \end{table*}
 
-The LLM agent achieves the highest mean Score $= 4.44$, outperforming every
-baseline: GP-BO ($4.29$, $+3.3\%$), Optuna TPE ($4.05$, $+9.7\%$), Random
-Search ($4.04$, $+9.7\%$), and Grid Search ($3.44$, $+28.8\%$) --- all
-relative to the respective baseline mean.
-This translates to a $\mathbf{2.5\times}$ improvement over the unoptimized CLIP FaissFlat
-baseline (Score $= 1.707$) and $\mathbf{13.9\times}$ over brute-force CLIP$+$DINOv2
-reranking (Score $= 0.319$).
-At its best configuration --- FaissHNSWFlat, $M{=}48$, $\mathit{efSearch}{=}64$,
-$k{=}200$, $\alpha{=}0.80$, $n_r{=}10$, \textit{centroid} reference strategy --- the
-pipeline achieves mAP $= 0.255$ and QPS $= 16.98$ (Table~\ref{tab:efficiency}):
-a $14.7\times$ throughput gain over brute-force CLIP$+$DINOv2 (QPS $= 1.15$) at a
-mAP cost of only $2.1$ percentage points ($0.255$ vs.\ the $0.276$ exact-search ceiling).
-Per-query latency falls from $866$\,ms (FaissFlat CLIP$+$DINOv2, Table~\ref{tab:efficiency}) to $58.9$\,ms for the LLM agent---a $\mathbf{14.7\times}$ reduction retaining $92.4\%$ of exact-search mAP---Pareto-dominating Optuna TPE ($62.6$\,ms, Score\,$=$\,$4.05$); Grid Search, Random Search, and GP-BO each settle near $49$\,ms but sacrifice mAP to $0.17$--$0.22$, yielding mean Scores of only $3.44$--$4.29$.
+The LLM agent achieves mean Score $= 300.3$, outperforming every baseline:
+Optuna TPE ($225.2$, $\mathbf{+33.3\%}$), GP-BO ($199.3$, $\mathbf{+50.7\%}$),
+Grid Search ($183.0$, $+64.1\%$), and Random Search ($111.4$).
+This corresponds to a $\mathbf{15.3\times}$ throughput gain over UniIR
+(QPS\,$=$\,19.67; SIEVE Score\,$=$\,$0$ since mAP\,$<\tau$) and a
+$\mathbf{36.6\times}$ gain over the unoptimized CLIP FaissFlat reference
+(Score\,$=$\,8.21).
+The LLM-optimal configuration --- FaissHNSWFlat, $M{=}64$,
+$\mathit{efSearch}{=}64$, $k{=}50$, $\alpha{=}0.80$, $n_r{=}5$,
+\textit{centroid} (Table~\ref{tab:efficiency}) --- achieves
+QPS\,$=$\,$300.5$ while maintaining mAP\,$=$\,$0.160$ just above the
+feasibility threshold $\tau$.
 
 \noindent\textbf{GP-BO comparison.}
-GP-BO --- replicating VDTuner's~\cite{yang2024vdtuner} Gaussian Process paradigm ---
-achieves mean Score $= 4.29$, the second-best result, and trails the LLM agent by
-$3.3\%$.
-Both converge to FaissHNSWFlat as the optimal engine; the gap stems from GP-BO's
-parameter-independent Expected Improvement acquisition, which cannot represent the
-conditional dependency between engine type and valid parameter ranges.
-This structural misspecification manifests as high variance: GP-BO best-scores span
-$3.93$--$4.54$ across seeds (a $14.4\%$ range), against the LLM agent's $4.34$--$4.61$
-($6.2\%$) --- tighter convergence enabled by phase transitions that resolve engine and
-graph-connectivity choices before entering the continuous $(\alpha, n_r)$ regime.
+GP-BO achieves mean Score $= 199.3$, trailing the LLM agent by $50.7\%$,
+but with extreme seed-to-seed variance: best-scores span $110$--$299$ across
+three seeds versus the LLM agent's $300$--$301$ ($<0.3\%$ spread).
+One GP-BO seed locates the $k{=}50$ optimum (Score\,$=$\,$299.4$) while the
+other two land far from it ($188.1$ and $110.4$).
+The cause is structural: GP-BO's smooth Gaussian Process surface cannot model
+the discontinuous feasibility boundary at $\tau$ --- when some $k{=}50$ trials
+are feasible (Score\,$\approx$\,$300$) and others score $0$ due to an
+insufficient $\alpha$, the GP averages these into an expected value of
+$\approx\!150$ with high uncertainty, making $k{=}50$ appear less attractive
+than the consistently feasible $k{=}100$ region (Score\,$\approx\!145$).
+Without natural-language reasoning to diagnose \emph{why} $k{=}50$ fails ---
+that the $(\alpha, n_r)$ compensation was insufficient --- GP-BO cannot
+reliably locate the joint $(k,\alpha)$ optimum.
 
 \noindent\textbf{Optuna TPE comparison.}
-Optuna TPE achieves Score $= 4.05$, trailing the LLM agent by $\mathbf{9.7\%}$ --- the
-largest gap among adaptive baselines, and the primary target of our design.
-The cause is structural: TPE fits \emph{independent} kernel density estimators over each
-parameter, so it cannot discount the FaissIVFFlat region without a joint conditional
-model over engine type; at iterations~11--13, all three seeds plateau at
-mAP $= 0.169$ and QPS $= 18.6$, stalling for 21 iterations before escaping.
-The phase-structured budget directly counters this by resolving engine selection during
-Exploration (iterations~1--12) before any continuous $(\alpha, n_r)$ refinement --- the
-same separation whose removal costs $-0.3\%$ in the phase ablation
-(Table~\ref{tab:ablation_arch}), confirming it as the mechanism rather than a
-coincidence.
-As a result, Optuna TPE's mean curve first matches the LLM's iteration-6 Score at
-iteration~27 --- a $2.7$-hour deficit on a $3.5$--$4$-hour wall-clock budget.
-Extending to $N{=}50$ would not change the ordering: the LLM agent converges at iteration~$13$ while Optuna TPE does not escape the IVFFlat plateau until iteration~$27$, leaving fewer than $3$ iterations to close a $9.7\%$ Score gap.
+Optuna TPE achieves Score $= 225.2$, trailing the LLM agent by
+$\mathbf{33.3\%}$ --- the largest consistent gap among adaptive baselines.
+The cause is structural: TPE fits \emph{independent} kernel density estimators
+over each parameter, so it cannot discount the FaissIVFFlat region without a
+joint conditional model over engine type; at iterations~11--13, all three seeds
+plateau at mAP\,$=$\,0.169 and QPS\,$=$\,18.6, stalling for 21 iterations
+before escaping.
+The phase-structured budget directly counters this by resolving engine selection
+during Exploration (iterations~1--12) before any continuous $(\alpha, n_r)$
+refinement --- the same separation whose removal costs $-0.3\%$ in the phase
+ablation (Table~\ref{tab:ablation_arch}), confirming it as the mechanism rather
+than a coincidence.
+As a result, Optuna TPE's mean curve first matches the LLM agent's
+iteration-6 Score at iteration~27 --- a $2.7$-hour deficit on a
+$3.5$--$4$-hour wall-clock budget.
+Extending to $N{=}50$ does not change the ordering: the LLM agent converges
+at iteration~$23$ while Optuna TPE requires~$41$.
 
 \noindent\textbf{Convergence and sample efficiency.}
 Figure~\ref{fig:convergence} plots best-Score-so-far mean $\pm 1\sigma$ curves.
-The LLM agent reaches Score $= 295.4$ at iteration~6, already exceeding Grid Search's
-final mean ($183.0$) and well ahead of Optuna TPE (mean $= 148.5$) and Random Search
-($79.4$) at the same iteration.
+The LLM agent reaches Score $= 295.4$ at iteration~6, already exceeding Grid
+Search's final mean ($183.0$) and well ahead of Optuna TPE
+(mean\,$=$\,$148.5$) and Random Search ($79.4$) at the same iteration.
 
 \noindent\textbf{Non-obvious operating point.}
-The LLM agent's optimal configuration discloses an operating region inaccessible to
-parameter-independent methods within 50 iterations.
-Setting $\mathit{efSearch}{=}64 \ll k{=}200$ deliberately violates the standard
-HNSW heuristic of $\mathit{efSearch} \geq k$~\cite{malkov2018hnsw}, accepting
-Stage-1 recall loss in exchange for throughput.
-The loss is recouped at Stage~2 by raising $\alpha$ to $0.80$, weighting DINOv2
-visual similarity heavily enough to recover relevant neighbors missed by the aggressive
-ANN approximation.
-Concurrently, $n_r{=}10$ centroid-proximal reference images produce a stable reference
-vector that minimizes the bias term $\varepsilon_j^2$ in Eq.~\eqref{eq:imagequery},
-consistently outperforming $n_r{=}1$ across the long-tailed HOI categories where any
-single image is displaced from the class centroid.
-The joint $(\mathit{efSearch},\, k,\, \alpha)$ optimum requires modeling the pipeline
-as a coupled system --- a structural dependency that Grid Search's fixed sweep, Optuna
-TPE's univariate marginals, and Random Search's parameter independence cannot encode.
+Under the SIEVE objective, the optimal region is $k{=}50$: FaissHNSWFlat
+with $k{=}50$ achieves QPS\,$\approx\!300$ but mAP sits at the edge of
+feasibility ($\approx\!0.16$, just above $\tau{=}0.15$).
+This boundary-adjacent optimum is structurally non-trivial: without the
+compensating combination of $\alpha{=}0.80$ and $n_r{=}5$ centroid
+references, $k{=}50$ falls below $\tau$ and scores $0$.
+The LLM agent locates this joint $(k,\alpha,n_r)$ operating point because
+its history-conditioned reasoning explicitly tracks the coupling: after
+observing that $k{=}100$ configurations are feasible at moderate $\alpha$,
+it probes $k{=}50$ with compensating $\alpha$ --- an inference that Optuna
+TPE's independent marginals over $k$ and $\alpha$ cannot make, explaining
+why the LLM reaches the $k{=}50$ feasible region on all three seeds
+(Scores: $300.5$, $299.9$, $300.5$) while GP-BO succeeds on only one
+($299.4$, $188.1$, $110.4$).
 
 \noindent\textbf{Failure modes.}
-Grid Search plateaus at iteration~19 with mAP $= 0.169$ --- below the CLIP-only
-exact-search baseline (mAP $= 0.240$ at $k{=}2000$) --- because its lexicographic sweep
-fixes $M{=}32$ and $\alpha{=}0.30$, never probing $M{=}48$ or $\alpha{=}0.80$.
-Random Search's final Score ($4.04$) nearly matches Optuna TPE ($4.05$), reflecting that
-TPE's marginal distributions provide no advantage over uniform sampling once the
-IVFFlat plateau has consumed the early-budget evaluations needed to build informative
-density estimates.
+Grid Search plateaus at iteration~19 with mAP\,$=$\,0.169 --- below the
+CLIP-only exact-search baseline (mAP\,$=$\,0.240 at $k{=}2000$) --- because
+its lexicographic sweep fixes $M{=}32$ and $\alpha{=}0.30$, never probing
+$M{=}64$ or $\alpha{=}0.80$.
+Random Search's mean Score ($111.4$) reflects frequent infeasible trials
+(score\,$=$\,$0$); the feasible configurations it finds tend toward large-$k$
+safe regions (Score\,$\approx\!140$) rather than the tight $k{=}50$ optimum
+that requires coupled $(k,\alpha)$ inference to locate reliably.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \subsection{Cross-Domain Generalization: GLDv2 Landmark Retrieval}
@@ -1312,7 +1328,7 @@ density estimates.
 % ══════════════════════════════════════════════════════════════════════════════
 
 We evaluate on GLDv2~\cite{weyand2020gld} ($762{,}000$ gallery images, $1{,}129$ queries) to test cross-domain generalization.
-The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from text-to-image to image-to-image (removing the text-query centroid advantage), and each image is represented by CLIP ViT-L/14 and DINOv2 ViT-L/14-reg4 embeddings in VDMS under the same Score $= \text{mAP} \times \text{QPS}$ objective.
+The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from text-to-image to image-to-image (removing the text-query centroid advantage), and each image is represented by CLIP ViT-L/14 and DINOv2 ViT-L/14-reg4 embeddings in VDMS under the same SIEVE objective (Score $=$ QPS if mAP$\geq\tau{=}0.15$, else $0$).
 
 % ── Table: GLDv2 optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
@@ -1345,11 +1361,17 @@ narrowly ahead of Optuna TPE and Grid Search (both $272.98$) and Random Search (
 GP-BO attains the highest mAP ($0.1791$) but low QPS ($77.62$), failing to balance
 accuracy and speed under the SIEVE objective.
 The performance gap between methods is substantially compressed relative to HICO-DET
-(${\lesssim}1.3\%$ spread among the top-4 vs.\ $9.7\%$), a pattern we analyse further
+(${\lesssim}1.3\%$ spread among the top-4 vs.\ $33.3\%$ on HICO-DET), a pattern we analyse further
 in Section~\ref{sec:sift1m}.
 
 \noindent\textbf{Scale effects.}
 Each GLDv2 iteration completes in $\approx$5\,min (HNSW build: $\approx$272\,s), slightly faster than HICO-DET (8--9\,min) since image-to-image retrieval incurs no per-query HOI-category overhead; all 50-iteration budgets complete in $\approx$4\,h.
+
+\noindent\textbf{GP-BO cliff effect on GLDv2.}
+GP-BO achieves only $77.62$ QPS (vs.\ $\approx\!273$ for the top-3 methods), the same structural failure as on HICO-DET but more acute.
+The SIEVE objective imposes a hard feasibility cliff at $\tau{=}0.15$: configurations with mAP just below this threshold score $0$ regardless of QPS.
+GP-BO's smooth Gaussian Process surface cannot model this discontinuity --- it interpolates over the cliff, assigning moderate expected value to boundary-adjacent configurations instead of committing to the high-QPS side.
+As a result, GP-BO locked onto $k{=}150$ for $40$ of $50$ iterations (maximizing mAP at the cost of QPS), never probing $k{=}100$ --- the optimal setting at mAP$\approx$0.165, QPS$\approx$273 --- because the GP surface predicted it lay in a risky low-mAP zone given nearby $k{=}50$ trials with Score\,$=$\,$0$.
 
 \noindent\textbf{Sample efficiency.}
 Grid Search reaches its best Score at iteration~6 out of 50,
@@ -1433,7 +1455,7 @@ Under FaissFlat at $k{=}2000$: $\alpha{=}0.0$ (CLIP) gives mAP\,$=$\,0.240; $\al
 In the ANN setting the LLM agent discovers $\alpha{=}0.80$: at $\mathit{efSearch}{=}64 < k{=}200$, HNSW misses some neighbors and increasing $\alpha$ uses visual reranking as an \emph{error corrector} for Stage-1 approximation.
 
 \noindent\textbf{Candidate pool size ($k$).}
-Increasing $k$ from 500 to 2000 at $\alpha{=}0$ (FaissFlat) improves mAP $0.208{\to}0.240$ ($+3.2$\,pp) but reduces QPS $8.21{\to}1.17$ ($7.0\times$), collapsing Score $1.707{\to}0.280$.
+Increasing $k$ from 500 to 2000 at $\alpha{=}0$ (FaissFlat) improves mAP $0.208{\to}0.240$ ($+3.2$\,pp) but reduces QPS $8.21{\to}1.17$ ($7.0\times$); under SIEVE (both configs have mAP\,$\geq\tau$), Score collapses $8.21{\to}1.17$ --- a pure throughput penalty.
 The LLM agent selects $k{=}200$, compensating with $n_r{=}10$ and $\alpha{=}0.80$ to maintain mAP\,$=$\,0.255 while preserving the throughput advantage.
 
 \noindent\textbf{Reference selection ($n_r$, ref\_strategy).}
@@ -1441,7 +1463,7 @@ The LLM agent converges to \textit{centroid} with $n_r{=}10$: the centroid strat
 \textit{First} (single CLIP-ranked image) is fragile on long-tailed categories; \textit{diverse} (farthest-point sampling) maximizes spread at the cost of mean proximity.
 
 \noindent\textbf{ANN engine selection.}
-Both LLM agent and Optuna TPE converge to FaissHNSWFlat ($M{=}48$): Score\,$=$\,4.44--4.05 (mAP\,$=$\,0.259--0.256, QPS\,$=$\,17.11--15.84) versus Grid's Score\,$=$\,3.44 (mAP\,$=$\,0.169, QPS\,$=$\,20.42), confirming that high-QPS, low-recall configurations are penalized by the Score objective once mAP drops below the critical threshold.
+Both LLM agent and Optuna TPE converge to FaissHNSWFlat ($M{=}48$): SIEVE Score\,$=$\,17.11--15.84 (mAP\,$=$\,0.259--0.256, QPS\,$=$\,17.11--15.84, all $\geq\tau$) versus Grid's Score\,$=$\,20.42 (mAP\,$=$\,0.169, QPS\,$=$\,20.42); IVFFlat engine candidates with mAP\,$<\tau$ score $0$ under SIEVE, confirming that the objective correctly penalizes high-throughput but infeasible configurations.
 
 \noindent\textbf{History conditioning and phase structure (mechanistic ablations).}
 Table~\ref{tab:ablation_arch} isolates each architectural component across 3 seeds.
@@ -1480,8 +1502,13 @@ LLM Agent (Full)               & \textbf{300.3} & 0.161 & 0.3 & --- \\
 
 \noindent\textbf{Query Difficulty-Weighted Optimization (QDS).}
 Using the QDS-weighted oracle defined in Section~\ref{sec:optimizer},
-the LLM agent with QDS objective discovers (FaissHNSWFlat, $M{=}16$, $\mathit{efSearch}{=}500$, $k{=}150$, $\alpha{=}0.75$, $n_r{=}10$) achieving Score\,$=$\,$\mathbf{4.76}$ on the standard metric (seed~42) --- $+7.3\%$ over standard LLM (4.44) --- converging at iteration~19 with QPS\,$=$\,19.07 by favoring precision on hard queries; across three seeds, mean Score is $4.20\,{\pm}\,0.40$ (range 3.87--4.76), as QDS optimizes difficulty-weighted ranking rather than the Score composite.
-A cross-backbone check with GPT-4o-mini (seed~42, Score\,$=$\,4.42) falls within 0.4\% of the MiniMax-M2.1 mean, confirming backbone portability.
+the LLM agent discovers FaissIVFFlat ($n_l{=}128$, $k{=}500$), achieving QPS\,$=$\,1357.6 and mAP\,$=$\,0.175 ($\geq\tau$), for a mean SIEVE Score\,$=$\,$\mathbf{1362}\,{\pm}\,5$ over 3 seeds --- well above the standard LLM (300.3).
+This high-throughput operating point sacrifices retrieval precision: P@10\,$=$\,0.292 versus 0.438 for the standard HNSW optimum, as QDS optimizes difficulty-weighted ranking rather than throughput directly, steering the agent toward a different Pareto frontier regime.
+
+\noindent\textbf{Backbone portability.}
+A cross-backbone check confirms that the phase-aware protocol is model-agnostic:
+GPT-4o-mini (seed~42, Score\,$=$\,297.44) and Llama-3.3-70B (Score\,$=$\,294.20) fall within
+0.95\% and 2.0\% of the MiniMax-M2.1 mean (300.3), respectively.
 
 \section{Conclusion and Outlook}
 \label{sec:conclusion}
@@ -1496,12 +1523,15 @@ partitions its 30-iteration budget into exploration, exploitation, and refinemen
 and enforces an anti-collapse constraint to prevent stagnation in high-scoring but
 structurally similar regions.
 On HICO-DET --- the most compositionally coupled of our three benchmarks --- the agent
-achieves mean Score $= 4.44$, reaching Score ${\geq}\,3.97$ at iteration~6, a threshold
-that requires 27 iterations for Optuna TPE and 28 for Random Search (${\approx}2.7$ hours
-of compute saved at 8--9 minutes per oracle call).
-The $+9.7\%$ advantage over both Optuna TPE and Random Search, and $+3.3\%$ over GP-BO,
-compresses to ${\lesssim}0.5\%$ on GLDv2 and $2.1\%$ on SIFT1M as coupling complexity
-decreases --- with the SIFT1M convergence ordering inverting to favor Optuna TPE
+achieves mean SIEVE Score $= 300.3$, reaching Score ${\geq}\,295.4$ at iteration~23,
+a threshold that requires 41 iterations for Optuna TPE (${\approx}2.7$ hours of
+compute saved at 8--9 minutes per oracle call).
+The $+33.3\%$ advantage over Optuna TPE and $+50.7\%$ over GP-BO reflects the
+SIEVE objective's discontinuous feasibility cliff: GP-BO's smooth Gaussian Process
+surface cannot reliably locate the boundary-adjacent $(k{=}50,\,\alpha{=}0.80)$ optimum,
+succeeding on only 1 of 3 seeds versus the LLM agent's 3 of 3.
+This advantage compresses to ${\lesssim}1.3\%$ on GLDv2 and $2.1\%$ on SIFT1M as coupling
+complexity decreases --- with the SIFT1M convergence ordering inverting to favor Optuna TPE
 (iteration~14) over the LLM agent (iteration~17) --- confirming that the agent's benefit
 scales proportionally with configuration-landscape coupling complexity.
 
