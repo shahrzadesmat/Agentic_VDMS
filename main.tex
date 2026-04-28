@@ -330,10 +330,11 @@ Section~\ref{sec:conclusion} concludes.
 HOI detection has produced a series of strong transformer-based systems since
 HICO-DET~\cite{chao2018hico} established the 600-category verb--object benchmark.
 HOTR~\cite{kim2021hotr} introduced end-to-end interaction detection via encoder-decoder
-architectures; CDN~\cite{zhang2021cdn} demonstrated complementary gains from combining
-one-stage and two-stage detection; HOICLIP~\cite{ning2023hoiclip} showed that
-vision-language pre-training transfers interaction knowledge efficiently; and
-DPHoI~\cite{li2024dphoi} exploited disentangled pre-training over interaction primitives.
+architectures, and CDN~\cite{zhang2021cdn} demonstrated complementary gains from combining
+one-stage and two-stage detection.
+HOICLIP~\cite{ning2023hoiclip} showed that vision-language pre-training transfers
+interaction knowledge efficiently, while DPHoI~\cite{li2024dphoi} exploited disentangled
+pre-training over interaction primitives.
 All operate in the detection paradigm --- predicting (person, object, interaction)
 triples from an image --- and the sole non-detection use of
 HICO-DET~\cite{kilickaya2021structured} employs spatial canvas composition with IoU
@@ -352,8 +353,9 @@ We fill the orthogonal HOI \emph{retrieval} direction and adopt CLIP and UniIR a
 primary baselines.
 
 \subsection{Vector Database Systems and ANN Indexing}
+The efficiency of HOI retrieval depends not only on the query models above but also on how the underlying approximate nearest-neighbor indices are configured.
 ANN indexing algorithms span graph-based indices (HNSW~\cite{malkov2018hnsw} via
-hierarchical navigable small-world graphs; DiskANN~\cite{subramanya2019diskann} for
+hierarchical navigable small-world graphs, DiskANN~\cite{subramanya2019diskann} for
 billion-point SSD-resident datasets), inverted file structures with product
 quantization~\cite{jegou2011pq}, and GPU-accelerated flat search~\cite{johnson2019billion}.
 ANN-Benchmarks~\cite{aumuller2020ann} standardizes recall-versus-throughput evaluation
@@ -386,7 +388,7 @@ mixed-type spaces and serves as our strongest non-LLM baseline.
 
 For DBMS tuning, OtterTune~\cite{vanaken2017ottertune} pioneered ML-guided knob
 selection via Gaussian Process regression over workload representations.
-VDTuner~\cite{yang2024vdtuner} advances this to multi-objective Bayesian optimization
+VDTuner~\cite{yang2024vdtuner} extends this approach to multi-objective Bayesian optimization
 for VDMS HNSW parameters, improving over manual baselines, but models each parameter
 independently.
 All of these methods --- standard HPO, AutoML, and system-specific Bayesian optimization
@@ -394,11 +396,11 @@ All of these methods --- standard HPO, AutoML, and system-specific Bayesian opti
 from discovering compensatory configurations across coupled retrieval stages.
 
 \subsection{LLM-Guided System Configuration}
+Recent work has explored whether large language models can serve as optimization agents, bringing natural language reasoning to configuration search.
 OPRO~\cite{yang2024opro} established that LLMs can act as black-box optimizers by
 conditioning successive proposals on a history of candidate solutions and their scores.
-LLMHyperopt~\cite{zhang2023llmhyperopt} applied this to neural network hyperparameter
-search; AgentHPO~\cite{liu2024agenthpo} extended it to a multi-step agent framework
-with tool use and structured reasoning.
+Follow-up work extended this paradigm to ML hyperparameter
+optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}.
 
 GPTuner~\cite{lao2024gpttuner} applies LLM-guided Bayesian optimization to PostgreSQL
 and MySQL knob tuning, extracting structured configuration knowledge from database
