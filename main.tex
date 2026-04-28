@@ -252,18 +252,16 @@ independently, structurally preventing them from representing the
 \textit{efSearch}--$\alpha$ inter-stage coupling and causing all to
 systematically miss the globally optimal configuration within any practical iteration budget.
 VDTuner~\cite{yang2024vdtuner}, the closest prior system, compounds this further:
-its Gaussian Process (GP) surrogate assumes a smooth objective landscape, but the
-hard quality threshold separating feasible from infeasible configurations creates
-a cliff that GP smooths over, causing it to converge to a boundary-avoiding
-suboptimum rather than the global optimum.
+its smooth Gaussian Process surrogate cannot represent the hard threshold between
+feasible and infeasible configurations, steering optimization away from the
+global optimum.
 
 We propose a \emph{phase-aware LLM agent} for coupled ANN index optimization,
 applicable to any VDBMS exposing tunable index parameters and instantiated in this
 work on Intel's VDMS~\cite{pan2023vdms}.
-The agent conditions each proposal on the complete history of (configuration, Score)
-pairs, reasons explicitly over cross-stage parameter dependencies, and
-self-regulates between exploration and exploitation phases based on observed
-performance history.
+The agent conditions each proposal on all prior configurations and their observed
+scores, reasons explicitly over cross-stage parameter dependencies, and
+self-regulates between exploration and exploitation phases.
 We also introduce the \emph{first text-query image retrieval benchmark} from
 HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
 VDMS --- the first benchmark to expose the structural limits of blind
@@ -274,7 +272,7 @@ Evaluated under the SIEVE quality-constrained throughput objective
 (Section~\ref{sec:metrics}), the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
 $\mathbf{+50.7\%}$ over GP-BO on HICO-DET, converging at $\sim$23~iterations
 versus $\sim$41 for Optuna~TPE and delivering a $\mathbf{36.6\times}$ improvement
-over the unoptimized CLIP FaissFlat reference~\cite{johnson2019billion}.
+over an exhaustive-search CLIP baseline~\cite{johnson2019billion}.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
 SIFT1M~\cite{jegou2011pq} (pure ANN search) ---
 the advantage diminishes proportionally, confirming it scales with structural
