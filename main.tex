@@ -273,8 +273,7 @@ applicable to any VDBMS exposing tunable index parameters and instantiated in th
 work on Intel's VDMS~\cite{pan2023vdms}.
 The agent conditions each proposal on the complete history of (configuration, Score)
 pairs, reasons explicitly over cross-stage parameter dependencies, and
-self-regulates across three optimization phases --- exploration, exploitation, and
-fine-tuning --- with stagnation detection and anti-collapse mechanisms.
+self-regulates its search strategy through history-conditioned phase transitions.
 A central contribution is the \emph{first text-query image retrieval benchmark}
 built from HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 fine-grained
 verb--object human-object interaction (HOI) categories, deployed on VDMS --- the
@@ -287,16 +286,13 @@ latency), and prove geometrically that CLIP text embeddings occupy the semantic
 centroid of each HOI visual cluster, establishing text-query superiority on
 compositionally structured data.
 Evaluated under the SIEVE quality-constrained throughput objective
-(Section~\ref{sec:metrics}) --- Score\,$=$\,QPS when mAP\,$\geq$\,$\tau$, else~0
---- the agent achieves $+$33.3\% over Optuna~TPE and $+$50.7\% over GP-BO on
-HICO-DET, converging at $\sim$23~iterations versus $\sim$41 for Optuna~TPE and
-delivering a $\mathbf{36.6\times}$ improvement over the unoptimized CLIP FaissFlat
-reference.
-On GLDv2 (762K images, image-to-image retrieval), the agent reaches near-optimal
-quality at $\sim$6~iterations versus $\sim$32 for Optuna~TPE\@.
-On SIFT1M (pure ANN search), all methods converge within 2\% of each other ---
-confirming that the agent's advantage scales directly with structural coupling in
-the configuration landscape.
+(Section~\ref{sec:metrics}), the agent achieves $+$33.3\% over Optuna~TPE and
+$+$50.7\% over GP-BO on HICO-DET, converging at $\sim$23~iterations versus
+$\sim$41 for Optuna~TPE and delivering a $\mathbf{36.6\times}$ improvement over
+the unoptimized CLIP FaissFlat reference.
+On simpler datasets --- GLDv2 (image-to-image) and SIFT1M (pure ANN search) ---
+the advantage diminishes proportionally, confirming it scales with structural
+configuration coupling.
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 \begin{itemize}[leftmargin=1em, itemsep=3pt, topsep=3pt]
