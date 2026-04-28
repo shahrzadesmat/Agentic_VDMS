@@ -234,9 +234,8 @@ configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware.
 Yet no existing method is designed to close it.
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
 and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate that
-LLM-guided methods outperform Bayesian and reinforcement-learning baselines
-on DBMS knob tuning; OtterTune~\cite{vanaken2017ottertune} established earlier
-that ML-based approaches can achieve the same without manual effort.
+LLM-guided methods outperform ML-based~\cite{vanaken2017ottertune} and
+reinforcement-learning baselines on DBMS knob tuning.
 On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner} applies
 multi-objective Bayesian optimization to VDMS index parameters but treats
 them independently, as do standard search baselines --- Optuna
@@ -269,7 +268,7 @@ We also introduce the \emph{first text-query image retrieval benchmark} from
 HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
 VDMS --- the first benchmark to expose the structural limits of blind
 ANN optimizers, as every prior use of HICO-DET is restricted to the detection
-paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
+paradigm (e.g.,~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
 
 Evaluated under the SIEVE quality-constrained throughput objective
 (Section~\ref{sec:metrics}), the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
@@ -297,9 +296,8 @@ configuration coupling.
     The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
     600 verb--object categories, deployed on VDMS), pairing CLIP~ViT-L/14 ANN
     retrieval with DINOv2 pseudo-relevance-feedback reranking at zero additional
-    indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency), with a geometric
-    proof that CLIP text embeddings occupy the semantic centroid of each HOI visual
-    cluster.
+    indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency), with a theoretical
+    justification that CLIP text embeddings align with HOI visual cluster centers.
 
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
     We characterize when LLM-guided optimization pays off across three datasets
