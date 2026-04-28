@@ -213,16 +213,15 @@ component of modern AI applications --- product recommendation, visual question
 answering, medical image retrieval, and cross-modal content discovery --- each
 issuing millions of queries per day against collections of tens to hundreds of
 millions of vectors.
-Yet the throughput and accuracy a vector database management system (VDBMS)
-delivers hinge not on the choice of index structure alone --- they turn equally
-on the precise tuning of a handful of ANN index parameters.
-On a production-scale embedding collection, the gap between a default and an
-optimized configuration routinely exceeds an \emph{order of magnitude} in
-queries per second on identical hardware --- determining whether a deployed system
-meets its latency service-level agreement or falls below the minimum retrieval
-quality threshold required for user-facing deployment.
-Getting this configuration right is therefore a production-critical engineering
-requirement, not a one-time offline convenience.
+Yet throughput and accuracy depend as much on how ANN index parameters are
+configured as on the index structure itself.
+On a production-scale collection, the gap between a default and an optimized
+configuration can exceed an \emph{order of magnitude} in queries per second on
+identical hardware.
+That gap decides whether a deployed system meets production quality and throughput
+requirements --- or fails to.
+Closing it demands an optimizer that reasons over how parameters interact across
+retrieval stages, not one that searches blindly.
 
 Modern retrieval pipelines compound this challenge by chaining multiple stages:
 an ANN index that produces a candidate set subsequently refined by a reranker or
