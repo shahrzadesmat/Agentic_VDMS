@@ -223,10 +223,9 @@ VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, and
 GaussDB-Vector~\cite{sun2025gaussdb} chain an ANN retrieval stage with a
 cross-modal fusion reranking stage, exposing interdependent index and reranking
 parameters whose joint configuration determines both retrieval quality and throughput.
-These parameters are structurally coupled: reducing retrieval-stage search
-depth~(\textit{efSearch}~\cite{malkov2018hnsw}) compresses the candidate pool
-fed to the reranker, a recall deficit that only raising the fusion
-weight~($\alpha$) can compensate --- a dependency invisible to any
+These parameters are structurally coupled: reducing retrieval search
+depth (\textit{efSearch}) forces the fusion reranker to compensate via a higher
+fusion weight~($\alpha$) --- a cross-stage dependency invisible to any
 parameter-independent optimizer.
 On HICO-DET, the gap between an unoptimized baseline and our agent-optimized
 configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware.
@@ -248,11 +247,11 @@ where parameters are independent --- no cross-stage coupling exists
 by construction.
 The ANN tuning methods --- Optuna TPE~\cite{akiba2019optuna}, grid and
 random search~\cite{snoek2012bayesian,bergstra2012random} --- model each parameter
-independently, structurally preventing them from representing the
-\textit{efSearch}--$\alpha$ inter-stage coupling and causing all to
+independently, structurally preventing them from capturing
+this cross-stage coupling and causing all to
 systematically miss the globally optimal configuration within any practical iteration budget.
 VDTuner~\cite{yang2024vdtuner}, the closest prior system, compounds this further:
-its smooth Gaussian Process surrogate cannot represent the hard threshold between
+its smooth surrogate model cannot represent the hard threshold between
 feasible and infeasible configurations, steering optimization away from the
 global optimum.
 
@@ -283,18 +282,15 @@ configuration coupling.
     A history-conditioned agent applicable to any VDBMS exposing ANN index parameters
     (instantiated on Intel's VDMS) that explicitly models the
     \textit{efSearch}--$\alpha$ inter-stage coupling, discovering compensatory
-    operating points (e.g., $\mathit{efSearch}{=}64$, $\alpha{=}0.80$) that no
-    parameter-independent method locates within 50~iterations.
+    operating points that no parameter-independent method locates within 50~iterations.
     Achieves $\mathbf{+33.3\%}$ over Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO
     on HICO-DET; mechanistic ablations confirm history conditioning and phase-aware
     transitions are each independently necessary.
 
   \item \textbf{First HOI retrieval benchmark and zero-indexing-cost two-stage pipeline.}
     The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
-    600 verb--object categories, deployed on VDMS), pairing CLIP~ViT-L/14 ANN
-    retrieval with DINOv2 pseudo-relevance-feedback reranking at zero additional
-    indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency), with a theoretical
-    justification that CLIP text embeddings align with HOI visual cluster centers.
+    600 verb--object categories, deployed on VDMS), pairing CLIP ANN retrieval with DINOv2 pseudo-relevance-feedback reranking at zero additional
+    indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency).
 
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
     We characterize when LLM-guided optimization pays off across three datasets
