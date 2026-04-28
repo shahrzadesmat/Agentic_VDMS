@@ -228,22 +228,22 @@ depth~(\textit{efSearch}~\cite{malkov2018hnsw}) compresses the candidate pool
 fed to the reranker, a recall deficit that only raising the fusion
 weight~($\alpha$) can compensate --- a dependency invisible to any
 parameter-independent optimizer.
-On HICO-DET, this coupling drives a $\mathbf{36.6\times}$ throughput gap between
-the unoptimized and agent-optimized configurations on identical hardware.
+On HICO-DET, the gap between an unoptimized baseline and our agent-optimized
+configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware.
 
-On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner},
-$\lambda$-Tune~\cite{giannakouris2025lambdatune}, and
-OtterTune~\cite{vanaken2017ottertune} demonstrate that LLM reasoning and
-learning-based methods outperform Bayesian and reinforcement-learning baselines
-on DBMS knob tuning.
+On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
+and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate that
+LLM-guided methods outperform Bayesian and reinforcement-learning baselines
+on DBMS knob tuning; OtterTune~\cite{vanaken2017ottertune} established earlier
+that ML-based approaches can achieve the same without manual effort.
 On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner} applies
-multi-objective Bayesian optimization to VDMS index parameters, and
-VSAG~\cite{zhong2025vsag} eliminates costly index rebuilds via analytical
-subgraph monotonicity.
+multi-objective Bayesian optimization to VDMS index parameters but treats
+them independently, and VSAG~\cite{zhong2025vsag} eliminates costly index
+rebuilds via analytical subgraph monotonicity.
 
 Yet all share a structural limitation:
-LLM-guided DBMS tuners operate on flat, scalar knob spaces (PostgreSQL, MySQL)
-where parameters are conditionally independent --- no cross-stage coupling exists
+LLM-guided DBMS tuners operate on flat knob spaces (PostgreSQL, MySQL)
+where parameters are independent --- no cross-stage coupling exists
 by construction.
 The ANN tuning methods --- Optuna TPE~\cite{akiba2019optuna}, grid and
 random search~\cite{snoek2012bayesian,bergstra2012random} --- model each parameter
@@ -263,7 +263,7 @@ pairs, reasons explicitly over cross-stage parameter dependencies, and
 self-regulates its search strategy through history-conditioned phase transitions.
 We also introduce the \emph{first text-query image retrieval benchmark} from
 HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
-VDMS --- the only benchmark rich enough to expose the structural limits of blind
+VDMS --- the first benchmark to expose the structural limits of blind
 ANN optimizers, as every prior use of HICO-DET is restricted to the detection
 paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
 
@@ -289,7 +289,7 @@ configuration coupling.
     Optuna~TPE, converging at iteration~23 vs.~41); mechanistic ablations confirm
     history conditioning and phase-aware transitions are each independently necessary.
 
-  \item \textbf{First HOI retrieval benchmark and zero-cost two-stage pipeline.}
+  \item \textbf{First HOI retrieval benchmark and zero-indexing-cost two-stage pipeline.}
     The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
     600 verb--object categories, deployed on VDMS), pairing CLIP~ViT-L/14 ANN
     retrieval with DINOv2 pseudo-relevance-feedback reranking at zero additional
@@ -300,9 +300,9 @@ configuration coupling.
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
     We characterize when LLM-guided optimization pays off across three datasets
     spanning the full coupling-complexity spectrum: fully coupled 7-parameter
-    cross-stage (HICO-DET, $+$33.3\%), image-to-image (GLDv2), and pure ANN
-    search (SIFT1M) --- demonstrating that the advantage is proportional to
-    structural configuration coupling.
+    cross-stage (HICO-DET), image-to-image (GLDv2), and pure ANN search (SIFT1M)
+    --- showing that the $+$33.3\% gain on HICO-DET diminishes proportionally
+    as structural coupling decreases.
 
   \item \textbf{SIEVE: a quality-constrained throughput objective for
     deployment-aware ANN evaluation.}
@@ -310,7 +310,7 @@ configuration coupling.
     real deployment requirements where a system below minimum retrieval quality
     is simply not usable; post-hoc analysis shows \textbf{9 of 12} (method, seed) pairs
     have their product-metric-optimal configuration below $\tau$, yielding
-    SIEVE Score\,$=$\,0 --- proving that smooth product metrics steer
+    SIEVE Score\,$=$\,0 --- demonstrating that smooth product metrics steer
     optimization into the infeasible region.
 \end{itemize}
 
