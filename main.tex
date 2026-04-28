@@ -316,11 +316,20 @@ configuration coupling.
     cluster.
 
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
-    Evaluation across HICO-DET (7-parameter, cross-stage coupled, $+$33.3\% LLM
-    advantage), GLDv2 (image-to-image, near-optimal at iteration~6), and SIFT1M
-    (pure ANN, LLM/Grid/Optuna/Random within 1.3\% of each other) ---
-    establishing that the agent's advantage is proportional to structural
-    configuration coupling.
+    We characterize when LLM-guided optimization pays off across three datasets
+    spanning the full coupling-complexity spectrum: fully coupled 7-parameter
+    cross-stage (HICO-DET, $+$33.3\%), image-to-image (GLDv2), and pure ANN
+    search (SIFT1M) --- demonstrating that the advantage is proportional to
+    structural configuration coupling.
+
+  \item \textbf{SIEVE: a quality-constrained throughput objective for
+    deployment-aware ANN evaluation.}
+    We propose SIEVE (Score\,$=$\,QPS if mAP\,$\geq\,\tau$, else~0), reflecting
+    real deployment requirements where a system below minimum retrieval quality
+    is simply not usable; post-hoc analysis shows 9 of 12 (method, seed) pairs
+    have their mAP$\times$QPS-optimal configuration below $\tau$, yielding
+    SIEVE Score\,$=$\,0 --- proving that smooth product metrics steer
+    optimization into the infeasible region.
 \end{itemize}
 
 \section{Related Work}
