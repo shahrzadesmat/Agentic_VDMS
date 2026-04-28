@@ -218,19 +218,16 @@ each issuing millions of queries per day.
 Closing this gap demands an optimizer that reasons over how parameters interact
 across retrieval stages, not one that searches blindly.
 
-Modern retrieval pipelines compound this challenge by chaining multiple stages:
-an ANN index producing a candidate set refined by a reranker or cross-modal
-fusion module.
-Systems such as VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, and
-GaussDB-Vector~\cite{sun2025gaussdb} expose 4--7 interdependent parameters ---
-including search depth~(\textit{efSearch}~\cite{malkov2018hnsw}) and cross-modal
-fusion weight~($\alpha$) --- whose joint configuration determines both retrieval quality
-and throughput.
-These parameters are not merely non-linear but structurally coupled: reducing
-Stage-1 search depth (\textit{efSearch}) compresses the candidate pool fed to the
-Stage-2 reranker, a recall deficit that can only be compensated by raising the
-fusion weight~($\alpha$) --- a dependency invisible to any parameter-independent
-optimizer.
+Multi-stage retrieval pipelines compound this challenge: systems such as
+VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, and
+GaussDB-Vector~\cite{sun2025gaussdb} chain an ANN index (Stage~1) with a
+cross-modal fusion reranker (Stage~2), exposing 4--7 parameters whose joint
+configuration determines both retrieval quality and throughput.
+These parameters are structurally coupled: reducing Stage-1 search
+depth~(\textit{efSearch}~\cite{malkov2018hnsw}) compresses the candidate pool
+fed to the reranker, a recall deficit that only raising the fusion
+weight~($\alpha$) can compensate --- a dependency invisible to any
+parameter-independent optimizer.
 
 Prior work approaches this from two directions.
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner},
