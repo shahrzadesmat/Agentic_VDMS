@@ -285,9 +285,9 @@ configuration coupling.
     \textit{efSearch}--$\alpha$ inter-stage coupling, discovering compensatory
     operating points (e.g., $\mathit{efSearch}{=}64$, $\alpha{=}0.80$) that no
     parameter-independent method locates within 50~iterations.
-    Achieves mean SIEVE Score\,$=$\,$\mathbf{300.3}$ on HICO-DET ($\mathbf{+33.3\%}$ over
-    Optuna~TPE, converging at iteration~23 vs.~41); mechanistic ablations confirm
-    history conditioning and phase-aware transitions are each independently necessary.
+    Achieves $\mathbf{+33.3\%}$ over Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO
+    on HICO-DET; mechanistic ablations confirm history conditioning and phase-aware
+    transitions are each independently necessary.
 
   \item \textbf{First HOI retrieval benchmark and zero-indexing-cost two-stage pipeline.}
     The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
@@ -300,17 +300,16 @@ configuration coupling.
     We characterize when LLM-guided optimization pays off across three datasets
     spanning the full coupling-complexity spectrum: fully coupled 7-parameter
     cross-stage (HICO-DET), image-to-image (GLDv2), and pure ANN search (SIFT1M)
-    --- showing that the $+$33.3\% gain on HICO-DET diminishes proportionally
-    as structural coupling decreases.
+    --- showing that gains diminish proportionally as structural coupling decreases.
 
   \item \textbf{SIEVE: a quality-constrained throughput objective for
     deployment-aware ANN evaluation.}
-    We propose SIEVE (Score\,$=$\,QPS if mAP\,$\geq\,\tau$, else~0), reflecting
-    real deployment requirements where a system below minimum retrieval quality
-    is simply not usable; we show empirically that product-metric-optimal
-    configurations systematically fall below $\tau$, yielding SIEVE Score\,$=$\,0
-    across the majority of methods and seeds --- demonstrating that smooth product
-    metrics steer optimization into the infeasible region.
+    We propose SIEVE, a quality-constrained throughput metric that scores zero
+    for any configuration below a minimum retrieval quality threshold, reflecting
+    real deployment requirements; we show empirically that product-metric-optimal
+    configurations systematically fall below this threshold across the majority of
+    methods and seeds --- demonstrating that smooth metrics steer optimization into
+    the infeasible region.
 \end{itemize}
 
 \section{Related Work}
