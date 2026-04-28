@@ -251,9 +251,10 @@ independently, structurally preventing them from representing the inter-stage
 coupling described above and causing all to systematically miss the globally
 optimal configuration regardless of iteration budget.
 VDTuner~\cite{yang2024vdtuner}, the closest prior system, compounds this further:
-its Gaussian Process surrogate assumes a smooth objective landscape, but the hard
-quality threshold in SIEVE creates a cliff that GP averages across, causing it to
-converge to a boundary-avoiding suboptimum rather than the global optimum.
+its Gaussian Process (GP) surrogate assumes a smooth objective landscape, but the
+hard quality threshold separating feasible from infeasible configurations creates
+a cliff that GP smooths over, causing it to converge to a boundary-avoiding
+suboptimum rather than the global optimum.
 
 We propose a \emph{phase-aware LLM agent} for coupled ANN index optimization,
 applicable to any VDBMS exposing tunable index parameters and instantiated in this
