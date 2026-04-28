@@ -247,9 +247,9 @@ where parameters are independent --- no cross-stage coupling exists
 by construction.
 The ANN tuning methods --- Optuna TPE~\cite{akiba2019optuna}, grid and
 random search~\cite{snoek2012bayesian,bergstra2012random} --- model each parameter
-independently, structurally preventing them from representing the inter-stage
-coupling described above and causing all to systematically miss the globally
-optimal configuration regardless of iteration budget.
+independently, structurally preventing them from representing the
+\textit{efSearch}--$\alpha$ inter-stage coupling and causing all to
+systematically miss the globally optimal configuration regardless of iteration budget.
 VDTuner~\cite{yang2024vdtuner}, the closest prior system, compounds this further:
 its Gaussian Process (GP) surrogate assumes a smooth objective landscape, but the
 hard quality threshold separating feasible from infeasible configurations creates
