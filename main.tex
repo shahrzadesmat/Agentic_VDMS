@@ -169,7 +169,7 @@ feedback loop --- learning from its own optimization history to navigate the cou
 parameter space across self-regulated exploration, exploitation, and fine-tuning phases.
 Evaluated on the HICO-DET benchmark using Intel VDMS, our agent outperforms
 Optuna~TPE by $+33.3\%$ and GP-BO by $+50.7\%$ in accuracy-throughput score,
-delivering a $15.3\times$ throughput gain over UniIR.
+delivering a $\mathbf{36.6\times}$ throughput gain over UniIR.
 Validation across three benchmarks confirms that the agent's advantage grows with
 the degree of parameter coupling: $+33.3\%$ on HICO-DET (high coupling),
 $+1.2\%$ on GLDv2 (moderate coupling), and $<+0.1\%$ on SIFT1M (near-independent control).
@@ -223,9 +223,11 @@ in which each evaluation requires a full index rebuild and query execution acros
 tens of thousands of embeddings, incurring significant wall-clock cost per
 trial~\cite{yang2024vdtuner} --- making convergence speed a first-class system
 concern.
-The interactions among parameters are highly non-linear: the optimal value of each
-parameter depends on the values of the others in ways that resist independent
-analysis.
+These interactions are not merely non-linear but structurally coupled: reducing
+Stage-1 search depth (\textit{efSearch}) compresses the candidate pool fed to the
+Stage-2 reranker, a recall deficit that can only be compensated by raising the
+cross-modal fusion weight ($\alpha$) --- an inter-stage dependency that is
+invisible to any parameter-independent optimizer.
 
 State-of-the-art approaches automate the search via grid enumeration, random
 sampling, or Bayesian optimization~\cite{snoek2012bayesian,bergstra2012random}.
@@ -248,13 +250,13 @@ index tuning.
 Each evaluation in a production-scale system requires a full index rebuild followed
 by query execution across tens of thousands of embeddings --- 7--8 minutes of
 wall-clock time per iteration on representative hardware, capping a realistic
-tuning budget at approximately 30 iterations (3.5--4 hours per method).
+tuning budget at approximately 50 iterations ($\approx$7 hours per method).
 Under this constraint, a method that spends even 10--15 early iterations in
 suboptimal regions of the \textit{efSearch}--$\alpha$ landscape does not merely
 converge slowly: it \emph{fails} to locate the globally optimal configuration
 entirely.
 The LLM agent's ability to reason explicitly about inter-stage dependencies is
-therefore not a convenience --- it is the mechanism that transforms a 30-iteration
+therefore not a convenience --- it is the mechanism that transforms a 50-iteration
 budget from insufficient to \emph{sufficient} for navigating a coupled
 configuration landscape.
 
@@ -270,10 +272,10 @@ verb--object HOI categories on Intel VDMS --- whose compositional structure crea
 a retrieval workload rich enough to expose the structural limits of blind ANN
 optimizers (every prior use of HICO-DET is restricted to the detection
 paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
-We pair CLIP ViT-L/14 ANN retrieval with zero-cost DINOv2 reranking and prove
-geometrically that text queries occupy the visual centroid of each HOI category,
-making them structurally superior to image queries on compositionally structured
-data and directly justifying the reranker design without a secondary index.
+We deploy a zero-cost two-stage pipeline --- CLIP ViT-L/14 ANN search paired with
+DINOv2 pseudo-relevance-feedback reranking --- and establish geometrically that
+CLIP text embeddings are structurally optimal queries for compositionally structured
+HOI data, obviating any secondary visual index.
 
 Two parallel threads of prior work address orthogonal aspects of this problem, yet
 neither reaches the intersection our setting requires.
@@ -290,6 +292,11 @@ VSAG~\cite{zhong2025vsag} (VLDB~2025) eliminates index rebuilds via analytical
 subgraph monotonicity --- but both treat parameters independently and neither models
 the coupling between \textit{efSearch} and $\alpha$ that emerges when ANN retrieval
 feeds a reranker.
+Moreover, the Gaussian Process surrogate underlying GP-BO assumes a smooth
+objective landscape; it cannot represent the hard deployment quality threshold
+that separates feasible from infeasible configurations, causing it to average
+across the boundary and converge to a suboptimal, boundary-avoiding operating point
+regardless of budget.
 
 To address these challenges, we propose a \emph{phase-aware LLM agent} that
 conditions each configuration proposal on the complete history of measured
@@ -308,7 +315,7 @@ Score over Optuna~TPE and $+$50.7\% over GP-BO
 throughput objective, converging in $\sim$23~iterations on average versus $\sim$41
 for Optuna~TPE --- a $\mathbf{36.6\times}$ improvement over the unoptimized CLIP FaissFlat reference.
 On GLDv2, the agent reaches near-optimal quality in $\sim$6~iterations
-versus $\sim$25 for Optuna~TPE\@.
+versus $\sim$32 for Optuna~TPE\@.
 On SIFT1M, all methods converge within 2\% of each other --- confirming that the
 agent's advantage scales with the structural coupling of the configuration
 landscape.
@@ -371,7 +378,7 @@ achieving up to $3.57\times$ faster convergence, but models parameters independe
 misses the \textit{efSearch}--$\alpha$ coupling in multi-stage retrieval.
 Optuna TPE~\cite{akiba2019optuna} handles mixed-type spaces but treats each parameter
 independently, structurally preventing it from locating the compensatory
-$\mathit{efSearch}{=}64$, $\alpha{=}0.80$ operating point within 30 iterations.
+$\mathit{efSearch}{=}64$, $\alpha{=}0.80$ operating point within 50 iterations.
 
 \subsection{LLM-Guided System Configuration}
 OPRO~\cite{yang2024opro} showed LLMs act as black-box optimizers by conditioning on
