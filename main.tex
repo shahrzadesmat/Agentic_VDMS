@@ -229,7 +229,6 @@ fed to the reranker, a recall deficit that only raising the fusion
 weight~($\alpha$) can compensate --- a dependency invisible to any
 parameter-independent optimizer.
 
-Prior work approaches this from two directions.
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner},
 $\lambda$-Tune~\cite{giannakouris2025lambdatune}, and
 OtterTune~\cite{vanaken2017ottertune} demonstrate that LLM reasoning and
@@ -241,7 +240,7 @@ VSAG~\cite{zhong2025vsag} eliminates costly index rebuilds via analytical
 subgraph monotonicity.
 
 Yet all share a structural limitation:
-The LLM-guided DBMS tuners operate on flat, scalar knob spaces (PostgreSQL, MySQL)
+LLM-guided DBMS tuners operate on flat, scalar knob spaces (PostgreSQL, MySQL)
 where parameters are conditionally independent --- no cross-stage coupling exists
 by construction.
 The ANN tuning methods --- VDTuner, Optuna TPE~\cite{akiba2019optuna}, grid and
@@ -266,6 +265,7 @@ HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed o
 VDMS --- the only benchmark rich enough to expose the structural limits of blind
 ANN optimizers, as every prior use of HICO-DET is restricted to the detection
 paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
+
 Evaluated under the SIEVE quality-constrained throughput objective
 (Section~\ref{sec:metrics}), the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
 $\mathbf{+50.7\%}$ over GP-BO on HICO-DET, converging at $\sim$23~iterations
