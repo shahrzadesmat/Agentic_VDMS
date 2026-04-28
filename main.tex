@@ -299,31 +299,31 @@ confirming that the agent's advantage scales directly with structural coupling i
 the configuration landscape.
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
+\begin{itemize}[leftmargin=1em, itemsep=3pt, topsep=3pt]
+  \item \textbf{Phase-aware LLM agent for coupled ANN index optimization.}
+    A history-conditioned agent applicable to any VDBMS exposing ANN index parameters
+    (instantiated on Intel's VDMS) that explicitly models the
+    \textit{efSearch}--$\alpha$ inter-stage coupling, discovering the compensatory
+    operating point $\mathit{efSearch}{=}64$, $\alpha{=}0.80$ that no
+    parameter-independent method locates within 50~iterations.
+    Mean SIEVE Score\,$=$\,300.3 on HICO-DET, $+$33.3\% over Optuna~TPE,
+    converging at iteration~23 vs.~41; mechanistic ablations confirm history
+    conditioning and phase-aware transitions are each independently necessary.
 
-\noindent\textbf{(1) A phase-aware agentic protocol for coupled ANN index optimization.}
-We present a history-conditioned, phase-aware LLM agent --- applicable to any VDBMS
-exposing ANN index parameters, instantiated here on Intel's VDMS --- that explicitly
-models the structural coupling between Stage-1 search depth (\textit{efSearch}) and
-Stage-2 fusion weight~($\alpha$), discovering the compensatory operating point
-$\mathit{efSearch}{=}64$, $\alpha{=}0.80$ that no parameter-independent method
-locates within 50~iterations, achieving mean SIEVE Score\,$=$\,300.3
-on HICO-DET, $+$33.3\% over Optuna~TPE, converging at iteration~$23$
-versus~$41$ for Optuna; mechanistic ablations confirm that history conditioning
-and phase-aware transitions are both independently necessary.
+  \item \textbf{First HOI retrieval benchmark and zero-cost two-stage pipeline.}
+    The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
+    600 verb--object categories, deployed on VDMS), pairing CLIP~ViT-L/14 ANN
+    retrieval with DINOv2 pseudo-relevance-feedback reranking at zero additional
+    indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency), with a geometric
+    proof that CLIP text embeddings occupy the semantic centroid of each HOI visual
+    cluster.
 
-\noindent\textbf{(2) The first HOI retrieval benchmark and a zero-cost two-stage pipeline.}
-We construct the first text-query image retrieval benchmark from HICO-DET (47{,}776
-images, 600 verb--object categories) deployed on Intel's VDMS, pair CLIP ViT-L/14
-ANN retrieval with DINOv2 pseudo-relevance-feedback reranking at zero additional
-indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency), and prove geometrically
-that CLIP text embeddings occupy the semantic centroid of each HOI visual cluster ---
-establishing text-query superiority on compositionally structured data.
-
-\noindent\textbf{(3) A complexity-matched evaluation characterizing when LLM reasoning pays off.}
-We evaluate across HICO-DET (7-parameter, cross-stage coupled, $+$33.3\% LLM advantage),
-GLDv2 (image-to-image, near-optimal at iteration~6), and SIFT1M (pure ANN, all
-methods within 2\%) --- establishing that the agent's advantage is proportional to
-structural configuration coupling.
+  \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
+    Evaluation across HICO-DET (7-parameter, cross-stage coupled, $+$33.3\% LLM
+    advantage), GLDv2 (image-to-image, near-optimal at iteration~6), and SIFT1M
+    (pure ANN, all methods within 2\%) --- establishing that the agent's advantage
+    is proportional to structural configuration coupling.
+\end{itemize}
 
 \section{Related Work}
 \label{sec:related}
