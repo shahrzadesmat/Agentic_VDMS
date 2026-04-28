@@ -231,12 +231,8 @@ Stage-1 search depth (\textit{efSearch}) compresses the candidate pool fed to th
 Stage-2 reranker, a recall deficit that can only be compensated by raising the
 fusion weight~($\alpha$) --- a dependency invisible to any parameter-independent
 optimizer.
-Compounding this, each evaluation requires a full index rebuild and query execution
-across tens of thousands of embeddings --- several minutes of wall-clock time even
-on high-end GPU hardware --- capping realistic tuning budgets at approximately
-50~iterations per method.
 
-Two parallel threads of prior work address orthogonal aspects of this problem.
+Prior work approaches this from two directions.
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner},
 $\lambda$-Tune~\cite{giannakouris2025lambdatune}, and
 OtterTune~\cite{vanaken2017ottertune} demonstrate that LLM reasoning and
@@ -247,8 +243,7 @@ multi-objective Bayesian optimization to VDMS index parameters, and
 VSAG~\cite{zhong2025vsag} eliminates costly index rebuilds via analytical
 subgraph monotonicity.
 
-Yet all existing methods share a structural limitation that prevents them from
-solving our setting.
+Yet all share a structural limitation:
 The LLM-guided DBMS tuners operate on flat, scalar knob spaces (PostgreSQL, MySQL)
 where parameters are conditionally independent --- no cross-stage coupling exists
 by construction.
@@ -269,7 +264,7 @@ work on Intel's VDMS~\cite{pan2023vdms}.
 The agent conditions each proposal on the complete history of (configuration, Score)
 pairs, reasons explicitly over cross-stage parameter dependencies, and
 self-regulates its search strategy through history-conditioned phase transitions.
-We further contribute the \emph{first text-query image retrieval benchmark} from
+We also introduce the \emph{first text-query image retrieval benchmark} from
 HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
 VDMS --- the only benchmark rich enough to expose the structural limits of blind
 ANN optimizers, as every prior use of HICO-DET is restricted to the detection
@@ -292,9 +287,9 @@ configuration coupling.
     \textit{efSearch}--$\alpha$ inter-stage coupling, discovering compensatory
     operating points (e.g., $\mathit{efSearch}{=}64$, $\alpha{=}0.80$) that no
     parameter-independent method locates within 50~iterations.
-    Mean SIEVE Score\,$=$\,$\mathbf{300.3}$ on HICO-DET, $\mathbf{+33.3\%}$ over Optuna~TPE,
-    converging at iteration~23 vs.~41; mechanistic ablations confirm history
-    conditioning and phase-aware transitions are each independently necessary.
+    Achieves mean SIEVE Score\,$=$\,$\mathbf{300.3}$ on HICO-DET ($\mathbf{+33.3\%}$ over
+    Optuna~TPE, converging at iteration~23 vs.~41); mechanistic ablations confirm
+    history conditioning and phase-aware transitions are each independently necessary.
 
   \item \textbf{First HOI retrieval benchmark and zero-cost two-stage pipeline.}
     The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
