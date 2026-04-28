@@ -228,6 +228,8 @@ depth~(\textit{efSearch}~\cite{malkov2018hnsw}) compresses the candidate pool
 fed to the reranker, a recall deficit that only raising the fusion
 weight~($\alpha$) can compensate --- a dependency invisible to any
 parameter-independent optimizer.
+On HICO-DET, this coupling drives a $\mathbf{36.6\times}$ throughput gap between
+the unoptimized and agent-optimized configurations on identical hardware.
 
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner},
 $\lambda$-Tune~\cite{giannakouris2025lambdatune}, and
@@ -243,16 +245,15 @@ Yet all share a structural limitation:
 LLM-guided DBMS tuners operate on flat, scalar knob spaces (PostgreSQL, MySQL)
 where parameters are conditionally independent --- no cross-stage coupling exists
 by construction.
-The ANN tuning methods --- VDTuner, Optuna TPE~\cite{akiba2019optuna}, grid and
+The ANN tuning methods --- Optuna TPE~\cite{akiba2019optuna}, grid and
 random search~\cite{snoek2012bayesian,bergstra2012random} --- model each parameter
 independently, structurally preventing them from representing the inter-stage
 coupling described above and causing all to systematically miss the globally
 optimal configuration regardless of iteration budget.
-The Gaussian Process surrogate underlying GP-BO~\cite{yang2024vdtuner} compounds
-this: its smooth surface
-cannot model the hard quality threshold that separates feasible from infeasible
-configurations, causing it to average across the boundary and converge to a
-boundary-avoiding suboptimum.
+VDTuner~\cite{yang2024vdtuner}, the closest prior system, compounds this further:
+its Gaussian Process surrogate assumes a smooth objective landscape, but the hard
+quality threshold in SIEVE creates a cliff that GP averages across, causing it to
+converge to a boundary-avoiding suboptimum rather than the global optimum.
 
 We propose a \emph{phase-aware LLM agent} for coupled ANN index optimization,
 applicable to any VDBMS exposing tunable index parameters and instantiated in this
