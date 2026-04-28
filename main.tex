@@ -228,10 +228,9 @@ an ANN index producing a candidate set refined by a reranker or cross-modal
 fusion module.
 Systems such as VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, and
 GaussDB-Vector~\cite{sun2025gaussdb} expose 4--7 interdependent parameters ---
-graph connectivity~($M$), search depth~(\textit{efSearch}), candidate pool
-size~($k$), cross-modal fusion weight~($\alpha$), reranker reference
-count~($n_{\mathrm{refs}}$), and reference selection strategy~\cite{yang2024vdtuner}
---- whose joint configuration determines both retrieval quality and throughput.
+including search depth~(\textit{efSearch}) and cross-modal fusion
+weight~($\alpha$) --- whose joint configuration determines both retrieval quality
+and throughput.
 These parameters are not merely non-linear but structurally coupled: reducing
 Stage-1 search depth (\textit{efSearch}) compresses the candidate pool fed to the
 Stage-2 reranker, a recall deficit that can only be compensated by raising the
