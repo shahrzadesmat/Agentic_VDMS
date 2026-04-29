@@ -1555,15 +1555,25 @@ GPT-4o-mini (seed~42, Score\,$=$\,297.44) and Llama-3.3-70B (Score\,$=$\,294.20)
 \section{Conclusion and Outlook}
 \label{sec:conclusion}
 
-Standard parameter-independent HPO methods fail structurally on two-stage ANN retrieval
-pipelines because engine-type gating, search-depth--fusion-weight cross-stage coupling,
-and the latency--recall trade-off form conditional dependencies that univariate acquisition
-surfaces cannot model.
-We presented a phase-aware LLM agent using the full $(\theta,\text{Score})$ trajectory $\mathcal{H}_t$, a phase-structured 50-iteration budget (Exploration$\to$Exploitation$\to$Fine-tuning), and an anti-collapse constraint to prevent stagnation.
-On HICO-DET the agent achieves mean SIEVE Score\,$=$\,$300.3$ at iteration~23, a threshold requiring 41 iterations for Optuna TPE (${\approx}2.7$\,h compute saved); the $+33.3\%$ (Optuna) and $+50.7\%$ (GP-BO) advantages stem from SIEVE's discontinuous feasibility cliff, which GP-BO's smooth surface cannot model (1 of 3 seeds vs.\ the LLM's 3 of 3).
-This advantage compresses to ${\lesssim}1.3\%$ on GLDv2 and SIFT1M as coupling complexity decreases --- SIFT1M's ordering inverts to favor Grid Search (iteration~5) over the LLM agent (iteration~31) --- confirming complexity-proportional benefit.
-
-Extensions target billion-scale corpora (hardware-profile telemetry, closed-loop QPS streaming) and multi-tenant history-weighting.
+Two-stage ANN retrieval pipelines impose conditional dependencies ---
+engine-type gating, cross-stage search-depth--fusion-weight coupling, and a
+discontinuous feasibility cliff --- that parameter-independent HPO methods
+model incorrectly by treating jointly coupled parameters as independent
+marginals.
+We introduced SIEVE, a quality-gated throughput objective, and a phase-aware
+LLM agent (Exploration $\to$ Exploitation $\to$ Fine-tuning) that navigates
+coupling by conditioning each proposal on the full accumulated optimization
+history.
+On HICO-DET the agent reaches mean Score\,$=$\,$300.3$ at iteration~23,
+outperforming Optuna TPE ($+33.3\%$, mean $225.2$) and GP-BO ($+50.7\%$,
+mean $199.3$) while saving ${\approx}2.7$\,h; both baselines succeed on only
+1 of 3 seeds versus the LLM agent's 3 of 3, confirming the structural cost
+of marginal parameter reasoning under SIEVE.
+On GLDv2 and SIFT1M the advantage compresses to ${\lesssim}1.3\%$,
+confirming that \emph{LLM optimization advantage scales with
+configuration-space coupling complexity}.
+Future work targets billion-scale deployment with hardware-profile telemetry
+and multi-tenant settings with per-workload history conditioning.
 
 \begin{acks}
  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
