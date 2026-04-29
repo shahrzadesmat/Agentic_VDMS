@@ -917,7 +917,7 @@ The diagnostic class
                            \text{ and } \mathrm{Score}(\theta_{t})
                            < 0.80\;\mathrm{Score}^*_{t},\\[2pt]
     \textit{low\_QPS}    & \text{if } \mathrm{mAP}(\theta_{t}) \geq 0.20
-                           \text{ and } \mathrm{QPS}(\theta_{t}) < 4.0,\\[2pt]
+                           \text{ and } \mathrm{QPS}(\theta_{t}) < 100,\\[2pt]
     \textit{below\_best} & \text{if } \mathrm{Score}(\theta_{t})
                            < 0.90\;\mathrm{Score}^*_{t},\\[2pt]
     \textit{moderate}    & \text{otherwise,}
@@ -931,7 +931,7 @@ incremental $\alpha$ or $n_r$ refinement; \textit{low\_mAP} directs the agent to
 increase $k$ or $M$; \textit{low\_QPS} directs it to reduce $\mathit{efSearch}$
 or switch engines; \textit{below\_best} encourages structural divergence;
 and \textit{moderate} suggests coordinated adjustment of $k$ and $\alpha$.
-The threshold values ($\mathrm{mAP}{<}0.20$, $\mathrm{QPS}{<}4.0$, $\mathrm{Score}{<}0.90\,\mathrm{Score}^*_t$) were determined by empirical calibration on HICO-DET validation configurations and fixed before any optimizer comparison was run.
+The threshold values ($\mathrm{mAP}{<}0.20$, $\mathrm{QPS}{<}100$, $\mathrm{Score}{<}0.90\,\mathrm{Score}^*_t$) were determined by empirical calibration on HICO-DET validation configurations and fixed before any optimizer comparison was run.
 
 \subsubsection{Untried-Value Hints and Duplicate Avoidance}
 \label{sec:hints}
@@ -981,7 +981,7 @@ Let $c_t$ count consecutive proposals in which only $\alpha$ changed
 relative to the preceding configuration, and let $\iota_t$ count iterations elapsed
 without improvement to $\mathrm{Score}^*_t$.
 Two hard rules are encoded in the system prompt:
-(1) if $c_t > 2$, the next proposal must differ structurally---by changing engine,
+(1) if $c_t \geq 2$, the next proposal must differ structurally---by changing engine,
 $M$, $k$, or $n_r$---before any further $\alpha$ refinement;
 (2) if $\iota_t$ exceeds a phase-dependent threshold, a stagnation escape directive
 overrides the current phase instruction and reverts to broad-coverage exploration.
