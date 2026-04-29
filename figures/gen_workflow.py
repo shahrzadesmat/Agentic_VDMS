@@ -246,7 +246,7 @@ for by in [SIFT_Y, GLD_Y, HIC_Y]:
 # ═══════════════════════════════════════════════════════════════════════════════
 # 2.  OPTIMIZATION LOOP PANEL
 # ═══════════════════════════════════════════════════════════════════════════════
-R(LX, BOT, LW, H, fc=GRN, ec=GRN_E, lw=2.0, rr=0.15, z=1, alpha=0.35)
+R(LX, BOT, LW, H, fc='none', ec=GRN_E, lw=2.0, rr=0.15, z=1, alpha=1.0)
 T(LX+LW/2, TOP-0.30, 'Hyperparameter Optimization Loop',
   fs=12.5, fw='bold', c='#3d6600')
 
@@ -396,7 +396,7 @@ T(ROUTE_X_V + 0.18, (CFG_EXIT_Y + VDMS_ENTRY_Y)/2,
 VDMS_Y = BOT + H*0.455;  VDMS_H = TOP - 0.22 - VDMS_Y
 VDMS_X = VX + 0.15;      VDMS_W = VW - 0.30
 
-R(VDMS_X, VDMS_Y, VDMS_W, VDMS_H, fc=GRN, ec=GRN_E, lw=2.0, rr=0.12, z=2)
+R(VDMS_X, VDMS_Y, VDMS_W, VDMS_H, fc='none', ec=GRN_E, lw=2.0, rr=0.12, z=2)
 T(VDMS_X+VDMS_W/2, VDMS_Y+VDMS_H-0.28,
   'VDMS  (Apptainer container)', fs=11, fw='bold')
 
