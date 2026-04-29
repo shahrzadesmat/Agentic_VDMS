@@ -822,8 +822,8 @@ Eq.~\eqref{eq:textquery}.
   \includegraphics[width=\textwidth]{figures/workflow.pdf}
   \Description{Optimization framework diagram showing five methods.}
   \caption{Optimization framework: five methods propose VDMS configurations over
-    $N{=}30$ iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive
-o    score feedback (red arrows); Grid and Random Search do not.}
+    $N{=}50$ iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive
+    score feedback (red arrows); Grid and Random Search do not.}
   \label{fig:workflow}
 \end{figure*}
 
@@ -958,21 +958,21 @@ The $N$-iteration budget is divided into three phases with boundaries
 \end{align}
 defining \textbf{Exploration} ($1 \leq t \leq t_{\mathrm{exp}}$),
 \textbf{Exploitation} ($t_{\mathrm{exp}} < t \leq t_{\mathrm{expl}}$),
-and \textbf{Fine-tuning} ($t_{\mathrm{expl}} < t \leq N$) --- for $N{=}30$:
-12, 10, and 8 iterations respectively.
+and \textbf{Fine-tuning} ($t_{\mathrm{expl}} < t \leq N$) --- for $N{=}50$:
+20, 17, and 13 iterations respectively.
 The boundaries encode the structural-before-continuous principle: engine and $M$
 determine the achievable QPS ceiling and must be resolved before $\alpha$ and $n_r$
 are refined---a conditional dependency that Optuna TPE, which models each parameter
 independently via univariate kernel density estimation, cannot exploit.
 
-\paragraph{Exploration ($1 \leq t \leq 12$).}
+\paragraph{Exploration ($1 \leq t \leq 20$).}
 Diversity-focused engine coverage: the \textit{excellent} directive instructs the agent
 to sample structurally distinct (engine, $M$, $k$) combinations;
 the $\mathcal{U}_t$ hint set is suppressed to prevent premature convergence.
-\paragraph{Exploitation ($13 \leq t \leq 22$).}
+\paragraph{Exploitation ($21 \leq t \leq 37$).}
 $\mathcal{U}_t$ is activated; \textit{excellent} shifts to reinforcing the best-engine
 region while broadening $(\alpha, n_r)$ coverage on the identified Pareto frontier.
-\paragraph{Fine-tuning ($23 \leq t \leq 30$).}
+\paragraph{Fine-tuning ($38 \leq t \leq 50$).}
 Hints narrow to unexplored reference-strategy variants; proposals are restricted to
 coordinate-wise micro-adjustments of the current best
 ($\mathit{efSearch}$, $n_r$) for latency-targeted gains.
@@ -988,7 +988,7 @@ $M$, $k$, or $n_r$---before any further $\alpha$ refinement;
 overrides the current phase instruction and reverts to broad-coverage exploration.
 Embedding these rules in the prompt rather than as external rejection filters makes
 structural diversity an explicit part of the agent's reasoning.
-The random fallback triggered in 6 of 90 total LLM proposals (6.7\%), confirming the anti-collapse constraint is rarely binding.
+The random fallback triggered in 6 of 150 total LLM proposals (4.0\%), confirming the anti-collapse constraint is rarely binding.
 
 Algorithm~\ref{alg:agent} gives the complete procedure.
 \begin{algorithm}[t]
@@ -1034,6 +1034,7 @@ Optuna TPE fits univariate kernel density estimators over each parameter indepen
 Neither baseline encodes the $(k,\alpha)$ coupling or the engine-conditional
 structure of $\Theta$; the LLM agent exploits both through its phase-partitioned
 prompt and guidance function.
+Unlike $\lambda$-Tune~\cite{giannakouris2025lambdatune}, which chains LLM calls to translate a fixed workload description into knob recommendations, our agent maintains a live score trajectory $\mathcal{H}_t$ and adapts its proposals iteration-by-iteration under the SIEVE constraint.
 
 \noindent\textbf{Optional difficulty-weighted objective (QDS).}
 \label{sec:qds_def}
@@ -1081,9 +1082,9 @@ For SIFT1M, raw 128-dimensional SIFT vectors are stored directly in VDMS without
 any reranking stage; Score $=$ QPS if Recall@10\,$\geq\tau{=}0.90$, else $0$.
 
 \noindent\textbf{Compared Methods.}
-We compare five strategies, each for $N{=}30$ iterations.
+We compare five strategies, each for $N{=}50$ iterations.
 
-\noindent\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter\footnote{Estimated API cost: 30 iterations $\times$ $\approx$5,000 tokens/call $\approx$ 150K tokens total; at MiniMax-M2.1 list pricing this amounts to under \$0.10 per optimizer run.} (seeds: 42, 99, 200).
+\noindent\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter\footnote{Estimated API cost: 50 iterations $\times$ $\approx$5,000 tokens/call $\approx$ 250K tokens total; at MiniMax-M2.1 list pricing this amounts to under \$0.20 per optimizer run.} (seeds: 42, 99, 200).
 
 \noindent\textbf{GP-BO:} \texttt{optuna.samplers.\allowbreak GPSampler} (Expected Improvement), replicating VDTuner~\cite{yang2024vdtuner} (seeds: 42, 99, 200).
 
@@ -1112,10 +1113,10 @@ For Optuna, we use the official \texttt{optuna} library~\cite{akiba2019optuna} w
 the default TPE sampler.
 Each optimization iteration builds a complete ANN index from scratch and issues all
 600 queries in a single batch, requiring approximately 8--9 minutes of wall-clock time.
-The full 30-iteration budget therefore demands approximately 3.5--4 hours of compute
+The full 50-iteration budget therefore demands approximately 6.5--7.5 hours of compute
 per method, making sample efficiency --- how quickly each method reaches a high-scoring
 configuration --- a practically meaningful criterion.
-$N{=}30$ covers under 1\% of $\Theta$ (e.g., 5{,}940 HNSW configs on SIFT1M), totals ${\approx}3.5$--$4$\,h of wall-clock compute per method, and matches the protocol of related LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}.
+$N{=}50$ covers 0.05\% of $|\Theta|$ (e.g., 63{,}840 HNSW configs on HICO-DET), totals ${\approx}6.5$--$7.5$\,h of wall-clock compute per method, and matches the protocol of related LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}.
 
 \subsection{System Baselines}
 \label{sec:baselines}
@@ -1524,7 +1525,7 @@ and the latency--recall trade-off form conditional dependencies that univariate 
 surfaces cannot model.
 We presented a phase-aware LLM optimization agent that conditions each configuration
 proposal on the full trajectory $\mathcal{H}_t$ of evaluated (configuration, Score) pairs,
-partitions its 30-iteration budget into exploration, exploitation, and refinement phases,
+partitions its 50-iteration budget into exploration, exploitation, and refinement phases,
 and enforces an anti-collapse constraint to prevent stagnation in high-scoring but
 structurally similar regions.
 On HICO-DET --- the most compositionally coupled of our three benchmarks --- the agent
