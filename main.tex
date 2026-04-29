@@ -1125,9 +1125,9 @@ We compare five strategies, each for $N{=}50$ iterations.
 
 \noindent\textbf{Optuna TPE}~\cite{akiba2019optuna}: univariate kernel density estimators (seeds: 42, 99, 200).
 
-\noindent\textbf{Random Search}~\cite{bergstra2012random}: uniform random sampling (seeds: 78, 99, 200).
+\noindent\textbf{Random Search}~\cite{bergstra2012random}: uniform random sampling (seeds: 42, 99, 200).
 
-\noindent\textbf{Grid Search:} lexicographic 1-D sweep (2~runs).
+\noindent\textbf{Grid Search:} lexicographic 1-D sweep (1~run).
 As system baselines we include UniIR~\cite{wei2023uniir}, standalone CLIP
 ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2 reranking,
 all under exact FaissFlat search (Section~\ref{sec:baselines}).
@@ -1299,7 +1299,7 @@ feasibility threshold $\tau$.
 \noindent\textbf{GP-BO comparison.}
 GP-BO achieves mean Score $= 199.3$, trailing the LLM agent by $50.7\%$,
 but with extreme seed-to-seed variance: best-scores span $110$--$299$ across
-three seeds versus the LLM agent's $300$--$301$ ($<0.3\%$ spread).
+three seeds versus the LLM agent's $299.9$--$300.5$ ($<0.3\%$ spread).
 One GP-BO seed locates the $k{=}50$ optimum (Score\,$=$\,$299.4$) while the
 other two land far from it ($188.1$ and $110.4$).
 The cause is structural: GP-BO's smooth Gaussian Process surface cannot model
@@ -1325,9 +1325,9 @@ during Exploration (iterations~1--20) before any continuous $(\alpha, n_r)$
 refinement --- the same separation whose removal costs $-0.3\%$ in the phase
 ablation (Table~\ref{tab:ablation_arch}), confirming it as the mechanism rather
 than a coincidence.
-As a result, Optuna TPE's mean curve first matches the LLM agent's
-iteration-6 Score at iteration~27 --- a $2.7$-hour deficit on a
-$3.5$--$4$-hour wall-clock budget.
+As a result, Optuna TPE's final mean Score ($225.2$ at $N{=}50$) falls below
+the LLM agent's Score at iteration~6 ($295.4$) --- a structural deficit rather
+than a sample-size one.
 Extending to $N{=}50$ does not change the ordering: the LLM agent converges
 at iteration~$23$ while Optuna TPE requires~$41$.
 
@@ -1403,7 +1403,7 @@ narrowly ahead of Optuna TPE and Grid Search (both $272.98$) and Random Search (
 GP-BO attains the highest mAP ($0.1791$) but low QPS ($77.62$), failing to balance
 accuracy and speed under the SIEVE objective.
 The performance gap between methods is substantially compressed relative to HICO-DET
-(${\lesssim}1.3\%$ spread among the top-4 vs.\ $33.3\%$ on HICO-DET), a pattern we analyse further
+(${\lesssim}1.3\%$ spread among the top-3 vs.\ $33.3\%$ on HICO-DET), a pattern we analyse further
 in Section~\ref{sec:sift1m}.
 
 \noindent\textbf{Scale effects.}
@@ -1413,7 +1413,7 @@ Each GLDv2 iteration completes in $\approx$5\,min (HNSW build: $\approx$272\,s),
 GP-BO achieves only $77.62$ QPS (vs.\ $\approx\!273$ for the top-3 methods), the same structural failure as on HICO-DET but more acute.
 The SIEVE objective imposes a hard feasibility cliff at $\tau{=}0.15$: configurations with mAP just below this threshold score $0$ regardless of QPS.
 GP-BO's smooth Gaussian Process surface cannot model this discontinuity --- it interpolates over the cliff, assigning moderate expected value to boundary-adjacent configurations instead of committing to the high-QPS side.
-As a result, GP-BO locked onto $k{=}150$ for $40$ of $50$ iterations (maximizing mAP at the cost of QPS), never probing $k{=}100$ --- the optimal setting at mAP$\approx$0.165, QPS$\approx$273 --- because the GP surface predicted it lay in a risky low-mAP zone given nearby $k{=}50$ trials with Score\,$=$\,$0$.
+As a result, GP-BO locked onto $k{=}150$ for $40$ of $50$ iterations (maximizing mAP at the cost of QPS), never probing $k{=}100$ --- a high-scoring setting (mAP$\approx$0.165, QPS$\approx$273) --- because the GP surface predicted it lay in a risky low-mAP zone given nearby $k{=}50$ trials with Score\,$=$\,$0$.
 
 \noindent\textbf{Sample efficiency.}
 Grid Search reaches its best Score at iteration~6 out of 50,
@@ -1495,18 +1495,19 @@ directional guidance.
 
 \noindent\textbf{DINOv2 reranking weight ($\alpha$).}
 Under FaissFlat at $k{=}2000$: $\alpha{=}0.0$ (CLIP) gives mAP\,$=$\,0.240; $\alpha{=}0.5$ gives mAP\,$=$\,0.276 ($+3.65$\,pp) at only 0.6\% extra latency; $\alpha{=}1.0$ (DINOv2 alone) falls to mAP\,$=$\,0.217 --- $\alpha{\in}(0,1)$ strictly dominates both pure encoders.
-In the ANN setting the LLM agent discovers $\alpha{=}0.80$: at $\mathit{efSearch}{=}64 < k{=}200$, HNSW misses some neighbors and increasing $\alpha$ uses visual reranking as an \emph{error corrector} for Stage-1 approximation.
+In the ANN setting the LLM agent discovers $\alpha{=}0.80$: the DINOv2 reranking weight acts as an \emph{error corrector} for Stage-1 HNSW approximation, recovering precision lost from the aggressive $k{=}50$ candidate pool near the feasibility boundary.
 
 \noindent\textbf{Candidate pool size ($k$).}
 Increasing $k$ from 500 to 2000 at $\alpha{=}0$ (FaissFlat) improves mAP $0.208{\to}0.240$ ($+3.2$\,pp) but reduces QPS $8.21{\to}1.17$ ($7.0\times$); under SIEVE (both configs have mAP\,$\geq\tau$), Score collapses $8.21{\to}1.17$ --- a pure throughput penalty.
-The LLM agent selects $k{=}200$, compensating with $n_r{=}10$ and $\alpha{=}0.80$ to maintain mAP\,$=$\,0.255 while preserving the throughput advantage.
+The LLM agent selects $k{=}50$, compensating with $\alpha{=}0.80$ and $n_r{=}5$ (centroid) to maintain mAP\,$=$\,0.160 just above $\tau$ while achieving QPS\,$\approx\!300$.
 
 \noindent\textbf{Reference selection ($n_r$, ref\_strategy).}
 The LLM agent converges to \textit{centroid} with $n_r{=}10$: the centroid strategy minimizes displacement $\varepsilon_j$ (Eq.~\eqref{eq:imagequery}), and averaging 10 proximal images yields a low-bias, low-variance reference.
 \textit{First} (single CLIP-ranked image) is fragile on long-tailed categories; \textit{diverse} (farthest-point sampling) maximizes spread at the cost of mean proximity.
 
 \noindent\textbf{ANN engine selection.}
-Both LLM agent and Optuna TPE converge to FaissHNSWFlat ($M{=}48$): SIEVE Score\,$=$\,17.11--15.84 (mAP\,$=$\,0.259--0.256, QPS\,$=$\,17.11--15.84, all $\geq\tau$) versus Grid's Score\,$=$\,20.42 (mAP\,$=$\,0.169, QPS\,$=$\,20.42); IVFFlat engine candidates with mAP\,$<\tau$ score $0$ under SIEVE, confirming that the objective correctly penalizes high-throughput but infeasible configurations.
+The LLM agent consistently selects FaissHNSWFlat with $M{=}64$ across all three seeds (Score\,$\approx\!300$); Optuna TPE distributes across $M{\in}\{16,32,48\}$ (mean Score $225.2$, spread $188$--$300$), reflecting its inability to jointly condition on engine type.
+IVFFlat candidates consistently score $0$ under SIEVE (mAP\,$<\tau$), confirming that the objective correctly penalizes high-throughput but infeasible configurations.
 
 \noindent\textbf{History conditioning and phase structure (mechanistic ablations).}
 Table~\ref{tab:ablation_arch} isolates each architectural component across 3 seeds.
@@ -1545,7 +1546,7 @@ LLM Agent (Full)               & \textbf{300.3} & 0.161 & 0.3 & --- \\
 
 \noindent\textbf{Query Difficulty-Weighted Optimization (QDS).}
 Using the QDS-weighted oracle defined in Section~\ref{sec:optimizer},
-the LLM agent discovers FaissIVFFlat ($n_l{=}128$, $k{=}500$), achieving QPS\,$=$\,1357.6 and mAP\,$=$\,0.175 ($\geq\tau$), for a mean SIEVE Score\,$=$\,$\mathbf{1362}\,{\pm}\,5$ over 3 seeds --- well above the standard LLM (300.3).
+the LLM agent discovers FaissIVFFlat ($n_l{\in}\{128,256,512\}$ per seed, $k{=}500$), achieving QPS\,$=$\,1357.6--1366.7 and mAP\,$=$\,0.175 ($\geq\tau$), for a mean SIEVE Score\,$=$\,$\mathbf{1362}\,{\pm}\,5$ over 3 seeds --- well above the standard LLM (300.3).
 This high-throughput operating point sacrifices retrieval precision: P@10\,$=$\,0.292 versus 0.438 for the standard HNSW optimum, as QDS optimizes difficulty-weighted ranking rather than throughput directly, steering the agent toward a different Pareto frontier regime.
 
 \noindent\textbf{Backbone portability.}
