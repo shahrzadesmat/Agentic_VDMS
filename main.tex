@@ -926,10 +926,11 @@ The diagnostic class
 \end{equation}%
 }
 is injected into the prompt as a targeted natural-language directive.
-\textit{Excellent} reinforces the current structural region and encourages
-incremental $\alpha$ or $n_r$ refinement; \textit{low\_mAP} directs the agent to
-increase $k$ or $M$; \textit{low\_QPS} directs it to reduce $\mathit{efSearch}$
-or switch engines; \textit{below\_best} encourages structural divergence;
+\textit{Excellent} redirects to unexplored structural regions in early phases and
+shifts to incremental parameter micro-adjustment in Fine-Tuning;
+\textit{low\_mAP} directs the agent to increase $k$;
+\textit{low\_QPS} directs it to reduce $k$ (the primary QPS lever) or switch engines;
+\textit{below\_best} directs a return toward the best-known configuration with targeted adjustments;
 and \textit{moderate} suggests coordinated adjustment of $k$ and $\alpha$.
 The threshold values ($\mathrm{mAP}{<}0.20$, $\mathrm{QPS}{<}100$, $\mathrm{Score}{<}0.90\,\mathrm{Score}^*_t$) were determined by empirical calibration on HICO-DET validation configurations and fixed before any optimizer comparison was run.
 
