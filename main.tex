@@ -1201,7 +1201,7 @@ DINOv2 alone (mAP\,$=$\,0.217) underperforms CLIP alone (0.240) by 2.3\,pp,
 confirming language-aligned embeddings are essential; weighted fusion at $\alpha{=}0.5$
 achieves mAP\,$=$\,0.276 ($+$3.65\,pp, $+$15.2\% relative) at only 0.6\% extra latency.
 Reducing $k$ from 2000 to 500 raises QPS by $7.0\times$ at 3.2\,pp mAP cost,
-yielding a $6.1\times$ Score gain --- the non-linear asymmetry the LLM agent exploits
+yielding a $7.0\times$ Score gain --- the non-linear asymmetry the LLM agent exploits
 by conditioning each proposal on the full history of observed outcomes.
 
 \subsection{End-to-End Optimization Performance}
@@ -1317,11 +1317,11 @@ Optuna TPE achieves Score $= 225.2$, trailing the LLM agent by
 $\mathbf{33.3\%}$ --- the largest consistent gap among adaptive baselines.
 The cause is structural: TPE fits \emph{independent} kernel density estimators
 over each parameter, so it cannot discount the FaissIVFFlat region without a
-joint conditional model over engine type; at iterations~11--13, all three seeds
-plateau at mAP\,$=$\,0.169 and QPS\,$=$\,18.6, stalling for 21 iterations
-before escaping.
+joint conditional model over engine type; all three seeds encounter
+FaissIVFFlat configurations (mAP\,$=$\,0, Score\,$=$\,0) within the first ten
+iterations, biasing the KDE mass toward the infeasible high-throughput region.
 The phase-structured budget directly counters this by resolving engine selection
-during Exploration (iterations~1--12) before any continuous $(\alpha, n_r)$
+during Exploration (iterations~1--20) before any continuous $(\alpha, n_r)$
 refinement --- the same separation whose removal costs $-0.3\%$ in the phase
 ablation (Table~\ref{tab:ablation_arch}), confirming it as the mechanism rather
 than a coincidence.
@@ -1354,10 +1354,11 @@ why the LLM reaches the $k{=}50$ feasible region on all three seeds
 ($299.4$, $188.1$, $110.4$).
 
 \noindent\textbf{Failure modes.}
-Grid Search plateaus at iteration~19 with mAP\,$=$\,0.169 --- below the
-CLIP-only exact-search baseline (mAP\,$=$\,0.240 at $k{=}2000$) --- because
-its lexicographic sweep fixes $M{=}32$ and $\alpha{=}0.30$, never probing
-$M{=}64$ or $\alpha{=}0.80$.
+Grid Search reaches its best Score of 183.0 at iteration~41 --- well below the
+LLM optimum (300.3) --- because its one-dimensional lexicographic sweep cannot
+jointly probe the $(k{=}50,\,\alpha{=}0.80)$ operating point: sweeping $k$ and
+$\alpha$ independently misses the coupled interaction that elevates Score from
+183 to 300, even though M\,$=$\,64 is individually explored from iteration~5.
 Random Search's mean Score ($111.4$) reflects frequent infeasible trials
 (score\,$=$\,$0$); the feasible configurations it finds tend toward large-$k$
 safe regions (Score\,$\approx\!140$) rather than the tight $k{=}50$ optimum
@@ -1475,7 +1476,7 @@ is shallow enough for random and grid search to locate the optimum within the sa
 
 \noindent\textbf{Sample efficiency.}
 The LLM agent reaches Score $\geq 1000$ from iteration~1, while Grid Search
-requires 4 iterations, Optuna TPE requires 11, and Random Search requires 23.
+requires 5 iterations, Optuna TPE requires 20, and Random Search requires 23.
 Measured by \emph{Iters$\to$Best}, the ranking \emph{inverts} relative to HICO-DET:
 Grid Search reaches its best Score at iteration~5, Random~Search at iteration~23,
 the LLM agent at iteration~31, and Optuna TPE at iteration~42.
@@ -1483,7 +1484,8 @@ GP-BO peaks at iteration~28 ($471.4$) but never approaches the ${\sim}1170$ band
 This inversion reinforces the complexity-proportional thesis: on the uncoupled
 4-parameter space, TPE's univariate acquisition surface is sufficient, and
 the LLM's architectural history provides no additional navigational advantage.
-The LLM agent's per-iteration Score variance on SIFT1M (range: 404--1036) further
+The LLM agent's per-iteration Score variance on SIFT1M (range: 0--1175, with
+20 of 50 iterations scoring zero due to recall violations) further
 confirms this: without cross-stage coupling to reason over, history conditioning
 reduces to informed initialization at iteration~1 rather than sustained
 directional guidance.
