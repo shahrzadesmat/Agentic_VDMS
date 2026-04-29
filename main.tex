@@ -1005,13 +1005,13 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
        \hfill\Comment{Eqs.~\eqref{eq:texp}--\eqref{eq:texpl}}
 \For{$t = 1, 2, \ldots, N$}
   \State $\phi_t \gets \mathrm{Phase}(t,\,t_{\mathrm{exp}},\,t_{\mathrm{expl}})$
-         \hfill\Comment{EXPLORATION / EXPLOITATION / FINE-TUNING}
+         \hfill\Comment{Expl.\ / Exploit.\ / Fine-Tuning}
   \State $g_t \gets g(\mathcal{H}_{t-1})$ \hfill\Comment{Eq.~\eqref{eq:guidance}}
   \State $\mathcal{U}_t \gets \mathrm{UntriedHints}(\mathcal{H}_{t-1},\,\phi_t)$
          \hfill\Comment{$\emptyset$ during EXPLORATION}
   \State $c_t \gets \mathrm{ConsecAlphaOnly}(\mathcal{H}_{t-1})$
-         \hfill\Comment{consecutive $\alpha$-only count; anti-collapse}
-  \For{$\mathit{attempt} = 1,\ldots,4$} \Comment{same prompt; diversity from LLM temperature}
+         \hfill\Comment{anti-collapse count}
+  \For{$\mathit{attempt} = 1,\ldots,4$} \Comment{re-query; temp.\ diversity}
     \State $p_t \gets \mathrm{BuildPrompt}(\phi_t,\,g_t,\,\mathcal{H}_{t-1},\,\mathcal{U}_t,\,c_t,\,\iota)$
     \State $\theta_t \gets \mathrm{LLM}(p_t)$
            \hfill\Comment{structured JSON response}
