@@ -983,7 +983,7 @@ without improvement to $\mathrm{Score}^*_t$.
 Two hard rules are encoded in the system prompt:
 (1) if $c_t \geq 2$, the next proposal must differ structurally---by changing engine,
 $M$, $k$, or $n_r$---before any further $\alpha$ refinement;
-(2) if $\iota_t$ exceeds a phase-dependent threshold, a stagnation escape directive
+(2) if $\iota_t \geq 5$, a stagnation escape directive
 overrides the current phase instruction and reverts to broad-coverage exploration.
 Embedding these rules in the prompt rather than as external rejection filters makes
 structural diversity an explicit part of the agent's reasoning.
@@ -1057,7 +1057,7 @@ the spread of CLIP mass over the gallery;
 \emph{centroid displacement} $\mathrm{CPR}_j{=}\|\mathbf{f}_{q_j}{-}\boldsymbol{\mu}_j\|^2/\sigma_j^2$
 measures how far the text query lies from its HOI-class centroid.
 We define $\mathrm{QDS}_j{=}\tilde{H}_j{-}\widetilde{\mathrm{CPR}}_j$ (min-max
-normalised), weight $w_j{=}1{+}\tilde{I}_j{\in}[1,2]$, and replace the standard
+normalised), weight $w_j{=}1{+}\widetilde{\mathrm{QDS}}_j{\in}[1,2]$, and replace the standard
 mAP with $\mathrm{QDS\text{-}mAP}{=}\sum_j w_j\mathrm{AP}_j/\sum_j w_j$ as the
 oracle signal.
 The QDS objective is ablated in Section~\ref{sec:ablation}.
