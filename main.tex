@@ -449,7 +449,7 @@ must be tuned jointly with the Stage-1 ANN configuration.
 We use all 47{,}776 images as a single retrieval corpus.
 The original HICO-DET train/test split was designed for supervised detection training
 and carries no meaning for retrieval evaluation, where the task is to rank corpus images
-given a query, not to generalize across a detection boundary.
+given a query, not to generalize across a detection train/test split.
 Merging both splits maximizes the positive-pair density needed for meaningful mAP
 computation across 600 categories; restricting evaluation to the 9{,}658-image test
 split alone would reduce per-category positive counts below the minimum threshold
@@ -463,8 +463,7 @@ We construct exactly one canonical natural-language text query per HOI category,
 yielding 600 queries.
 A single canonical query per category eliminates inter-query variance from paraphrase
 choice and ensures that each of the 600 HICO-DET categories contributes equally to
-the mean Average Precision score --- a design decision motivated by the same
-reproducibility principle used in standard IR evaluation~\cite{manning2008ir}.
+the mean Average Precision score~\cite{manning2008ir}.
 Each query follows the template \textit{``a person \{verb\} a \{object\}''}, with the
 special case \textit{``a person near a \{object\}''} for the \texttt{no\_interaction}
 verb class.
@@ -482,8 +481,8 @@ For each HOI category, the single image used as the DINOv2 reranking reference
 is excluded from relevance judgments (treated as a junk image), ensuring the
 reference cannot trivially self-retrieve; after this exclusion the minimum
 per-category positive count is 5.
-Every query has at least 5 relevant images, so mAP is defined and non-trivially
-bounded for each of the 600 queries.
+Every query has at least 5 relevant images, so mAP is well-defined for all
+600 queries.
 
 \subsection{Evaluation Protocol}
 We evaluate retrieval quality using mean Average Precision (mAP),
