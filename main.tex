@@ -837,7 +837,7 @@ engine-conditional and mixed-type.
 Each evaluation requires a full VDMS rebuild plus a 600-query pass
 (${\approx}8$--$9$ min per oracle call), ruling out exhaustive or
 surrogate-heavy strategies that require thousands of evaluations.
-We address this with a sequential LLM optimizer that exploits structural knowledge
+We address this with a sequential LLM optimizer (Figure~\ref{fig:workflow}) that exploits structural knowledge
 of $\Theta$ to allocate its $N$-iteration budget efficiently.
 
 \subsection{Search Space and Coupling Structure}
@@ -846,7 +846,6 @@ The configuration space decomposes as
 \begin{equation}
   \Theta \;=\; \Theta_{\mathrm{HNSW}} \;\cup\; \Theta_{\mathrm{IVF}}
                \;\cup\; \Theta_{\mathrm{Flat}},
-  \label{eq:space}
 \end{equation}
 where each component is defined by its engine-conditional index parameters together
 with shared parameters $k$, $\alpha$, $n_r$, and $\mathrm{ref\_strategy}$
@@ -891,7 +890,6 @@ denote the evaluation record at iteration $t$ and define the
 \begin{equation}
   \mathcal{H}_t \;=\; \bigl(h_1,\,h_2,\,\ldots,\,h_t\bigr),
   \quad t \geq 0,\quad \mathcal{H}_0 = \emptyset.
-  \label{eq:history}
 \end{equation}
 $\mathcal{H}_t$ is the agent's complete internal state: no surrogate model,
 gradient estimate, or kernel is maintained between iterations.
@@ -1002,6 +1000,7 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
        $\mathrm{Score}^* \gets 0$;\enspace
        $t_{\mathrm{exp}} \gets \lfloor 0.40N \rfloor$;\enspace
        $t_{\mathrm{expl}} \gets \lfloor 0.75N \rfloor$
+       \hfill\Comment{Eqs.~\eqref{eq:texp}--\eqref{eq:texpl}}
 \For{$t = 1, 2, \ldots, N$}
   \State $\phi_t \gets \mathrm{Phase}(t,\,t_{\mathrm{exp}},\,t_{\mathrm{expl}})$
          \hfill\Comment{EXPLORATION / EXPLOITATION / FINE-TUNING}
