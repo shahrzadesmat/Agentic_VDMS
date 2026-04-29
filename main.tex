@@ -678,6 +678,7 @@ Three ANN engines expose qualitatively distinct accuracy--throughput operating p
 \noindent\textbf{FaissFlat:} exact exhaustive L2 search; recall upper bound at lowest QPS.
 
 \noindent\textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: hierarchical navigable small-world graph; recall/latency controlled by graph connectivity $M$ and beam width $\mathit{efSearch}$ (values in Table~\ref{tab:config-space}).
+The build-quality parameter $\mathit{efConstruction}$ is fixed at $200$ throughout HICO-DET and GLDv2 experiments; preliminary experiments confirmed that values above $200$ yield negligible recall improvement at substantially higher build cost, so it is excluded from $\Theta$.
 
 \noindent\textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file index; search probes $\mathit{nprobe}$ of $\mathit{nlist}$ Voronoi cells (values in Table~\ref{tab:config-space}).
 
@@ -733,7 +734,7 @@ both are min-max normalized within $\mathcal{T}_k(q_h)$ onto $[0,\,1]$:
 where $\varepsilon = 10^{-10}$, $\hat{c}_j \equiv \hat{\delta}_j^c$, and
 $\hat{d}_j \equiv \hat{\delta}_j^d$.
 Pool-local normalization preserves the fine-grained relative ordering of CLIP distances
-within $\mathcal{T}_k(q_h)$: intra-pool CLIP L2 values span a narrow range
+within $\mathcal{T}_k(q_h)$: intra-pool CLIP squared L2 distances span a narrow range
 (${\approx}1.55$--$1.75$ for unit-normalized 768-d embeddings), a signal that a
 global corpus statistic would collapse.
 
@@ -795,8 +796,9 @@ incurring a strictly positive bias:
   \;>\; \sigma_h^2 .
   \label{eq:imagequery}
 \end{equation}
-The text query therefore achieves strictly lower expected squared distance to every
-class member than any single reference image, by a margin of $\varepsilon_j^2 > 0$.
+The text query therefore achieves lower expected squared distance to every
+class member than any single reference image, by a margin that shrinks as
+$\mathbf{q}_c$ approaches $\boldsymbol{\mu}_h^c$.
 This centroid-displacement advantage is monotonically amplified by intra-class visual
 diversity: the higher the variance $\sigma_h^2$ across HOI images (e.g., \textit{ride
 horse} spans many settings and viewpoints), the larger the typical $\varepsilon_j$
@@ -808,7 +810,9 @@ This result formally justifies the design choice of text queries for Stage~1 and
 additionally motivates the $n_r{>}1$ reference aggregation in Stage~2: averaging
 $n_r$ class embeddings reduces the expected $L_2$ centroid bias of $\mathbf{r}_h$
 by $O(1/\sqrt{n_r})$ relative to a single reference image.
-Empirically, text queries (mAP\,$=$\,0.240) outperform single-image DINOv2 queries (mAP\,$=$\,0.217) by $+2.32$\,pp on HICO-DET across all 600 HOI categories, consistent with Eq.~\ref{eq:textquery}.
+Section~\ref{sec:experiments} confirms this empirically: text queries outperform
+single-image reference queries by $+2.32$\,pp mAP on HICO-DET, consistent with
+Eq.~\eqref{eq:textquery}.
 
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
