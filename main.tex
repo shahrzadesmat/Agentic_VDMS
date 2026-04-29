@@ -942,8 +942,9 @@ under the current best engine, derived from $\mathcal{H}_t$.
 These hints prevent the agent from re-proposing already-evaluated
 continuous-parameter combinations once the structural choice is settled.
 Each proposed $\theta_{t+1}$ is checked against $\mathcal{H}_t$ before evaluation;
-if a duplicate is detected, the prompt is resubmitted with an explicit rejection notice
-until a novel configuration is accepted or a uniformly random fallback is applied,
+if a duplicate is detected, the LLM is re-queried up to four times with the same prompt
+(a different response may arise from the model's sampling temperature);
+if all four attempts remain duplicates, a uniformly random fallback is applied,
 guaranteeing loop progress.
 
 \subsection{Phase-Aware Budget Partition}
@@ -1010,7 +1011,7 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
          \hfill\Comment{$\emptyset$ during EXPLORATION}
   \State $c_t \gets \mathrm{ConsecAlphaOnly}(\mathcal{H}_{t-1})$
          \hfill\Comment{consecutive $\alpha$-only count; anti-collapse}
-  \For{$\mathit{attempt} = 1,\ldots,4$} \Comment{re-query with tried-config rejection}
+  \For{$\mathit{attempt} = 1,\ldots,4$} \Comment{same prompt; diversity from LLM temperature}
     \State $p_t \gets \mathrm{BuildPrompt}(\phi_t,\,g_t,\,\mathcal{H}_{t-1},\,\mathcal{U}_t,\,c_t,\,\iota)$
     \State $\theta_t \gets \mathrm{LLM}(p_t)$
            \hfill\Comment{structured JSON response}
