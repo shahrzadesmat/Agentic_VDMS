@@ -952,12 +952,12 @@ guaranteeing loop progress.
 The $N$-iteration budget is divided into three phases with boundaries
 \begin{align}
   t_{\mathrm{exp}}  &= \lfloor 0.40\,N \rfloor, \label{eq:texp}\\
-  t_{\mathrm{expl}} &= \lfloor 0.75\,N \rfloor, \label{eq:texpl}
+  t_{\mathrm{expl}} &= \lfloor 0.75\,N \rceil, \label{eq:texpl}
 \end{align}
 defining \textbf{Exploration} ($1 \leq t \leq t_{\mathrm{exp}}$),
 \textbf{Exploitation} ($t_{\mathrm{exp}} < t \leq t_{\mathrm{expl}}$),
 and \textbf{Fine-tuning} ($t_{\mathrm{expl}} < t \leq N$) --- for $N{=}50$:
-20, 17, and 13 iterations respectively.
+20, 18, and 12 iterations respectively.
 The boundaries encode the structural-before-continuous principle: engine and $M$
 determine the achievable QPS ceiling and must be resolved before $\alpha$ and $n_r$
 are refined---a conditional dependency that Optuna TPE, which models each parameter
@@ -967,10 +967,10 @@ independently via univariate kernel density estimation, cannot exploit.
 Diversity-focused engine coverage: the \textit{excellent} directive instructs the agent
 to sample structurally distinct (engine, $M$, $k$) combinations;
 the $\mathcal{U}_t$ hint set is suppressed to prevent premature convergence.
-\paragraph{Exploitation ($21 \leq t \leq 37$).}
+\paragraph{Exploitation ($21 \leq t \leq 38$).}
 $\mathcal{U}_t$ is activated; \textit{excellent} shifts to reinforcing the best-engine
 region while broadening $(\alpha, n_r)$ coverage on the identified Pareto frontier.
-\paragraph{Fine-tuning ($38 \leq t \leq 50$).}
+\paragraph{Fine-tuning ($39 \leq t \leq 50$).}
 Hints narrow to unexplored reference-strategy variants; proposals are restricted to
 coordinate-wise micro-adjustments of the current best
 ($\mathit{efSearch}$, $n_r$) for latency-targeted gains.
@@ -998,8 +998,9 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
 \Ensure Best configuration $\theta^*$ and history $\mathcal{H}_N$
 \State $\mathcal{H}_0 \gets \emptyset$;\enspace
        $\mathrm{Score}^* \gets 0$;\enspace
-       $t_{\mathrm{exp}} \gets \lfloor 0.40N \rfloor$;\enspace
-       $t_{\mathrm{expl}} \gets \lfloor 0.75N \rfloor$
+       $\iota \gets 0$
+\State $t_{\mathrm{exp}} \gets \lfloor 0.40N \rfloor$;\enspace
+       $t_{\mathrm{expl}} \gets \lfloor 0.75N \rceil$
        \hfill\Comment{Eqs.~\eqref{eq:texp}--\eqref{eq:texpl}}
 \For{$t = 1, 2, \ldots, N$}
   \State $\phi_t \gets \mathrm{Phase}(t,\,t_{\mathrm{exp}},\,t_{\mathrm{expl}})$
@@ -1007,12 +1008,19 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
   \State $g_t \gets g(\mathcal{H}_{t-1})$ \hfill\Comment{Eq.~\eqref{eq:guidance}}
   \State $\mathcal{U}_t \gets \mathrm{UntriedHints}(\mathcal{H}_{t-1},\,\phi_t)$
          \hfill\Comment{$\emptyset$ during EXPLORATION}
-  \State $p_t \gets \mathrm{BuildPrompt}(\phi_t,\,g_t,\,\mathcal{H}_{t-1},\,\mathcal{U}_t)$
-  \State $\theta_t \gets \mathrm{LLM}(p_t)$
-         \hfill\Comment{structured JSON response}
+  \State $c_t \gets \mathrm{ConsecAlphaOnly}(\mathcal{H}_{t-1})$
+         \hfill\Comment{consecutive $\alpha$-only count; anti-collapse}
+  \For{$\mathit{attempt} = 1,\ldots,4$} \Comment{re-query with tried-config rejection}
+    \State $p_t \gets \mathrm{BuildPrompt}(\phi_t,\,g_t,\,\mathcal{H}_{t-1},\,\mathcal{U}_t,\,c_t,\,\iota)$
+    \State $\theta_t \gets \mathrm{LLM}(p_t)$
+           \hfill\Comment{structured JSON response}
+    \If{$\theta_t \notin \{\theta_s : s < t\}$}
+      \State \textbf{break} \hfill\Comment{novel proposal accepted}
+    \EndIf
+  \EndFor
   \If{$\theta_t \in \{\theta_s : s < t\}$}
-         \hfill\Comment{duplicate check}
-    \State $\theta_t \gets \mathrm{Fallback}\!\left(\Theta \setminus \{\theta_s : s < t\}\right)$
+         \hfill\Comment{all 4 attempts duplicated}
+    \State $\theta_t \gets \mathrm{RandomConfig}(\Theta)$
   \EndIf
   \State $\bigl(\mathrm{mAP}_t,\,\mathrm{QPS}_t\bigr) \gets \mathcal{O}(\theta_t)$
   \State $\mathcal{H}_t \gets \mathcal{H}_{t-1} \cup \{(\theta_t,\,\mathrm{mAP}_t,\,\mathrm{QPS}_t)\}$
@@ -1020,7 +1028,10 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
          \hfill\Comment{SIEVE Score (Eq.~\eqref{eq:score}), $\tau{=}0.15$}
   \If{$s_t > \mathrm{Score}^*$}
     \State $\mathrm{Score}^* \gets s_t$;\enspace
-           $\theta^* \gets \theta_t$
+           $\theta^* \gets \theta_t$;\enspace
+           $\iota \gets 0$
+  \Else
+    \State $\iota \gets \iota + 1$
   \EndIf
 \EndFor
 \State \Return $\theta^*,\;\mathcal{H}_N$
