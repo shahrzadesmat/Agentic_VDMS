@@ -425,36 +425,27 @@ HICO-DET~\cite{chao2018hico} contains 47{,}776 images (38{,}118 train / 9{,}658 
 annotated across 600 HOI categories with per-instance bounding boxes and interaction
 labels, where each category is a \emph{verb--object} pair drawn from 117 action verbs
 and 80 MS-COCO object classes.
-Three structural properties make HICO-DET distinctively demanding as a benchmark
-for ANN index configuration optimization.
-\textbf{P1 --- Compositional fine-grained discrimination.}
-The 600 categories span 80 COCO object classes and 117 verb types; categories
-sharing the same object (e.g., \textit{ride horse}, \textit{sit\_on horse},
-\textit{straddle horse}) differ only in the action verb.
-Single-encoder retrieval conflates these closely related categories, making the joint
-selection of ANN engine and Stage-2 fusion weight critical to performance.
-\textbf{P2 --- Long-tail relevance.}
-Category sizes are highly skewed: the largest categories exceed 1{,}000 positive
-images while the smallest have as few as 5.
-An optimizer that maximizes mean mAP without attending to per-category variance
+Three structural properties make HICO-DET particularly challenging for ANN index
+configuration optimization.
+First, \emph{compositional fine-grained discrimination}: the 600 categories span
+80 COCO object classes and 117 verb types; categories sharing the same object
+(e.g., \textit{ride horse}, \textit{sit\_on horse}, \textit{straddle horse})
+differ only in the action verb, so single-encoder retrieval conflates them and
+the joint selection of ANN engine and Stage-2 fusion weight becomes critical.
+Second, \emph{long-tail relevance}: category sizes are highly skewed, with the
+largest exceeding 1{,}000 positive images and the smallest having as few as 5;
+an optimizer that maximizes mean mAP without attending to per-category variance
 will exploit high-frequency categories while failing on rare but equally weighted
 queries.
-\textbf{P3 --- Dual-encoder modality gap.}
-CLIP retrieves by language-aligned semantic similarity; DINOv2 captures fine-grained
-visual structure complementary to CLIP's representations~\cite{oquab2024dinov2}.
-Neither encoder alone achieves optimal mAP, making the Stage-2 fusion weight
-$\alpha$ a data-dependent parameter that cannot be fixed by hand and must be tuned
-jointly with the Stage-1 ANN configuration.
-
-Every published use of HICO-DET has been restricted to the detection
-paradigm~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}: given an image,
-predict bounding boxes and interaction class labels.
-We repurpose these rich compositional annotations to construct, to our knowledge,
-the first text-query image retrieval benchmark from HICO-DET, opening an orthogonal
-evaluation axis that the detection literature has not explored.
+Third, a \emph{dual-encoder modality gap} requires joint tuning: CLIP retrieves
+by language-aligned semantic similarity while DINOv2 captures fine-grained visual
+structure complementary to CLIP's representations~\cite{oquab2024dinov2}; CLIP
+alone (Stage~1 without DINOv2 reranking) achieves lower mAP than the two-stage
+fusion, so the Stage-2 fusion weight $\alpha$ is a data-dependent parameter that
+must be tuned jointly with the Stage-1 ANN configuration.
 
 \subsection{Benchmark Construction}
-\noindent\textbf{Retrieval Corpus: Why Merge Train and Test Splits.}
+\noindent\textbf{Retrieval Corpus.}
 We use all 47{,}776 images as a single retrieval corpus.
 The original HICO-DET train/test split was designed for supervised detection training
 and carries no meaning for retrieval evaluation, where the task is to rank corpus images
@@ -500,14 +491,8 @@ Precision@10, NDCG@10, and Recall@10 over all 600 queries.
 mAP is our primary metric: it rewards systems that rank relevant images
 higher in the retrieved list and is the standard metric for ranked retrieval
 with multiple relevant documents per query~\cite{manning2008ir}.
-Throughput is measured in queries per second (QPS), computed as 600 divided by the
-total wall-clock time for all queries issued as a single batch to a live VDMS
-container.
-Batch QPS is the appropriate production metric: a deployed HOI retrieval system
-serves queries at steady-state rates that are best captured by batch throughput;
-single-query latency at this scale is dominated by container and network overhead
-rather than by the ANN index structure, which would mask precisely the index
-differences the optimizer is designed to exploit.
+Throughput is measured as batch QPS: 600 queries issued as a single batch to a
+live VDMS container, divided by total wall-clock time.
 The joint optimization objective is
 \begin{equation}
   \mathrm{Score}(\theta) =
@@ -522,8 +507,6 @@ This threshold-gated objective rewards throughput only within the feasible regio
 ($\mathrm{mAP} \geq \tau$): a configuration that sacrifices retrieval quality below
 $\tau$ scores zero regardless of how high its QPS is, while within the feasible
 region higher QPS is strictly better.
-Section~\ref{sec:probstmt} below formalizes the configuration space and the
-optimization problem whose objective is this Score.
 
 \subsection{Problem Statement}
 \label{sec:probstmt}
