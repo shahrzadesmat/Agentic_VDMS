@@ -975,8 +975,9 @@ the best-identified engine.
 The boundaries encode the structural-before-continuous principle: engine and $M$
 determine the achievable QPS ceiling and must be resolved before $\alpha$ and $n_r$
 are refined---a conditional dependency that Optuna TPE, which models each parameter
-independently via univariate kernel density estimation, cannot exploit
-(validated in Section~\ref{sec:ablation}).
+independently via univariate kernel density estimation, cannot exploit.
+The benefit of imposing this ordered structure over unphased search is quantified
+in the \emph{phase structure} ablation in Section~\ref{sec:ablation}.
 
 \paragraph{Exploration ($1 \leq t \leq 20$).}
 Diversity-focused engine coverage: the \textit{excellent} directive instructs the agent
