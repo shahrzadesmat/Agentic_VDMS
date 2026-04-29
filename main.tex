@@ -618,7 +618,7 @@ We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
   \centering
   \includegraphics[width=\textwidth]{figures/pipeline_figure.pdf}
   \Description{Two-stage retrieval pipeline diagram.}
-  \caption{\textbf{Two-stage retrieval pipeline.}
+  \caption{Two-stage retrieval pipeline.
     CLIP ViT-L/14 ANN retrieval (Stage~1) produces a top-$k$ candidate pool;
     DINOv2 ViT-L/14-reg4 reranking (Stage~2) fuses scores via
     $s_j{=}(1{-}\alpha)\hat{c}_j+\alpha\hat{d}_j$ at zero additional indexing cost.}
@@ -885,7 +885,7 @@ structural choices before continuous ones.
     ref-strategy, constraint-strategy, and reasoning fields.}
   \caption{LLM prompt structure. A single user message encodes parameter physics,
     the diagnostic class $g(\mathcal{H}_{t-1})$, complete history $\mathcal{H}_{t-1}$,
-    and untried-value hints (Exploitation/Fine-Tuning only), eliciting a structured
+    and untried-value hints (Exploitation/Fine-tuning only), eliciting a structured
     JSON configuration response (including \texttt{constraint\_strategy}).}
   \label{fig:prompts}
 \end{figure*}
@@ -1160,7 +1160,7 @@ $N{=}50$ covers 0.05\% of $|\Theta|$ (e.g., 63{,}840 HNSW configs on HICO-DET), 
 \begin{table*}[t]
 \centering
 \caption{System baselines on HICO-DET (FaissFlat exact search).
-  Score $=$ QPS; $\alpha$: DINOv2 reranking weight
+  Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$); $\alpha$: DINOv2 reranking weight
   ($0$=CLIP only, $1$=DINOv2 only). Latency in Table~\ref{tab:efficiency}.}
 \label{tab:baselines}
 \small
@@ -1217,7 +1217,7 @@ by conditioning each proposal on the full history of observed outcomes.
     225.2 and 199.3; Grid and Random Search plateau below 184.}
   \caption{Best SIEVE Score vs.\ iteration on HICO-DET
     (mean; $\pm 1\sigma$ band for LLM Agent; 3 seeds except Grid).
-    LLM Agent surpasses all baselines within 5 iterations, reaching
+    LLM Agent surpasses all baselines within 4 iterations, reaching
     $\mathbf{300.3}$ at iteration~23 vs.\ 225.2 (Optuna) and 183.0 (Grid) at iteration~41.}
   \label{fig:convergence}
 \end{figure}
@@ -1227,7 +1227,7 @@ by conditioning each proposal on the full history of observed outcomes.
 \centering
 \caption{ANN optimizer comparison on HICO-DET (50 iterations, means over 3 seeds; Grid: 1 run).
   Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$); all best configs meet $\tau$.
-  \emph{Iters$\to$Best}: first iteration at best score (mean over seeds).
+  \emph{Iters$\to$Best}: first iteration achieving the reported best score (mean over seeds).
   $^\P$GP-BO: \texttt{GPSampler} + Expected Improvement~\cite{yang2024vdtuner}.
   $^\S$QDS: difficulty-weighted objective; mean Score\,$=$\,1362\,$\pm$\,5 (3 seeds).}
 \label{tab:optimizer}
@@ -1254,7 +1254,7 @@ GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/
 
 \begin{table*}[t]
 \centering
-\caption{System efficiency on HICO-DET (47K images, 600 queries, 5 runs).
+\caption{System efficiency on HICO-DET (47{,}776 images, 600 queries, 5 runs).
   \emph{Build(s)}: index build; \emph{Lat(ms)}: end-to-end per-query latency.}
 \label{tab:efficiency}
 \small
