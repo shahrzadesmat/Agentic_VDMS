@@ -1559,7 +1559,7 @@ Standard parameter-independent HPO methods fail structurally on two-stage ANN re
 pipelines because engine-type gating, search-depth--fusion-weight cross-stage coupling,
 and the latency--recall trade-off form conditional dependencies that univariate acquisition
 surfaces cannot model.
-We presented a phase-aware LLM agent using the full $(\theta,\text{Score})$ trajectory $\mathcal{H}_t$, a phase-structured 50-iteration budget (exploration$\to$exploitation$\to$refinement), and an anti-collapse constraint to prevent stagnation.
+We presented a phase-aware LLM agent using the full $(\theta,\text{Score})$ trajectory $\mathcal{H}_t$, a phase-structured 50-iteration budget (Exploration$\to$Exploitation$\to$Fine-tuning), and an anti-collapse constraint to prevent stagnation.
 On HICO-DET the agent achieves mean SIEVE Score\,$=$\,$300.3$ at iteration~23, a threshold requiring 41 iterations for Optuna TPE (${\approx}2.7$\,h compute saved); the $+33.3\%$ (Optuna) and $+50.7\%$ (GP-BO) advantages stem from SIEVE's discontinuous feasibility cliff, which GP-BO's smooth surface cannot model (1 of 3 seeds vs.\ the LLM's 3 of 3).
 This advantage compresses to ${\lesssim}1.3\%$ on GLDv2 and SIFT1M as coupling complexity decreases --- SIFT1M's ordering inverts to favor Grid Search (iteration~5) over the LLM agent (iteration~31) --- confirming complexity-proportional benefit.
 
