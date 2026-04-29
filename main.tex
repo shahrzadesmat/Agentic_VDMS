@@ -442,7 +442,7 @@ queries.
 \textbf{P3 --- Dual-encoder modality gap.}
 CLIP retrieves by language-aligned semantic similarity; DINOv2 captures fine-grained
 visual structure complementary to CLIP's representations~\cite{oquab2024dinov2}.
-Neither encoder alone achieves optimal mAP@10, making the Stage-2 fusion weight
+Neither encoder alone achieves optimal mAP, making the Stage-2 fusion weight
 $\alpha$ a data-dependent parameter that cannot be fixed by hand and must be tuned
 jointly with the Stage-1 ANN configuration.
 
@@ -462,7 +462,7 @@ given a query, not to generalize across a detection boundary.
 Merging both splits maximizes the positive-pair density needed for meaningful mAP
 computation across 600 categories; restricting evaluation to the 9{,}658-image test
 split alone would reduce per-category positive counts below the minimum threshold
-for reliable mAP@10 computation across all 600 classes.
+for reliable mAP computation across all 600 classes.
 CLIP ViT-L/14~\cite{radford2021clip} embeddings are pre-computed offline using the
 official OpenAI weights and stored in VDMS as a 768-dimensional L2 DescriptorSet
 of 47{,}776 vectors.
@@ -487,15 +487,19 @@ the HICO-DET ground truth.
 A single image may be relevant to multiple queries (e.g., an image annotated with both
 \textit{ride motorcycle} and \textit{hold phone} contributes positives to two queries).
 Summed over all 600 queries, there are 90{,}641 positive (image, query) pairs.
-Every query has at least 5 relevant images, so mAP@10 is defined and non-trivially
+For each HOI category, the single image used as the DINOv2 reranking reference
+is excluded from relevance judgments (treated as a junk image), ensuring the
+reference cannot trivially self-retrieve; after this exclusion the minimum
+per-category positive count is 5.
+Every query has at least 5 relevant images, so mAP is defined and non-trivially
 bounded for each of the 600 queries.
 
 \subsection{Evaluation Protocol}
-We evaluate retrieval quality using mean Average Precision at $k{=}10$ (mAP@10),
+We evaluate retrieval quality using mean Average Precision (mAP),
 Precision@10, NDCG@10, and Recall@10 over all 600 queries.
-mAP@10 is our primary metric: it rewards systems that place relevant images in the
-top-10 positions and is the standard metric for ranked retrieval with multiple relevant
-documents per query~\cite{manning2008ir}.
+mAP is our primary metric: it rewards systems that rank relevant images
+higher in the retrieved list and is the standard metric for ranked retrieval
+with multiple relevant documents per query~\cite{manning2008ir}.
 Throughput is measured in queries per second (QPS), computed as 600 divided by the
 total wall-clock time for all queries issued as a single batch to a live VDMS
 container.
@@ -530,7 +534,16 @@ Let $\Theta$ denote the joint configuration space of the two-stage pipeline
 $\Theta$ is the Cartesian product of seven parameter domains
 (\emph{engine}; $M$, $\mathit{nlist}$; $\mathit{efSearch}$, $\mathit{nprobe}$;
 $k$; $\alpha$; $n_{\mathrm{refs}}$; $\mathit{ref\_strategy}$)
-enumerated in Table~\ref{tab:config-space}; $|\Theta| = 102{,}144$.
+enumerated in Table~\ref{tab:config-space}; $|\Theta| = 102{,}144$.\footnote{The LLM
+  agent additionally proposes a VDMS metadata pre-filter
+  (\textit{constraint\_strategy} $\in$
+  \{\texttt{none}, \texttt{object}, \texttt{verb}, \texttt{object\_and\_verb}\})
+  that restricts ANN search to images belonging to a specified COCO object or
+  verb class before retrieval; this parameter lies outside $\Theta$ as defined here.
+  Grid Search and Random Search fix \texttt{constraint\_strategy\,=\,none};
+  Optuna TPE samples it as an additional categorical hyperparameter;
+  the LLM agent uses \texttt{constraint\_strategy\,=\,object} in all reported
+  best configurations.}
 \end{definition}
 
 \begin{definition}[Evaluation Oracle]\label{def:oracle}
@@ -545,15 +558,17 @@ $\theta$ is available, and each call requires a full index rebuild followed by
 \end{definition}
 
 \begin{definition}[Optimization Problem]\label{def:optproblem}
-Given $\Theta$ (Definition~\ref{def:space}) and $\mathcal{O}$ (Definition~\ref{def:oracle}),
-find
+Given $\Theta$ (Definition~\ref{def:space}), $\mathcal{O}$ (Definition~\ref{def:oracle}),
+and a finite evaluation budget $N \in \mathbb{N}$, find
 \begin{equation}
   \theta^{*} \;=\; \arg\max_{\theta \in \Theta}\;
   \mathrm{Score}(\theta) ,
   \label{eq:optproblem}
 \end{equation}
-where $\mathrm{Score}(\theta)$ is defined by Eq.~\eqref{eq:score}
+subject to at most $N$ calls to $\mathcal{O}$, where $\mathrm{Score}(\theta)$ is
+defined by Eq.~\eqref{eq:score}
 ($\mathrm{QPS}(\theta)$ if $\mathrm{mAP}(\theta) \geq \tau$, else $0$).
+We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
 \end{definition}
 
 \begin{table}[t]
@@ -612,32 +627,6 @@ where $\mathrm{Score}(\theta)$ is defined by Eq.~\eqref{eq:score}
 \end{tabular}%
 }
 \end{table}
-
-\noindent\textbf{Intractability.}
-Exhaustive search over $|\Theta| = 102{,}144$ configurations is infeasible under any
-practical budget: each oracle call requires $3$--$10$~minutes of wall-clock time
-(index rebuild plus 600 query evaluations on a GPU node), so evaluating the full
-space would require thousands of GPU-hours.
-At the $N{=}30$-iteration budget used in our study, a non-adaptive strategy covers
-at most $0.03\%$ of $\Theta$; evaluation feedback is additionally noisy due to VDMS
-runtime variability.
-
-\noindent\textbf{Cross-Stage Parameter Coupling.}
-The seven parameters decompose into two coupled groups:
-Stage-1 parameters $\{$engine, $M$, $\mathit{efSearch}$, $\mathit{nprobe}$, $k\}$
-govern ANN recall and throughput, while Stage-2 parameters $\{\alpha$,
-$n_{\mathrm{refs}}$, $\mathit{ref\_strategy}\}$ govern DINOv2 reranking.
-The optimal pool size $k$ and fusion weight $\alpha$ are \emph{jointly determined}:
-at small $k$, Stage~1 returns only high-confidence CLIP candidates so DINOv2
-reranking adds marginally, favouring small $\alpha$; at large $k$, the pool
-contains visually diverse images that benefit from DINOv2 reranking, favouring
-larger $\alpha$.
-This structural coupling invalidates the parameter-independence assumption underlying
-GP-based Bayesian methods~\cite{yang2024vdtuner} and Optuna
-TPE~\cite{akiba2019optuna}, which model each parameter's marginal contribution
-independently and cannot represent cross-stage interactions.
-Our LLM agent explicitly reasons about these inter-parameter dependencies in its
-natural-language analysis of prior outcomes (Section~\ref{sec:optimizer}).
 
 
 \section{Two-Stage Retrieval Pipeline}
