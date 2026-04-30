@@ -55,8 +55,8 @@
 \usepackage{algpseudocode}
 \usepackage{subcaption}
 \usepackage[compact]{titlesec}
-\titlespacing*{\section}{0pt}{6pt plus 2pt minus 1pt}{3pt plus 1pt minus 1pt}
-\titlespacing*{\subsection}{0pt}{4pt plus 2pt minus 1pt}{2pt plus 1pt minus 1pt}
+\titlespacing*{\section}{0pt}{4pt plus 1pt minus 1pt}{2pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{3pt plus 1pt minus 1pt}{1pt plus 1pt minus 1pt}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 % ── Float placement tuning ───────────────────────────────────────────────────
@@ -75,13 +75,13 @@
 \setcounter{totalnumber}{6}
 \setcounter{dbltopnumber}{4}
 % ── Float and caption spacing ────────────────────────────────────────────────
-\setlength{\textfloatsep}{10pt plus 2pt minus 4pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
-\setlength{\dbltextfloatsep}{10pt plus 2pt minus 4pt}
-\setlength{\dblfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{5pt plus 1pt minus 1pt}
-\setlength{\belowcaptionskip}{3pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{4pt plus 1pt minus 2pt}
+\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\dbltextfloatsep}{4pt plus 1pt minus 2pt}
+\setlength{\dblfloatsep}{4pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{3pt plus 1pt minus 1pt}
+\setlength{\belowcaptionskip}{1pt plus 1pt minus 1pt}
 
 \raggedbottom
 \emergencystretch=2em
@@ -548,7 +548,7 @@ We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
 \toprule
 \textbf{Parameter} & \textbf{Notation} & \textbf{Value Set} & \textbf{Card.} \\
 \midrule
-\multicolumn{4}{@{}l}{\textit{Stage 1 --- ANN retrieval}} \\[1pt]
+\multicolumn{4}{@{}l}{\textit{Stage 1 --- ANN retrieval}} \\
 \quad engine
   & ---
   & Flat, HNSWFlat, IVFFlat
@@ -574,7 +574,7 @@ We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
   & 50--1000\,(8 vals)
   & 8  \\
 \midrule
-\multicolumn{4}{@{}l}{\textit{Stage 2 --- DINOv2 reranking}} \\[1pt]
+\multicolumn{4}{@{}l}{\textit{Stage 2 --- DINOv2 reranking}} \\
 \quad fusion weight
   & $\alpha$
   & 0.0, 0.05, \ldots, 0.90
@@ -1503,14 +1503,11 @@ Two-stage ANN retrieval pipelines impose conditional dependencies ---
 engine-type gating, cross-stage search-depth--fusion-weight coupling, and a
 discontinuous feasibility cliff --- that parameter-independent HPO methods
 model incorrectly by treating jointly coupled parameters as independent
-marginals.
-We introduced SIEVE, a quality-gated throughput objective, and a phase-aware
+marginals. We introduced SIEVE, a quality-gated throughput objective, and a phase-aware
 LLM agent (Exploration $\to$ Exploitation $\to$ Fine-tuning) that navigates
-coupling by conditioning each proposal on the full accumulated optimization
-history.
+coupling by conditioning each proposal on the full accumulated optimization history.
 On HICO-DET the agent outperforms the best non-LLM baseline by $+33.3\%$ and achieves 3/3-seed
-reproducibility (vs.\ 1/3 for Optuna TPE and GP-BO), confirming the structural cost of marginal
-parameter reasoning under SIEVE; on GLDv2 and SIFT1M the advantage compresses to ${\lesssim}1.3\%$,
+reproducibility (vs.\ 1/3 for Optuna TPE and GP-BO); on GLDv2 and SIFT1M the advantage compresses to ${\lesssim}1.3\%$,
 confirming that \emph{LLM optimization advantage scales with configuration-space coupling complexity}.
 Future work targets billion-scale deployment with hardware-profile telemetry
 and multi-tenant settings with per-workload history conditioning.

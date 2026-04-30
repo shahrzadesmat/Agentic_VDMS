@@ -56,7 +56,7 @@ Y_LO, Y_HI = 293, 302
 THRESH = 299
 
 fig, (ax_l, ax_r) = plt.subplots(
-    1, 2, figsize=(3.3, 1.55),
+    1, 2, figsize=(3.3, 1.30),
     gridspec_kw={"width_ratios": [2.2, 1], "wspace": 0.08}
 )
 
