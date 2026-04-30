@@ -884,6 +884,7 @@ as structured text; and (iv) dynamically computed untried-value hints
 (Section~\ref{sec:hints}).
 The agent responds with a structured JSON object specifying the next $\theta_t$ and
 a \textit{reasoning} field that articulates its rationale (Figure~\ref{fig:prompts}).
+The necessity of history conditioning is verified in Section~\ref{sec:ablation}.
 
 \subsubsection{Diagnostic Guidance Function}
 \label{sec:guidance}
@@ -1061,7 +1062,7 @@ We define $\mathrm{QDS}_j{=}\tilde{H}_j{-}\widetilde{\mathrm{CPR}}_j$ (min-max
 normalised), weight $w_j{=}1{+}\widetilde{\mathrm{QDS}}_j{\in}[1,2]$, and replace the standard
 mAP with $\mathrm{QDS\text{-}mAP}{=}\sum_j w_j\mathrm{AP}_j/\sum_j w_j$ as the
 oracle signal.
-The QDS objective is ablated in Section~\ref{sec:ablation} (QDS row).
+QDS performance is reported in Table~\ref{tab:optimizer} and Table~\ref{tab:efficiency}.
 QDS applies exclusively to HICO-DET: its semantic verb--object category structure
 admits per-query difficulty decomposition; GLDv2 (landmark-instance ground truth)
 and SIFT1M (exact $k$-NN ground truth) provide no analogous categorical difficulty
@@ -1096,7 +1097,7 @@ any reranking stage; Score $=$ QPS if Recall@10\,$\geq\tau{=}0.90$, else $0$.
 \noindent\textbf{Compared Methods.}
 We compare five strategies, each for $N{=}50$ iterations.
 
-\noindent\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter\footnote{Estimated API cost: 50 iterations $\times$ $\approx$5,000 tokens/call $\approx$ 250K tokens total; at MiniMax-M2.1 list pricing this amounts to under \$0.20 per optimizer run.} (seeds: 42, 99, 200).
+\noindent\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter\footnote{Estimated API cost: 50 iterations $\times$ $\approx$5,000 tokens/call $\approx$ 250K tokens total; at MiniMax-M2.1 list pricing this amounts to under \$0.20 per optimizer run.} (seeds: 42, 99, 200). Backbone portability across GPT-4o-mini and Llama-3.3-70B is verified in Section~\ref{sec:ablation}.
 
 \noindent\textbf{GP-BO:} \texttt{optuna.samplers.\allowbreak GPSampler} (Expected Improvement), replicating VDTuner~\cite{yang2024vdtuner} (seeds: 42, 99, 200).
 
