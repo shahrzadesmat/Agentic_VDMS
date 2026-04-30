@@ -406,7 +406,18 @@ construction.
 Our work addresses what neither thread has reached: a coupled multi-stage parameter
 space where ANN retrieval depth and fusion reranking weight must be optimized jointly
 under a hard feasibility constraint that smooth surrogate models cannot represent.
-A history-conditioned, phase-aware LLM agent is uniquely suited to this setting.
+Three structural properties make directly applying OPRO~\cite{yang2024opro} insufficient.
+First, the valid parameter set is \emph{conditional} on engine type --- the search space
+itself changes mid-optimization, violating OPRO's fixed-candidate assumption.
+Second, the SIEVE feasibility cliff is discontinuous: plain history-conditioned proposals
+average over the cliff rather than committing to the feasible high-QPS side.
+Third, cross-stage $(k,\alpha)$ coupling means the joint optimum is unreachable by
+treating parameters as independent marginals, as history-only proposals do.
+Our additions --- phase structure, diagnostic guidance $g(\mathcal{H})$, and
+untried-value hints --- directly target each gap and are not decorative:
+removing history conditioning alone (reducing the agent to OPRO-style proposals)
+drops seed reliability from $\mathbf{3/3}$ to $\mathbf{0/3}$ seeds reaching the
+optimum, as verified in Section~\ref{sec:ablation}.
 
 \section{The HICO-DET Retrieval Benchmark}
 \label{sec:benchmark}
