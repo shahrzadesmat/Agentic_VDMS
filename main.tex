@@ -609,10 +609,7 @@ We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
   \centering
   \includegraphics[width=\textwidth]{figures/pipeline_figure.pdf}
   \Description{Two-stage retrieval pipeline diagram.}
-  \caption{Two-stage retrieval pipeline.
-    CLIP ViT-L/14 ANN retrieval (Stage~1) produces a top-$k$ candidate pool;
-    DINOv2 ViT-L/14-reg4 reranking (Stage~2) fuses scores via
-    $s_j{=}(1{-}\alpha)\hat{c}_j+\alpha\hat{d}_j$ at zero additional indexing cost.}
+  \caption{Two-stage retrieval pipeline (CLIP ANN retrieval + DINOv2 reranking).}
   \label{fig:pipeline}
 \end{figure*}
 
@@ -812,9 +809,7 @@ Eq.~\eqref{eq:textquery}.
   \centering
   \includegraphics[width=\textwidth, trim=0 102 10 0, clip]{figures/workflow.pdf}
   \Description{Optimization framework diagram showing five methods.}
-  \caption{Optimization framework: five methods propose VDMS configurations over
-    $N{=}50$ iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive
-    score feedback (red arrows); Grid and Random Search do not.}
+  \caption{Optimization framework: five methods over $N{=}50$ iterations (adaptive methods receive score feedback).}
   \label{fig:workflow}
 \end{figure*}
 
@@ -874,10 +869,7 @@ structural choices before continuous ones.
     diagnostic class g(H), history, and untried-value hints, eliciting a structured
     JSON configuration response including engine, k-neighbors, alpha, n-refs,
     ref-strategy, constraint-strategy, and reasoning fields.}
-  \caption{LLM prompt structure. A single user message encodes parameter physics,
-    the diagnostic class $g(\mathcal{H}_{t-1})$, complete history $\mathcal{H}_{t-1}$,
-    and untried-value hints (Exploitation/Fine-tuning only), eliciting a structured
-    JSON configuration response (including \texttt{constraint\_strategy}).}
+  \caption{LLM prompt structure (parameter physics, history $\mathcal{H}_{t-1}$, and phase-conditioned hints).}
   \label{fig:prompts}
 \end{figure*}
 
@@ -1150,9 +1142,7 @@ $N{=}50$ covers 0.05\% of $|\Theta|$ (e.g., 63{,}840 HNSW configs on HICO-DET), 
 % ── Table 1: System baselines ─────────────────────────────────────────────────
 \begin{table*}[t]
 \centering
-\caption{System baselines on HICO-DET (FaissFlat exact search).
-  Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$); $\alpha$: DINOv2 reranking weight
-  ($0$=CLIP only, $1$=DINOv2 only). Latency in Table~\ref{tab:efficiency}.}
+\caption{System baselines on HICO-DET (FaissFlat exact search; Score\,$=$\,QPS if mAP\,$\geq\tau$, $\tau{=}0.15$).}
 \label{tab:baselines}
 \small
 \setlength{\tabcolsep}{5pt}
@@ -1206,10 +1196,7 @@ by conditioning each proposal on the full history of observed outcomes.
     for five optimizer methods on HICO-DET over 50 iterations. LLM Agent outpaces all baselines
     by iteration 4, reaching a final mean score of 300.3; Optuna TPE and GP-BO plateau at
     225.2 and 199.3; Grid and Random Search plateau below 184.}
-  \caption{Best SIEVE Score vs.\ iteration on HICO-DET
-    (mean; $\pm 1\sigma$ band for LLM Agent; 3 seeds except Grid).
-    LLM Agent surpasses all baselines within 4 iterations, reaching
-    $\mathbf{300.3}$ at iteration~23 vs.\ 225.2 (Optuna) and 183.0 (Grid) at iteration~41.}
+  \caption{Best SIEVE Score vs.\ iteration on HICO-DET (mean $\pm 1\sigma$; 3 seeds except Grid).}
   \label{fig:convergence}
 \end{figure}
 
@@ -1217,10 +1204,7 @@ by conditioning each proposal on the full history of observed outcomes.
 \begin{table*}[t]
 \centering
 \caption{ANN optimizer comparison on HICO-DET (50 iterations, means over 3 seeds; Grid: 1 run).
-  Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$); all best configs meet $\tau$.
-  \emph{Iters$\to$Best}: first iteration achieving the reported best score (mean over seeds).
-  $^\P$GP-BO: \texttt{GPSampler} + Expected Improvement~\cite{yang2024vdtuner}.
-  $^\S$QDS: difficulty-weighted objective; mean Score\,$=$\,1362\,$\pm$\,5 (3 seeds).}
+  $^\P$GP-BO: \texttt{GPSampler}+EI~\cite{yang2024vdtuner}. $^\S$QDS: difficulty-weighted objective.}
 \label{tab:optimizer}
 \small
 \setlength{\tabcolsep}{6pt}
@@ -1245,8 +1229,7 @@ GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/
 
 \begin{table*}[t]
 \centering
-\caption{System efficiency on HICO-DET (47{,}776 images, 600 queries, 5 runs).
-  \emph{Build(s)}: index build; \emph{Lat(ms)}: end-to-end per-query latency.}
+\caption{System efficiency on HICO-DET (47{,}776 images, 600 queries).}
 \label{tab:efficiency}
 \small
 \setlength{\tabcolsep}{5pt}
@@ -1363,10 +1346,7 @@ The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from te
 % ── Table: GLDv2 optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
 \centering
-\caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries,
-  50 iterations, seed~42).
-  Score $=$ QPS if mAP$\geq\tau$ else $0$ ($\tau{=}0.15$).
-  \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
+\caption{Optimizer comparison on GLDv2 (762K gallery, 1{,}129 queries, 50 iterations, seed~42).}
 \label{tab:gldv2}
 \resizebox{\columnwidth}{!}{%
 \small
@@ -1419,9 +1399,7 @@ We evaluate five methods (LLM Agent, Optuna TPE, Grid, Random, and GP-BO) under 
 % ── Table: SIFT1M optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
 \centering
-\caption{Optimizer comparison on SIFT1M (1M SIFT vectors, 10{,}000 queries,
-  50 iterations, seed~42). Score $=$ QPS if Recall@10\,$\geq\tau$ else $0$ ($\tau{=}0.90$).
-  \emph{Iters$\to$Best}: first iteration achieving the reported best score.}
+\caption{Optimizer comparison on SIFT1M (1M vectors, 10{,}000 queries, 50 iterations; Score\,$=$\,QPS if Recall@10\,$\geq 0.90$).}
 \label{tab:sift1m}
 \resizebox{\columnwidth}{!}{%
 \small
