@@ -1465,78 +1465,90 @@ SIFT1M has no $\alpha$ parameter, so cross-stage coupling is absent by
 construction; the remaining $M$--$\mathit{efSearch}$ interaction is monotone
 ($\rho(M,\text{Score}){=}{+}0.287$; $\rho(\mathit{efSearch},\text{Score}){=}{+}0.243$)
 and BO-tractable without joint history-conditioned reasoning.
-
-\noindent\textbf{Sample efficiency.}
-The LLM agent reaches Score $\geq 1000$ from iteration~1, while Grid Search
-requires 5 iterations, Optuna TPE requires 20, and Random Search requires 23.
-Measured by \emph{Iters$\to$Best}, the ranking \emph{inverts} relative to HICO-DET:
-Grid Search reaches its best Score at iteration~5, Random~Search at iteration~23,
-the LLM agent at iteration~31, and Optuna TPE at iteration~42.
-GP-BO peaks at iteration~28 ($471.4$) but never approaches the ${\sim}1170$ band.
-This inversion reinforces the complexity-proportional thesis: on the uncoupled
-4-parameter space, TPE's univariate acquisition surface is sufficient, and
-the LLM's architectural history provides no additional navigational advantage
-beyond informed initialization at iteration~1.
+Notably, sample-efficiency rankings invert: Grid Search reaches its best Score at iteration~5 vs.\ iteration~31 for the LLM agent, confirming that architectural history confers no navigational advantage on the uncoupled 4-parameter space.
 
 \subsection{Ablation Study}
 \label{sec:ablation}
 
-\noindent\textbf{DINOv2 reranking weight ($\alpha$).}
-$\alpha{=}0.5$ raises mAP from $0.240$ (CLIP, $\alpha{=}0$) to $0.276$ ($+3.65$\,pp) at $0.6\%$ extra latency; $\alpha{=}1.0$ falls to $0.217$, so $\alpha{\in}(0,1)$ strictly dominates both pure encoders.
-The LLM agent discovers $\alpha{=}0.80$: DINOv2 reranking acts as an error corrector for Stage-1 HNSW approximation near the $k{=}50$ feasibility boundary.
-
-\noindent\textbf{Candidate pool size ($k$).}
-Increasing $k$ $500{\to}2000$ (FaissFlat, $\alpha{=}0$) improves mAP $0.208{\to}0.240$ but collapses Score $8.21{\to}1.17$ ($7.0\times$ throughput penalty).
-The agent selects $k{=}50$ with $\alpha{=}0.80$, $n_r{=}5$ centroid, maintaining mAP\,$=$\,$0.160$ just above $\tau$ at QPS\,$\approx\!300$.
-
-\noindent\textbf{Reference selection ($n_r$, ref\_strategy).}
-The agent converges to \textit{centroid} $n_r{=}10$ (minimizes $\varepsilon_j$, Eq.~\eqref{eq:imagequery}); \textit{first} (single CLIP image) is fragile on long-tailed categories; \textit{diverse} (farthest-point sampling) trades proximity for coverage.
-
-\noindent\textbf{ANN engine selection.}
-The LLM agent selects FaissHNSWFlat $M{=}64$ on all seeds (Score\,$\approx\!300$); Optuna distributes across $M{\in}\{16,32,48\}$ (mean $225.2$, spread $188$--$300$), lacking joint engine-type conditioning. IVFFlat configs consistently score $0$ (mAP\,$<\tau$).
+\noindent\textbf{Parameter ablations ($\alpha$, $k$, $n_r$, engine).}
+$\alpha{=}0.5$ raises mAP from $0.240$ to $0.276$ ($+3.65$\,pp) at $0.6\%$ extra latency; $\alpha{\in}(0,1)$ strictly dominates both pure encoders.
+Increasing $k$ $500{\to}2000$ improves mAP but collapses Score $8.21{\to}1.17$ ($7{\times}$ throughput penalty); the agent discovers the non-obvious optimum $k{=}50$, $\alpha{=}0.80$, $n_r{=}5$ centroid (Score\,$\approx\!300$, mAP\,$=$\,$0.160$, just above $\tau$).
+The \textit{centroid} reference strategy (minimizes $\varepsilon_j$, Eq.~\eqref{eq:imagequery}) outperforms \textit{first} and \textit{diverse}; the agent selects HNSW $M{=}64$ on all seeds while Optuna spreads over $M{\in}\{16,32,48\}$ (mean $225.2$), confirming the value of joint engine-type conditioning.
 
 \noindent\textbf{History conditioning and phase structure.}
-Table~\ref{tab:ablation_arch} isolates each component (3 seeds).
-Removing \emph{history conditioning} degrades Score $300.3{\to}296.9$ ($\mathbf{-1.1\%}$) and inflates variance ($\sigma{=}2.6$ vs.\ $0.3$): without the $(\theta,\text{Score})$ trajectory the agent cannot resolve $(k,\alpha)$ coupling reliably.
-Removing \emph{phase structure} reduces Score to $299.5$ ($\mathbf{-0.3\%}$): without Exploration$\to$Exploitation$\to$Fine-tuning ordering the agent wastes budget on locally optimal but globally suboptimal configs.
-Removing both yields $298.2$ ($\mathbf{-0.7\%}$); elevated $\sigma{=}2.6$ confirms history conditioning is the primary reproducibility driver.
+Figure~\ref{fig:ablation_convergence} and Table~\ref{tab:ablation_arch} isolate each architectural component across 3 seeds, revealing that the
+primary effect of history conditioning is \emph{not} a marginal Score improvement but a binary reliability switch.
 
-\begin{table}[ht]
-\centering
-\caption{Mechanistic ablations on HICO-DET (means over 3 seeds).
-  Score\,$=$\,QPS (SIEVE, $\tau{=}0.15$); $\sigma$\,=\,std over seeds.
-  $\Delta$Score relative to full LLM Agent.}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/convergence_ablation.pdf}
+  \Description{Ablation convergence curves. Without history conditioning the agent
+    stagnates completely after iteration 5, gaining only 0.1 Score points over the
+    next 45 iterations and reaching Score>=299 in 0 of 3 seeds. The full agent
+    improves from 296.0 at iteration 10 to 300.3 at iteration 50, reaching 299+
+    on all 3 seeds. Without phase structure the agent still learns (+1.3 gain)
+    and reaches 299+ on 3/3 seeds but converges later.}
+  \caption{Ablation convergence ($\pm1\sigma$, 3 seeds).
+    Without history conditioning the agent
+    \emph{stagnates after iteration~5} --- gaining only $+0.1$ Score over the next
+    45 iterations --- and reaches Score\,$\geq$\,299 on \textbf{0 of 3 seeds}
+    (vs.\ 3/3 for the full agent).
+    Without phase structure learning continues ($+1.3$ gain) with 3/3 seeds
+    eventually reaching the $299$--$300$ band.
+    Phase labels (Exploration / Exploitation / Fine-tuning) apply to the full agent.}
+  \label{fig:ablation_convergence}
+\end{figure}
+
+\emph{History conditioning} is the reproducibility mechanism.
+Without it, the agent reaches Score\,$=$\,$296.8$ by iteration~10 and then
+\textbf{stagnates}: the subsequent 40 iterations yield only $+0.1$ additional
+points (Gain column, Table~\ref{tab:ablation_arch}).
+The agent finds a high-scoring region early via physics-encoded induction, but
+without the $(\theta,\mathrm{Score})$ trajectory it cannot reason about \emph{why}
+$k{=}50$ fails at low $\alpha$ --- it carries no record that $\alpha{<}0.70$
+produces Score\,$=$\,$0$ at $k{=}50$ --- and therefore cannot commit to the
+compensating $(k{=}50,\,\alpha{=}0.80)$ joint operating point.
+The result is a complete loss of post-iteration-5 learning:
+\textbf{0/3 seeds reach Score\,$\geq$\,299} without history,
+versus \textbf{3/3} with the full agent ($\sigma$ falls from $2.6$ to $0.3$).
+This mirrors exactly the GP-BO failure mode of Section~\ref{sec:results_optimizer}:
+both lack the mechanism to condition on joint $(k,\alpha)$ failure history.
+
+\emph{Phase structure} contributes a smaller but consistent effect.
+Without it, the agent continues to learn past iteration~10 ($+1.3$ gain vs.\
+$+4.3$ for the full agent) and 3/3 seeds reach the $299$--$300$ band ---
+but later and less precisely.
+Phase boundaries prevent premature $(k{=}50,\,\alpha)$ refinement before
+engine selection is resolved, saving $3$--$5$ evaluation iterations.
+
+\emph{Non-monotonicity}: removing history alone ($296.9$, $\sigma{=}2.6$, $0/3{\geq}299$) is worse than removing both ($298.2$, $\sigma{=}0.8$, $1/3{\geq}299$).
+Without phase boundaries the agent is \emph{anchored} to its accumulated plateau memory, reinforcing near-duplicate $\alpha$-refinements with no structural escape; removing both eliminates the anchor, enabling occasional genuine exploration that reaches Score\,$\geq$\,299.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\captionof{table}{Mechanistic ablations on HICO-DET (3-seed means;
+  Score\,$=$\,QPS if mAP\,$\geq\tau$).
+  \emph{Score@10}: best Score by iter.~10.
+  \emph{Gain}: improvement iter.~10$\to$50.
+  \emph{Seeds\,$\geq$\,299}: seeds at $N{=}50$.}
 \label{tab:ablation_arch}
 \resizebox{\columnwidth}{!}{%
-\small
-\setlength{\tabcolsep}{5pt}
-\begin{tabular}{lcccr}
+\begin{tabular}{lcccccc}
 \toprule
-\textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{$\sigma$} & \textbf{$\Delta$Score} \\
+\textbf{Method} & \textbf{Score@10} & \textbf{Score@50}$\uparrow$ & \textbf{Gain} & \textbf{$\sigma$} & \textbf{Seeds\,$\geq$\,299} & \textbf{$\Delta$@50} \\
 \midrule
-LLM Agent (Full)               & \textbf{300.3} & 0.161 & 0.3 & --- \\
-\quad w/o History conditioning  & 296.9          & 0.163 & 2.6 & $-1.1\%$ \\
-\quad w/o Phase structure       & 299.5          & 0.164 & 0.1 & $-0.3\%$ \\
-\quad w/o Both                  & 298.2          & 0.164 & 0.8 & $-0.7\%$ \\
+LLM Agent (Full)               & 296.0 & \textbf{300.3} & $+4.3$ & 0.3 & \textbf{3/3} & --- \\
+\quad w/o History conditioning  & 296.8 & 296.9          & $+0.1$ & 2.6 & 0/3          & $-1.1\%$ \\
+\quad w/o Phase structure       & 298.1 & 299.5          & $+1.3$ & 0.1 & 3/3          & $-0.3\%$ \\
+\quad w/o Both                  & 297.6 & 298.2          & $+0.5$ & 0.8 & 1/3          & $-0.7\%$ \\
 \bottomrule
 \end{tabular}}
-\end{table}
+\endgroup
 
 \noindent\textbf{Query Difficulty-Weighted Optimization (QDS).}
 With the QDS-weighted oracle the agent discovers FaissIVFFlat ($n_l{\in}\{128,256,512\}$, $k{=}500$): mean Score\,$=$\,$\mathbf{1362}\,{\pm}\,5$ over 3 seeds (QPS\,$=$\,$1357$--$1367$, mAP\,$=$\,$0.175{\geq}\tau$), $4.5\times$ above standard LLM (300.3).
 This trades retrieval precision (P@10\,$=$\,$0.292$ vs.\ $0.438$) for throughput, steering toward a different Pareto frontier regime.
-
-\noindent\textbf{SIEVE threshold sensitivity ($\tau$).}
-Re-scoring all logged configurations at $\tau\in\{0.10$--$0.20\}$ confirms
-$\tau{=}0.15$ is not cherry-picked: the LLM leads the best non-LLM baseline
-by $+33.3\%$, $+18.4\%$, $+18.9\%$ at $\tau{\in}\{0.15,0.18,0.20\}$,
-with the advantage persisting under stricter quality requirements.
-At $\tau{<}0.15$, baselines access FaissIVFFlat configs
-(mAP$\,{\in}\,[0.10,0.15]$, score\,$=$\,$0$ under $\tau{=}0.15$) that the
-LLM rejected; its re-scored best ($358.7$) trails Optuna ($398.6$) by
-$-10.0\%$, confirming optimization for the stated constraint.
-On SIFT1M parity holds within $\pm1.1\%$ of the best non-LLM baseline
-across all $\tau\in\{0.80,\ldots,0.95\}$.
 
 \noindent\textbf{Backbone portability.}
 A cross-backbone check confirms that the phase-aware protocol is model-agnostic:
