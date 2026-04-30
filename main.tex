@@ -210,7 +210,7 @@ Closing this gap demands an optimizer that reasons over how parameters interact
 across retrieval stages, not one that searches blindly.
 
 Multi-stage retrieval pipelines compound this challenge: systems such as
-VDMS~\cite{pan2023vdms}, Milvus~\cite{wang2021milvus}, and
+VDMS~\cite{vij2023vdms}, Milvus~\cite{wang2021milvus}, and
 GaussDB-Vector~\cite{sun2025gaussdb} chain an ANN retrieval stage with a
 cross-modal fusion reranking stage, exposing interdependent index and reranking
 parameters whose joint configuration determines both retrieval quality and throughput.
@@ -247,7 +247,7 @@ our metric imposes.
 
 We propose a \emph{phase-aware LLM agent} for coupled ANN index optimization,
 applicable to any VDBMS exposing tunable index parameters and instantiated in this
-work on Intel's VDMS~\cite{pan2023vdms}.
+work on Intel's VDMS~\cite{vij2023vdms}.
 The agent conditions each proposal on all prior configurations and their observed
 scores, reasons explicitly over cross-stage parameter dependencies, and
 self-regulates between exploration and exploitation phases.
@@ -263,7 +263,7 @@ paradigm (e.g.,~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
 Evaluated under the SIEVE quality-constrained throughput objective
 (Section~\ref{sec:metrics}), the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
 $\mathbf{+50.7\%}$ over GP-BO on HICO-DET, delivering a $\mathbf{36.6\times}$
-improvement over an exhaustive-search CLIP baseline~\cite{johnson2019billion}.
+improvement over an exhaustive-search CLIP baseline~\cite{johnson2021billion}.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
 SIFT1M~\cite{jegou2011pq} (pure ANN search) ---
 the advantage diminishes proportionally, confirming it scales with structural
@@ -336,7 +336,7 @@ pre-training on 400 million image-text pairs, enabling zero-shot text-to-image r
 DINOv2~\cite{oquab2024dinov2} produces self-supervised visual features that complement
 CLIP's language-aligned representations, capturing fine-grained visual structure suited
 to reranking.
-UniIR~\cite{wei2023uniir} unified eight multimodal retrieval tasks under a single model
+UniIR~\cite{wei2024uniir} unified eight multimodal retrieval tasks under a single model
 trained on M-BEIR, establishing a strong cross-modal baseline.
 LamRA~\cite{liu2025lamra} demonstrated that large multimodal models further improve
 fine-grained query understanding for retrieval.
@@ -345,10 +345,10 @@ primary baselines.
 
 \subsection{Vector Database Systems and ANN Indexing}
 The efficiency of HOI retrieval depends not only on the query models above but also on how the underlying approximate nearest-neighbor indices are configured.
-ANN indexing algorithms span graph-based indices (HNSW~\cite{malkov2018hnsw} via
+ANN indexing algorithms span graph-based indices (HNSW~\cite{malkov2020hnsw} via
 hierarchical navigable small-world graphs, DiskANN~\cite{subramanya2019diskann} for
 billion-point SSD-resident datasets), inverted file structures with product
-quantization~\cite{jegou2011pq}, and GPU-accelerated flat search~\cite{johnson2019billion}.
+quantization~\cite{jegou2011pq}, and GPU-accelerated flat search~\cite{johnson2021billion}.
 ANN-Benchmarks~\cite{aumuller2020ann} standardizes recall-versus-throughput evaluation
 across these algorithms; the NeurIPS'21 competition~\cite{simhadri2022neurips} established
 billion-scale baselines.
@@ -360,7 +360,7 @@ GaussDB-Vector~\cite{sun2025gaussdb} decouples index construction from query ser
 sustain low latency at billion-vector scale.
 VSAG~\cite{zhong2025vsag} enables incremental updates via subgraph monotonicity,
 eliminating costly full rebuilds.
-VDMS~\cite{pan2023vdms} co-locates graph-property metadata with vector data and exposes
+VDMS~\cite{vij2023vdms} co-locates graph-property metadata with vector data and exposes
 HNSW index parameters through a Python API, making it the natural platform for an
 optimizer that must rebuild and re-query the index at each evaluation step.
 Across all these systems, index configuration is left to manual tuning or blind search;
@@ -665,10 +665,10 @@ Three ANN engines expose qualitatively distinct accuracy--throughput operating p
 
 \noindent\textbf{FaissFlat:} exact exhaustive L2 search; recall upper bound at lowest QPS.
 
-\noindent\textbf{FaissHNSWFlat}~\cite{malkov2018hnsw}: hierarchical navigable small-world graph; recall/latency controlled by graph connectivity $M$ and beam width $\mathit{efSearch}$ (values in Table~\ref{tab:config-space}).
+\noindent\textbf{FaissHNSWFlat}~\cite{malkov2020hnsw}: hierarchical navigable small-world graph; recall/latency controlled by graph connectivity $M$ and beam width $\mathit{efSearch}$ (values in Table~\ref{tab:config-space}).
 The build-quality parameter $\mathit{efConstruction}$ is fixed at $200$ throughout HICO-DET and GLDv2 experiments; preliminary experiments confirmed that values above $200$ yield negligible recall improvement at substantially higher build cost, so it is excluded from $\Theta$.
 
-\noindent\textbf{FaissIVFFlat}~\cite{johnson2019billion}: inverted-file index; search probes $\mathit{nprobe}$ of $\mathit{nlist}$ Voronoi cells (values in Table~\ref{tab:config-space}).
+\noindent\textbf{FaissIVFFlat}~\cite{johnson2021billion}: inverted-file index; search probes $\mathit{nprobe}$ of $\mathit{nlist}$ Voronoi cells (values in Table~\ref{tab:config-space}).
 
 The candidate pool size $k$ (8 values: 50--1000, Table~\ref{tab:config-space}) determines
 the recall ceiling available to Stage~2 and is selected jointly with engine parameters.
@@ -1111,7 +1111,7 @@ We compare five strategies, each for $N{=}50$ iterations.
 \noindent\textbf{Random Search}~\cite{bergstra2012random}: uniform random sampling (seeds: 42, 99, 200).
 
 \noindent\textbf{Grid Search:} lexicographic 1-D sweep (1~run).
-As system baselines we include UniIR~\cite{wei2023uniir}, standalone CLIP
+As system baselines we include UniIR~\cite{wei2024uniir}, standalone CLIP
 ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2 reranking,
 all under exact FaissFlat search (Section~\ref{sec:baselines}).
 
@@ -1213,8 +1213,8 @@ by conditioning each proposal on the full history of observed outcomes.
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
 \multicolumn{5}{l}{\textit{Baselines}} \\
-UniIR CLIP-SF Large, image-only~\cite{wei2023uniir} & 19.67          & 0.095 & 0.448 & --- \\
-UniIR CLIP-SF Large, multimodal~\cite{wei2023uniir} & 19.46          & 0.089 & 0.442 & --- \\
+UniIR CLIP-SF Large, image-only~\cite{wei2024uniir} & 19.67          & 0.095 & 0.448 & --- \\
+UniIR CLIP-SF Large, multimodal~\cite{wei2024uniir} & 19.46          & 0.089 & 0.442 & --- \\
 Grid Search                               & 183.0          & 0.178 & 0.508 & 41/50 \\
 Random Search                             & 111.4          & 0.179 & 0.455 & 29/50 \\
 Optuna TPE                                & 225.2          & 0.164 & 0.465 & 41/50 \\
@@ -1237,7 +1237,7 @@ GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/
 \toprule
 \textbf{Configuration} & \textbf{Engine} & \textbf{$k$} & \textbf{Build(s)}$\downarrow$ & \textbf{CLIP(ms)}$\downarrow$ & \textbf{DINO(ms)}$\downarrow$ & \textbf{Lat(ms)}$\downarrow$ & \textbf{QPS}$\uparrow$ \\
 \midrule
-\multicolumn{8}{l}{\textit{UniIR~\cite{wei2023uniir} ($k{=}10$)}} \\
+\multicolumn{8}{l}{\textit{UniIR~\cite{wei2024uniir} ($k{=}10$)}} \\
 CLIP-SF Large, image-only         & FaissFlat & 10   & 427.6 & 50.8  & ---   &  50.8 & 19.67 \\
 CLIP-SF Large, multimodal         & FaissFlat & 10   & 427.7 & 51.4  & ---   &  51.4 & 19.46 \\
 \midrule
