@@ -87,12 +87,12 @@
 \emergencystretch=2em
 \hfuzz=5pt
 \renewcommand{\bibfont}{\small}
-\setlength{\parskip}{4pt plus 1pt minus 1pt}
+\setlength{\parskip}{2pt plus 1pt minus 1pt}
 % Display math spacing
-\setlength{\abovedisplayskip}{5pt plus 2pt minus 2pt}
-\setlength{\belowdisplayskip}{5pt plus 2pt minus 2pt}
-\setlength{\abovedisplayshortskip}{2pt plus 1pt minus 1pt}
-\setlength{\belowdisplayshortskip}{2pt plus 1pt minus 1pt}
+\setlength{\abovedisplayskip}{3pt plus 1pt minus 1pt}
+\setlength{\belowdisplayskip}{3pt plus 1pt minus 1pt}
+\setlength{\abovedisplayshortskip}{1pt plus 1pt minus 1pt}
+\setlength{\belowdisplayshortskip}{3pt plus 1pt minus 1pt}
 
 %% The following content must be adapted for the final version
 % paper-specific
@@ -1215,9 +1215,8 @@ Random Search                             & 111.4          & 0.179 & 0.455 & 29/
 Optuna TPE                                & 225.2          & 0.164 & 0.465 & 41/50 \\
 GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/50 \\
 \midrule
-\multicolumn{5}{l}{\textit{Ours}} \\
-\textbf{LLM Agent}                        & \textbf{300.3} & 0.161 & 0.438 & 23/50 \\
-\textbf{LLM Agent + QDS}$^\S$             & \textbf{1362.0}& 0.175 & 0.292 & 39/50 \\
+\textbf{LLM Agent (Ours)}                 & \textbf{300.3} & 0.161 & 0.438 & 23/50 \\
+\textbf{LLM Agent + QDS (Ours)}$^\S$      & \textbf{1362.0}& 0.175 & 0.292 & 39/50 \\
 \bottomrule
 \end{tabular}
 \end{table*}
