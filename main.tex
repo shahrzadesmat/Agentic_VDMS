@@ -507,16 +507,10 @@ Let $\Theta$ denote the joint configuration space of the two-stage pipeline
 $\Theta$ is the Cartesian product of seven parameter domains
 (\emph{engine}; $M$, $\mathit{nlist}$; $\mathit{efSearch}$, $\mathit{nprobe}$;
 $k$; $\alpha$; $n_{\mathrm{refs}}$; $\mathit{ref\_strategy}$)
-enumerated in Table~\ref{tab:config-space}; $|\Theta| = 102{,}144$.\footnote{The LLM
-  agent additionally proposes a VDMS metadata pre-filter
-  (\textit{constraint\_strategy} $\in$
-  \{\texttt{none}, \texttt{object}, \texttt{verb}, \texttt{object\_and\_verb}\})
-  that restricts ANN search to images belonging to a specified COCO object or
-  verb class before retrieval; this parameter lies outside $\Theta$ as defined here.
-  Grid Search and Random Search fix \texttt{constraint\_strategy\,=\,none};
-  Optuna TPE samples it as an additional categorical hyperparameter;
-  the LLM agent uses \texttt{constraint\_strategy\,=\,object} in all reported
-  best configurations.}
+enumerated in Table~\ref{tab:config-space}; $|\Theta| = 102{,}144$.\footnote{The LLM agent also proposes a \texttt{constraint\_strategy}
+  metadata pre-filter ($\in$\{\texttt{none, object, verb, object\_and\_verb}\}) outside $\Theta$;
+  Grid/Random fix it to \texttt{none}, Optuna TPE samples it, and the LLM agent
+  uses \texttt{object} in all best configurations.}
 \end{definition}
 
 \begin{definition}[Evaluation Oracle]\label{def:oracle}
@@ -544,9 +538,9 @@ defined by Eq.~\eqref{eq:score}
 We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
 \end{definition}
 
-\begin{table}[t]
+\begingroup
 \centering
-\caption{Configuration space $\Theta$ (Definition~\ref{def:space}); $^\dagger$conditional on engine; total $|\Theta|{=}102{,}144$.}
+\captionof{table}{Configuration space $\Theta$ (Definition~\ref{def:space}); $^\dagger$conditional on engine; total $|\Theta|{=}102{,}144$.}
 \label{tab:config-space}
 \resizebox{\columnwidth}{!}{%
 \setlength{\tabcolsep}{4pt}
@@ -599,7 +593,7 @@ We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
 \bottomrule
 \end{tabular}%
 }
-\end{table}
+\endgroup
 
 
 \section{Two-Stage Retrieval Pipeline}
