@@ -1485,10 +1485,7 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
     improves from 296.0 at iteration 10 to 300.3 at iteration 50, reaching 299+
     on all 3 seeds. Without phase structure the agent still learns (+1.3 gain)
     and reaches 299+ on 3/3 seeds but converges later.}
-  \captionof{figure}{Left: best-Score-so-far (mean, 3 seeds); right: per-seed final Score at $N{=}50$.
-    History conditioning is a binary reliability switch: all 3 full-agent seeds reach
-    Score\,$\geq$\,299 (dashed), while removing it leaves \textbf{0/3} seeds above the threshold
-    despite similar Score@10.}
+  \captionof{figure}{Ablation: BSF convergence (left) and per-seed final Score at $N{=}50$ (right).}
   \label{fig:ablation_convergence}
 \endgroup
 
@@ -1506,11 +1503,7 @@ restores structural exploration that occasionally reaches Score\,$\geq$\,299.
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
-\captionof{table}{Mechanistic ablations on HICO-DET (3-seed means;
-  Score\,$=$\,QPS if mAP\,$\geq\tau$).
-  \emph{Score@10}: best Score by iter.~10.
-  \emph{Gain}: improvement iter.~10$\to$50.
-  \emph{Seeds\,$\geq$\,299}: seeds at $N{=}50$.}
+\captionof{table}{Mechanistic ablations on HICO-DET (3-seed means, 50 iterations).}
 \label{tab:ablation_arch}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccccc}
