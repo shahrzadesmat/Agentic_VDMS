@@ -92,40 +92,14 @@ for label, arr in curves.items():
 # ── Stagnation annotation: arrow from plateau into clear bottom space ─────────
 arr_nh  = curves["w/o History cond."]
 mean_nh = arr_nh.mean(0)
-stag_iter = 7
-stag_y    = mean_nh[stag_iter - 1]
-
-ax.annotate(
-    "stagnates\n(+0.1 pts,\niters 5–50)",
-    xy=(stag_iter, min(stag_y, Y_HI)),
-    xytext=(19, 276.5),
-    fontsize=4.8,
-    color="#d62728",
-    arrowprops=dict(
-        arrowstyle="->",
-        color="#d62728",
-        lw=0.7,
-        connectionstyle="arc3,rad=-0.10",
-    ),
-    ha="center", va="bottom",
-)
-
-# ── Reference line at Score=299 ───────────────────────────────────────────────
-ax.axhline(299, color="#aaaaaa", lw=0.7, ls=":", zorder=1)
-ax.text(7, 299.4, "τ=299", va="bottom", ha="left", fontsize=4.5, color="#888888")
-
-# ── Final-score labels at iter 50 (the two lines that matter most) ────────────
-final_full = curves["LLM Agent (Full)"].mean(0)[-1]
-final_nh   = curves["w/o History cond."].mean(0)[-1]
-ax.text(50.3, final_full, f"{final_full:.1f}", va="center", ha="left",
-        fontsize=5, color=STYLES["LLM Agent (Full)"]["color"], fontweight="bold")
-ax.text(50.3, final_nh,   f"{final_nh:.1f}",  va="center", ha="left",
-        fontsize=5, color=STYLES["w/o History cond."]["color"])
+# ── Reference line at Score=299 (quality threshold) ──────────────────────────
+ax.axhline(299, color="#aaaaaa", lw=0.8, ls=":", zorder=1)
+ax.text(7, 299.4, "299", va="bottom", ha="left", fontsize=4.8, color="#999999")
 
 # ── Axes ─────────────────────────────────────────────────────────────────────
 ax.set_xlabel("Iteration", fontsize=7, fontweight="bold")
 ax.set_ylabel("Best SIEVE Score (QPS)", fontsize=7, fontweight="bold")
-ax.set_xlim(6, N + 3)
+ax.set_xlim(6, N)
 ax.set_ylim(Y_LO, Y_HI)
 
 ax.xaxis.set_major_locator(ticker.MultipleLocator(10))
