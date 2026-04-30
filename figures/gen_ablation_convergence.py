@@ -86,19 +86,13 @@ for x, label, col in [
 
 for label, arr in curves.items():
     mean = arr.mean(0)
-    std  = arr.std(0)
     st   = STYLES[label]
-    # clip to visible range for clean entry at left edge
-    ax.plot(iters, mean.clip(Y_LO, Y_HI), label=label, **st)
-    ax.fill_between(iters,
-                    mean.clip(Y_LO, Y_HI) - std,
-                    mean.clip(Y_LO, Y_HI) + std,
-                    color=st["color"], alpha=BAND_ALPHA, linewidth=0)
+    ax.plot(iters, mean, label=label, **st, clip_on=True)
 
 # ── Stagnation annotation: arrow from plateau into clear bottom space ─────────
 arr_nh  = curves["w/o History cond."]
 mean_nh = arr_nh.mean(0)
-stag_iter = 8
+stag_iter = 7
 stag_y    = mean_nh[stag_iter - 1]
 
 ax.annotate(
@@ -118,12 +112,12 @@ ax.annotate(
 
 # ── Reference line at Score=299 ───────────────────────────────────────────────
 ax.axhline(299, color="#aaaaaa", lw=0.7, ls=":", zorder=1)
-ax.text(2, 299.4, "299", va="bottom", ha="left", fontsize=4.8, color="#888888")
+ax.text(7, 299.4, "299", va="bottom", ha="left", fontsize=4.8, color="#888888")
 
 # ── Axes ─────────────────────────────────────────────────────────────────────
 ax.set_xlabel("Iteration", fontsize=7, fontweight="bold")
 ax.set_ylabel("Best SIEVE Score (QPS)", fontsize=7, fontweight="bold")
-ax.set_xlim(1, N)
+ax.set_xlim(6, N)
 ax.set_ylim(Y_LO, Y_HI)
 
 ax.xaxis.set_major_locator(ticker.MultipleLocator(10))
