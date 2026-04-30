@@ -1038,9 +1038,9 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
 The algorithm initializes with an empty history and zero stagnation counter (line~1), computes phase boundaries once (line~2), then iterates: each iteration classifies the current phase, computes guidance and hints from history, attempts up to four LLM proposals with duplicate-rejection, falls back to a random config if all fail, evaluates the oracle, and updates the best score and stagnation counter (lines~3--21).
 Throughout the loop $\mathrm{Score}^*$ equals the running maximum $\max_{s \leq t} s_s$; the returned $\theta^*$ is the configuration achieving that maximum over all $N$ oracle calls.
 
-GP-BO replicates the VDTuner~\cite{yang2024vdtuner} paradigm using
-\texttt{optuna.samplers.\allowbreak GPSampler} (Gaussian Process surrogate, Expected Improvement
-acquisition) applied to our single-objective Score.
+GP-BO replicates the VDTuner~\cite{yang2024vdtuner} paradigm using \texttt{GPSampler}
+(Gaussian Process surrogate, Expected Improvement acquisition) applied to our
+single-objective Score.
 Optuna TPE fits univariate kernel density estimators over each parameter independently.
 Neither baseline encodes the $(k,\alpha)$ coupling or the engine-conditional
 structure of $\Theta$; the LLM agent exploits both through its phase-partitioned
