@@ -1209,7 +1209,7 @@ by conditioning each proposal on the full history of observed outcomes.
 UniIR CLIP-SF Large, image-only~\cite{wei2024uniir} & 19.67          & 0.095 & 0.448 & --- \\
 UniIR CLIP-SF Large, multimodal~\cite{wei2024uniir} & 19.46          & 0.089 & 0.442 & --- \\
 Grid Search                               & 183.0          & 0.178 & 0.508 & 41/50 \\
-Random Search                             & 111.4          & 0.179 & 0.455 & 29/50 \\
+Random Search~\cite{bergstra2012random}   & 111.4          & 0.179 & 0.455 & 29/50 \\
 Optuna TPE~\cite{akiba2019optuna}         & 225.2          & 0.164 & 0.465 & 41/50 \\
 GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/50 \\
 \midrule
@@ -1241,7 +1241,7 @@ CLIP$+$DINOv2 ($\alpha{=}0.5$)   & FaissFlat & 2000 & 430.1 & 855.2 & 4.82  & 86
 \midrule
 \multicolumn{8}{l}{\textit{Optimizer best configurations}} \\
 Grid Search                  & HNSW $M{=}64$        & 100 &  13.2 &  5.40 & 0.04 &  5.46 &  183.0 \\
-Random Search                & HNSW $M{=}8$         & 100 &  11.7 &  6.95 & 0.13 &  7.13 &  140.2 \\
+Random Search~\cite{bergstra2012random} & HNSW $M{=}8$ & 100 &  11.7 &  6.95 & 0.13 &  7.13 &  140.2 \\
 Optuna TPE~\cite{akiba2019optuna} & HNSW $M{=}16$   &  50 &  13.3 &  3.19 & 0.11 &  3.33 &  300.7 \\
 \textbf{LLM Agent (Ours)}    & HNSW $M{=}64$        &  50 &  12.6 &  3.21 & 0.08 &  3.33 & \textbf{300.5} \\
 \textbf{LLM Agent + QDS (Ours)} & IVFFlat $nl{=}128$ & 500 &  17.2 &  0.35 & 0.34 &  0.74 & \textbf{1357.6} \\
@@ -1348,7 +1348,7 @@ The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from te
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
 GP-BO~\cite{yang2024vdtuner}  & 77.62  & 0.1791 & 0.2151 & 77.62  & 25/50 \\
-Random Search                 & 255.97 & 0.1597 & 0.1954 & 255.97 & 48/50 \\
+Random Search~\cite{bergstra2012random} & 255.97 & 0.1597 & 0.1954 & 255.97 & 48/50 \\
 Optuna TPE~\cite{akiba2019optuna} & 272.98 & 0.1614 & 0.1968 & 272.98 & 41/50 \\
 Grid Search                   & 272.98 & 0.1615 & 0.1965 & 272.98 & 6/50  \\
 \midrule
@@ -1401,7 +1401,7 @@ We evaluate five methods (LLM Agent, Optuna TPE, Grid, Random, and GP-BO) under 
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{Recall@10}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
 GP-BO~\cite{yang2024vdtuner} & 471.4  & 0.9204 & 28/50 \\
-Random Search             & 1160.4 & 0.9124 & 23/50 \\
+Random Search~\cite{bergstra2012random} & 1160.4 & 0.9124 & 23/50 \\
 Optuna TPE~\cite{akiba2019optuna} & 1163.5 & 0.9147 & 42/50 \\
 Grid Search               & 1174.4 & 0.9146 & 5/50 \\
 \textbf{LLM Agent (Ours)} & \textbf{1175.0} & 0.9141 & 31/50 \\
