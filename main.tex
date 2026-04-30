@@ -19,7 +19,7 @@
 \setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}
 
 %Sameh
-\usepackage[markup=colored]{changes}
+\usepackage[final]{changes}
 %% Use "final" option to remove all tracking markups
 % \usepackage[final]{changes}
 \definechangesauthor[name={Sameh}, color=blue]{SG}
@@ -1378,6 +1378,7 @@ accuracy and speed under the SIEVE objective.
 The performance gap between methods is substantially compressed relative to HICO-DET
 (${\lesssim}1.3\%$ spread among the top-3 vs.\ $33.3\%$ on HICO-DET), a pattern analysed further
 in Section~\ref{sec:sift1m}; each iteration completes in $\approx$5\,min ($\approx$4\,h total), slightly faster than HICO-DET (8--9\,min).
+GLDv2 and SIFT1M are each evaluated at a single seed (seed~42): as complexity controls whose purpose is to demonstrate compression of LLM advantage with decreasing coupling---rather than to establish statistical significance of small gaps in a flat performance landscape---single-seed evaluation is sufficient.
 
 \noindent\textbf{GP-BO cliff effect on GLDv2.}
 GP-BO achieves only $77.62$ QPS (vs.\ $\approx\!273$ for the top-3 methods), the same structural failure as on HICO-DET but more acute.
