@@ -3,6 +3,12 @@
 **Paper:** *LLM-Guided ANN Index Optimization for Efficient Human-Object Interaction Retrieval*
 **Venue:** VLDB 2027 submission
 
+![Optimization Framework](assets/workflow.png)
+
+> **Figure:** Five optimizer methods propose VDMS configurations over N=50 iterations.
+> Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive SIEVE score feedback;
+> Grid and Random Search do not.
+
 ---
 
 ## Repository Structure
