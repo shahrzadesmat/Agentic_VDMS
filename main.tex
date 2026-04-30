@@ -743,7 +743,7 @@ Let $\boldsymbol{\mu}_h^c = \frac{1}{|\mathcal{I}_h|}\sum_{i\in\mathcal{I}_h}\ma
 denote the visual centroid of HOI class $h$ in the CLIP space, and let
 $\sigma_h^2 = \frac{1}{|\mathcal{I}_h|}\sum_{i \in \mathcal{I}_h}
 \|\mathbf{c}_i - \boldsymbol{\mu}_h^c\|_2^2$ denote the intra-class visual variance.
-For anyr query vector $\mathbf{q}' \in \mathbb{R}^{768}$, the bias--variance
+For any query vector $\mathbf{q}' \in \mathbb{R}^{768}$, the bias--variance
 decomposition of the expected squared L2 distance to a class member $\mathbf{c}_i$
 drawn uniformly from $\mathcal{I}_h$ yields
 \begin{equation}
@@ -1067,6 +1067,19 @@ QDS applies exclusively to HICO-DET: its semantic verb--object category structur
 admits per-query difficulty decomposition; GLDv2 (landmark-instance ground truth)
 and SIFT1M (exact $k$-NN ground truth) provide no analogous categorical difficulty
 signal and retain their standard objectives.
+The LLM Agent + QDS best configuration uses FaissIVFFlat ($\mathit{nlist}{=}128$,
+$k{=}500$), achieving $1{,}357.6$ QPS.
+This throughput is specific to HICO-DET's 47{,}776-image corpus: at this scale
+VDMS scans all $\mathit{nlist}$ Voronoi cells during IVFFlat search regardless of
+$\mathit{nprobe}$, making IVFFlat equivalent to an exact flat scan over the
+quantized index.
+With only ${\approx}373$ vectors per cell on average, the total scan is fast enough
+to sustain $>1{,}000$ QPS --- a corpus-size effect that disappears at million-vector
+scale, where the same VDMS behavior collapses IVFFlat Score to ${\approx}35$
+(verified on SIFT1M, which is why IVFFlat is excluded from the SIFT1M search space).
+The QDS result therefore characterizes the optimizer's ability to discover
+non-obvious high-throughput configurations at 47K scale, not a general IVFFlat
+recommendation.
 
 \section{Experiments}
 \label{sec:experiments}
