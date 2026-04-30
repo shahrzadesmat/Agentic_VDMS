@@ -112,12 +112,20 @@ ax.annotate(
 
 # ── Reference line at Score=299 ───────────────────────────────────────────────
 ax.axhline(299, color="#aaaaaa", lw=0.7, ls=":", zorder=1)
-ax.text(7, 299.4, "299", va="bottom", ha="left", fontsize=4.8, color="#888888")
+ax.text(7, 299.4, "τ=299", va="bottom", ha="left", fontsize=4.5, color="#888888")
+
+# ── Final-score labels at iter 50 (the two lines that matter most) ────────────
+final_full = curves["LLM Agent (Full)"].mean(0)[-1]
+final_nh   = curves["w/o History cond."].mean(0)[-1]
+ax.text(50.3, final_full, f"{final_full:.1f}", va="center", ha="left",
+        fontsize=5, color=STYLES["LLM Agent (Full)"]["color"], fontweight="bold")
+ax.text(50.3, final_nh,   f"{final_nh:.1f}",  va="center", ha="left",
+        fontsize=5, color=STYLES["w/o History cond."]["color"])
 
 # ── Axes ─────────────────────────────────────────────────────────────────────
 ax.set_xlabel("Iteration", fontsize=7, fontweight="bold")
 ax.set_ylabel("Best SIEVE Score (QPS)", fontsize=7, fontweight="bold")
-ax.set_xlim(6, N)
+ax.set_xlim(6, N + 3)
 ax.set_ylim(Y_LO, Y_HI)
 
 ax.xaxis.set_major_locator(ticker.MultipleLocator(10))
