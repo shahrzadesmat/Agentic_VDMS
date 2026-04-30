@@ -1440,9 +1440,9 @@ Notably, sample-efficiency rankings invert: Grid Search reaches its best Score a
 \label{sec:ablation}
 
 \noindent\textbf{Parameter ablations ($\alpha$, $k$, $n_r$, engine).}
-$\alpha{=}0.5$ raises mAP from $0.240$ to $0.276$ ($+3.65$\,pp) at $0.6\%$ extra latency; $\alpha{\in}(0,1)$ strictly dominates both pure encoders.
-Increasing $k$ $500{\to}2000$ improves mAP but collapses Score $8.21{\to}1.17$ ($7{\times}$ throughput penalty); the agent discovers the non-obvious optimum $k{=}50$, $\alpha{=}0.80$, $n_r{=}5$ centroid (Score\,$\approx\!300$, mAP\,$=$\,$0.160$, just above $\tau$).
-The \textit{centroid} reference strategy (minimizes $\varepsilon_j$, Eq.~\eqref{eq:imagequery}) outperforms \textit{first} and \textit{diverse}; the agent selects HNSW $M{=}64$ on all seeds while Optuna spreads over $M{\in}\{16,32,48\}$ (mean $225.2$), confirming the value of joint engine-type conditioning.
+$\alpha{=}0.5$ raises mAP from $0.240$ to $0.276$ (\textbf{$+$3.65\,pp}) at $0.6\%$ extra latency; $\alpha{\in}(0,1)$ strictly dominates both pure encoders.
+Increasing $k$ $500{\to}2000$ improves mAP but collapses Score $8.21{\to}1.17$ (\textbf{$7{\times}$ throughput penalty}); the agent discovers the non-obvious optimum \textbf{$k{=}50$, $\alpha{=}0.80$, $n_r{=}5$} centroid (Score\,$\approx\!300$, mAP\,$=$\,$0.160$, just above $\tau$).
+The \textit{centroid} reference strategy (minimizes $\varepsilon_j$, Eq.~\eqref{eq:imagequery}) outperforms \textit{first} and \textit{diverse}; the agent selects \textbf{HNSW $M{=}64$} on all seeds while Optuna spreads over $M{\in}\{16,32,48\}$ (mean $225.2$), confirming the value of joint engine-type conditioning.
 
 \noindent\textbf{History conditioning and phase structure.}
 Figure~\ref{fig:ablation_convergence} and Table~\ref{tab:ablation_arch} isolate each architectural component across 3 seeds, revealing that the
@@ -1466,9 +1466,9 @@ Removing it causes complete stagnation after iteration~5 ($+0.1$ pts gain over 4
 and \textbf{0/3 seeds} reach Score\,$\geq$\,299, versus \textbf{3/3} for the full agent ($\sigma$: $2.6\to0.3$).
 Without the $(\theta,\mathrm{Score})$ trajectory the agent cannot commit to the $(k{=}50,\,\alpha{=}0.80)$
 joint operating point, mirroring the GP-BO cliff failure of Section~\ref{sec:results_optimizer}.
-\emph{Phase structure} has a secondary effect: removing it reduces the mean to $299.5$ ($-0.3\%$) but 3/3 seeds
+\emph{\textbf{Phase structure}} has a secondary effect: removing it reduces the mean to $299.5$ ($-0.3\%$) but \textbf{3/3 seeds}
 still cross the threshold, confirming that phase ordering accelerates convergence rather than enabling it.
-The non-monotonicity (w/o both: $298.2$, $1/3{\geq}299$ $>$ w/o history alone: $296.9$, $0/3{\geq}299$)
+The non-monotonicity (w/o both: \textbf{$298.2$}, $1/3{\geq}299$ $>$ w/o history alone: \textbf{$296.9$}, $0/3{\geq}299$)
 arises because history without phase boundaries anchors the agent to its plateau, while removing both
 restores structural exploration that occasionally reaches Score\,$\geq$\,299.
 
@@ -1492,8 +1492,8 @@ LLM Agent (Full)               & 296.0 & \textbf{300.3} & $+4.3$ & 0.3 & \textbf
 
 \noindent\textbf{Backbone portability.}
 A cross-backbone check confirms that the phase-aware protocol is model-agnostic:
-GPT-4o-mini (seed~42, Score\,$=$\,297.44) and Llama-3.3-70B (Score\,$=$\,294.20) fall within
-0.95\% and 2.0\% of the MiniMax-M2.1 mean (300.3), respectively.
+GPT-4o-mini (seed~42, Score\,$=$\,\textbf{297.44}) and Llama-3.3-70B (Score\,$=$\,\textbf{294.20}) fall within
+\textbf{0.95\%} and \textbf{2.0\%} of the MiniMax-M2.1 mean ($300.3$), respectively.
 
 \section{Conclusion and Outlook}
 \label{sec:conclusion}
