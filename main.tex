@@ -1391,11 +1391,8 @@ narrowly ahead of Optuna TPE and Grid Search (both $272.98$) and Random Search (
 GP-BO attains the highest mAP ($0.1791$) but low QPS ($77.62$), failing to balance
 accuracy and speed under the SIEVE objective.
 The performance gap between methods is substantially compressed relative to HICO-DET
-(${\lesssim}1.3\%$ spread among the top-3 vs.\ $33.3\%$ on HICO-DET), a pattern we analyse further
-in Section~\ref{sec:sift1m}.
-
-\noindent\textbf{Scale effects.}
-Each GLDv2 iteration completes in $\approx$5\,min (HNSW build: $\approx$272\,s), slightly faster than HICO-DET (8--9\,min) since image-to-image retrieval incurs no per-query HOI-category overhead; all 50-iteration budgets complete in $\approx$4\,h.
+(${\lesssim}1.3\%$ spread among the top-3 vs.\ $33.3\%$ on HICO-DET), a pattern analysed further
+in Section~\ref{sec:sift1m}; each iteration completes in $\approx$5\,min ($\approx$4\,h total), slightly faster than HICO-DET (8--9\,min).
 
 \noindent\textbf{GP-BO cliff effect on GLDv2.}
 GP-BO achieves only $77.62$ QPS (vs.\ $\approx\!273$ for the top-3 methods), the same structural failure as on HICO-DET but more acute.
@@ -1479,7 +1476,7 @@ The \textit{centroid} reference strategy (minimizes $\varepsilon_j$, Eq.~\eqref{
 Figure~\ref{fig:ablation_convergence} and Table~\ref{tab:ablation_arch} isolate each architectural component across 3 seeds, revealing that the
 primary effect of history conditioning is \emph{not} a marginal Score improvement but a binary reliability switch.
 
-\begin{figure}[t]
+\begingroup
   \centering
   \includegraphics[width=\columnwidth]{figures/convergence_ablation.pdf}
   \Description{Ablation convergence curves. Without history conditioning the agent
@@ -1488,37 +1485,23 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
     improves from 296.0 at iteration 10 to 300.3 at iteration 50, reaching 299+
     on all 3 seeds. Without phase structure the agent still learns (+1.3 gain)
     and reaches 299+ on 3/3 seeds but converges later.}
-  \caption{Best-Score-so-far (mean over 3 seeds).
-    \emph{w/o History}: stagnates after iter.~5 ($+0.1$ pts gain, \textbf{0/3} seeds $\geq$299
-    vs.\ \textbf{3/3} for the full agent).
-    \emph{w/o Phase}: continues learning ($+1.3$ gain, 3/3 seeds reach 299--300).}
+  \captionof{figure}{Left: best-Score-so-far (mean, 3 seeds); right: per-seed final Score at $N{=}50$.
+    History conditioning is a binary reliability switch: all 3 full-agent seeds reach
+    Score\,$\geq$\,299 (dashed), while removing it leaves \textbf{0/3} seeds above the threshold
+    despite similar Score@10.}
   \label{fig:ablation_convergence}
-\end{figure}
+\endgroup
 
-\emph{History conditioning} is the reproducibility mechanism.
-Without it, the agent reaches Score\,$=$\,$296.8$ by iteration~10 and then
-\textbf{stagnates}: the subsequent 40 iterations yield only $+0.1$ additional
-points (Gain column, Table~\ref{tab:ablation_arch}).
-The agent finds a high-scoring region early via physics-encoded induction, but
-without the $(\theta,\mathrm{Score})$ trajectory it cannot reason about \emph{why}
-$k{=}50$ fails at low $\alpha$ --- it carries no record that $\alpha{<}0.70$
-produces Score\,$=$\,$0$ at $k{=}50$ --- and therefore cannot commit to the
-compensating $(k{=}50,\,\alpha{=}0.80)$ joint operating point.
-The result is a complete loss of post-iteration-5 learning:
-\textbf{0/3 seeds reach Score\,$\geq$\,299} without history,
-versus \textbf{3/3} with the full agent ($\sigma$ falls from $2.6$ to $0.3$).
-This mirrors exactly the GP-BO failure mode of Section~\ref{sec:results_optimizer}:
-both lack the mechanism to condition on joint $(k,\alpha)$ failure history.
-
-\emph{Phase structure} contributes a smaller but consistent effect.
-Without it, the agent continues to learn past iteration~10 ($+1.3$ gain vs.\
-$+4.3$ for the full agent) and 3/3 seeds reach the $299$--$300$ band ---
-but later and less precisely.
-Phase boundaries prevent premature $(k{=}50,\,\alpha)$ refinement before
-engine selection is resolved, saving $3$--$5$ evaluation iterations.
-
-\emph{Non-monotonicity}: removing history alone ($296.9$, $\sigma{=}2.6$, $0/3{\geq}299$) is worse than removing both ($298.2$, $\sigma{=}0.8$, $1/3{\geq}299$).
-Without phase boundaries the agent is \emph{anchored} to its accumulated plateau memory, reinforcing near-duplicate $\alpha$-refinements with no structural escape; removing both eliminates the anchor, enabling occasional genuine exploration that reaches Score\,$\geq$\,299.
+\emph{History conditioning} is a binary reliability switch (Figure~\ref{fig:ablation_convergence}, right).
+Removing it causes complete stagnation after iteration~5 ($+0.1$ pts gain over 45 remaining iterations)
+and \textbf{0/3 seeds} reach Score\,$\geq$\,299, versus \textbf{3/3} for the full agent ($\sigma$: $2.6\to0.3$).
+Without the $(\theta,\mathrm{Score})$ trajectory the agent cannot commit to the $(k{=}50,\,\alpha{=}0.80)$
+joint operating point, mirroring the GP-BO cliff failure of Section~\ref{sec:results_optimizer}.
+\emph{Phase structure} has a secondary effect: removing it reduces the mean to $299.5$ ($-0.3\%$) but 3/3 seeds
+still cross the threshold, confirming that phase ordering accelerates convergence rather than enabling it.
+The non-monotonicity (w/o both: $298.2$, $1/3{\geq}299$ $>$ w/o history alone: $296.9$, $0/3{\geq}299$)
+arises because history without phase boundaries anchors the agent to its plateau, while removing both
+restores structural exploration that occasionally reaches Score\,$\geq$\,299.
 
 \begingroup
 \small
@@ -1542,10 +1525,6 @@ LLM Agent (Full)               & 296.0 & \textbf{300.3} & $+4.3$ & 0.3 & \textbf
 \end{tabular}}
 \endgroup
 
-\noindent\textbf{Query Difficulty-Weighted Optimization (QDS).}
-With the QDS-weighted oracle the agent discovers FaissIVFFlat ($n_l{\in}\{128,256,512\}$, $k{=}500$): mean Score\,$=$\,$\mathbf{1362}\,{\pm}\,5$ over 3 seeds (QPS\,$=$\,$1357$--$1367$, mAP\,$=$\,$0.175{\geq}\tau$), $4.5\times$ above standard LLM (300.3).
-This trades retrieval precision (P@10\,$=$\,$0.292$ vs.\ $0.438$) for throughput, steering toward a different Pareto frontier regime.
-
 \noindent\textbf{Backbone portability.}
 A cross-backbone check confirms that the phase-aware protocol is model-agnostic:
 GPT-4o-mini (seed~42, Score\,$=$\,297.44) and Llama-3.3-70B (Score\,$=$\,294.20) fall within
@@ -1563,14 +1542,10 @@ We introduced SIEVE, a quality-gated throughput objective, and a phase-aware
 LLM agent (Exploration $\to$ Exploitation $\to$ Fine-tuning) that navigates
 coupling by conditioning each proposal on the full accumulated optimization
 history.
-On HICO-DET the agent reaches mean Score\,$=$\,$300.3$ at iteration~23,
-outperforming Optuna TPE ($+33.3\%$, mean $225.2$) and GP-BO ($+50.7\%$,
-mean $199.3$) while saving ${\approx}2.7$\,h; both baselines succeed on only
-1 of 3 seeds versus the LLM agent's 3 of 3, confirming the structural cost
-of marginal parameter reasoning under SIEVE.
-On GLDv2 and SIFT1M the advantage compresses to ${\lesssim}1.3\%$,
-confirming that \emph{LLM optimization advantage scales with
-configuration-space coupling complexity}.
+On HICO-DET the agent outperforms the best non-LLM baseline by $+33.3\%$ and achieves 3/3-seed
+reproducibility (vs.\ 1/3 for Optuna TPE and GP-BO), confirming the structural cost of marginal
+parameter reasoning under SIEVE; on GLDv2 and SIFT1M the advantage compresses to ${\lesssim}1.3\%$,
+confirming that \emph{LLM optimization advantage scales with configuration-space coupling complexity}.
 Future work targets billion-scale deployment with hardware-profile telemetry
 and multi-tenant settings with per-workload history conditioning.
 
