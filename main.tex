@@ -252,11 +252,12 @@ new regions or refine the best configuration found so far.
 Text-query HOI (Human-Object Interaction) retrieval --- returning images of specific human-object interactions
 in response to natural language queries --- serves direct applications in video
 surveillance, assistive robotics, and interactive multi-modal search.
-We also introduce the \emph{first text-query image retrieval benchmark} from
-HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
-VDMS --- the first benchmark to expose the structural limits of blind
-ANN optimizers, as every prior use of HICO-DET is restricted to the detection
-paradigm (e.g.,~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
+We also introduce the first benchmark that turns HICO-DET~\cite{chao2018hico}
+into a text-to-image retrieval challenge --- 47{,}776 images queried by natural
+language on a live vector database.
+Every prior use of HICO-DET is limited to object
+detection~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}; no
+retrieval benchmark exists for this dataset.
 
 Under SIEVE, our joint quality-throughput optimization objective defined in
 Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
