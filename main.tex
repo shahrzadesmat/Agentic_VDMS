@@ -328,8 +328,8 @@ Section~\ref{sec:conclusion} concludes.
 HOI detection has produced a series of strong transformer-based systems since
 HICO-DET~\cite{chao2018hico} established the 600-category verb--object benchmark.
 HOTR~\cite{kim2021hotr} introduced end-to-end interaction detection via encoder-decoder
-architectures, and CDN~\cite{zhang2021cdn} demonstrated complementary gains from combining
-one-stage and two-stage detection.
+architectures, and CDN~\cite{zhang2021cdn} disentangles human-object pair detection from interaction
+classification in a cascade, extracting complementary strengths of one-stage and two-stage paradigms.
 HOICLIP~\cite{ning2023hoiclip} showed that vision-language pre-training transfers
 interaction knowledge efficiently, while DPHoI~\cite{li2024dphoi} exploited disentangled
 pre-training over interaction primitives.
@@ -363,10 +363,10 @@ billion-scale baselines.
 Production VDBMSs integrate ANN indexing with metadata management and query processing.
 Milvus~\cite{wang2021milvus} supports multiple index backends with a cloud-native query
 layer.
-GaussDB-Vector~\cite{sun2025gaussdb} decouples index construction from query serving to
-sustain low latency at billion-vector scale.
-VSAG~\cite{zhong2025vsag} enables incremental updates via subgraph monotonicity,
-eliminating costly full rebuilds.
+GaussDB-Vector~\cite{sun2025gaussdb} separates adjacency-list from vector storage and
+applies novel buffering strategies to sustain low-latency high-recall search at billion-vector scale.
+VSAG~\cite{zhong2025vsag} exploits a subgraph inclusion property --- stricter-parameter
+graphs are subgraphs of relaxed-parameter ones --- enabling parameter tuning without index rebuilds.
 VDMS~\cite{remis2021vdms} co-locates graph-property metadata with vector data and exposes
 HNSW index parameters through a Python API, making it the natural platform for an
 optimizer that must rebuild and re-query the index at each evaluation step.
@@ -403,9 +403,9 @@ optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}.
 GPTuner~\cite{lao2024gpttuner} applies LLM-guided Bayesian optimization to PostgreSQL
 and MySQL knob tuning, extracting structured configuration knowledge from database
 documentation to guide search.
-$\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrates cross-system
-generalization where LLMs can transfer configuration knowledge across DBMS platforms without
-system-specific retraining.
+$\lambda$-Tune~\cite{giannakouris2025lambdatune} generates complete database
+configuration scripts via LLM, framing prompt construction as a cost-based optimization,
+and is evaluated across PostgreSQL and MySQL.
 Both outperform ML-based and RL-based baselines on DBMS tuning, yet both operate on
 flat, independently interpretable knob spaces where no cross-stage coupling exists by
 construction.
