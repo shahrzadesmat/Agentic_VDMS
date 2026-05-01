@@ -244,12 +244,11 @@ VDTuner~\cite{yang2024vdtuner}, the closest prior work, has an additional
 weakness: it assumes performance changes smoothly with parameter choices, but
 our quality cutoff creates a hard cliff that breaks this assumption.
 
-We propose a \emph{phase-aware LLM agent} for coupled ANN index optimization,
-applicable to any VDBMS exposing tunable index parameters and instantiated in this
-work on Intel's VDMS~\cite{remis2021vdms}.
-The agent conditions each proposal on all prior configurations and their observed
-scores, reasons explicitly over cross-stage parameter dependencies, and
-self-regulates between exploration and exploitation phases.
+We propose a \emph{phase-aware LLM agent} that jointly optimizes ANN index
+and reranking parameters on Intel's VDMS~\cite{remis2021vdms}.
+At each step, the agent reviews all previous configurations and their results,
+identifies how parameters across stages interact, and decides whether to explore
+new regions or refine the best configuration found so far.
 Text-query HOI (Human-Object Interaction) retrieval --- returning images of specific human-object interactions
 in response to natural language queries --- serves direct applications in video
 surveillance, assistive robotics, and interactive multi-modal search.
