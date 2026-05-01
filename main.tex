@@ -345,8 +345,8 @@ CLIP's language-aligned representations, capturing fine-grained visual structure
 to reranking.
 UniIR~\cite{wei2024uniir} unified eight multi-modal retrieval tasks under a single model
 trained on M-BEIR, establishing a strong cross-modal baseline.
-LamRA~\cite{liu2025lamra} demonstrated that large multi-modal models further improve
-fine-grained query understanding for retrieval.
+LamRA~\cite{liu2025lamra} proposed a unified framework in which a large multi-modal
+model serves as both retriever and reranker across heterogeneous query types.
 We fill the orthogonal HOI \emph{retrieval} direction and adopt CLIP and UniIR as
 primary baselines.
 
@@ -386,12 +386,12 @@ mixed-type spaces and serves as our strongest non-LLM baseline.
 
 For DBMS tuning, OtterTune~\cite{vanaken2017ottertune} pioneered ML-guided knob
 selection via Gaussian Process regression over workload representations.
-VDTuner~\cite{yang2024vdtuner} extends this approach to multi-objective Bayesian optimization
-for VDMS HNSW parameters, improving over manual baselines, but models each parameter
-independently.
+VDTuner~\cite{yang2024vdtuner} extends this approach to multi-objective Bayesian
+optimization across seven index types in Milvus, improving over manual baselines but
+operating on single-stage vector search without cross-stage coupling.
 All of these methods --- standard HPO~\cite{bergstra2012random,snoek2012bayesian,li2018hyperband,akiba2019optuna}, AutoML~\cite{feurer2015autosklearn}, and system-specific Bayesian optimization~\cite{vanaken2017ottertune,yang2024vdtuner}
---- treat parameters as mutually independent, a structural limitation that prevents them
-from discovering compensatory configurations across coupled retrieval stages.
+--- are designed for single-stage configuration spaces; none addresses the compensatory
+interactions that arise when index and reranking parameters are coupled across retrieval stages.
 
 \subsection{LLM-Guided System Configuration}
 Recent work has explored whether large language models can serve as optimization agents, bringing natural language reasoning to configuration search.
@@ -1111,9 +1111,9 @@ text queries, 90{,}641 ground-truth positive pairs --- a stringent testbed combi
 fine-grained HOI categories, long-tailed relevance distributions, and a cross-modal
 (text-to-image) retrieval setting.
 \textbf{GLDv2}~\cite{weyand2020gld}: Google Landmarks Dataset v2, a large-scale
-image-to-image retrieval benchmark with 762{,}000 gallery images and 1{,}129 public
-queries spanning global landmarks, providing a $16\times$ larger corpus for cross-domain
-generalization evaluation.
+image-to-image retrieval benchmark with 762{,}000 gallery images and 1{,}129 query
+images from the retrieval challenge evaluation split, spanning global landmarks, providing
+a $16\times$ larger corpus for cross-domain generalization evaluation.
 \textbf{SIFT1M}~\cite{jegou2011pq}: a standard ANN benchmark of one million
 128-dimensional SIFT feature vectors with 10{,}000 queries and exact ground-truth
 10-nearest neighbors, providing a complexity-matched control --- the index space
