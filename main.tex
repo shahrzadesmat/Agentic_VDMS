@@ -209,11 +209,11 @@ search, and cross-modal content discovery.
 Closing this gap demands an optimizer that reasons over how parameters interact
 across retrieval stages, not one that searches blindly.
 
-Multi-stage retrieval pipelines compound this challenge: systems such as
-VDMS~\cite{remis2021vdms}, Milvus~\cite{wang2021milvus}, and
-GaussDB-Vector~\cite{sun2025gaussdb} chain an ANN retrieval stage with a
-cross-modal fusion reranking stage, exposing interdependent index and reranking
-parameters whose joint configuration determines both retrieval quality and throughput.
+Modern vector databases such as VDMS~\cite{remis2021vdms},
+Milvus~\cite{wang2021milvus}, and GaussDB-Vector~\cite{sun2025gaussdb} combine
+two stages: a fast ANN search followed by a reranking step.
+The settings for each stage interact --- tuning one without considering the other
+degrades both retrieval quality and throughput.
 These parameters are structurally coupled: reducing retrieval search
 depth (\textit{efSearch}) forces the fusion reranker to compensate via a higher
 fusion weight~($\alpha$) --- a cross-stage dependency invisible to any
