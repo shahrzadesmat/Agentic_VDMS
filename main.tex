@@ -204,9 +204,8 @@ The throughput and accuracy of a vector database management system (VDBMS) depen
 critically on ANN index configuration: on a production-scale deployment, the gap
 between default and optimized settings can exceed an \emph{order of magnitude} in
 queries per second on identical hardware.
-Such systems underpin modern AI applications --- product recommendation, visual
-question answering, medical image retrieval, and cross-modal content discovery ---
-each issuing millions of queries per day.
+At production scale, these systems serve millions of queries daily across
+recommendation, visual search, and cross-modal content discovery.
 Closing this gap demands an optimizer that reasons over how parameters interact
 across retrieval stages, not one that searches blindly.
 
