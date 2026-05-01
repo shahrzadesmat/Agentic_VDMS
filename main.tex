@@ -260,8 +260,8 @@ VDMS --- the first benchmark to expose the structural limits of blind
 ANN optimizers, as every prior use of HICO-DET is restricted to the detection
 paradigm (e.g.,~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
 
-We evaluate using SIEVE, a quality-constrained throughput objective defined
-in Section~\ref{sec:metrics}, under which the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
+Under SIEVE, our joint quality-throughput optimization objective defined in
+Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
 $\mathbf{+50.7\%}$ over GP-BO~\cite{yang2024vdtuner} on HICO-DET, delivering a $\mathbf{36.6\times}$
 improvement over an exhaustive-search CLIP baseline~\cite{johnson2021billion}.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
