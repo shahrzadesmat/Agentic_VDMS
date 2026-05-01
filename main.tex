@@ -240,9 +240,9 @@ by construction.
 The ANN tuning methods --- Optuna~TPE~\cite{akiba2019optuna}, grid and
 random search~\cite{bergstra2012random} --- treat each parameter
 independently, missing this cross-stage coupling;
-VDTuner~\cite{yang2024vdtuner}, the closest prior system, adds a further failure
-mode when its smooth surrogate model encounters the hard feasibility threshold
-our metric imposes.
+VDTuner~\cite{yang2024vdtuner}, the closest prior work, has an additional
+weakness: it assumes performance changes smoothly with parameter choices, but
+our quality cutoff creates a hard cliff that breaks this assumption.
 
 We propose a \emph{phase-aware LLM agent} for coupled ANN index optimization,
 applicable to any VDBMS exposing tunable index parameters and instantiated in this
