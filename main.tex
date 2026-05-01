@@ -229,17 +229,17 @@ On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
 and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate that
 LLM-guided methods outperform ML-based baselines~\cite{vanaken2017ottertune} on DBMS knob tuning.
 On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner} applies
-multi-objective Bayesian optimization to VDMS index parameters but treats
-them independently, as do standard search baselines --- Optuna
-TPE~\cite{akiba2019optuna}, grid, and random
-search~\cite{snoek2012bayesian,bergstra2012random}.
+multi-objective Bayesian optimization to Milvus index parameters but operates
+on a single-stage search space without cross-stage coupling, as do standard
+search baselines --- Optuna TPE~\cite{akiba2019optuna}, grid, and random
+search~\cite{bergstra2012random}.
 
 Yet all share a structural limitation:
 LLM-guided DBMS tuners operate on flat knob spaces (PostgreSQL, MySQL)
 where parameters are independent --- no cross-stage coupling exists
 by construction.
 The ANN tuning methods --- Optuna~TPE~\cite{akiba2019optuna}, grid and
-random search~\cite{snoek2012bayesian,bergstra2012random} --- treat each parameter
+random search~\cite{bergstra2012random} --- treat each parameter
 independently, missing this cross-stage coupling;
 VDTuner~\cite{yang2024vdtuner}, the closest prior system, adds a further failure
 mode when its smooth surrogate model encounters the hard feasibility threshold
@@ -343,7 +343,7 @@ pre-training on 400 million image-text pairs, enabling zero-shot text-to-image r
 DINOv2~\cite{oquab2024dinov2} produces self-supervised visual features that complement
 CLIP's language-aligned representations, capturing fine-grained visual structure suited
 to reranking.
-UniIR~\cite{wei2024uniir} unified eight multi-modal retrieval tasks under a single model
+UniIR~\cite{wei2024uniir} unified multimodal retrieval tasks under a single model
 trained on M-BEIR, establishing a strong cross-modal baseline.
 LamRA~\cite{liu2025lamra} proposed a unified framework in which a large multi-modal
 model serves as both retriever and reranker across heterogeneous query types.
@@ -401,8 +401,8 @@ Follow-up work extended this paradigm to ML hyperparameter
 optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}.
 
 GPTuner~\cite{lao2024gpttuner} applies LLM-guided Bayesian optimization to PostgreSQL
-and MySQL knob tuning, extracting structured configuration knowledge from database
-documentation to guide search.
+knob tuning, extracting structured configuration knowledge from database documentation
+to guide search.
 $\lambda$-Tune~\cite{giannakouris2025lambdatune} generates complete database
 configuration scripts via LLM, framing prompt construction as a cost-based optimization,
 and is evaluated across PostgreSQL and MySQL.
