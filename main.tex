@@ -77,7 +77,7 @@
 % ── Float and caption spacing ────────────────────────────────────────────────
 \setlength{\textfloatsep}{4pt plus 2pt minus 2pt}
 \setlength{\floatsep}{4pt plus 2pt minus 1pt}
-\setlength{\intextsep}{4pt plus 2pt minus 1pt}
+\setlength{\intextsep}{6pt plus 2pt minus 1pt}
 \setlength{\dbltextfloatsep}{4pt plus 2pt minus 2pt}
 \setlength{\dblfloatsep}{4pt plus 2pt minus 1pt}
 \setlength{\abovecaptionskip}{3pt plus 1pt minus 1pt}
@@ -1468,7 +1468,6 @@ Notably, sample-efficiency rankings invert: Grid Search reaches its best Score a
 
 \subsection{Ablation Study}
 \label{sec:ablation}
-
 \noindent\textbf{Parameter ablations ($\alpha$, $k$, $n_r$, engine).}
 $\alpha{=}0.5$ raises mAP from $0.240$ to $0.276$ (\textbf{$+$3.65\,pp}) at $0.6\%$ extra latency; $\alpha{\in}(0,1)$ strictly dominates both pure encoders.
 Increasing $k$ $500{\to}2000$ improves mAP but collapses Score $8.21{\to}1.17$ (\textbf{$7{\times}$ throughput penalty}); the agent discovers the non-obvious optimum \textbf{$k{=}50$, $\alpha{=}0.80$, $n_r{=}5$} centroid (Score\,$\approx\!300$, mAP\,$=$\,$0.160$, just above $\tau$).
@@ -1502,6 +1501,7 @@ The non-monotonicity (w/o both: \textbf{$298.2$}, $1/3{\geq}299$ $>$ w/o history
 arises because history without phase boundaries anchors the agent to its plateau, while removing both
 restores structural exploration that occasionally reaches Score\,$\geq$\,299.
 
+\vspace{4pt}
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
@@ -1519,6 +1519,7 @@ LLM Agent (Full)               & 296.0 & \textbf{300.3} & $+4.3$ & 0.3 & \textbf
 \bottomrule
 \end{tabular}}
 \endgroup
+\vspace{5pt}
 
 \noindent\textbf{Backbone portability.}
 A cross-backbone check confirms that the phase-aware protocol is model-agnostic:
