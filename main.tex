@@ -220,11 +220,13 @@ depth (\textit{efSearch}) forces the fusion reranker to compensate via a higher
 fusion weight~($\alpha$) --- a cross-stage dependency invisible to any
 parameter-independent optimizer.
 On HICO-DET, the gap between an unoptimized baseline and our agent-optimized
-configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware ---
-on a single A40 GPU node, the difference between 8 and 300 queries per second,
+% CWL configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware ---
+% CWL on a single A40 GPU node, the difference between 8 and 300 queries per second,
+configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware, a single A40 GPU node.
+This difference between 8 and 300 queries per second,could distinguish
 between a research prototype and a production-ready retrieval service.
 
-Yet no existing method is designed to close it.
+% CWL Yet no existing method is designed to close it.
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
 and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate that
 LLM-guided methods outperform ML-based~\cite{vanaken2017ottertune} and
@@ -235,12 +237,12 @@ them independently, as do standard search baselines --- Optuna
 TPE~\cite{akiba2019optuna}, grid, and random
 search~\cite{snoek2012bayesian,bergstra2012random}.
 
-Yet all share a structural limitation:
+All share a structural limitation:
 LLM-guided DBMS tuners operate on flat knob spaces (PostgreSQL, MySQL)
-where parameters are independent --- no cross-stage coupling exists
+where parameters are independent, no cross-stage coupling exists
 by construction.
-The ANN tuning methods --- Optuna TPE~\cite{akiba2019optuna}, grid and
-random search~\cite{snoek2012bayesian,bergstra2012random} --- treat each parameter
+The ANN tuning methods, Optuna TPE~\cite{akiba2019optuna}, grid and
+random search~\cite{snoek2012bayesian,bergstra2012random}, treat each parameter
 independently, missing this cross-stage coupling;
 VDTuner~\cite{yang2024vdtuner}, the closest prior system, adds a further failure
 mode when its smooth surrogate model encounters the hard feasibility threshold
@@ -257,7 +259,8 @@ in response to natural language queries --- serves direct applications in video
 surveillance, assistive robotics, and interactive multimodal search.
 We also introduce the \emph{first text-query image retrieval benchmark} from
 HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
-VDMS --- the first benchmark to expose the structural limits of blind
+% CWL: VDMS --- the first benchmark to expose the structural limits of blind
+VDMS. This benchmark exposes the structural limits of blind
 ANN optimizers, as every prior use of HICO-DET is restricted to the detection
 paradigm (e.g.,~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
 
