@@ -226,9 +226,9 @@ node --- the difference between 8 and 300 queries per second.
 No existing method is designed to close this throughput gap.
 
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
-and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate LLM-guided
-methods on database knob tuning, but their parameter spaces are flat --- each
-knob is independent, so there is no cross-stage coupling to reason about.
+and $\lambda$-Tune~\cite{giannakouris2025lambdatune} apply LLM guidance to
+database knob tuning, but their knobs are mutually independent --- no
+cross-stage coupling exists.
 On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner},
 Optuna~TPE~\cite{akiba2019optuna}, grid and random
 search~\cite{bergstra2012random} all treat parameters independently, missing
