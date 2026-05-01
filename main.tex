@@ -210,13 +210,13 @@ We study this problem in the context of Human-Object Interaction (HOI) retrieval
 --- returning images of specific human-object interactions in response to natural
 language queries --- an application with direct uses in video surveillance,
 assistive robotics, and interactive multi-modal search.
-Closing this gap demands an optimizer that treats parameters jointly, not one
-that treats them as independent.
+Closing this performance gap demands an optimizer that treats parameters
+jointly, not one that treats them as independent.
 
 Modern vector databases such as VDMS~\cite{remis2021vdms},
 Milvus~\cite{wang2021milvus}, and GaussDB-Vector~\cite{sun2025gaussdb} combine
 two stages: a fast ANN search followed by a reranking step.
-These parameters are tightly coupled: reducing retrieval search depth
+The parameters of each stage are tightly coupled: reducing retrieval search depth
 (\textit{efSearch}) forces the reranker to compensate with a higher fusion
 weight~($\alpha$) --- a cross-stage dependency that parameter-independent
 optimizers cannot see.
@@ -241,22 +241,21 @@ and reranking parameters on Intel's VDMS~\cite{remis2021vdms}.
 At each step, the agent reviews all previous configurations and their results,
 identifies how parameters across stages interact, and decides whether to explore
 new regions or refine the best configuration found so far.
-We also introduce the first text-to-image retrieval benchmark built from
-HICO-DET~\cite{chao2018hico}.
 No existing benchmark combines fine-grained compositional text queries with a
 large image corpus --- standard ANN benchmarks use synthetic vectors or
 image-to-image similarity, while HOI datasets have only been used for
 detection~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
-HICO-DET is uniquely suited to bridge this gap: its 600 verb--object categories
-map directly to natural language queries, and its 90{,}641 annotated positive
-pairs provide retrieval ground truth without additional labeling.
+Alongside the agent, we introduce the first such benchmark built from
+HICO-DET~\cite{chao2018hico}: its 600 verb--object categories map directly to
+natural language queries, and its 90{,}641 annotated positive pairs provide
+retrieval ground truth without additional labeling.
 
 Under SIEVE, our joint quality-throughput optimization objective defined in
 Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over
 Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO~\cite{yang2024vdtuner} on
 HICO-DET.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
-SIFT1M~\cite{jegou2011pq} (pure ANN search) --- the advantage diminishes
+SIFT1M~\cite{jegou2011pq} (pure ANN search) --- this advantage diminishes
 proportionally to the degree of parameter coupling, confirming that LLM-guided
 optimization is most valuable when parameters interact across stages.
 
