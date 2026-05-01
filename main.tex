@@ -272,13 +272,13 @@ configuration coupling.
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 \begin{itemize}[leftmargin=1em, itemsep=3pt, topsep=3pt]
   \item \textbf{Phase-aware LLM agent for coupled ANN index optimization.}
-    We propose a history-conditioned agent applicable to any VDBMS exposing ANN index
-    parameters (instantiated on Intel's VDMS) that explicitly models the
-    \textit{efSearch}--$\alpha$ inter-stage coupling, discovering compensatory
-    operating points that no parameter-independent method locates within 50~iterations.
-    The agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and $\mathbf{+50.7\%}$ over
-    GP-BO~\cite{yang2024vdtuner} on HICO-DET; mechanistic ablations confirm that
-    history conditioning and phase-aware transitions are each independently necessary.
+    We propose an LLM-guided optimizer that reads its own trial history to discover
+    how index construction and reranking parameters must be configured together ---
+    a dependency that standard optimizers miss by treating parameters independently.
+    On HICO-DET the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
+    $\mathbf{+50.7\%}$ over GP-based BO~\cite{yang2024vdtuner}; gains diminish on
+    simpler datasets where this inter-parameter dependency is absent, confirming
+    that the improvement is structural, not incidental.
 
   \item \textbf{First text-query HOI retrieval benchmark.}
     Existing ANN benchmarks use synthetic vectors or image-to-image similarity, neither
@@ -290,28 +290,29 @@ configuration coupling.
     retrieval landscape that motivates our optimizer.
 
   \item \textbf{Single-index two-stage retrieval pipeline.}
-    We present a two-stage pipeline pairing CLIP ANN retrieval with DINOv2
-    pseudo-relevance-feedback reranking ($+$3.65\,pp mAP at ${<}1\%$ extra latency).
-    Only CLIP embeddings require an ANN index; DINOv2 reranks the candidate pool
-    directly from pre-computed embeddings, adding no second index --- visual diversity
-    features complement semantic alignment at embedding storage cost only.
+    We present a two-stage pipeline that pairs CLIP-based ANN search with DINOv2
+    reranking, gaining $\mathbf{+3.65}$\,pp mAP at under 1\% extra latency.
+    The design requires only a single ANN index, keeping the parameter space
+    tractable for automated optimization while combining complementary visual
+    and semantic cues.
 
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
-    We characterize when LLM-guided optimization pays off across three datasets
-    spanning the full coupling-complexity spectrum: fully coupled 7-parameter
-    cross-stage (HICO-DET), image-to-image (GLDv2), and pure ANN search (SIFT1M)
-    --- showing that gains diminish proportionally as structural coupling decreases.
-    This gives practitioners a principled criterion for when LLM-guided optimization
-    justifies its overhead over simpler baselines.
+    We evaluate across three datasets of increasing simplicity ---
+    compositional HOI retrieval (HICO-DET), cross-domain landmark retrieval
+    (GLDv2), and synthetic vector search (SIFT1M) --- and show that LLM-guided
+    gains shrink as the search space becomes simpler.
+    This gives practitioners a clear signal for when the added complexity of
+    LLM-guided optimization is worth it over standard baselines.
 
   \item \textbf{SIEVE: a quality-constrained throughput objective for
     deployment-aware ANN evaluation.}
-    We propose SIEVE, a quality-constrained throughput metric that scores zero
-    for any configuration below a minimum retrieval quality threshold, reflecting
-    real deployment requirements; we show empirically that product-metric-optimal
-    configurations systematically fall below this threshold across the majority of
-    methods and seeds --- demonstrating that smooth metrics steer optimization into
-    the infeasible region.
+    We propose SIEVE, a metric that enforces a minimum retrieval quality floor
+    before rewarding throughput, matching the real deployment constraint that
+    speed without accuracy is worthless.
+    We show empirically that configurations ranked best by conventional smooth
+    metrics routinely fall below this quality floor --- meaning standard metrics
+    actively mislead optimization toward configurations that would fail in
+    production.
 \end{itemize}
 
 The rest of this paper is organized as follows:
