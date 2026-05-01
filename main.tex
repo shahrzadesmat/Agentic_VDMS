@@ -221,8 +221,8 @@ These parameters are tightly coupled: reducing retrieval search depth
 weight~($\alpha$) --- a cross-stage dependency that parameter-independent
 optimizers cannot see.
 On HICO-DET, the gap between an unoptimized baseline and our agent-optimized
-configuration reaches $\mathbf{36.6\times}$ in throughput ---
-the difference between 8 and 300 queries per second on the same machine.
+configuration reaches $\mathbf{36.6\times}$ in throughput on a single A40 GPU
+node --- the difference between 8 and 300 queries per second.
 No existing method is designed to close this throughput gap.
 
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
