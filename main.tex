@@ -280,13 +280,13 @@ configuration coupling.
     on HICO-DET; mechanistic ablations confirm history conditioning and phase-aware
     transitions are each independently necessary.
 
-  \item \textbf{First HOI retrieval benchmark and zero-indexing-cost two-stage pipeline.}
+  \item \textbf{First HOI retrieval benchmark and zero-ANN-indexing-cost two-stage pipeline.}
     The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
     600 verb--object categories, deployed on VDMS), pairing CLIP ANN retrieval with DINOv2 pseudo-relevance-feedback reranking at zero additional
-    indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency).
+    ANN indexing cost ($+$3.65\,pp mAP at ${<}1\%$ extra latency).
     This demonstrates that visual diversity features complement semantic alignment
-    without additional indexing or storage overhead, enabling quality improvement
-    at effectively zero deployment cost.
+    without building a second ANN index, enabling quality improvement
+    at the cost of pre-computed DINOv2 embeddings only.
 
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
     We characterize when LLM-guided optimization pays off across three datasets
