@@ -233,9 +233,8 @@ On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner},
 Optuna~TPE~\cite{akiba2019optuna}, grid and random
 search~\cite{bergstra2012random} all treat parameters independently, missing
 the coupling entirely.
-VDTuner adds a further weakness: its optimizer assumes performance changes
-smoothly, but a hard quality cutoff in our metric
-(Section~\ref{sec:metrics}) creates a cliff that breaks this assumption.
+VDTuner has a further weakness: it fails when performance drops sharply at a
+quality threshold rather than changing gradually.
 
 We propose a \emph{phase-aware LLM agent} that jointly optimizes ANN index
 and reranking parameters on Intel's VDMS~\cite{remis2021vdms}.
