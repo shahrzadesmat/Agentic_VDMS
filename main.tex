@@ -227,8 +227,7 @@ between a research prototype and a production-ready retrieval service.
 Yet no existing method is designed to close it.
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
 and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate that
-LLM-guided methods outperform ML-based~\cite{vanaken2017ottertune} and
-reinforcement-learning baselines on DBMS knob tuning.
+LLM-guided methods outperform ML-based baselines~\cite{vanaken2017ottertune} on DBMS knob tuning.
 On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner} applies
 multi-objective Bayesian optimization to VDMS index parameters but treats
 them independently, as do standard search baselines --- Optuna
@@ -239,7 +238,7 @@ Yet all share a structural limitation:
 LLM-guided DBMS tuners operate on flat knob spaces (PostgreSQL, MySQL)
 where parameters are independent --- no cross-stage coupling exists
 by construction.
-The ANN tuning methods --- Optuna TPE~\cite{akiba2019optuna}, grid and
+The ANN tuning methods --- Optuna~TPE~\cite{akiba2019optuna}, grid and
 random search~\cite{snoek2012bayesian,bergstra2012random} --- treat each parameter
 independently, missing this cross-stage coupling;
 VDTuner~\cite{yang2024vdtuner}, the closest prior system, adds a further failure
@@ -263,7 +262,7 @@ paradigm (e.g.,~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
 
 Evaluated under the SIEVE quality-constrained throughput objective
 (Section~\ref{sec:metrics}), the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
-$\mathbf{+50.7\%}$ over GP-BO on HICO-DET, delivering a $\mathbf{36.6\times}$
+$\mathbf{+50.7\%}$ over GP-BO~\cite{yang2024vdtuner} on HICO-DET, delivering a $\mathbf{36.6\times}$
 improvement over an exhaustive-search CLIP baseline~\cite{johnson2021billion}.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
 SIFT1M~\cite{jegou2011pq} (pure ANN search) ---
@@ -277,7 +276,7 @@ configuration coupling.
     (instantiated on Intel's VDMS) that explicitly models the
     \textit{efSearch}--$\alpha$ inter-stage coupling, discovering compensatory
     operating points that no parameter-independent method locates within 50~iterations.
-    Achieves $\mathbf{+33.3\%}$ over Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO
+    Achieves $\mathbf{+33.3\%}$ over Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO~\cite{yang2024vdtuner}
     on HICO-DET; mechanistic ablations confirm history conditioning and phase-aware
     transitions are each independently necessary.
 
@@ -521,7 +520,7 @@ $\Theta$ is the Cartesian product of seven parameter domains
 $k$; $\alpha$; $n_{\mathrm{refs}}$; $\mathit{ref\_strategy}$)
 enumerated in Table~\ref{tab:config-space}; $|\Theta| = 102{,}144$.\footnote{The LLM agent also proposes a \texttt{constraint\_strategy}
   metadata pre-filter ($\in$\{\texttt{none, object, verb, object\_and\_verb}\}) outside $\Theta$;
-  Grid/Random fix it to \texttt{none}, Optuna TPE samples it, and the LLM agent
+  Grid/Random fix it to \texttt{none}, Optuna~TPE samples it, and the LLM agent
   uses \texttt{object} in all best configurations.}
 \end{definition}
 
@@ -851,7 +850,7 @@ $\bigl(\mathrm{mAP}(\theta),\mathrm{QPS}(\theta)\bigr)$
 and $\mathrm{Score}(\theta)=\mathrm{QPS}(\theta)$ if $\mathrm{mAP}(\theta){\geq}\tau$, else $0$ (Eq.~\eqref{eq:score}).
 
 Two cross-parameter couplings invalidate the independence assumption shared by
-GP-BO~\cite{yang2024vdtuner} and Optuna TPE.
+GP-BO~\cite{yang2024vdtuner} and Optuna~TPE.
 First, pool size $k$ determines the candidate set passed from Stage~1 to Stage~2;
 increasing $k$ raises Stage~2 mAP recall but reduces throughput, so the joint
 $(k,\alpha)$ frontier is not separable: optimizing $\alpha$ at a suboptimal $k$
@@ -964,7 +963,7 @@ budget for Fine-Tuning, enough to sweep the 19 discrete $\alpha$ values under
 the best-identified engine.
 The boundaries encode the structural-before-continuous principle: engine and $M$
 determine the achievable QPS ceiling and must be resolved before $\alpha$ and $n_r$
-are refined---a conditional dependency that Optuna TPE, which models each parameter
+are refined---a conditional dependency that Optuna~TPE, which models each parameter
 independently via univariate kernel density estimation, cannot exploit.
 The benefit of imposing this ordered structure over unphased search is quantified
 in the \emph{phase structure} ablation in Section~\ref{sec:ablation}.
@@ -1053,7 +1052,7 @@ Throughout the loop $\mathrm{Score}^*$ equals the running maximum $\max_{s \leq 
 GP-BO replicates the VDTuner~\cite{yang2024vdtuner} paradigm using \texttt{GPSampler}
 (Gaussian Process surrogate, Expected Improvement acquisition) applied to our
 single-objective Score.
-Optuna TPE fits univariate kernel density estimators over each parameter independently.
+Optuna~TPE fits univariate kernel density estimators over each parameter independently.
 Neither baseline encodes the $(k,\alpha)$ coupling or the engine-conditional
 structure of $\Theta$; the LLM agent exploits both through its phase-partitioned
 prompt and guidance function.
@@ -1126,7 +1125,7 @@ We compare five strategies, each for $N{=}50$ iterations.
 
 \noindent\textbf{GP-BO:} \texttt{optuna.samplers.\allowbreak GPSampler} (Expected Improvement), replicating VDTuner~\cite{yang2024vdtuner} (seeds: 42, 99, 200).
 
-\noindent\textbf{Optuna TPE}~\cite{akiba2019optuna}: univariate kernel density estimators (seeds: 42, 99, 200).
+\noindent\textbf{Optuna~TPE}~\cite{akiba2019optuna}: univariate kernel density estimators (seeds: 42, 99, 200).
 
 \noindent\textbf{Random Search}~\cite{bergstra2012random}: uniform random sampling (seeds: 42, 99, 200).
 
@@ -1213,7 +1212,7 @@ by conditioning each proposal on the full history of observed outcomes.
   \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
   \Description{Convergence curves showing best SIEVE Score (QPS if mAP≥τ, τ=0.15) vs.\ iteration
     for five optimizer methods on HICO-DET over 50 iterations. LLM Agent outpaces all baselines
-    by iteration 4, reaching a final mean score of 300.3; Optuna TPE and GP-BO plateau at
+    by iteration 4, reaching a final mean score of 300.3; Optuna~TPE and GP-BO plateau at
     225.2 and 199.3; Grid and Random Search plateau below 184.}
   \caption{Best SIEVE Score vs.\ iteration on HICO-DET (mean $\pm 1\sigma$; 3 seeds except Grid).}
   \label{fig:convergence}
@@ -1235,7 +1234,7 @@ UniIR CLIP-SF Large, image-only~\cite{wei2024uniir} & 19.67          & 0.095 & 0
 UniIR CLIP-SF Large, multi-modal~\cite{wei2024uniir} & 19.46          & 0.089 & 0.442 & --- \\
 Grid Search                               & 183.0          & 0.178 & 0.508 & 41/50 \\
 Random Search~\cite{bergstra2012random}   & 111.4          & 0.179 & 0.455 & 29/50 \\
-Optuna TPE~\cite{akiba2019optuna}         & 225.2          & 0.164 & 0.465 & 41/50 \\
+Optuna~TPE~\cite{akiba2019optuna}         & 225.2          & 0.164 & 0.465 & 41/50 \\
 GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/50 \\
 \midrule
 \textbf{LLM Agent (Ours)}                 & \textbf{300.3} & 0.161 & 0.438 & 23/50 \\
@@ -1267,7 +1266,7 @@ CLIP$+$DINOv2 ($\alpha{=}0.5$)   & FaissFlat & 2000 & 430.1 & 855.2 & 4.82  & 86
 \multicolumn{8}{l}{\textit{Optimizer best configurations}} \\
 Grid Search                  & HNSW $M{=}64$        & 100 &  13.2 &  5.40 & 0.04 &  5.46 &  183.0 \\
 Random Search~\cite{bergstra2012random} & HNSW $M{=}8$ & 100 &  11.7 &  6.95 & 0.13 &  7.13 &  140.2 \\
-Optuna TPE~\cite{akiba2019optuna} & HNSW $M{=}16$   &  50 &  13.3 &  3.19 & 0.11 &  3.33 &  300.7 \\
+Optuna~TPE~\cite{akiba2019optuna} & HNSW $M{=}16$   &  50 &  13.3 &  3.19 & 0.11 &  3.33 &  300.7 \\
 \textbf{LLM Agent (Ours)}    & HNSW $M{=}64$        &  50 &  12.6 &  3.21 & 0.08 &  3.33 & \textbf{300.5} \\
 \textbf{LLM Agent + QDS (Ours)} & IVFFlat $nl{=}128$ & 500 &  17.2 &  0.35 & 0.34 &  0.74 & \textbf{1357.6} \\
 \bottomrule
@@ -1275,7 +1274,7 @@ Optuna TPE~\cite{akiba2019optuna} & HNSW $M{=}16$   &  50 &  13.3 &  3.19 & 0.11
 \end{table*}
 
 The LLM agent achieves mean Score $= 300.3$, outperforming every baseline:
-Optuna TPE ($225.2$, $\mathbf{+33.3\%}$), GP-BO ($199.3$, $\mathbf{+50.7\%}$),
+Optuna~TPE ($225.2$, $\mathbf{+33.3\%}$), GP-BO ($199.3$, $\mathbf{+50.7\%}$),
 Grid Search ($183.0$, $+64.1\%$), and Random Search ($111.4$).
 This corresponds to a $\mathbf{15.3\times}$ throughput gain over UniIR
 (QPS\,$=$\,19.67; SIEVE Score\,$=$\,$0$ since mAP\,$<\tau$) and a
@@ -1301,8 +1300,8 @@ Without natural-language reasoning to diagnose \emph{why} $k{=}50$ fails ---
 that the $(\alpha, n_r)$ compensation was insufficient --- GP-BO cannot
 reliably locate the joint $(k,\alpha)$ optimum.
 
-\noindent\textbf{Optuna TPE comparison.}
-Optuna TPE achieves Score $= 225.2$, trailing the LLM agent by
+\noindent\textbf{Optuna~TPE comparison.}
+Optuna~TPE achieves Score $= 225.2$, trailing the LLM agent by
 $\mathbf{33.3\%}$ --- the largest consistent gap among adaptive baselines.
 The cause is structural: TPE fits \emph{independent} kernel density estimators
 over each parameter, so it cannot discount the FaissIVFFlat region without a
@@ -1314,14 +1313,14 @@ during Exploration (iterations~1--20) before any continuous $(\alpha, n_r)$
 refinement --- the same separation whose removal costs $-0.3\%$ in the phase
 ablation (Table~\ref{tab:ablation_arch}), confirming it as the mechanism rather
 than a coincidence.
-As a result, Optuna TPE's final mean Score ($225.2$) falls below the LLM
+As a result, Optuna~TPE's final mean Score ($225.2$) falls below the LLM
 agent's Score at iteration~6 ($295.4$) --- a structural deficit, not a
 sample-size one.
 
 \noindent\textbf{Convergence and sample efficiency.}
 Figure~\ref{fig:convergence} plots best-Score-so-far mean $\pm 1\sigma$ curves.
 The LLM agent reaches Score $= 295.4$ at iteration~6, already exceeding Grid
-Search's final mean ($183.0$) and well ahead of Optuna TPE
+Search's final mean ($183.0$) and well ahead of Optuna~TPE
 (mean\,$=$\,$148.5$) and Random Search ($79.4$) at the same iteration.
 
 \noindent\textbf{Non-obvious operating point.}
@@ -1374,7 +1373,7 @@ The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from te
 \midrule
 GP-BO~\cite{yang2024vdtuner}  & 77.62  & 0.1791 & 0.2151 & 77.62  & 25/50 \\
 Random Search~\cite{bergstra2012random} & 255.97 & 0.1597 & 0.1954 & 255.97 & 48/50 \\
-Optuna TPE~\cite{akiba2019optuna} & 272.98 & 0.1614 & 0.1968 & 272.98 & 41/50 \\
+Optuna~TPE~\cite{akiba2019optuna} & 272.98 & 0.1614 & 0.1968 & 272.98 & 41/50 \\
 Grid Search                   & 272.98 & 0.1615 & 0.1965 & 272.98 & 6/50  \\
 \midrule
 \textbf{LLM Agent (Ours)}     & \textbf{276.30} & 0.1615 & 0.1964 & \textbf{276.30} & 40/50 \\
@@ -1384,7 +1383,7 @@ Grid Search                   & 272.98 & 0.1615 & 0.1965 & 272.98 & 6/50  \\
 
 \noindent\textbf{Overall performance.}
 The LLM Agent achieves the highest score of $\textbf{276.30}$ QPS (mAP$\geq\tau{=}0.15$),
-narrowly ahead of Optuna TPE and Grid Search (both $272.98$) and Random Search ($255.97$).
+narrowly ahead of Optuna~TPE and Grid Search (both $272.98$) and Random Search ($255.97$).
 GP-BO attains the highest mAP ($0.1791$) but low QPS ($77.62$), failing to balance
 accuracy and speed under the SIEVE objective.
 The performance gap between methods is substantially compressed relative to HICO-DET
@@ -1400,8 +1399,8 @@ As a result, GP-BO locked onto $k{=}150$ for $40$ of $50$ iterations (maximizing
 
 \noindent\textbf{Sample efficiency.}
 Grid Search reaches its best Score at iteration~6 out of 50,
-while Optuna TPE requires 41 and Random Search 48 iterations out of 50.
-The LLM Agent converges to its best at iteration~40, outperforming Optuna TPE by $+1.2\%$,
+while Optuna~TPE requires 41 and Random Search 48 iterations out of 50.
+The LLM Agent converges to its best at iteration~40, outperforming Optuna~TPE by $+1.2\%$,
 confirming that semantic guidance provides a modest advantage even in this lower-coupling regime.
 This reflects the compressed performance landscape at 762K scale, where high-QPS HNSW
 configurations are relatively accessible and early grid points happen to land near the optimum.
@@ -1412,7 +1411,7 @@ configurations are relatively accessible and early grid points happen to land ne
 % ══════════════════════════════════════════════════════════════════════════════
 
 SIFT1M~\cite{jegou2011pq} ($1$M 128-d SIFT vectors, $10{,}000$ queries) provides a complexity-matched control: the optimizer tunes only $M$, \textit{efConstruction}, \textit{efSearch}, and $k$ --- four uncoupled HNSW parameters with no reranking stage or fusion weight $\alpha$.
-We evaluate five methods (LLM Agent, Optuna TPE, Grid, Random, and GP-BO) under the same 50-iteration budget.
+We evaluate five methods (LLM Agent, Optuna~TPE, Grid, Random, and GP-BO) under the same 50-iteration budget.
 
 % ── Table: SIFT1M optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
@@ -1428,7 +1427,7 @@ We evaluate five methods (LLM Agent, Optuna TPE, Grid, Random, and GP-BO) under 
 \midrule
 GP-BO~\cite{yang2024vdtuner} & 471.4  & 0.9204 & 28/50 \\
 Random Search~\cite{bergstra2012random} & 1160.4 & 0.9124 & 23/50 \\
-Optuna TPE~\cite{akiba2019optuna} & 1163.5 & 0.9147 & 42/50 \\
+Optuna~TPE~\cite{akiba2019optuna} & 1163.5 & 0.9147 & 42/50 \\
 Grid Search               & 1174.4 & 0.9146 & 5/50 \\
 \textbf{LLM Agent (Ours)} & \textbf{1175.0} & 0.9141 & 31/50 \\
 \bottomrule
@@ -1534,7 +1533,7 @@ marginals. We introduced SIEVE, a quality-gated throughput objective, and a phas
 LLM agent (Exploration $\to$ Exploitation $\to$ Fine-tuning) that navigates
 coupling by conditioning each proposal on the full accumulated optimization history.
 On HICO-DET the agent outperforms the best non-LLM baseline by $+33.3\%$ and achieves 3/3-seed
-reproducibility (vs.\ 1/3 for Optuna TPE and GP-BO); on GLDv2 and SIFT1M the advantage compresses to ${\lesssim}1.3\%$,
+reproducibility (vs.\ 1/3 for Optuna~TPE and GP-BO); on GLDv2 and SIFT1M the advantage compresses to ${\lesssim}1.3\%$,
 confirming that \emph{LLM optimization advantage scales with configuration-space coupling complexity}.
 Future work targets billion-scale deployment with hardware-profile telemetry
 and multi-tenant settings with per-workload history conditioning.
