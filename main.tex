@@ -151,7 +151,7 @@
 %% article.
 \begin{abstract}
 Retrieval systems underpin modern AI applications --- spanning visual search,
-recommendation engines, and multimodal question answering at billion-scale.
+recommendation engines, and multi-modal question answering at billion-scale.
 Modern multi-stage retrieval systems require the joint optimization of highly coupled
 parameters, yet traditional hyperparameter optimization (HPO) methods ---
 including Bayesian TPE and Gaussian Process BO --- rely on an independence assumption
@@ -220,13 +220,11 @@ depth (\textit{efSearch}) forces the fusion reranker to compensate via a higher
 fusion weight~($\alpha$) --- a cross-stage dependency invisible to any
 parameter-independent optimizer.
 On HICO-DET, the gap between an unoptimized baseline and our agent-optimized
-% CWL configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware ---
-% CWL on a single A40 GPU node, the difference between 8 and 300 queries per second,
-configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware, a single A40 GPU node.
-This difference between 8 and 300 queries per second,could distinguish
+configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware ---
+on a single A40 GPU node, the difference between 8 and 300 queries per second,
 between a research prototype and a production-ready retrieval service.
 
-% CWL Yet no existing method is designed to close it.
+Yet no existing method is designed to close it.
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
 and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate that
 LLM-guided methods outperform ML-based~\cite{vanaken2017ottertune} and
@@ -237,12 +235,12 @@ them independently, as do standard search baselines --- Optuna
 TPE~\cite{akiba2019optuna}, grid, and random
 search~\cite{snoek2012bayesian,bergstra2012random}.
 
-All share a structural limitation:
+Yet all share a structural limitation:
 LLM-guided DBMS tuners operate on flat knob spaces (PostgreSQL, MySQL)
-where parameters are independent, no cross-stage coupling exists
+where parameters are independent --- no cross-stage coupling exists
 by construction.
-The ANN tuning methods, Optuna TPE~\cite{akiba2019optuna}, grid and
-random search~\cite{snoek2012bayesian,bergstra2012random}, treat each parameter
+The ANN tuning methods --- Optuna TPE~\cite{akiba2019optuna}, grid and
+random search~\cite{snoek2012bayesian,bergstra2012random} --- treat each parameter
 independently, missing this cross-stage coupling;
 VDTuner~\cite{yang2024vdtuner}, the closest prior system, adds a further failure
 mode when its smooth surrogate model encounters the hard feasibility threshold
@@ -254,13 +252,12 @@ work on Intel's VDMS~\cite{vij2023vdms}.
 The agent conditions each proposal on all prior configurations and their observed
 scores, reasons explicitly over cross-stage parameter dependencies, and
 self-regulates between exploration and exploitation phases.
-Text-query HOI retrieval --- returning images of specific human-object interactions
+Text-query HOI (Human-Object Interaction) retrieval --- returning images of specific human-object interactions
 in response to natural language queries --- serves direct applications in video
-surveillance, assistive robotics, and interactive multimodal search.
+surveillance, assistive robotics, and interactive multi-modal search.
 We also introduce the \emph{first text-query image retrieval benchmark} from
 HICO-DET~\cite{chao2018hico} --- 47{,}776 images, 600 HOI categories, deployed on
-% CWL: VDMS --- the first benchmark to expose the structural limits of blind
-VDMS. This benchmark exposes the structural limits of blind
+VDMS --- the first benchmark to expose the structural limits of blind
 ANN optimizers, as every prior use of HICO-DET is restricted to the detection
 paradigm (e.g.,~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}).
 
@@ -340,16 +337,16 @@ pre-training on 400 million image-text pairs, enabling zero-shot text-to-image r
 DINOv2~\cite{oquab2024dinov2} produces self-supervised visual features that complement
 CLIP's language-aligned representations, capturing fine-grained visual structure suited
 to reranking.
-UniIR~\cite{wei2024uniir} unified eight multimodal retrieval tasks under a single model
+UniIR~\cite{wei2024uniir} unified eight multi-modal retrieval tasks under a single model
 trained on M-BEIR, establishing a strong cross-modal baseline.
-LamRA~\cite{liu2025lamra} demonstrated that large multimodal models further improve
+LamRA~\cite{liu2025lamra} demonstrated that large multi-modal models further improve
 fine-grained query understanding for retrieval.
 We fill the orthogonal HOI \emph{retrieval} direction and adopt CLIP and UniIR as
 primary baselines.
 
 \subsection{Vector Database Systems and ANN Indexing}
 The efficiency of HOI retrieval depends not only on the query models above but also on how the underlying approximate nearest-neighbor indices are configured.
-ANN indexing algorithms span graph-based indices (HNSW~\cite{malkov2020hnsw} via
+ANN indexing algorithms span graph-based indices (e.g., HNSW~\cite{malkov2020hnsw} via
 hierarchical navigable small-world graphs, DiskANN~\cite{subramanya2019diskann} for
 billion-point SSD-resident datasets), inverted file structures with product
 quantization~\cite{jegou2011pq}, and GPU-accelerated flat search~\cite{johnson2021billion}.
@@ -401,7 +398,7 @@ GPTuner~\cite{lao2024gpttuner} applies LLM-guided Bayesian optimization to Postg
 and MySQL knob tuning, extracting structured configuration knowledge from database
 documentation to guide search.
 $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrates cross-system
-generalization: LLMs can transfer configuration knowledge across DBMS platforms without
+generalization where LLMs can transfer configuration knowledge across DBMS platforms without
 system-specific retraining.
 Both outperform ML-based and RL-based baselines on DBMS tuning, yet both operate on
 flat, independently interpretable knob spaces where no cross-stage coupling exists by
@@ -1235,7 +1232,7 @@ by conditioning each proposal on the full history of observed outcomes.
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
 UniIR CLIP-SF Large, image-only~\cite{wei2024uniir} & 19.67          & 0.095 & 0.448 & --- \\
-UniIR CLIP-SF Large, multimodal~\cite{wei2024uniir} & 19.46          & 0.089 & 0.442 & --- \\
+UniIR CLIP-SF Large, multi-modal~\cite{wei2024uniir} & 19.46          & 0.089 & 0.442 & --- \\
 Grid Search                               & 183.0          & 0.178 & 0.508 & 41/50 \\
 Random Search~\cite{bergstra2012random}   & 111.4          & 0.179 & 0.455 & 29/50 \\
 Optuna TPE~\cite{akiba2019optuna}         & 225.2          & 0.164 & 0.465 & 41/50 \\
@@ -1259,7 +1256,7 @@ GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/
 \midrule
 \multicolumn{8}{l}{\textit{UniIR~\cite{wei2024uniir} ($k{=}10$)}} \\
 CLIP-SF Large, image-only         & FaissFlat & 10   & 427.6 & 50.8  & ---   &  50.8 & 19.67 \\
-CLIP-SF Large, multimodal         & FaissFlat & 10   & 427.7 & 51.4  & ---   &  51.4 & 19.46 \\
+CLIP-SF Large, multi-modal         & FaissFlat & 10   & 427.7 & 51.4  & ---   &  51.4 & 19.46 \\
 \midrule
 \multicolumn{8}{l}{\textit{Exact-search baselines}} \\
 CLIP only ($\alpha{=}0$)          & FaissFlat & 500  & 433.3 & 121.0 & 0.03  & 121.1 & 8.21 \\
