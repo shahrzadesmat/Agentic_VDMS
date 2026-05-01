@@ -201,76 +201,66 @@ The source code, data, and/or other artifacts have been made available at \url{\
 \label{sec:intro}
 
 The throughput and accuracy of a vector database management system (VDBMS) depend
-critically on ANN index configuration: on a production-scale deployment, the gap
-between default and optimized settings can exceed an \emph{order of magnitude} in
-queries per second on identical hardware.
+critically on approximate nearest neighbor (ANN) index configuration: on a
+production-scale deployment, the gap between default and optimized settings can
+exceed an \emph{order of magnitude} in queries per second on identical hardware.
 These systems serve millions of queries daily across recommendation, visual
 search, and cross-modal content discovery.
-Closing this gap demands an optimizer that reasons over how parameters interact
-across retrieval stages, not one that searches blindly.
+We study this problem in the context of Human-Object Interaction (HOI) retrieval
+--- returning images of specific human-object interactions in response to natural
+language queries --- an application with direct uses in video surveillance,
+assistive robotics, and interactive multi-modal search.
+Correct index configuration is a business-critical decision; closing this gap
+demands an optimizer that treats parameters jointly, not one that treats them as
+independent.
 
 Modern vector databases such as VDMS~\cite{remis2021vdms},
 Milvus~\cite{wang2021milvus}, and GaussDB-Vector~\cite{sun2025gaussdb} combine
 two stages: a fast ANN search followed by a reranking step.
-The settings for each stage interact --- tuning one without considering the other
-degrades both retrieval quality and throughput.
-These parameters are structurally coupled: reducing retrieval search
-depth (\textit{efSearch}) forces the fusion reranker to compensate via a higher
-fusion weight~($\alpha$) --- a cross-stage dependency invisible to any
-parameter-independent optimizer.
+These parameters are tightly coupled: reducing retrieval search depth
+(\textit{efSearch}) forces the reranker to compensate with a higher fusion
+weight~($\alpha$) --- a cross-stage dependency that parameter-independent
+optimizers cannot see.
 On HICO-DET, the gap between an unoptimized baseline and our agent-optimized
-configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware ---
-on a single A40 GPU node, the difference between 8 and 300 queries per second,
-between a research prototype and a production-ready retrieval service.
-No existing method is designed to close this gap.
+configuration reaches $\mathbf{36.6\times}$ in throughput on identical hardware
+--- the difference between 8 and 300 queries per second on the same machine.
+No existing method is designed to close this throughput gap.
 
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
-and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate that
-LLM-guided methods outperform ML-based baselines~\cite{vanaken2017ottertune} on DBMS knob tuning.
-On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner} applies
-multi-objective Bayesian optimization to Milvus index parameters but operates
-on a single-stage search space without cross-stage coupling, as do standard
-search baselines --- Optuna TPE~\cite{akiba2019optuna}, grid, and random
-search~\cite{bergstra2012random}.
-
-These approaches share a structural limitation:
-LLM-guided DBMS tuners operate on flat knob spaces (PostgreSQL, MySQL)
-where parameters are independent --- no cross-stage coupling exists
-by construction.
-The ANN tuning methods --- Optuna~TPE~\cite{akiba2019optuna}, grid and
-random search~\cite{bergstra2012random} --- treat each parameter
-independently, missing this cross-stage coupling;
-VDTuner~\cite{yang2024vdtuner}, the closest prior work, has an additional
-weakness: it assumes performance changes smoothly with parameter choices, but
-our quality cutoff creates a hard cliff that breaks this assumption.
+and $\lambda$-Tune~\cite{giannakouris2025lambdatune} demonstrate LLM-guided
+methods on database knob tuning, but their parameter spaces are flat --- each
+knob is independent, so there is no cross-stage coupling to reason about.
+On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner},
+Optuna~TPE~\cite{akiba2019optuna}, grid and random
+search~\cite{bergstra2012random} all treat parameters independently, missing
+the coupling entirely.
+VDTuner adds a further weakness: its optimizer assumes performance changes
+smoothly, but a hard quality cutoff in our metric
+(Section~\ref{sec:metrics}) creates a cliff that breaks this assumption.
 
 We propose a \emph{phase-aware LLM agent} that jointly optimizes ANN index
 and reranking parameters on Intel's VDMS~\cite{remis2021vdms}.
 At each step, the agent reviews all previous configurations and their results,
 identifies how parameters across stages interact, and decides whether to explore
 new regions or refine the best configuration found so far.
-Text-query HOI (Human-Object Interaction) retrieval --- returning images of specific human-object interactions
-in response to natural language queries --- serves direct applications in video
-surveillance, assistive robotics, and interactive multi-modal search.
 We also introduce the first text-to-image retrieval benchmark built from
 HICO-DET~\cite{chao2018hico}.
 No existing benchmark combines fine-grained compositional text queries with a
 large image corpus --- standard ANN benchmarks use synthetic vectors or
-image-to-image similarity, while HOI datasets such as
-HICO-DET~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi} have only
-been used for detection.
-HICO-DET bridges this gap naturally: its 600 verb--object categories map
-directly to natural language queries, and its 90{,}641 annotated positive pairs
-provide retrieval ground truth without additional labeling.
+image-to-image similarity, while HOI datasets have only been used for
+detection~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
+HICO-DET is uniquely suited to bridge this gap: its 600 verb--object categories
+map directly to natural language queries, and its 90{,}641 annotated positive
+pairs provide retrieval ground truth without additional labeling.
 
 Under SIEVE, our joint quality-throughput optimization objective defined in
-Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
-$\mathbf{+50.7\%}$ over GP-BO~\cite{yang2024vdtuner} on HICO-DET, delivering a $\mathbf{36.6\times}$
-improvement over an exhaustive-search CLIP baseline~\cite{johnson2021billion}.
+Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over
+Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO~\cite{yang2024vdtuner} on
+HICO-DET.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
-SIFT1M~\cite{jegou2011pq} (pure ANN search) ---
-the advantage diminishes proportionally, confirming it scales with structural
-configuration coupling.
+SIFT1M~\cite{jegou2011pq} (pure ANN search) --- the advantage diminishes
+proportionally to the degree of parameter coupling, confirming that LLM-guided
+optimization is most valuable when parameters interact across stages.
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 \begin{itemize}[leftmargin=1em, itemsep=3pt, topsep=3pt]
