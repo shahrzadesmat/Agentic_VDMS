@@ -137,3 +137,5 @@ The **SIEVE score** = `best_qps` when `best_map >= τ` (τ = 0.15 for HICO-DET/G
 
 Score = QPS if mAP ≥ τ, else 0 (SIEVE objective).
 HICO-DET means are over 3 seeds (42, 99, 200); GLDv2 and SIFT1M are seed 42.
+
+Phase boundary sensitivity (t_exp/t_expl): all variants within ±0.53% of default, confirming robustness.
