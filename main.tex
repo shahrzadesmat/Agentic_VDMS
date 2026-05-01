@@ -272,18 +272,25 @@ configuration coupling.
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 \begin{itemize}[leftmargin=1em, itemsep=3pt, topsep=3pt]
   \item \textbf{Phase-aware LLM agent for coupled ANN index optimization.}
-    A history-conditioned agent applicable to any VDBMS exposing ANN index parameters
-    (instantiated on Intel's VDMS) that explicitly models the
+    We propose a history-conditioned agent applicable to any VDBMS exposing ANN index
+    parameters (instantiated on Intel's VDMS) that explicitly models the
     \textit{efSearch}--$\alpha$ inter-stage coupling, discovering compensatory
     operating points that no parameter-independent method locates within 50~iterations.
-    Achieves $\mathbf{+33.3\%}$ over Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO~\cite{yang2024vdtuner}
-    on HICO-DET; mechanistic ablations confirm history conditioning and phase-aware
-    transitions are each independently necessary.
+    The agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and $\mathbf{+50.7\%}$ over
+    GP-BO~\cite{yang2024vdtuner} on HICO-DET; mechanistic ablations confirm that
+    history conditioning and phase-aware transitions are each independently necessary.
 
-  \item \textbf{First HOI retrieval benchmark and single-index two-stage pipeline.}
-    The first text-query image retrieval benchmark from HICO-DET (47{,}776 images,
-    600 verb--object categories, deployed on VDMS), pairing CLIP ANN retrieval with
-    DINOv2 pseudo-relevance-feedback reranking ($+$3.65\,pp mAP at ${<}1\%$ extra latency).
+  \item \textbf{First text-query HOI retrieval benchmark.}
+    We introduce the first text-query image retrieval benchmark derived from HICO-DET:
+    47{,}776 images across 600 verb--object HOI categories deployed on VDMS, with
+    600 canonical natural-language queries and 90{,}641 ground-truth positive pairs.
+    Every prior use of HICO-DET is restricted to the detection paradigm; this benchmark
+    exposes the structural limits of parameter-independent ANN optimizers under
+    fine-grained compositional queries.
+
+  \item \textbf{Single-index two-stage retrieval pipeline.}
+    We present a two-stage pipeline pairing CLIP ANN retrieval with DINOv2
+    pseudo-relevance-feedback reranking ($+$3.65\,pp mAP at ${<}1\%$ extra latency).
     Only CLIP embeddings require an ANN index; DINOv2 reranks the candidate pool
     directly from pre-computed embeddings, adding no second index --- visual diversity
     features complement semantic alignment at embedding storage cost only.
