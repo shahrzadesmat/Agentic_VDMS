@@ -281,12 +281,14 @@ configuration coupling.
     history conditioning and phase-aware transitions are each independently necessary.
 
   \item \textbf{First text-query HOI retrieval benchmark.}
-    We introduce the first text-query image retrieval benchmark derived from HICO-DET:
-    47{,}776 images across 600 verb--object HOI categories deployed on VDMS, with
-    600 canonical natural-language queries and 90{,}641 ground-truth positive pairs.
-    Every prior use of HICO-DET is restricted to the detection paradigm; this benchmark
-    exposes the structural limits of parameter-independent ANN optimizers under
-    fine-grained compositional queries.
+    Existing ANN benchmarks use synthetic vectors or image-to-image similarity, neither
+    of which tests optimization under real semantic queries --- making it impossible to
+    know whether smarter optimization actually matters in practice.
+    We fill this gap by repurposing HICO-DET as a text-to-image retrieval challenge on
+    a live vector database: 47{,}776 images queried by 600 natural-language verb--object
+    phrases. The fine-grained compositional queries create the configuration-sensitive
+    retrieval landscape that motivates our optimizer, and the benchmark is released for
+    community use.
 
   \item \textbf{Single-index two-stage retrieval pipeline.}
     We present a two-stage pipeline pairing CLIP ANN retrieval with DINOv2
