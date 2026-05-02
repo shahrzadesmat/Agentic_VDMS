@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=milvus_hico_opt
 #SBATCH --account=bdjd-delta-gpu
-#SBATCH --partition=gpuA40x4
+#SBATCH --partition=gpuA40x4-interactive
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --gres=gpu:1
-#SBATCH --time=03:00:00
+#SBATCH --time=01:00:00
 #SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/milvus/hico_det/logs/milvus_opt_%j.log
 #SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/milvus/hico_det/logs/milvus_opt_%j.err
 
