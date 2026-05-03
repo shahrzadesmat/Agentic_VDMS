@@ -1133,21 +1133,32 @@ Respond with ONLY valid JSON (no markdown, no explanation):
 
         headers = {"Authorization": f"Bearer {self.api_key}",
                    "Content-Type": "application/json"}
-        payload = {"model": self.model,
-                   "messages": [{"role": "user", "content": prompt}],
-                   "max_tokens": 1024, "temperature": 0.3}
+        # Start at 4096 — reasoning models burn ~700 tokens on chain-of-thought
+        # before outputting the JSON; 1024 is insufficient at late iterations.
+        max_tokens = 4096
 
         for attempt in range(3):
             try:
+                payload = {"model": self.model,
+                           "messages": [{"role": "user", "content": prompt}],
+                           "max_tokens": max_tokens, "temperature": 0.3}
                 async with aiohttp.ClientSession() as session:
                     async with session.post(
                         f"{self.base_url}/chat/completions",
-                        headers=headers, json=payload, timeout=aiohttp.ClientTimeout(total=60)
+                        headers=headers, json=payload, timeout=aiohttp.ClientTimeout(total=120)
                     ) as resp:
                         data = await resp.json()
                 if "choices" not in data:
                     raise RuntimeError(f"API error response: {json.dumps(data)}")
-                msg = data["choices"][0]["message"]
+                choice = data["choices"][0]
+                # If the model was cut off mid-reasoning, double the budget and retry.
+                if choice.get("finish_reason") == "length":
+                    max_tokens = min(max_tokens * 2, 16384)
+                    print(f"[LLM] finish_reason=length on attempt {attempt+1}; "
+                          f"retrying with max_tokens={max_tokens}")
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                msg = choice["message"]
                 # MiniMax-M2.1 may return content=None when reasoning tokens are used;
                 # fall back to reasoning_content in that case.
                 content = msg.get("content") or msg.get("reasoning_content") or ""

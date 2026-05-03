@@ -59,6 +59,7 @@ _MAP_THRESHOLD: float = 0.15
 _QDS_WEIGHTS: Optional[np.ndarray] = None   # shape (n_queries,), weights in [1,2] — kept for tier assignment only
 _QDS_STANDARD_THRESHOLD: bool = False       # when True: QDS exploration active but score() uses raw mAP ≥ τ
 _QDS_TIERS:   Optional[np.ndarray] = None   # shape (n_queries,), integer tier 1-4 per query
+_NO_THRESHOLD: bool = False                 # ablation: Score = QPS always (removes the mAP quality gate)
 _PER_QUERY_CONSTRAINT: Optional[np.ndarray] = None  # shape (n_queries,), "none" or "object" per query
 
 # Per-class exact indices (built once at startup from clip_db + img_metadata).
@@ -227,11 +228,12 @@ class BenchmarkResult:
     per_query_ap:    List[float] = field(default_factory=list)
 
     def score(self) -> float:
-        """Constrained optimization (SIEVE-style): Score = QPS if mAP ≥ τ else 0.
-        Maximizing QPS within the feasible region avoids degenerate high-QPS/low-mAP
-        solutions without combining accuracy and throughput into an arbitrary product.
-        In QDS mode, the constraint is applied to difficulty-weighted mAP so hard
-        queries (Q3/Q4) are protected from recall collapse."""
+        """Score function with two modes:
+        SIEVE (default):   Score = QPS if mAP ≥ τ else 0  (constrained optimization).
+        No-threshold:      Score = QPS always              (ablation — removes quality gate).
+        In QDS mode, the SIEVE threshold uses difficulty-weighted mAP."""
+        if _NO_THRESHOLD:
+            return float(self.qps)
         if _QDS_WEIGHTS is not None and self.per_query_ap and not _QDS_STANDARD_THRESHOLD:
             w = _QDS_WEIGHTS
             n = min(len(w), len(self.per_query_ap))
@@ -537,7 +539,7 @@ class LLMProvider:
             else:
                 last_alpha_str = f"{last_run.config.get('alpha', 0.0):.2f}"
 
-            if current_best_score == 0.0 and last_score == 0.0:
+            if not _NO_THRESHOLD and current_best_score == 0.0 and last_score == 0.0:
                 guidance = (
                     f"INFEASIBLE. mAP={last_map:.4f} < τ={_MAP_THRESHOLD:.3f} → Score=0. "
                     f"No feasible config found yet. "
@@ -644,9 +646,13 @@ class LLMProvider:
             n_constrained = int((_PER_QUERY_CONSTRAINT == "object").sum())
             n_total = len(_PER_QUERY_CONSTRAINT)
             _obj_text = (
-                "3. OPTIMIZATION OBJECTIVE: OBJECTIVE: maximize QPS subject to QDS-weighted_mAP ≥ τ (infeasible if below τ, score=0)\n"
-                "   weighted_mAP = Σ(w_j × AP_j) / Σ(w_j) where w_j ∈ [1,2] (Q4 hardest queries get 2×).\n"
-                "   Improving hard-query (Q3/Q4) AP raises Score MORE than equal gains on easy queries.\n"
+                f"3. OPTIMIZATION OBJECTIVE: {'maximize QPS freely — NO quality gate (ablation: threshold removed). Score = QPS always. Track mAP for reporting only.' if _NO_THRESHOLD else 'maximize QPS subject to QDS-weighted_mAP ≥ τ (infeasible if below τ, score=0)'}\n"
+                + ("   NOTE: No mAP threshold is enforced. Every config scores = QPS regardless of mAP.\n"
+                   "   Your goal is maximum QPS. mAP is reported but does NOT affect the score.\n"
+                   "   PRIMARY LEVER: reduce k_neighbors (k=50→~590 QPS, k=100→~300 QPS).\n" if _NO_THRESHOLD else
+                   "   weighted_mAP = Σ(w_j × AP_j) / Σ(w_j) where w_j ∈ [1,2] (Q4 hardest queries get 2×).\n"
+                   "   Improving hard-query (Q3/Q4) AP raises Score MORE than equal gains on easy queries.\n")
+                +
                 "   QDS-ACS STRUCTURAL ENHANCEMENT (per-class exact numpy search):\n"
                 f"   {n_constrained} of {n_total} queries (Q3+Q4 tiers, hardest 50%) BYPASS VDMS.\n"
                 "   They search a pre-built per-class exact array (~600 images of the correct object class)\n"
@@ -673,16 +679,27 @@ class LLMProvider:
                 f"   Current best Score in this session: {current_best_score:.4f}"
             )
         else:
-            _obj_text = (
-                "3. OPTIMIZATION OBJECTIVE: maximize QPS subject to mAP ≥ τ (infeasible if below τ, score=0)\n"
-                f"   Score = QPS  if plain mAP ≥ τ={_MAP_THRESHOLD:.3f}  else 0.\n"
-                "   - QPS: Queries Per Second — Stage-1 VDMS cost dominates (Stage-2 is ~0.9ms, negligible)\n"
-                "   - mAP: mean Average Precision over all 600 HOI queries (unweighted, plain average)\n"
-                "   - A config is INFEASIBLE (score=0) if mAP < τ, regardless of how high QPS is.\n"
-                "   - Within the feasible region (mAP ≥ τ), maximize QPS — higher QPS = better score.\n"
-                f"   - Known results from ablation experiments:\n   {known_results}\n"
-                f"   Current best score in this session: {current_best_score:.4f}"
-            )
+            if _NO_THRESHOLD:
+                _obj_text = (
+                    "3. OPTIMIZATION OBJECTIVE: maximize QPS freely — NO quality gate (ablation: threshold removed).\n"
+                    "   Score = QPS always, regardless of mAP. Every config is feasible.\n"
+                    "   - Your goal is maximum QPS. mAP is reported but does NOT affect the score.\n"
+                    "   - PRIMARY LEVER: reduce k_neighbors. k=50→QPS~295, k=100→QPS~145, k=200→QPS~58.\n"
+                    "   - You may still tune alpha/n_refs/ref_strategy to observe mAP effects.\n"
+                    f"   - Known results from ablation experiments:\n   {known_results}\n"
+                    f"   Current best score in this session: {current_best_score:.4f}"
+                )
+            else:
+                _obj_text = (
+                    "3. OPTIMIZATION OBJECTIVE: maximize QPS subject to mAP ≥ τ (infeasible if below τ, score=0)\n"
+                    f"   Score = QPS  if plain mAP ≥ τ={_MAP_THRESHOLD:.3f}  else 0.\n"
+                    "   - QPS: Queries Per Second — Stage-1 VDMS cost dominates (Stage-2 is ~0.9ms, negligible)\n"
+                    "   - mAP: mean Average Precision over all 600 HOI queries (unweighted, plain average)\n"
+                    "   - A config is INFEASIBLE (score=0) if mAP < τ, regardless of how high QPS is.\n"
+                    "   - Within the feasible region (mAP ≥ τ), maximize QPS — higher QPS = better score.\n"
+                    f"   - Known results from ablation experiments:\n   {known_results}\n"
+                    f"   Current best score in this session: {current_best_score:.4f}"
+                )
 
         system_context = f"""
 SYSTEM ARCHITECTURE:
@@ -938,7 +955,25 @@ CROSS-PARAMETER INTERACTION SUMMARY (READ CAREFULLY):
 4. "Verify text-only" → alpha=0.0 for all tiers, k=100-200, any engine
    Measures pure CLIP+ACS benefit without DINOv2 contribution."""
         else:
-            _scenario_matrix = """\
+            if _NO_THRESHOLD:
+                _scenario_matrix = """\
+1. "Maximum QPS" (MAIN GOAL) → k=50 HNSW M=64 efS=32 constraint=none n_refs=1
+   MEASURED QPS: k=50→295, k=100→145. Minimize k for maximum speed. mAP tracked but does not gate score.
+   Score = QPS always — every config is feasible.
+
+2. "Mid-speed" → k=100 HNSW M=32-64 efS=32-64 constraint=none
+   QPS~145. Higher mAP than k=50 but lower score. Explore to understand the speed-quality frontier.
+
+3. "IVFFlat competitor" → nlist=128 nprobe=4-8 k=50-100
+   QPS~140-250 depending on nprobe. Valid alternative to HNSW.
+
+4. "Constraint effect" → constraint=object vs none at k=50-100
+   Measures QPS gain from PMGD pre-filtering. IVFFlat does NOT support constraints.
+
+5. "Verify text-only" → alpha=0.0, any K, any engine
+   Measures CLIP's raw QPS without DINOv2 reranking overhead."""
+            else:
+                _scenario_matrix = """\
 1. "Fast-feasible" (MAIN GOAL) → k=100 HNSW M=64 efS=64 constraint=object n_refs=10 alpha=0.65
    MEASURED QPS: k=100→145, k=50→295. START AT k=100 (safe mAP~0.19-0.22).
    Then probe k=50 M=64 alpha≥0.65 constraint=object for QPS~295 (high-risk/high-reward, mAP borderline ~0.15-0.17).
@@ -1853,6 +1888,9 @@ def main():
     parser.add_argument("--map-threshold", type=float, default=0.15,
                         help="Constrained optimization threshold τ: Score=QPS if mAP≥τ else 0. "
                              "Default 0.15. Run at multiple values (0.10, 0.15, 0.20) for Pareto analysis.")
+    parser.add_argument("--no-threshold", action="store_true", default=False,
+                        help="Ablation: remove mAP quality gate. Score = QPS always (no constraint). "
+                             "Measures whether the SIEVE cliff is necessary for good optimization.")
     args = parser.parse_args()
 
     api_key = None
@@ -1863,11 +1901,15 @@ def main():
             print("ERROR: OPENROUTER_API_KEY not set")
             sys.exit(1)
 
-    global _MAP_THRESHOLD, _QDS_STANDARD_THRESHOLD
+    global _MAP_THRESHOLD, _QDS_STANDARD_THRESHOLD, _NO_THRESHOLD
     _MAP_THRESHOLD = args.map_threshold
     _QDS_STANDARD_THRESHOLD = args.qds_standard_threshold
-    threshold_label = "raw mAP (standard)" if _QDS_STANDARD_THRESHOLD else "mAP"
-    print(f"[Score] Constrained objective: Score = QPS  if {threshold_label} ≥ {_MAP_THRESHOLD:.3f} else 0")
+    _NO_THRESHOLD = args.no_threshold
+    if _NO_THRESHOLD:
+        print("[Score] Ablation: NO-THRESHOLD — Score = QPS always (mAP quality gate removed)")
+    else:
+        threshold_label = "raw mAP (standard)" if _QDS_STANDARD_THRESHOLD else "mAP"
+        print(f"[Score] Constrained objective: Score = QPS  if {threshold_label} ≥ {_MAP_THRESHOLD:.3f} else 0")
 
     if args.use_qds_objective:
         global _QDS_WEIGHTS, _QDS_TIERS, _PER_QUERY_CONSTRAINT, _PER_CLASS_INDICES, _PER_CLASS_OBJ_VOCAB

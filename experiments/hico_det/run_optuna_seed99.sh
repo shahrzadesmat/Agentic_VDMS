@@ -27,7 +27,7 @@ echo "===== Optuna TPE rerun seed=99 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"
 
 mkdir -p "$FINAL_RESULTS"
-cd "$BASE_DIR/hico_det"
+cd "/work/hdd/bdjd/vdms_workflow/src/hico_det"
 
 printf '{\n  "port": %d,\n  "db_root_path": "/db",\n  "max_simultaneous_clients": 100\n}' \
     "$PORT" > "$VDMS_CFG"

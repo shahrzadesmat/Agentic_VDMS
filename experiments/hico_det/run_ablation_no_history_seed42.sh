@@ -40,7 +40,7 @@ echo "Started: $(date)"
 echo "========================================="
 
 mkdir -p "$FINAL_RESULTS"
-cd "$BASE_DIR/hico_det"
+cd "/work/hdd/bdjd/vdms_workflow/src/hico_det"
 
 for f in hico_clipvitl14_db.npy hico_clipvitl14_text_queries.npy \
           hico_clip_text_key_order.json cpr_results.json \
