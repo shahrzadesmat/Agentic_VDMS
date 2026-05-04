@@ -73,35 +73,36 @@ _QDS_FOR_FEEDBACK:  Optional[np.ndarray] = None  # raw QDS scores (not weights) 
 
 
 def _compute_qds_weights(text_q: np.ndarray, clip_db: np.ndarray,
-                         hoi_keys: List[str], tau: float = 0.01) -> np.ndarray:
+                         hoi_keys: List[str], tau: float = 0.01,
+                         rel_sets: List = None) -> np.ndarray:
     """
     Compute QDS = H_norm - CPR_norm per HOI class, return as weight array w_j = 1 + QDS_norm_j.
+    CPR_j = cosine similarity of text query j to visual centroid of class j.
     Higher weight = harder class = matters more in the objective.
     """
-    script_dir = Path(__file__).parent
-    cpr_json   = script_dir / "cpr_results.json"
-
-    # Entropy of CLIP similarity distribution
-    print(f"[QDS] Computing per-class entropy (tau={tau})...")
+    print(f"[QDS] Computing per-class entropy and CPR (tau={tau})...")
     sim   = text_q @ clip_db.T
     log_p = log_softmax(sim / tau, axis=1)
-    H     = -(np.exp(log_p) * log_p).sum(axis=1)   # (n_queries,)
+    H     = -(np.exp(log_p) * log_p).sum(axis=1).astype(np.float32)
 
-    # CPR
-    import json
-    cpr_data = json.load(open(cpr_json))
-    cpr_map  = {r["hoi"]: r["cpr"] for r in cpr_data}
-    cpr_med  = float(np.median(list(cpr_map.values())))
-    C        = np.array([cpr_map.get(k, cpr_med) for k in hoi_keys], dtype=np.float32)
+    # CPR: cosine similarity between text query and visual centroid of class
+    cpr = np.zeros(len(hoi_keys), dtype=np.float32)
+    if rel_sets is not None:
+        for j, rel in enumerate(rel_sets):
+            ids = sorted(rel)
+            if not ids:
+                continue
+            centroid = clip_db[ids].mean(axis=0)
+            norm = np.linalg.norm(centroid)
+            if norm > 1e-8:
+                cpr[j] = float(text_q[j] @ (centroid / norm))
 
-    # Normalize both to [0, 1]
-    H_n = (H - H.min()) / (H.max() - H.min() + 1e-10)
-    C_n = (C - C.min()) / (C.max() - C.min() + 1e-10)
+    H_n = (H   - H.min())   / (H.max()   - H.min()   + 1e-10)
+    C_n = (cpr - cpr.min()) / (cpr.max() - cpr.min() + 1e-10)
 
-    qds = H_n - C_n                                 # (n_queries,)
+    qds = H_n - C_n
     qds_n = (qds - qds.min()) / (qds.max() - qds.min() + 1e-10)
-    weights = 1.0 + qds_n                           # w in [1, 2]
-    weights = weights.astype(np.float32)
+    weights = (1.0 + qds_n).astype(np.float32)
 
     q25, q50, q75 = np.percentile(qds, [25, 50, 75])
     print(f"[QDS] weights range [{weights.min():.3f}, {weights.max():.3f}]  "
@@ -110,26 +111,29 @@ def _compute_qds_weights(text_q: np.ndarray, clip_db: np.ndarray,
 
 
 def _compute_qds_scores(text_q: np.ndarray, clip_db: np.ndarray,
-                        hoi_keys: List[str], tau: float = 0.01) -> np.ndarray:
+                        hoi_keys: List[str], tau: float = 0.01,
+                        rel_sets: List = None) -> np.ndarray:
     """
     Compute raw QDS = H_norm - CPR_norm per HOI class (not weights — for quartile binning).
     Used by --use-category-feedback to provide per-difficulty-tier mAP breakdown to the LLM.
     """
-    script_dir = Path(__file__).parent
-    cpr_json   = script_dir / "cpr_results.json"
-
     sim   = text_q @ clip_db.T
     log_p = log_softmax(sim / tau, axis=1)
-    H     = -(np.exp(log_p) * log_p).sum(axis=1)
+    H     = -(np.exp(log_p) * log_p).sum(axis=1).astype(np.float32)
 
-    import json as _json
-    cpr_data = _json.load(open(cpr_json))
-    cpr_map  = {r["hoi"]: r["cpr"] for r in cpr_data}
-    cpr_med  = float(np.median(list(cpr_map.values())))
-    C        = np.array([cpr_map.get(k, cpr_med) for k in hoi_keys], dtype=np.float32)
+    cpr = np.zeros(len(hoi_keys), dtype=np.float32)
+    if rel_sets is not None:
+        for j, rel in enumerate(rel_sets):
+            ids = sorted(rel)
+            if not ids:
+                continue
+            centroid = clip_db[ids].mean(axis=0)
+            norm = np.linalg.norm(centroid)
+            if norm > 1e-8:
+                cpr[j] = float(text_q[j] @ (centroid / norm))
 
-    H_n = (H - H.min()) / (H.max() - H.min() + 1e-10)
-    C_n = (C - C.min()) / (C.max() - C.min() + 1e-10)
+    H_n = (H   - H.min())   / (H.max()   - H.min()   + 1e-10)
+    C_n = (cpr - cpr.min()) / (cpr.max() - cpr.min() + 1e-10)
     qds = (H_n - C_n).astype(np.float32)
     print(f"[CategoryFeedback] QDS range [{qds.min():.4f}, {qds.max():.4f}]  "
           f"quartiles: Q25={np.percentile(qds,25):.4f} Q75={np.percentile(qds,75):.4f}")
@@ -1916,7 +1920,8 @@ def main():
         print("[QDS-ACS] Loading data to compute QDS tiers...")
         _data = _load_hico_data_cached(str(args.dataset_dir), backbone=args.clip_backbone)
         _QDS_WEIGHTS = _compute_qds_weights(
-            _data["text_q"], _data["clip_db"], _data["hoi_keys"]
+            _data["text_q"], _data["clip_db"], _data["hoi_keys"],
+            rel_sets=_data.get("rel_sets")
         )
         # Assign difficulty tiers 1-4 based on QDS weight percentiles.
         _w = _QDS_WEIGHTS
@@ -1949,7 +1954,8 @@ def main():
         print("[CategoryFeedback] Loading data to compute per-class QDS scores...")
         _data = _load_hico_data_cached(str(args.dataset_dir), backbone=args.clip_backbone)
         _QDS_FOR_FEEDBACK = _compute_qds_scores(
-            _data["text_q"], _data["clip_db"], _data["hoi_keys"]
+            _data["text_q"], _data["clip_db"], _data["hoi_keys"],
+            rel_sets=_data.get("rel_sets")
         )
         print(f"[CategoryFeedback] Enabled: LLM will receive per-QDS-quartile mAP each iteration.")
 
