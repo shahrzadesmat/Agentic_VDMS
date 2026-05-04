@@ -29,7 +29,7 @@ echo "===== GLDv2 random seed=99 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"
 
 mkdir -p "$(dirname "$OUTPUT")"
-cd "$BASE_DIR/gldv2"
+cd "/work/hdd/bdjd/vdms_workflow/src/gldv2"
 
 for f in gldv2_clip.npy gldv2_dinov2.npy gldv2_ids.json \
           gldv2_query_clip.npy gldv2_query_dinov2.npy gldv2_query_ids.json \

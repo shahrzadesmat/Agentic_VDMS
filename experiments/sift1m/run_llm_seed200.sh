@@ -32,7 +32,7 @@ echo "===== SIFT1M llm seed=200 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"
 
 mkdir -p "$(dirname "$OUTPUT")"
-cd "$BASE_DIR"
+cd "/work/hdd/bdjd/vdms_workflow/src/sift1m"
 
 for f in sift/sift_base.fvecs sift/sift_query.fvecs sift/sift_groundtruth.ivecs; do
     if [ ! -f "${DATASET_DIR}/${f}" ]; then
@@ -90,7 +90,7 @@ if [ $? -ne 0 ]; then
 fi
 echo "[VDMS] Initial start ready on port $PORT"
 
-PYTHONUNBUFFERED=1 $PYTHON sift1m/sift1m_agent_optimizer.py \
+PYTHONUNBUFFERED=1 $PYTHON sift1m_agent_optimizer.py \
     --port "$PORT" \
     --dataset-dir "$DATASET_DIR" \
     --method hyperparameter_only \
