@@ -52,6 +52,9 @@ from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass, asdict
 from dotenv import load_dotenv
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from vdtuner_ehvi import VDTunerOptimizer, KnobEncoder
+
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 # File used to communicate engine params to the VDMS restart shell function.
@@ -936,11 +939,24 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             sampler=optuna.samplers.TPESampler(seed=seed),
         )
     elif method == "gp_bo":
-        # GP-BO (VDTuner-style): GP surrogate with Expected Improvement.
         optuna_study = optuna.create_study(
             direction="maximize",
             sampler=optuna.samplers.GPSampler(seed=seed),
         )
+
+    vdtuner_opt = None
+    if method == "vdtuner":
+        _encoder = KnobEncoder([
+            {"name": "M",              "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["M"]},
+            {"name": "efConstruction", "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["efConstruction"]},
+            {"name": "efSearch",       "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["efSearch"]},
+            {"name": "k_neighbors",    "type": "enum",
+             "values": ConfigProvider.K_NEIGHBORS},
+        ])
+        vdtuner_opt = VDTunerOptimizer(_encoder, seed=seed)
 
     results: List[IterationResult] = []
     best_score_ever         = 0.0
@@ -1103,6 +1119,22 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             if vdms_restart_cmd:
                 _restart_vdms(config, i + 1, vdms_restart_cmd)
 
+        elif method == "vdtuner":
+            vt_raw = vdtuner_opt.ask()
+            config = {
+                "engine": "FaissHNSWFlat",
+                "params": {
+                    "M":              vt_raw["M"],
+                    "efConstruction": vt_raw["efConstruction"],
+                    "efSearch":       vt_raw["efSearch"],
+                },
+                "k_neighbors": vt_raw["k_neighbors"],
+                "_iter": i + 1,
+            }
+            reasoning = f"VDTuner EHVI iter {i+1}"
+            if vdms_restart_cmd:
+                _restart_vdms(config, i + 1, vdms_restart_cmd)
+
         else:  # random
             config    = configs[i]
             config["_iter"] = i + 1
@@ -1128,6 +1160,8 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             if method in ("optuna", "gp_bo") and optuna_trial is not None:
                 optuna_study.tell(optuna_trial, benchmark.score())
                 optuna_trial = None
+            if method == "vdtuner":
+                vdtuner_opt.tell(config, benchmark.recall_at_10, benchmark.qps)
 
             if benchmark.score() > best_score_ever:
                 best_score_ever         = benchmark.score()
@@ -1147,6 +1181,8 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             if method in ("optuna", "gp_bo") and optuna_trial is not None:
                 optuna_study.tell(optuna_trial, 0.0)
                 optuna_trial = None
+            if method == "vdtuner" and vdtuner_opt._last_vec is not None:
+                vdtuner_opt.tell(config, 0.0, 0.0)
             sys.exit(1)
 
     print(f"\n{'='*80}")
@@ -1158,6 +1194,11 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
         print(f"Best Recall:  {best.benchmark.recall_at_10:.4f}")
         print(f"Best QPS:     {best.benchmark.qps:.1f}")
         print(f"Best Config:  {best.config}")
+    if method == "vdtuner" and vdtuner_opt is not None:
+        vt_cfg, vt_q, vt_qps = vdtuner_opt.select(_RECALL_THRESHOLD)
+        print(f"\n[VDTuner] ε-constraint selection (Recall≥{_RECALL_THRESHOLD}):")
+        print(f"  Config:  {vt_cfg}")
+        print(f"  Recall:  {vt_q:.4f}  QPS: {vt_qps:.1f}")
 
     return results
 
@@ -1199,7 +1240,7 @@ def main():
     parser.add_argument("--dataset-dir",   type=Path, required=True,
                         help="Root dataset dir (contains sift/ subdirectory)")
     parser.add_argument("--method",
-                        choices=["hyperparameter_only", "random", "grid", "optuna", "gp_bo"],
+                        choices=["hyperparameter_only", "random", "grid", "optuna", "gp_bo", "vdtuner"],
                         required=True)
     parser.add_argument("--iterations",    type=int,  default=30)
     parser.add_argument("--seed",          type=int,  default=42)

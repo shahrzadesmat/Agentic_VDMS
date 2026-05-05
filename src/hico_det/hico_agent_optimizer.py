@@ -51,6 +51,9 @@ from dataclasses import dataclass, field, asdict
 from dotenv import load_dotenv
 from scipy.special import log_softmax
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from vdtuner_ehvi import VDTunerOptimizer, KnobEncoder
+
 # QDS Adaptive Constraint Strategy (set at startup when --use-qds-objective is passed)
 # Constrained optimization threshold τ (SIEVE-style): Score = QPS if mAP ≥ τ else 0.
 # Set at startup from --map-threshold CLI arg. Default 0.15 (above Grid baseline 0.121).
@@ -1582,11 +1585,30 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             sampler=optuna.samplers.TPESampler(seed=seed),
         )
     elif method == "gp_bo":
-        # GP-BO (VDTuner-style): GP surrogate with Expected Improvement.
         optuna_study = optuna.create_study(
             direction="maximize",
             sampler=optuna.samplers.GPSampler(seed=seed),
         )
+
+    vdtuner_opt = None
+    if method == "vdtuner":
+        _encoder = KnobEncoder([
+            {"name": "M",                   "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["M"]},
+            {"name": "efSearch",            "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["efSearch"]},
+            {"name": "k_neighbors",         "type": "enum",
+             "values": ConfigProvider.K_NEIGHBORS_VALUES},
+            {"name": "alpha",               "type": "enum",
+             "values": ConfigProvider.ALPHA_VALUES},
+            {"name": "n_refs",              "type": "enum",
+             "values": ConfigProvider.N_REFS_VALUES},
+            {"name": "ref_strategy",        "type": "enum",
+             "values": ConfigProvider.REF_STRATEGY_VALUES},
+            {"name": "constraint_strategy", "type": "enum",
+             "values": ConfigProvider.CONSTRAINT_STRATEGIES},
+        ])
+        vdtuner_opt = VDTunerOptimizer(_encoder, seed=seed)
 
     results: List[IterationResult] = []
     best_score_ever = 0.0
@@ -1773,6 +1795,25 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             config    = configs[i]
             config["_iter"] = i + 1
             reasoning = "Baseline (Random)"
+        elif method == "vdtuner":
+            vt_raw = vdtuner_opt.ask()
+            # centroid ignores n_refs — snap to 1 for dedup consistency
+            n_refs = 1 if vt_raw["ref_strategy"] == "centroid" else vt_raw["n_refs"]
+            config = {
+                "engine": "FaissHNSWFlat",
+                "params": {
+                    "M":              vt_raw["M"],
+                    "efConstruction": 200,
+                    "efSearch":       vt_raw["efSearch"],
+                },
+                "k_neighbors":         vt_raw["k_neighbors"],
+                "alpha":               vt_raw["alpha"],
+                "n_refs":              n_refs,
+                "ref_strategy":        vt_raw["ref_strategy"],
+                "constraint_strategy": vt_raw["constraint_strategy"],
+                "_iter":               i + 1,
+            }
+            reasoning = f"VDTuner EHVI iter {i+1}"
         else:
             raise ValueError(f"Unknown method: {method}")
 
@@ -1807,6 +1848,8 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             if method in ("optuna", "gp_bo") and optuna_trial is not None:
                 optuna_study.tell(optuna_trial, benchmark.score())
                 optuna_trial = None
+            if method == "vdtuner":
+                vdtuner_opt.tell(config, benchmark.map_score, benchmark.qps)
 
             if benchmark.score() > best_score_ever:
                 best_score_ever = benchmark.score()
@@ -1826,6 +1869,8 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             if method in ("optuna", "gp_bo") and optuna_trial is not None:
                 optuna_study.tell(optuna_trial, 0.0)
                 optuna_trial = None
+            if method == "vdtuner" and vdtuner_opt._last_vec is not None:
+                vdtuner_opt.tell(config, 0.0, 0.0)
             sys.exit(1)
 
     # Summary
@@ -1838,6 +1883,11 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
         print(f"Best mAP:    {best.benchmark.map_score:.4f}")
         print(f"Best QPS:    {best.benchmark.qps:.2f}")
         print(f"Best Config: {best.config}")
+    if method == "vdtuner" and vdtuner_opt is not None:
+        vt_cfg, vt_q, vt_qps = vdtuner_opt.select(_MAP_THRESHOLD)
+        print(f"\n[VDTuner] ε-constraint selection (mAP≥{_MAP_THRESHOLD}):")
+        print(f"  Config:  {vt_cfg}")
+        print(f"  mAP:     {vt_q:.4f}  QPS: {vt_qps:.2f}")
 
     return results
 
@@ -1853,7 +1903,7 @@ def main():
     parser.add_argument("--dataset-dir", type=Path, required=True,
                         help="Root dataset dir (e.g. /work/hdd/bdjd/vdms/datasets)")
     parser.add_argument("--method",
-                        choices=["hyperparameter_only", "random", "grid", "optuna", "gp_bo"],
+                        choices=["hyperparameter_only", "random", "grid", "optuna", "gp_bo", "vdtuner"],
                         required=True)
     parser.add_argument("--iterations", type=int, default=15)
     parser.add_argument("--seed", type=int, default=42)

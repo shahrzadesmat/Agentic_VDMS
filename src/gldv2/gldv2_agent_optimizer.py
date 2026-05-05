@@ -51,6 +51,9 @@ from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass, field, asdict
 from dotenv import load_dotenv
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from vdtuner_ehvi import VDTunerOptimizer, KnobEncoder
+
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -1015,13 +1018,32 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             sampler=optuna.samplers.TPESampler(seed=seed),
         )
     elif method == "gp_bo":
-        # GP-BO (VDTuner-style): Gaussian Process surrogate with Expected Improvement.
-        # Uses the same parameter-independent GP surrogate design as VDTuner (yang2024vdtuner)
-        # adapted to single-objective Score = mAP x QPS.
         optuna_study = optuna.create_study(
             direction="maximize",
             sampler=optuna.samplers.GPSampler(seed=seed),
         )
+
+    vdtuner_opt = None
+    if method == "vdtuner":
+        _alpha_vals = ConfigProvider.ALPHA_VALUES
+        _encoder = KnobEncoder([
+            {"name": "M",              "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["M"]},
+            {"name": "efConstruction", "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["efConstruction"]},
+            {"name": "k_neighbors",    "type": "enum",
+             "values": ConfigProvider.K_NEIGHBORS_VALUES},
+            {"name": "alpha",          "type": "enum", "values": _alpha_vals},
+            {"name": "n_refs",         "type": "enum",
+             "values": ConfigProvider.N_REFS_VALUES},
+            {"name": "ref_strategy",   "type": "enum",
+             "values": ConfigProvider.REF_STRATEGY_VALUES},
+            {"name": "n_aqe",          "type": "enum",
+             "values": ConfigProvider.N_AQE_VALUES},
+            {"name": "aqe_weight",     "type": "enum",
+             "values": ConfigProvider.AQE_WEIGHT_VALUES},
+        ])
+        vdtuner_opt = VDTunerOptimizer(_encoder, seed=seed)
 
     def _norm_refs(cfg):
         """Normalize n_refs=1 for centroid (centroid ignores n_refs)."""
@@ -1231,6 +1253,28 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
                 }
                 reasoning = "Baseline (Optuna TPE)" if method == "optuna" else "Baseline (GP-BO)"
 
+        elif method == "vdtuner":
+            vt_raw = vdtuner_opt.ask()
+            # Apply conditional constraints: centroid ignores n_refs; n_aqe=1 disables aqe_weight
+            n_refs = 1 if vt_raw["ref_strategy"] == "centroid" else vt_raw["n_refs"]
+            aqe_weight = 0.0 if vt_raw["n_aqe"] == 1 else vt_raw["aqe_weight"]
+            config = {
+                "engine": "FaissHNSWFlat",
+                "params": {
+                    "M":              vt_raw["M"],
+                    "efConstruction": vt_raw["efConstruction"],
+                    "efSearch":       500,
+                },
+                "k_neighbors":  vt_raw["k_neighbors"],
+                "alpha":        vt_raw["alpha"],
+                "n_refs":       n_refs,
+                "ref_strategy": vt_raw["ref_strategy"],
+                "n_aqe":        vt_raw["n_aqe"],
+                "aqe_weight":   aqe_weight,
+                "_iter":        i + 1,
+            }
+            reasoning = f"VDTuner EHVI iter {i+1}"
+
         else:
             config    = configs[i]
             config["_iter"] = i + 1
@@ -1258,6 +1302,8 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             if method in ("optuna", "gp_bo") and optuna_trial is not None:
                 optuna_study.tell(optuna_trial, benchmark.score())
                 optuna_trial = None
+            if method == "vdtuner":
+                vdtuner_opt.tell(config, benchmark.map_score, benchmark.qps)
 
             if benchmark.score() > best_score_ever:
                 best_score_ever = benchmark.score()
@@ -1277,6 +1323,8 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
             if method in ("optuna", "gp_bo") and optuna_trial is not None:
                 optuna_study.tell(optuna_trial, 0.0)
                 optuna_trial = None
+            if method == "vdtuner" and vdtuner_opt._last_vec is not None:
+                vdtuner_opt.tell(config, 0.0, 0.0)
             sys.exit(1)
 
     print(f"\n{'='*80}")
@@ -1288,6 +1336,11 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
         print(f"Best mAP:    {best.benchmark.map_score:.4f}")
         print(f"Best QPS:    {best.benchmark.qps:.2f}")
         print(f"Best Config: {best.config}")
+    if method == "vdtuner" and vdtuner_opt is not None:
+        vt_cfg, vt_q, vt_qps = vdtuner_opt.select(_MAP_THRESHOLD)
+        print(f"\n[VDTuner] ε-constraint selection (mAP≥{_MAP_THRESHOLD}):")
+        print(f"  Config:  {vt_cfg}")
+        print(f"  mAP:     {vt_q:.4f}  QPS: {vt_qps:.2f}")
 
     return results
 
@@ -1303,7 +1356,7 @@ def main():
     parser.add_argument("--dataset-dir", type=Path, required=True,
                         help="Root dataset dir (e.g. /work/hdd/bdjd/vdms/datasets)")
     parser.add_argument("--method",
-                        choices=["hyperparameter_only", "random", "grid", "optuna", "gp_bo"],
+                        choices=["hyperparameter_only", "random", "grid", "optuna", "gp_bo", "vdtuner"],
                         required=True)
     parser.add_argument("--iterations", type=int, default=30)
     parser.add_argument("--seed", type=int, default=42)
