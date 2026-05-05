@@ -22,7 +22,7 @@ from botorch.sampling.normal import SobolQMCNormalSampler
 from botorch.utils.multi_objective.box_decompositions.non_dominated import (
     FastNondominatedPartitioning,
 )
-from botorch.acquisition.multi_objective.monte_carlo import (
+from botorch.acquisition.multi_objective.logei import (
     qLogExpectedHypervolumeImprovement,
 )
 from botorch.optim import optimize_acqf
