@@ -29,9 +29,6 @@ from botorch.optim import optimize_acqf
 from gpytorch.mlls import SumMarginalLogLikelihood
 from scipy.stats import qmc
 
-# Reference point in normalized [0,1] objective space — same as VDTuner
-REF_POINT = torch.tensor([0.5, 0.5], dtype=torch.float64)
-
 
 # ---------------------------------------------------------------------------
 # Utilities (adapted from VDTuner utils)
@@ -155,18 +152,19 @@ class EHVIBO:
         fit_gpytorch_mll(mll)
         self._X_t = X_t  # keep for partitioning
 
-    def recommend(self) -> np.ndarray:
+    def recommend(self, seed: int) -> np.ndarray:
         """Return next candidate in [0,1]^d using qEHVI."""
         sampler = SobolQMCNormalSampler(sample_shape=torch.Size([128]))
 
         with torch.no_grad():
             pred = self.model.posterior(self._X_t).mean
 
-        partitioning = FastNondominatedPartitioning(ref_point=REF_POINT, Y=pred)
+        ref_point = torch.tensor([0.5, 0.5], dtype=torch.float64)
+        partitioning = FastNondominatedPartitioning(ref_point=ref_point, Y=pred)
 
         acq = qLogExpectedHypervolumeImprovement(
             model=self.model,
-            ref_point=REF_POINT,
+            ref_point=ref_point,
             partitioning=partitioning,
             sampler=sampler,
         )
@@ -177,7 +175,7 @@ class EHVIBO:
             q=1,
             num_restarts=10,
             raw_samples=100,
-            options={"seed": self.seed},
+            options={"seed": seed},
         )
         return candidate.detach().numpy()[0]
 
@@ -229,14 +227,22 @@ class VDTunerOptimizer:
         else:
             Y_norm = self._normalize_Y()
             self.ehvi.update_samples(np.array(self.X_vecs), Y_norm)
-            vec = self.ehvi.recommend()
+            vec = self.ehvi.recommend(seed=self.seed + self._iter)
 
         self._last_vec = vec
         config = self.encoder.decode(vec)
         return config
 
     def tell(self, config: dict, quality: float, qps: float):
-        """Record benchmark result (use actual decoded config, not ask's pre-snap)."""
+        """Record benchmark result.
+
+        Stores _last_vec (the continuous vector the GP recommended) rather than
+        re-encoding the actual config.  Re-encoding would crash on conditional
+        overrides whose values sit outside the encoder's enum lists
+        (e.g. aqe_weight=0.0 when n_aqe==1, but AQE_WEIGHT_VALUES=[0.1…0.5]).
+        This matches VDTuner's own approach of training the GP on the recommended
+        continuous point.
+        """
         self.X_vecs.append(self._last_vec)
         self.Y_quality.append(float(quality))
         self.Y_qps.append(float(qps))

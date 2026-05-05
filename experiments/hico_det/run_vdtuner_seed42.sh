@@ -7,8 +7,8 @@
 #SBATCH --mem=32G
 #SBATCH --time=12:00:00
 #SBATCH --exclude=gpub066,gpub088
-#SBATCH --output=hico_det/hico_vdt_s42_%j.log
-#SBATCH --error=hico_det/hico_vdt_s42_%j.err
+#SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/hico_det/hico_vdt_s42_%j.log
+#SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/hico_det/hico_vdt_s42_%j.err
 
 # HICO-DET VDTuner (EHVI multi-objective BO) — 50 iterations, seed=42
 
