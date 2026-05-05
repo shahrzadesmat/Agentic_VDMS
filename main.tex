@@ -252,7 +252,7 @@ retrieval ground truth without additional labeling.
 
 Under SIEVE, our joint quality-throughput optimization objective defined in
 Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over
-Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO~\cite{yang2024vdtuner} on
+Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO~\cite{snoek2012bayesian} on
 HICO-DET.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
 SIFT1M~\cite{jegou2011pq} (pure ANN search) --- this advantage diminishes
@@ -266,7 +266,7 @@ optimization is most valuable when parameters interact across stages.
     how index construction and reranking parameters must be configured together ---
     a dependency that standard optimizers miss by treating parameters independently.
     On HICO-DET the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
-    $\mathbf{+50.7\%}$ over GP-based BO~\cite{yang2024vdtuner}; gains diminish on
+    $\mathbf{+50.7\%}$ over GP-based BO~\cite{snoek2012bayesian}; gains diminish on
     simpler datasets where this inter-parameter dependency is absent, confirming
     that the improvement is structural, not incidental.
 
@@ -849,7 +849,7 @@ $\bigl(\mathrm{mAP}(\theta),\mathrm{QPS}(\theta)\bigr)$
 and $\mathrm{Score}(\theta)=\mathrm{QPS}(\theta)$ if $\mathrm{mAP}(\theta){\geq}\tau$, else $0$ (Eq.~\eqref{eq:score}).
 
 Two cross-parameter couplings invalidate the independence assumption shared by
-GP-BO~\cite{yang2024vdtuner} and Optuna~TPE.
+GP-BO~\cite{snoek2012bayesian} and Optuna~TPE.
 First, pool size $k$ determines the candidate set passed from Stage~1 to Stage~2;
 increasing $k$ raises Stage~2 mAP recall but reduces throughput, so the joint
 $(k,\alpha)$ frontier is not separable: optimizing $\alpha$ at a suboptimal $k$
@@ -1048,9 +1048,8 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
 The algorithm initializes with an empty history and zero stagnation counter (line~1), computes phase boundaries once (line~2), then iterates: each iteration classifies the current phase, computes guidance and hints from history, attempts up to four LLM proposals with duplicate-rejection, falls back to a random config if all fail, evaluates the oracle, and updates the best score and stagnation counter (lines~3--21).
 Throughout the loop $\mathrm{Score}^*$ equals the running maximum $\max_{s \leq t} s_s$; the returned $\theta^*$ is the configuration achieving that maximum over all $N$ oracle calls.
 
-GP-BO replicates the VDTuner~\cite{yang2024vdtuner} paradigm using \texttt{GPSampler}
-(Gaussian Process surrogate, Expected Improvement acquisition) applied to our
-single-objective Score.
+GP-BO uses \texttt{GPSampler} (Gaussian Process surrogate with Expected Improvement
+acquisition~\cite{snoek2012bayesian}) applied to our single-objective Score.
 Optuna~TPE fits univariate kernel density estimators over each parameter independently.
 Neither baseline encodes the $(k,\alpha)$ coupling or the engine-conditional
 structure of $\Theta$; the LLM agent exploits both through its phase-partitioned
@@ -1122,7 +1121,7 @@ We compare five strategies, each for $N{=}50$ iterations.
 
 \noindent\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter\footnote{Estimated API cost: 50 iterations $\times$ $\approx$5,000 tokens/call $\approx$ 250K tokens total; at MiniMax-M2.1 list pricing this amounts to under \$0.20 per optimizer run.} (seeds: 42, 99, 200). Backbone portability across GPT-4o-mini and Llama-3.3-70B is verified in Section~\ref{sec:ablation}.
 
-\noindent\textbf{GP-BO:} \texttt{optuna.samplers.\allowbreak GPSampler} (Expected Improvement), replicating VDTuner~\cite{yang2024vdtuner} (seeds: 42, 99, 200).
+\noindent\textbf{GP-BO:} \texttt{optuna.samplers.\allowbreak GPSampler} (Gaussian Process surrogate, Expected Improvement~\cite{snoek2012bayesian}) (seeds: 42, 99, 200).
 
 \noindent\textbf{Optuna~TPE}~\cite{akiba2019optuna}: univariate kernel density estimators (seeds: 42, 99, 200).
 
@@ -1221,7 +1220,7 @@ by conditioning each proposal on the full history of observed outcomes.
 \begin{table*}[t]
 \centering
 \caption{ANN optimizer comparison on HICO-DET (50 iterations, means over 3 seeds; Grid: 1 run).
-  $^\P$GP-BO: \texttt{GPSampler}+EI~\cite{yang2024vdtuner}. $^\S$QDS: difficulty-weighted objective.}
+  $^\P$GP-BO: \texttt{GPSampler}+EI~\cite{snoek2012bayesian}. $^\S$QDS: difficulty-weighted objective.}
 \label{tab:optimizer}
 \small
 \setlength{\tabcolsep}{6pt}
@@ -1370,7 +1369,7 @@ The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from te
 \toprule
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{QPS}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-GP-BO~\cite{yang2024vdtuner}  & 77.62  & 0.1791 & 0.2151 & 77.62  & 25/50 \\
+GP-BO~\cite{snoek2012bayesian}  & 77.62  & 0.1791 & 0.2151 & 77.62  & 25/50 \\
 Random Search~\cite{bergstra2012random} & 255.97 & 0.1597 & 0.1954 & 255.97 & 48/50 \\
 Optuna~TPE~\cite{akiba2019optuna} & 272.98 & 0.1614 & 0.1968 & 272.98 & 41/50 \\
 Grid Search                   & 272.98 & 0.1615 & 0.1965 & 272.98 & 6/50  \\
@@ -1424,7 +1423,7 @@ We evaluate five methods (LLM Agent, Optuna~TPE, Grid, Random, and GP-BO) under 
 \toprule
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{Recall@10}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-GP-BO~\cite{yang2024vdtuner} & 471.4  & 0.9204 & 28/50 \\
+GP-BO~\cite{snoek2012bayesian} & 471.4  & 0.9204 & 28/50 \\
 Random Search~\cite{bergstra2012random} & 1160.4 & 0.9124 & 23/50 \\
 Optuna~TPE~\cite{akiba2019optuna} & 1163.5 & 0.9147 & 42/50 \\
 Grid Search               & 1174.4 & 0.9146 & 5/50 \\
