@@ -1,0 +1,1520 @@
+{
+  "summary": {
+    "best_score": 1174.9652494337101,
+    "best_recall": 0.9141,
+    "best_qps": 1174.9652494337101,
+    "best_config": {
+      "engine": "FaissHNSWFlat",
+      "params": {
+        "M": 32,
+        "efConstruction": 200,
+        "efSearch": 24
+      },
+      "k_neighbors": 10,
+      "_iter": 31
+    },
+    "iterations_used": 50
+  },
+  "results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 1
+      },
+      "benchmark": {
+        "qps": 1149.283771902832,
+        "recall_at_10": 0.9148299999999999,
+        "latency_ms": 0.870107126235962,
+        "index_build_s": 337.2253074645996,
+        "precision": 0.9148299999999999,
+        "f1_score": 0.9148299999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "timestamp": 1777058172.7388368
+      },
+      "score": 1149.283771902832,
+      "reasoning": "{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 16, \"efConstruction\": 200, \"efSearch\": 32},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"M=16 efC=200 efS=32 k=10 is the recommended cold-start baseline per DIAGNOSIS. M=16 creates a sparse graph with fewer edges than M=32, yielding higher QPS (~1150-1200) while maintaining Recall\u22480.91 above the \u03c4=0.90 floor. efC=200 is the reliable default sufficient for M\u226516. efS=32 is the sweet spot balancing recall and QPS. k=10 is the minimum viable setting. Expected Score ~1150-1200, establishing the baseline for exploration.\"\n}"
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 2
+      },
+      "benchmark": {
+        "qps": 1188.9367953547858,
+        "recall_at_10": 0.8792700000000001,
+        "latency_ms": 0.8410876035690307,
+        "index_build_s": 338.6382827758789,
+        "precision": 0.8792700000000001,
+        "f1_score": 0.8792700000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777058540.195206
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":200,\"efSearch\":24},\"k_neighbors\":10,\"reasoning\":\"HNSW M=16 efC=200 efS=24 k=10: Reduce efS from 32 to 24 to increase QPS (~1300-1400). At M=16 with efS=24, expect Recall~0.85-0.90 (borderline for \u03c4). If Recall < 0.90, next iter can increase k to 20 for recovery. This explores the lower-efS region while staying near the known-good M=16 baseline.\"}"
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 20,
+        "_iter": 3
+      },
+      "benchmark": {
+        "qps": 695.934284539404,
+        "recall_at_10": 0.8940400000000002,
+        "latency_ms": 1.436917281150818,
+        "index_build_s": 335.6628785133362,
+        "precision": 0.8940400000000002,
+        "f1_score": 0.8940400000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "timestamp": 1777058900.9640307
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":12,\"efConstruction\":200,\"efSearch\":32},\"k_neighbors\":20,\"reasoning\":\"M=12 efC=200 efS=32 k=20 is an exploratory config. The sparse M=12 graph with efS=32 may achieve borderline recall, but k=20 compensates by retrieving more candidates. At M=12 efS=32 k=10 recall~0.87 (below \u03c4), but k=20 pushes recall higher at minimal QPS cost (~2-3%). Also attempts different M (12) per anti-stagnation rule since last 2 iters only changed efSearch.\"}"
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 4
+      },
+      "benchmark": {
+        "qps": 1166.2334111220073,
+        "recall_at_10": 0.91228,
+        "latency_ms": 0.8574612855911256,
+        "index_build_s": 487.4891130924225,
+        "precision": 0.91228,
+        "f1_score": 0.91228,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777059411.8928094
+      },
+      "score": 1166.2334111220073,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":24,\"efConstruction\":400,\"efSearch\":24},\"k_neighbors\":10,\"reasoning\":\"M=24 with efC=400 and efS=24 builds on the best M=16 baseline. efC=400 improves graph quality (zero QPS cost), while efS=24 is lower than the best config's efS=32, potentially boosting QPS. The denser M=24 graph should maintain recall \u22650.90 even with lower efS. This is a promising unexplored region per the physics model.\"}"
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 20,
+        "_iter": 5
+      },
+      "benchmark": {
+        "qps": 689.5291992889059,
+        "recall_at_10": 0.8554700000000001,
+        "latency_ms": 1.4502649068832396,
+        "index_build_s": 488.7257430553436,
+        "precision": 0.8554700000000001,
+        "f1_score": 0.8554700000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "timestamp": 1777059931.9987955
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":24,\"efConstruction\":400,\"efSearch\":16},\"k_neighbors\":20,\"reasoning\":\"M=24 efC=400 efS=16 with k=20. Ultra-low efS=16 maximizes QPS (physics: ~1600 QPS). efC=400 ensures high-quality graph to compensate for low efS. k=20 provides recall recovery buffer against the sparse search beam (since efS=16 may miss some neighbors). This is a structurally different region from prior configs (all used efS\u226524). If Recall stays \u22650.90, Score could exceed 1166.\"}"
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 6
+      },
+      "benchmark": {
+        "qps": 1136.8464419881716,
+        "recall_at_10": 0.94204,
+        "latency_ms": 0.8796262741088867,
+        "index_build_s": 487.0406024456024,
+        "precision": 0.94204,
+        "f1_score": 0.9420400000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "timestamp": 1777060443.3460162
+      },
+      "score": 1136.8464419881716,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":24,\"efConstruction\":400,\"efSearch\":32},\"k_neighbors\":10,\"reasoning\":\"Testing M=24 with efS=32 vs the best config (efS=24 at M=24). Higher efS should improve recall further while maintaining competitive QPS (~1060 with slightly denser graph). This explores whether we can push Recall higher above \u03c4 with minimal QPS loss, unlike the ultra-low efS approach which crashed recall.\"}"
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 20,
+        "_iter": 7
+      },
+      "benchmark": {
+        "qps": 669.437357614219,
+        "recall_at_10": 0.9418700000000001,
+        "latency_ms": 1.4937917470932007,
+        "index_build_s": 489.9428732395172,
+        "precision": 0.9418700000000001,
+        "f1_score": 0.94187,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "timestamp": 1777060959.1913497
+      },
+      "score": 669.437357614219,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":24,\"efConstruction\":400,\"efSearch\":32},\"k_neighbors\":20,\"reasoning\":\"M=24 efC=400 efSearch=32 with k=20 doubles the results to compensate potential recall loss. At k=20, even if efS=32 slightly reduces QPS, the larger result set should recover any missed neighbors. Building on iter06 (M=24 efC=400 efS=32, Score=1136.8) with k=20 to recover recall. iter05 already showed k=20 at efS=16 failed (Recall 0.855), but efS=32 should provide enough search breadth.\"}"
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 8
+      },
+      "benchmark": {
+        "qps": 1173.4612628616749,
+        "recall_at_10": 0.88387,
+        "latency_ms": 0.8521798133850097,
+        "index_build_s": 476.4338879585266,
+        "precision": 0.88387,
+        "f1_score": 0.88387,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777061537.824146
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\": \"FaissHNSWFlat\", \"params\": {\"M\": 16, \"efConstruction\": 400, \"efSearch\": 24}, \"k_neighbors\": 10, \"reasoning\": \"iter04 achieved best Score=1166.2 with M=24 efC=400 efS=24. M=16 with efC=400 tests whether the sparser graph can maintain Recall\u22650.90 (via higher efC) while achieving higher QPS than M=24. iter02 showed M=16 efC=200 efS=24 failed (Recall=0.879). efC=400 (higher graph quality, zero QPS cost) may raise recall by 2-3pp vs efC=200. Expected: Recall~0.91-0.92 (just above \u03c4), QPS~1180-1250, Score~1100-1170, potentially beating best=1166.2.\"}"
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 9
+      },
+      "benchmark": {
+        "qps": 1180.7030134880054,
+        "recall_at_10": 0.85559,
+        "latency_ms": 0.8469530344009399,
+        "index_build_s": 486.1275408267975,
+        "precision": 0.85559,
+        "f1_score": 0.85559,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "timestamp": 1777062044.0542026
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":24,\"efConstruction\":400,\"efSearch\":20},\"k_neighbors\":10,\"reasoning\":\"M=24 efC=400 is the best baseline (Score=1166.2). Reducing efS from 24\u219220 should boost QPS by ~5-8% while Recall likely stays \u22650.90 (efC=400 maintains graph quality). Last attempt at efS=16 with k=20 failed (Recall=0.855), so stepping conservatively to efS=20 keeps recall safe while gaining QPS. k=10 because higher k in iter07 (k=20) cut QPS in half for same recall.\"}"
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 10
+      },
+      "benchmark": {
+        "qps": 1121.2001714237322,
+        "recall_at_10": 0.95199,
+        "latency_ms": 0.8919013977050781,
+        "index_build_s": 494.9360966682434,
+        "precision": 0.95199,
+        "f1_score": 0.95199,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "timestamp": 1777062557.3731985
+      },
+      "score": 1121.2001714237322,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 32, \"efConstruction\": 400, \"efSearch\": 32},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"M=32 with efC=400 and efS=32 represents a denser graph approach. At M=32, the recall ceiling is higher (~0.97), which may compensate for the slightly lower QPS compared to M=24. This is a structurally different config that hasn't been tested yet - going for maximum graph connectivity to ensure recall while maintainingefS=32 for reasonable throughput.\"\n}\n```"
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 20,
+        "_iter": 11
+      },
+      "benchmark": {
+        "qps": 692.7364775839605,
+        "recall_at_10": 0.87905,
+        "latency_ms": 1.4435503721237182,
+        "index_build_s": 338.20667815208435,
+        "precision": 0.87905,
+        "f1_score": 0.87905,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777062937.3728044
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":200,\"efSearch\":24},\"k_neighbors\":20,\"reasoning\":\"M=16 with efC=200 and efS=24 k=20 tests whether k=20 compensation can lift Recall above \u03c4=0.90 at lower efS. Previous iter08 (M=16 efC=400 efS=24 k=10) failed at 0.884; iter02 (M=16 efC=200 efS=24 k=10) failed at 0.879. Adding k=20 may recover missed neighbors while maintaining high QPS from lower efS.\"}"
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 12
+      },
+      "benchmark": {
+        "qps": 1147.9628652992228,
+        "recall_at_10": 0.9244100000000002,
+        "latency_ms": 0.8711083173751831,
+        "index_build_s": 497.93231415748596,
+        "precision": 0.9244100000000002,
+        "f1_score": 0.9244100000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777063461.8009207
+      },
+      "score": 1147.9628652992228,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 32, \"efConstruction\": 400, \"efSearch\": 24},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"HNSW M=32 efC=400 efSearch=24 k=10. This explores a denser graph (M=32) with high-quality construction (efC=400) at efS=24 (one step below the best efS=32). Based on physics: M=32 has higher recall ceiling than M=24; efC=400 ensures graph quality; efS=24 should yield QPS~1050-1100 with Recall~0.94-0.96, Score~1000+. This is structurally different from the best (M=24 efS=24) \u2014 higher M may unlock better recall while maintaining competitive QPS.\"\n}\n```"
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 13
+      },
+      "benchmark": {
+        "qps": 1200.092578400294,
+        "recall_at_10": 0.87403,
+        "latency_ms": 0.8332690477371216,
+        "index_build_s": 495.35078597068787,
+        "precision": 0.87403,
+        "f1_score": 0.8740300000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "timestamp": 1777063988.0089455
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":32,\"efConstruction\":400,\"efSearch\":16},\"k_neighbors\":10,\"reasoning\":\"HNSW M=32 efC=400 efSearch=16 is an ultra-low-efS config. efC=400 ensures the graph is high-quality so Recall stays reasonable even at efS=16. At efS=16 QPS~1600, Recall~0.65-0.80. Score~1040-1280 \u2014 likely beating efS=32.\"}"
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 14
+      },
+      "benchmark": {
+        "qps": 1161.935212706273,
+        "recall_at_10": 0.92012,
+        "latency_ms": 0.8606331825256348,
+        "index_build_s": 478.5755178928375,
+        "precision": 0.92012,
+        "f1_score": 0.9201200000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "timestamp": 1777064493.9806473
+      },
+      "score": 1161.935212706273,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":400,\"efSearch\":32},\"k_neighbors\":10,\"reasoning\":\"HNSW M=16 efC=400 efSearch=32 k=10. efC=400 (vs efC=200 in iter01) improves graph quality and recall at zero QPS cost. M=16 is the sparser graph that yielded highest QPS (1149.3 at efC=200). Combining M=16 sparse graph + efC=400 higher-quality graph + efS=32 search beam should achieve Recall\u22650.90 while maintaining QPS~1150-1180. Expected: Recall~0.92-0.93, QPS~1150, Score~1060-1100, potentially competitive with best=1166.2.\"}"
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 15
+      },
+      "benchmark": {
+        "qps": 1118.9912670048866,
+        "recall_at_10": 0.95886,
+        "latency_ms": 0.8936620235443115,
+        "index_build_s": 507.0964424610138,
+        "precision": 0.95886,
+        "f1_score": 0.95886,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "timestamp": 1777065020.7383065
+      },
+      "score": 1118.9912670048866,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":48,\"efConstruction\":400,\"efSearch\":32},\"k_neighbors\":10,\"reasoning\":\"Iteration 15: Try M=48 (untried high-M region). Higher M=48 creates denser graph with better connectivity \u2192 higher Recall ceiling (~0.99). efC=400 ensures high-quality graph. At efS=32, expect Recall~0.97+ (above \u03c4=0.90) with QPS~1000-1050. This is a structurally DIFFERENT region from current best (M=16/24) \u2014 exploring high M to see if dense graph compensates with higher recall while maintaining competitive QPS.\"}"
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 30,
+        "_iter": 16
+      },
+      "benchmark": {
+        "qps": 477.10066307066825,
+        "recall_at_10": 0.88395,
+        "latency_ms": 2.095993733406067,
+        "index_build_s": 477.8305308818817,
+        "precision": 0.88395,
+        "f1_score": 0.88395,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777065600.1892583
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":400,\"efSearch\":24},\"k_neighbors\":30,\"reasoning\":\"Try sparse M=16 with higher k=30. The sparse graph (M=16) gives high QPS; k=30 compensates for recall loss from lower efSearch=24. This exploits the M\u00d7k interaction: sparse graph + more results returned often beats dense graph + fewer results on Score.\"}"
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "k_neighbors": 10,
+        "_iter": 17
+      },
+      "benchmark": {
+        "qps": 1057.8079127779786,
+        "recall_at_10": 0.9803300000000001,
+        "latency_ms": 0.9453512191772461,
+        "index_build_s": 502.0730538368225,
+        "precision": 0.9803300000000001,
+        "f1_score": 0.9803300000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "timestamp": 1777066122.660266
+      },
+      "score": 1057.8079127779786,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":48,\"efConstruction\":400,\"efSearch\":48},\"k_neighbors\":10,\"reasoning\":\"HNSW M=48 efC=400 efSearch=48 extends the M=48 line with higher efS. From iter15: M=48 efS=32 achieved Recall=0.959 at QPS=1119. Increasing efS to 48 should push Recall even higher (~0.97-0.98) while maintaining competitive QPS (~900). This explores the dense graph (M=48) region at higher efSearch, distinct from previous M=32 efS=24/32 and M=48 efS=32 configs.\"}"
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 20,
+        "_iter": 18
+      },
+      "benchmark": {
+        "qps": 691.3986125225731,
+        "recall_at_10": 0.8845299999999999,
+        "latency_ms": 1.4463436603546143,
+        "index_build_s": 479.47680044174194,
+        "precision": 0.8845299999999999,
+        "f1_score": 0.8845299999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777066674.643987
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":400,\"efSearch\":24},\"k_neighbors\":20,\"reasoning\":\"HNSW M=16 efC=400 efS=24 k=20. The previous M=16 efS=24 k=10 failed (Recall=0.884). With k=20, we recover more missed neighbors (positions 11-20 may contain true top-10). efC=400 ensures high-quality graph despite lower M. Target: Recall\u22650.90, QPS~1100+.\"}"
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 20,
+        "_iter": 19
+      },
+      "benchmark": {
+        "qps": 685.6007679087428,
+        "recall_at_10": 0.91207,
+        "latency_ms": 1.4585747957229616,
+        "index_build_s": 488.3938055038452,
+        "precision": 0.91207,
+        "f1_score": 0.91207,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777067202.9290326
+      },
+      "score": 685.6007679087428,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 24, \"efConstruction\": 400, \"efSearch\": 24},\n  \"k_neighbors\": 20,\n  \"reasoning\": \"M=24 efC=400 efS=24 k=10 was best (1166.2). Increase k from 10 to 20 to push Recall slightly higher (from 0.912 toward 0.93+) while maintaining high QPS. The denser graph (M=24) combined with efC=400 should handle the larger k efficiently. This targets Recall improvement while preserving the strong QPS from the best config.\"\n}\n```"
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 48
+        },
+        "k_neighbors": 10,
+        "_iter": 20
+      },
+      "benchmark": {
+        "qps": 1125.3300051306928,
+        "recall_at_10": 0.9529,
+        "latency_ms": 0.8886282205581665,
+        "index_build_s": 338.70972657203674,
+        "precision": 0.9529,
+        "f1_score": 0.9529,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 48
+        },
+        "timestamp": 1777067572.3965232
+      },
+      "score": 1125.3300051306928,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":200,\"efSearch\":48},\"k_neighbors\":10,\"reasoning\":\"HNSW M=16 efC=200 efSearch=48 k=10: Higher efSearch (48) than best config (efS=24) explores more candidates per query. M=16 maintains high QPS (~1100) while efS=48 should boost Recall from 0.915 toward 0.93+. Scoring potential: QPS~1000-1050 \u00d7 Recall~0.93+ > 930, competitive with best=1166.\"}"
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 21
+      },
+      "benchmark": {
+        "qps": 1194.8683639081898,
+        "recall_at_10": 0.8473,
+        "latency_ms": 0.8369122743606567,
+        "index_build_s": 343.1143124103546,
+        "precision": 0.8473,
+        "f1_score": 0.8472999999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "timestamp": 1777067997.790931
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":24,\"efConstruction\":200,\"efSearch\":16},\"k_neighbors\":10,\"reasoning\":\"M=24 efC=200 efSearch=16 combines medium-high M (better recall ceiling than M=16) with ultra-low efS=16 for maximum QPS. efC=200 is baseline. Prior iteration 09 (M=24 efC=400 efS=16 k=10) had low recall 0.856 \u2014 but that used k=10. By keeping k=10 we accept lower recall but very high QPS (~1100-1200). If Recall dips below 0.90, the trade-off may still yield Score>1100. This config hasn't been tested \u2014 differs from iter09 by using efC=200 (not 400) and testing the efC=200 baseline at this low efS.\"}"
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 22
+      },
+      "benchmark": {
+        "qps": 1104.5137975348587,
+        "recall_at_10": 0.9607,
+        "latency_ms": 0.9053757429122925,
+        "index_build_s": 509.5220124721527,
+        "precision": 0.9607,
+        "f1_score": 0.9607,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "timestamp": 1777068549.5413923
+      },
+      "score": 1104.5137975348587,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":64,\"efConstruction\":400,\"efSearch\":32},\"k_neighbors\":10,\"reasoning\":\"Testing M=64 (higher than best M=48) to explore denser graph territory. At M=64, efS=32 should achieve Recall~0.97-0.98 (vs M=48's 0.959), potentially crossing \u03c4=0.90 more robustly. QPS will be slightly lower (~1100-1120) due to more edges per node, but recall improvement may compensate. This is an untried M value in the high-performance zone.\"}"
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 20,
+        "_iter": 23
+      },
+      "benchmark": {
+        "qps": 692.7337087950968,
+        "recall_at_10": 0.8216,
+        "latency_ms": 1.4435561418533327,
+        "index_build_s": 477.5625276565552,
+        "precision": 0.8216,
+        "f1_score": 0.8215999999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "timestamp": 1777069057.7783427
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":400,\"efSearch\":16},\"k_neighbors\":20,\"reasoning\":\"M=16 efC=400 efSearch=16 k=20 explores very low efS=16 with k=20 recovery. At efS=16 QPS~1500+, and k=20 compensates for recall loss from lower efS. Previous iter21 tried efS=16 with M=24 k=10 (failed, Recall=0.847). k=20 may recover recall to \u22650.90 at same efS=16. M=16 has sparser graph than M=24, potentially higher QPS at same efS. Untested combination: M=16 efS=16 with k>10.\"}"
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 24
+      },
+      "benchmark": {
+        "qps": 1173.827371558338,
+        "recall_at_10": 0.9034900000000001,
+        "latency_ms": 0.8519140243530273,
+        "index_build_s": 342.00874876976013,
+        "precision": 0.9034900000000001,
+        "f1_score": 0.9034900000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777069439.8200386
+      },
+      "score": 1173.827371558338,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 24, \"efConstruction\": 200, \"efSearch\": 24},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"Testing M=24 with efC=200 (lower than best's efC=400) at efS=24. This tests whether we can match the best Score (1166.2) with reduced build cost. If recall remains >=0.90, we get similar QPS with simpler configuration. Avoids exact duplication: M=24 efS=24 was tested at k=20 (iter19, Score=685.6) but not at k=10.\"\n}\n```"
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 25
+      },
+      "benchmark": {
+        "qps": 1139.1903936435067,
+        "recall_at_10": 0.9345900000000001,
+        "latency_ms": 0.8778163909912109,
+        "index_build_s": 339.8959503173828,
+        "precision": 0.9345900000000001,
+        "f1_score": 0.9345900000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "timestamp": 1777069809.0863364
+      },
+      "score": 1139.1903936435067,
+      "reasoning": "{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 24, \"efConstruction\": 200, \"efSearch\": 32},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"Based on iter24 (M=24 efC=200 efS=24 k=10, Score=1173.8, Recall=0.903), the best configuration has recall barely above \u03c4=0.90. Increasing efSearch by one step to 32 should raise recall to ~0.93-0.94 while slightly reducing QPS. This explores the efSearch axis from the best-known point \u2014 if recall improves substantially without catastrophic QPS loss, Score may approach or exceed 1173.8. This config hasn't been tried yet (M=24 efC=200 efS=32 k=10).\"\n}"
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 20,
+        "_iter": 26
+      },
+      "benchmark": {
+        "qps": 695.217054437285,
+        "recall_at_10": 0.85375,
+        "latency_ms": 1.4383996963500978,
+        "index_build_s": 336.3199248313904,
+        "precision": 0.85375,
+        "f1_score": 0.8537499999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777070176.2370627
+      },
+      "score": 0.0,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 12, \"efConstruction\": 200, \"efSearch\": 24},\n  \"k_neighbors\": 20,\n  \"reasoning\": \"M=12 is untested in exploitation phase. At iter24, M=24 efS=24 achieved best Score=1173.8. Trying M=12 which has sparser graph (lower QPS cost) with efS=24 and k=20 for recall recovery. M=12 with efC=200 and efS=24 k=20 is unexplored - should test this sparse region for potential QPS gains.\"\n}\n```"
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 300,
+          "efSearch": 500
+        },
+        "k_neighbors": 10,
+        "_iter": 27
+      },
+      "benchmark": {
+        "qps": 578.6499414280114,
+        "recall_at_10": 0.9990600000000001,
+        "latency_ms": 1.728160548210144,
+        "index_build_s": 403.1175625324249,
+        "precision": 0.9990600000000001,
+        "f1_score": 0.9990600000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 300,
+          "efSearch": 500
+        },
+        "timestamp": 1777070638.776215
+      },
+      "score": 578.6499414280114,
+      "reasoning": "Fallback random (LLM repeated configs 4x)"
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 200,
+        "_iter": 28
+      },
+      "benchmark": {
+        "qps": 52.486820505991936,
+        "recall_at_10": 0.99898,
+        "latency_ms": 19.052401924133303,
+        "index_build_s": 347.37966108322144,
+        "precision": 0.99898,
+        "f1_score": 0.99898,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "timestamp": 1777071222.3134134
+      },
+      "score": 52.486820505991936,
+      "reasoning": "Fallback random (LLM repeated configs 4x)"
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 20,
+        "_iter": 29
+      },
+      "benchmark": {
+        "qps": 684.1430080824153,
+        "recall_at_10": 0.9034400000000001,
+        "latency_ms": 1.46168270111084,
+        "index_build_s": 341.5926549434662,
+        "precision": 0.9034400000000001,
+        "f1_score": 0.9034400000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777071622.3813891
+      },
+      "score": 684.1430080824153,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 24, \"efConstruction\": 200, \"efSearch\": 24},\n  \"k_neighbors\": 20,\n  \"reasoning\": \"Best baseline iter24 (M=24 efC=200 efS=24 k=10) scored 1173.8. k=20 may recover additional neighbors missed at efS=24, potentially lifting Recall above 0.92 while maintaining high QPS. Previous k=20 at M=24 efC=400 (iter19) scored 685.6 due to QPS penalty \u2014 but at efC=200, QPS should be higher (~1100-1150), making k=20 viable if Recall climbs to ~0.92-0.93.\"\n}\n```"
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 30
+      },
+      "benchmark": {
+        "qps": 1210.5315305744277,
+        "recall_at_10": 0.82084,
+        "latency_ms": 0.8260833978652954,
+        "index_build_s": 478.69672870635986,
+        "precision": 0.82084,
+        "f1_score": 0.8208400000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "timestamp": 1777072187.9079368
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":400,\"efSearch\":16},\"k_neighbors\":10,\"reasoning\":\"M=16 efC=400 efS=16 is a completely unexplored config. efC=400 ensures high-quality graph despite low M and efS. This ultra-low efS could achieve very high QPS (~1500+) while efC=400 compensates for graph sparsity to maintain recall above \u03c4=0.90.\"}"
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 31
+      },
+      "benchmark": {
+        "qps": 1174.9652494337101,
+        "recall_at_10": 0.9141,
+        "latency_ms": 0.8510890007019043,
+        "index_build_s": 343.73209500312805,
+        "precision": 0.9141,
+        "f1_score": 0.9141,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777072558.493411
+      },
+      "score": 1174.9652494337101,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":32,\"efConstruction\":200,\"efSearch\":24},\"k_neighbors\":10,\"reasoning\":\"M=32 efC=200 efS=24 is an unexplored config. M=32 gives higher recall ceiling than M=24, and efS=24 is lower than the best's efS=24, which should yield higher QPS. At M=32 efC=200 efS=24 k=10, expect Recall~0.92-0.93 (similar to iter12 which had Recall=0.924 with efS=24) and QPS~1148-1200, potentially beating 1173.8.\"}"
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 32
+      },
+      "benchmark": {
+        "qps": 1164.3947346299653,
+        "recall_at_10": 0.9202,
+        "latency_ms": 0.8588152885437011,
+        "index_build_s": 347.2853841781616,
+        "precision": 0.9202,
+        "f1_score": 0.9202,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777072946.591091
+      },
+      "score": 1164.3947346299653,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":48,\"efConstruction\":200,\"efSearch\":24},\"k_neighbors\":10,\"reasoning\":\"M=48 untried \u2014 denser graph than M=32 boosts Recall (ceiling ~0.96). efS=24 adds minimal overhead vs efS=32. Expect Recall~0.95, QPS~1080. May improve Recall vs best while maintaining high QPS.\"}"
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 33
+      },
+      "benchmark": {
+        "qps": 1162.5375829419038,
+        "recall_at_10": 0.9224600000000001,
+        "latency_ms": 0.8601872444152833,
+        "index_build_s": 348.6210916042328,
+        "precision": 0.9224600000000001,
+        "f1_score": 0.9224600000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777073345.586667
+      },
+      "score": 1162.5375829419038,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 64, \"efConstruction\": 200, \"efSearch\": 24},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"Testing M=64 with efS=24. Prior iter22 had M=64 efS=32 Score=1104.5, and iter32 had M=48 efS=24 Score=1164.4. M=64 creates a denser graph than M=48, which should boost recall at the same efS=24. Expected Recall~0.94-0.95 (vs 0.920 at M=48), QPS~1100-1140. This could beat the current best (1175.0) if the denser graph compensates for the same efS=24 vs M=48.\"\n}\n```"
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 34
+      },
+      "benchmark": {
+        "qps": 1184.1231046439952,
+        "recall_at_10": 0.8605299999999999,
+        "latency_ms": 0.8445067882537841,
+        "index_build_s": 345.82116532325745,
+        "precision": 0.8605299999999999,
+        "f1_score": 0.8605299999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "timestamp": 1777073726.3047268
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":32,\"efConstruction\":200,\"efSearch\":20},\"k_neighbors\":10,\"reasoning\":\"Testing efS=20 at M=32 to find a higher-QPS sweet spot between efS=16 (failed recall) and efS=24 (best score 1175). At efS=20, expecting Recall~0.88-0.90 and QPS~1250-1300, potentially beating the current best Score of 1175.\"}"
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 20,
+        "_iter": 35
+      },
+      "benchmark": {
+        "qps": 685.7358816291805,
+        "recall_at_10": 0.9203400000000002,
+        "latency_ms": 1.4582874059677122,
+        "index_build_s": 349.3064947128296,
+        "precision": 0.9203400000000002,
+        "f1_score": 0.9203400000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777074176.8832307
+      },
+      "score": 685.7358816291805,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 48, \"efConstruction\": 200, \"efSearch\": 24},\n  \"k_neighbors\": 20,\n  \"reasoning\": \"M=48 with efC=200 and efS=24 has strong baseline (iter32: Score=1164.4). Adding k=20 (higher than default 10) increases recall by ~2-3pp at minimal QPS cost, potentially crossing 0.94+ recall while maintaining ~1100+ QPS. This k value is untried and may recover any recall loss from the sparse search beam.\"\n}\n```"
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "k_neighbors": 10,
+        "_iter": 36
+      },
+      "benchmark": {
+        "qps": 1104.3946745704068,
+        "recall_at_10": 0.95715,
+        "latency_ms": 0.9054733991622925,
+        "index_build_s": 478.5587639808655,
+        "precision": 0.95715,
+        "f1_score": 0.95715,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "timestamp": 1777074720.5909662
+      },
+      "score": 1104.3946745704068,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":16,\"efConstruction\":400,\"efSearch\":48},\"k_neighbors\":10,\"reasoning\":\"HNSW M=16 efC=400 efS=48 combines sparse graph (high QPS) with higher efSearch to ensure recall stays above \u03c4. M=16 provides raw speed; efC=400 ensures graph quality; efS=48 pushes recall up. Expect Recall~0.93-0.95 and QPS~1000-1100, Score~1000-1100.\"}"
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 37
+      },
+      "benchmark": {
+        "qps": 1133.2945256276764,
+        "recall_at_10": 0.9227400000000001,
+        "latency_ms": 0.882383155822754,
+        "index_build_s": 343.18963074684143,
+        "precision": 0.9227400000000001,
+        "f1_score": 0.9227400000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777075133.16434
+      },
+      "score": 1133.2945256276764,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 96, \"efConstruction\": 200, \"efSearch\": 24},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"M=96 is completely unexplored. Higher M creates denser graph with better connectivity, potentially pushing Recall higher than M=64 (0.961) while efS=24 keeps QPS competitive. Iter33 showed M=64 efC=200 efS=24 scored 1162.5; M=96 could exceed that. This is a structurally different config from the saturated M=16-64 region we've been exploring.\"\n}\n```"
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 20,
+        "_iter": 38
+      },
+      "benchmark": {
+        "qps": 669.2062644973213,
+        "recall_at_10": 0.9244900000000001,
+        "latency_ms": 1.4943075895309448,
+        "index_build_s": 495.6806859970093,
+        "precision": 0.9244900000000001,
+        "f1_score": 0.9244900000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777075703.1896608
+      },
+      "score": 669.2062644973213,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":32,\"efConstruction\":400,\"efSearch\":24},\"k_neighbors\":20,\"reasoning\":\"M=32 efC=400 efS=24 k=20 \u2014 efC=400 builds a higher-quality graph (zero QPS cost), efS=24 is the proven sweet spot, and k=20 increases recall coverage. Based on iter24 (M=24 efC=200 efS=24 k=10: 1173.8) and iter07 (M=24 efC=400 efS=32 k=20: 669), k=20 with efS=32 hurt QPS. But with efS=24 (the optimal efS), k=20 should recover any recall loss while maintaining high QPS \u2014 aiming for Score~1150-1180.\"}"
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 200,
+        "_iter": 39
+      },
+      "benchmark": {
+        "qps": 50.75424483501752,
+        "recall_at_10": 0.99931,
+        "latency_ms": 19.702785515785216,
+        "index_build_s": 346.6580984592438,
+        "precision": 0.99931,
+        "f1_score": 0.99931,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "timestamp": 1777076283.1580157
+      },
+      "score": 50.75424483501752,
+      "reasoning": "Error: Unterminated string starting at: line 1 column 109 (char 108)"
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 40
+      },
+      "benchmark": {
+        "qps": 1128.0747862064582,
+        "recall_at_10": 0.93727,
+        "latency_ms": 0.8864660501480103,
+        "index_build_s": 508.4992814064026,
+        "precision": 0.93727,
+        "f1_score": 0.93727,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777076837.1185012
+      },
+      "score": 1128.0747862064582,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 64, \"efConstruction\": 400, \"efSearch\": 24},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"M=64 with efC=400 at efS=24 explores a denser graph than the best-known M=32 at efS=24 (Score=1175.0). Higher M provides better connectivity, and efC=400 ensures graph quality. At efS=24 with higher M, Recall should be ~0.93-0.94 (higher than M=32's 0.914) while QPS stays competitive (~1150-1160). The M=48 efC=200 efS=24 config scored 1164.4 with Recall=0.920, suggesting M=64 with efC=400 could reach ~1180+ while maintaining valid recall.\"\n}\n```"
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 41
+      },
+      "benchmark": {
+        "qps": 1181.3861623852222,
+        "recall_at_10": 0.86936,
+        "latency_ms": 0.8464632749557496,
+        "index_build_s": 344.8958477973938,
+        "precision": 0.86936,
+        "f1_score": 0.86936,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "timestamp": 1777077372.0395536
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\": \"FaissHNSWFlat\", \"params\": {\"M\": 48, \"efConstruction\": 200, \"efSearch\": 16}, \"k_neighbors\": 10, \"reasoning\": \"Ultra-low efS=16 tests the speed ceiling. iter13 showed M=32 efC=400 efS=16 QPS=1200; M=48 has more edges but sparser graph at efC=200 should yield ~1450 QPS. Recall may drop to ~0.78 but this explores QPS-maximizing region for potential beating of best=1175.0.\"}"
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 42
+      },
+      "benchmark": {
+        "qps": 1210.1220614219092,
+        "recall_at_10": 0.7951900000000001,
+        "latency_ms": 0.826362919807434,
+        "index_build_s": 441.96568727493286,
+        "precision": 0.7951900000000001,
+        "f1_score": 0.7951900000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 24
+        },
+        "timestamp": 1777078094.7130394
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":8,\"efConstruction\":400,\"efSearch\":24},\"k_neighbors\":10,\"reasoning\":\"HNSW M=8 efC=400 efS=24 k=10 \u2014 untried M=8 (sparse graph) with high efC=400 to compensate for sparse connectivity. At M=8, graph traversal is extremely fast. efC=400 ensures graph quality is high despite low M. efS=24 balances speed vs recall. If recall stays above \u03c4=0.90, QPS could be ~1300+, beating the best Score=1175.\"}"
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 8
+        },
+        "k_neighbors": 20,
+        "_iter": 43
+      },
+      "benchmark": {
+        "qps": 693.314081955455,
+        "recall_at_10": 0.75135,
+        "latency_ms": 1.4423477411270142,
+        "index_build_s": 496.7853617668152,
+        "precision": 0.75135,
+        "f1_score": 0.75135,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 8
+        },
+        "timestamp": 1777078686.1890872
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":32,\"efConstruction\":400,\"efSearch\":8},\"k_neighbors\":20,\"reasoning\":\"Iter43: Ultra-low efSearch=8 with M=32 and k=20. At efS=8, QPS should be extremely high (~1600-1800). k=20 compensates for low efS by recovering neighbors position 11-20 that efS=8 might miss. efC=400 ensures high-quality graph. This is a structurally different config from all prior tries \u2014 very low efS compensated with higher k.\"}"
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "k_neighbors": 50,
+        "_iter": 44
+      },
+      "benchmark": {
+        "qps": 287.14092195253204,
+        "recall_at_10": 0.71625,
+        "latency_ms": 3.4826105356216432,
+        "index_build_s": 404.22310090065,
+        "precision": 0.71625,
+        "f1_score": 0.7162499999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "timestamp": 1777079524.3014987
+      },
+      "score": 0.0,
+      "reasoning": "Fallback random (LLM repeated configs 4x)"
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 50,
+          "efSearch": 32
+        },
+        "k_neighbors": 300,
+        "_iter": 45
+      },
+      "benchmark": {
+        "qps": 31.315953700175267,
+        "recall_at_10": 0.8713700000000001,
+        "latency_ms": 31.93260564804077,
+        "index_build_s": 220.9129798412323,
+        "precision": 0.8713700000000001,
+        "f1_score": 0.8713700000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 50,
+          "efSearch": 32
+        },
+        "timestamp": 1777080329.582832
+      },
+      "score": 0.0,
+      "reasoning": "Fallback random (LLM repeated configs 4x)"
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 150,
+        "_iter": 46
+      },
+      "benchmark": {
+        "qps": 78.75377433529769,
+        "recall_at_10": 0.99561,
+        "latency_ms": 12.697804117202757,
+        "index_build_s": 505.8339116573334,
+        "precision": 0.99561,
+        "f1_score": 0.99561,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "timestamp": 1777081057.2716289
+      },
+      "score": 78.75377433529769,
+      "reasoning": "Fallback random (LLM repeated configs 4x)"
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "k_neighbors": 10,
+        "_iter": 47
+      },
+      "benchmark": {
+        "qps": 1064.2910286489982,
+        "recall_at_10": 0.9762299999999999,
+        "latency_ms": 0.9395926237106323,
+        "index_build_s": 495.32140016555786,
+        "precision": 0.9762299999999999,
+        "f1_score": 0.9762299999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "timestamp": 1777081674.3142908
+      },
+      "score": 1064.2910286489982,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":32,\"efConstruction\":400,\"efSearch\":48},\"k_neighbors\":10,\"reasoning\":\"M=32 efC=400 efSearch=48. Higher efC=400 improves graph quality at zero QPS cost, potentially pushing recall higher than efC=200 baseline. efS=48 moderate search \u2014 QPS ~900-1000 but recall ~0.95+, aiming to beat the 1175.0 best at the same M but with higher recall via better graph.\"}"
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 75,
+        "_iter": 48
+      },
+      "benchmark": {
+        "qps": 186.34752007088122,
+        "recall_at_10": 0.90328,
+        "latency_ms": 5.366317725181579,
+        "index_build_s": 340.5746560096741,
+        "precision": 0.90328,
+        "f1_score": 0.90328,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "timestamp": 1777082104.9268506
+      },
+      "score": 186.34752007088122,
+      "reasoning": "{\"engine\":\"FaissHNSWFlat\",\"params\":{\"M\":24,\"efConstruction\":200,\"efSearch\":24},\"k_neighbors\":75,\"reasoning\":\"iter24 showed M=24 efC=200 efS=24 k=10 \u2192 Recall=0.903 (just above \u03c4), QPS=1173.8. At k=10 the recall is borderline. Increase k to 75 to guarantee recall stays above \u03c4 even with slight efS variance, while QPS only drops modestly (~960-1000). This is an untried k value at this proven config.\"}"
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 10,
+        "_iter": 49
+      },
+      "benchmark": {
+        "qps": 1050.136003286282,
+        "recall_at_10": 0.98177,
+        "latency_ms": 0.9522576093673706,
+        "index_build_s": 343.9280345439911,
+        "precision": 0.98177,
+        "f1_score": 0.98177,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "timestamp": 1777082544.9628384
+      },
+      "score": 1050.136003286282,
+      "reasoning": "```json\n{\n  \"engine\": \"FaissHNSWFlat\",\n  \"params\": {\"M\": 32, \"efConstruction\": 200, \"efSearch\": 64},\n  \"k_neighbors\": 10,\n  \"reasoning\": \"FINE-TUNING: Best known config is M=32 efC=200 efS=24 k=10 (Score=1175.0). Testing efS=64 vs best's efS=24. At M=32 efS=64, the denser traversal yields higher Recall (~0.96 vs 0.914), and QPS drops proportionally but may still clear 1000+. This validates whether a modest efS increase from the best improves Score. If Recall rises to ~0.96 and QPS stays ~1000+, Score could approach 960-1000 \u2014 competitive. The untried efSearch=64 is a natural fine-tuning step from the champion config.\"\n}\n```"
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 20,
+        "_iter": 50
+      },
+      "benchmark": {
+        "qps": 687.2517341730589,
+        "recall_at_10": 0.86045,
+        "latency_ms": 1.455070900917053,
+        "index_build_s": 343.75165486335754,
+        "precision": 0.86045,
+        "f1_score": 0.86045,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "timestamp": 1777082978.6557138
+      },
+      "score": 0.0,
+      "reasoning": "{\"engine\": \"FaissHNSWFlat\", \"params\": {\"M\": 32, \"efConstruction\": 200, \"efSearch\": 20}, \"k_neighbors\": 20, \"reasoning\": \"Fine-tuning iteration 50. Last run (efS=64) was too slow at QPS=1050. Best is M=32 efC=200 efS=24 k=10 at Score=1175. Trying efSearch=20 (one step lower than best) which should boost QPS to ~1600-1700. Adding k=20 to compensate for any recall loss from lower efS (retrieving more candidates to catch missed neighbors). This is the unexplored gap between efS=24 (Score=1175, Recall=0.914) and efS=16 (recall failure at k=10). With k=20 providing recall recovery, expect Recall~0.90-0.92 and QPS~1550-1600, targeting Score>1175.\"}"
+    }
+  ]
+}
