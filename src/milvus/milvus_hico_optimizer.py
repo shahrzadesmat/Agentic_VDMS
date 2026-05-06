@@ -44,6 +44,9 @@ from dataclasses import dataclass, field
 from dotenv import load_dotenv
 from scipy.special import log_softmax
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from vdtuner_ehvi import VDTunerOptimizer, KnobEncoder
+
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 try:
@@ -56,6 +59,7 @@ load_dotenv()
 
 # ── Constrained-optimization threshold (SIEVE) ───────────────────────────────
 _MAP_THRESHOLD: float = 0.15   # set from --map-threshold at startup
+_FORCE_CONSTRAINT: Optional[str] = None  # if set, all configs use this constraint_strategy
 
 # ── QDS (Query Difficulty Stratification) globals ────────────────────────────
 _QDS_WEIGHTS:            Optional[np.ndarray] = None  # (n_queries,) weights in [1,2]
@@ -498,7 +502,7 @@ def run_benchmark(config: Dict, dataset_dir: str, iteration: int = 0) -> Benchma
     alpha      = config.get("alpha", 0.30)
     n_refs     = config.get("n_refs", 1)
     ref_strat  = config.get("ref_strategy", "first")
-    constraint = config.get("constraint_strategy", "none")
+    constraint = _FORCE_CONSTRAINT if _FORCE_CONSTRAINT is not None else config.get("constraint_strategy", "none")
 
     # QDS mode: per-tier alpha + ACS (Q3/Q4 → object constraint)
     alpha_arr: Optional[np.ndarray] = None
@@ -1249,8 +1253,9 @@ def _config_key(cfg: Dict) -> str:
 
 
 async def run_optimizer(args) -> List[IterationResult]:
-    global _MAP_THRESHOLD, _QDS_WEIGHTS, _QDS_TIERS, _QDS_STANDARD_THRESHOLD
+    global _MAP_THRESHOLD, _QDS_WEIGHTS, _QDS_TIERS, _QDS_STANDARD_THRESHOLD, _FORCE_CONSTRAINT
     _MAP_THRESHOLD = args.map_threshold
+    _FORCE_CONSTRAINT = getattr(args, "force_constraint", None)
 
     if getattr(args, "use_qds_objective", False):
         data = _load_data(args.dataset_dir)
@@ -1394,6 +1399,67 @@ async def run_optimizer(args) -> List[IterationResult]:
                                     sampler=optuna.samplers.TPESampler(seed=args.seed))
         study.optimize(_objective, n_trials=args.iterations)
 
+    elif args.method == "gp_bo":
+        dataset_dir = args.dataset_dir
+        _res_list = results
+
+        def _gp_objective(trial):
+            cfg = provider.optuna_suggest(trial)
+            cfg["_iter"] = trial.number + 1
+            bm = run_benchmark(cfg, dataset_dir, iteration=trial.number + 1)
+            _res_list.append(IterationResult(
+                iteration=trial.number + 1, config=cfg, benchmark=bm,
+                llm_reasoning="", search_method="gp_bo"))
+            print(f"  [GP-BO trial {trial.number+1}] Score={bm.score():.4f}  "
+                  f"mAP={bm.map_score:.4f}  QPS={bm.qps:.1f}")
+            return bm.score()
+
+        gp_study = optuna.create_study(direction="maximize",
+                                       sampler=optuna.samplers.GPSampler(seed=args.seed))
+        gp_study.optimize(_gp_objective, n_trials=args.iterations)
+
+    elif args.method == "vdtuner":
+        dataset_dir = args.dataset_dir
+        _encoder = KnobEncoder([
+            {"name": "M",        "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["M"]},
+            {"name": "efSearch", "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["efSearch"]},
+            {"name": "k_neighbors", "type": "enum",
+             "values": ConfigProvider.K_NEIGHBORS_VALUES},
+            {"name": "alpha",    "type": "enum",
+             "values": ConfigProvider.ALPHA_VALUES},
+            {"name": "n_refs",   "type": "enum",
+             "values": ConfigProvider.N_REFS_VALUES},
+            {"name": "ref_strategy", "type": "enum",
+             "values": ConfigProvider.REF_STRATEGY_VALUES},
+        ])
+        vdtuner_opt = VDTunerOptimizer(_encoder, seed=args.seed)
+
+        for i in range(args.iterations):
+            cfg_partial = vdtuner_opt.ask()
+            cfg = {
+                "engine": "FaissHNSWFlat",
+                "params": {
+                    "M": cfg_partial["M"],
+                    "efConstruction": 200,
+                    "efSearch": cfg_partial["efSearch"],
+                },
+                "k_neighbors":  cfg_partial["k_neighbors"],
+                "alpha":        cfg_partial["alpha"],
+                "n_refs":       cfg_partial["n_refs"],
+                "ref_strategy": cfg_partial["ref_strategy"],
+                "constraint_strategy": "none",
+                "_iter": i + 1,
+            }
+            bm = run_benchmark(cfg, dataset_dir, iteration=i + 1)
+            vdtuner_opt.tell(cfg_partial, bm.map_score, bm.qps)
+            results.append(IterationResult(
+                iteration=i + 1, config=cfg, benchmark=bm,
+                llm_reasoning="", search_method="vdtuner"))
+            print(f"  [VDTuner iter {i+1}] Score={bm.score():.4f}  "
+                  f"mAP={bm.map_score:.4f}  QPS={bm.qps:.1f}")
+
     return results
 
 
@@ -1401,7 +1467,7 @@ def main():
     parser = argparse.ArgumentParser(description="FAISS HICO-DET Optimizer (Milvus backend)")
     parser.add_argument("--dataset-dir",    type=str, required=True)
     parser.add_argument("--method",         type=str, default="hyperparameter_only",
-                        choices=["hyperparameter_only", "grid", "random", "optuna"])
+                        choices=["hyperparameter_only", "grid", "random", "optuna", "gp_bo", "vdtuner"])
     parser.add_argument("--iterations",     type=int, default=50)
     parser.add_argument("--seed",           type=int, default=42)
     parser.add_argument("--map-threshold",  type=float, default=0.15)
@@ -1410,6 +1476,9 @@ def main():
     parser.add_argument("--t-expl-frac",           type=float, default=0.70)
     parser.add_argument("--use-qds-objective",     action="store_true", default=False)
     parser.add_argument("--qds-standard-threshold", action="store_true", default=False)
+    parser.add_argument("--force-constraint",       type=str, default=None,
+                        choices=["none", "object", "verb", "object_and_verb"],
+                        help="Force all iterations to use this constraint_strategy")
     args = parser.parse_args()
 
     print("=" * 70)
@@ -1420,6 +1489,8 @@ def main():
     print(f"  τ (mAP):    {args.map_threshold}")
     if args.use_qds_objective:
         print(f"  QDS:        ON  (standard_threshold={args.qds_standard_threshold})")
+    if args.force_constraint is not None:
+        print(f"  Force constraint: {args.force_constraint}")
     print("=" * 70)
 
     results = asyncio.run(run_optimizer(args))
