@@ -1,0 +1,1237 @@
+{
+  "method": "random",
+  "seed": 42,
+  "iterations": 50,
+  "map_threshold": 0.15,
+  "best_score": 4277.137904075597,
+  "best_map": 0.18044016373075591,
+  "best_qps": 4277.137904075597,
+  "best_config": {
+    "engine": "FaissHNSWFlat",
+    "params": {
+      "M": 64,
+      "efConstruction": 200,
+      "efSearch": 64
+    },
+    "k_neighbors": 50,
+    "n_refs": 10,
+    "ref_strategy": "first",
+    "constraint_strategy": "none",
+    "alpha": 0.7,
+    "_iter": 13
+  },
+  "all_results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 512,
+          "nprobe": 64
+        },
+        "k_neighbors": 750,
+        "n_refs": 5,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
+        "alpha": 0.3,
+        "_iter": 1
+      },
+      "score": 697.9715251364141,
+      "map": 0.2889266264849,
+      "qps": 697.9715251364141,
+      "latency_ms": 1.4327232042948406,
+      "index_build_s": 5.10534143447876,
+      "p10": 0.41050000000000003,
+      "ndcg10": 0.4470856757720003,
+      "recall10": 0.12540795247123374,
+      "reasoning": ""
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 150,
+        "n_refs": 5,
+        "ref_strategy": "first",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.35,
+        "_iter": 2
+      },
+      "score": 3076.525406634515,
+      "map": 0.5655804155026819,
+      "qps": 3076.525406634515,
+      "latency_ms": 0.3250420093536377,
+      "index_build_s": 7.417460203170776,
+      "p10": 0.962857142857143,
+      "ndcg10": 0.8570674258264154,
+      "recall10": 0.2606694102124402,
+      "reasoning": ""
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 128,
+          "nprobe": 64
+        },
+        "k_neighbors": 100,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.05,
+        "_iter": 3
+      },
+      "score": 3517.1819860211795,
+      "map": 0.21816907769565252,
+      "qps": 3517.1819860211795,
+      "latency_ms": 0.2843185265858968,
+      "index_build_s": 0.984609842300415,
+      "p10": 0.3968333333333333,
+      "ndcg10": 0.4247259904816307,
+      "recall10": 0.11595777705589082,
+      "reasoning": ""
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 50,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.55,
+        "_iter": 4
+      },
+      "score": 3803.322451940515,
+      "map": 0.21021736770623414,
+      "qps": 3803.322451940515,
+      "latency_ms": 0.2629280090332031,
+      "index_build_s": 0.021439075469970703,
+      "p10": 0.47133333333333327,
+      "ndcg10": 0.5152661486488728,
+      "recall10": 0.15567596558562843,
+      "reasoning": ""
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 50,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "verb",
+        "alpha": 0.45,
+        "_iter": 5
+      },
+      "score": 948.1292156272499,
+      "map": 0.33195026622644874,
+      "qps": 948.1292156272499,
+      "latency_ms": 1.0547085603078206,
+      "index_build_s": 0.0,
+      "p10": 0.7188333333333333,
+      "ndcg10": 0.7530995605554648,
+      "recall10": 0.2138316606756237,
+      "reasoning": ""
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 128,
+          "nprobe": 16
+        },
+        "k_neighbors": 200,
+        "n_refs": 5,
+        "ref_strategy": "first",
+        "constraint_strategy": "verb",
+        "alpha": 0.2,
+        "_iter": 6
+      },
+      "score": 824.0067057837384,
+      "map": 0.40377903509520974,
+      "qps": 824.0067057837384,
+      "latency_ms": 1.2135823567708333,
+      "index_build_s": 0.9844682216644287,
+      "p10": 0.6991666666666667,
+      "ndcg10": 0.7316776421079771,
+      "recall10": 0.2057628290856659,
+      "reasoning": ""
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 64
+        },
+        "k_neighbors": 50,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.65,
+        "_iter": 7
+      },
+      "score": 3077.846104172476,
+      "map": 0.45863554427956926,
+      "qps": 3077.846104172476,
+      "latency_ms": 0.3249025344848633,
+      "index_build_s": 2.44864559173584,
+      "p10": 0.9625238095238096,
+      "ndcg10": 0.8584256879658408,
+      "recall10": 0.25864565181913246,
+      "reasoning": ""
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.7,
+        "_iter": 8
+      },
+      "score": 3815.836605965035,
+      "map": 0.5340279175745436,
+      "qps": 3815.836605965035,
+      "latency_ms": 0.26206572850545246,
+      "index_build_s": 6.5891945362091064,
+      "p10": 0.9620238095238096,
+      "ndcg10": 0.8574538030775244,
+      "recall10": 0.25854477211081117,
+      "reasoning": ""
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 512,
+          "nprobe": 64
+        },
+        "k_neighbors": 1000,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object",
+        "alpha": 0.8,
+        "_iter": 9
+      },
+      "score": 1946.234490182916,
+      "map": 0.5568579779273936,
+      "qps": 1946.234490182916,
+      "latency_ms": 0.5138127009073893,
+      "index_build_s": 4.685123682022095,
+      "p10": 0.6241666666666666,
+      "ndcg10": 0.7060988359407422,
+      "recall10": 0.2325472441881513,
+      "reasoning": ""
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 500,
+        "n_refs": 3,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.15,
+        "_iter": 10
+      },
+      "score": 2168.6057523691015,
+      "map": 0.3676152173838711,
+      "qps": 2168.6057523691015,
+      "latency_ms": 0.46112577120463055,
+      "index_build_s": 7.654035806655884,
+      "p10": 0.4246666666666667,
+      "ndcg10": 0.4568113116923632,
+      "recall10": 0.1292891073569851,
+      "reasoning": ""
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 100,
+        "n_refs": 3,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.15,
+        "_iter": 11
+      },
+      "score": 3418.3499547676033,
+      "map": 0.22696228172076502,
+      "qps": 3418.3499547676033,
+      "latency_ms": 0.2925388018290202,
+      "index_build_s": 7.707790374755859,
+      "p10": 0.4093333333333333,
+      "ndcg10": 0.4391533875883666,
+      "recall10": 0.12184468834679615,
+      "reasoning": ""
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 500,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.6,
+        "_iter": 12
+      },
+      "score": 3212.3644858023627,
+      "map": 0.6100840037997393,
+      "qps": 3212.3644858023627,
+      "latency_ms": 0.3112971782684326,
+      "index_build_s": 7.648197650909424,
+      "p10": 0.9658571428571429,
+      "ndcg10": 0.8624069850102725,
+      "recall10": 0.26352035662140283,
+      "reasoning": ""
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
+        "alpha": 0.7,
+        "_iter": 13
+      },
+      "score": 4277.137904075597,
+      "map": 0.18044016373075591,
+      "qps": 4277.137904075597,
+      "latency_ms": 0.23380120595296225,
+      "index_build_s": 7.7239203453063965,
+      "p10": 0.45450000000000007,
+      "ndcg10": 0.5027432356055147,
+      "recall10": 0.14682287760240545,
+      "reasoning": ""
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 50,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "alpha": 0.0,
+        "_iter": 14
+      },
+      "score": 0.0,
+      "map": 0.12891936493863587,
+      "qps": 205.8008001803039,
+      "latency_ms": 4.859067598978679,
+      "index_build_s": 0.02118372917175293,
+      "p10": 0.34400000000000003,
+      "ndcg10": 0.37306657391165443,
+      "recall10": 0.09538382034230826,
+      "reasoning": ""
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 16
+        },
+        "k_neighbors": 50,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "verb",
+        "alpha": 0.0,
+        "_iter": 15
+      },
+      "score": 974.4103780890489,
+      "map": 0.2986973680754727,
+      "qps": 974.4103780890489,
+      "latency_ms": 1.0262616475423176,
+      "index_build_s": 2.435822010040283,
+      "p10": 0.6656666666666666,
+      "ndcg10": 0.6957742212609628,
+      "recall10": 0.19017442108292978,
+      "reasoning": ""
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 64,
+          "nprobe": 8
+        },
+        "k_neighbors": 750,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.3,
+        "_iter": 16
+      },
+      "score": 2776.664206202356,
+      "map": 0.6096479903797961,
+      "qps": 2776.664206202356,
+      "latency_ms": 0.36014437675476074,
+      "index_build_s": 0.35578370094299316,
+      "p10": 0.9610238095238096,
+      "ndcg10": 0.8546647181407949,
+      "recall10": 0.25738690105493117,
+      "reasoning": ""
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 1000,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "none",
+        "alpha": 0.75,
+        "_iter": 17
+      },
+      "score": 171.1655512873826,
+      "map": 0.40999064241023275,
+      "qps": 171.1655512873826,
+      "latency_ms": 5.842297077178955,
+      "index_build_s": 0.021456241607666016,
+      "p10": 0.5578333333333334,
+      "ndcg10": 0.6235302712168523,
+      "recall10": 0.19807413661242557,
+      "reasoning": ""
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 64
+        },
+        "k_neighbors": 150,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "verb",
+        "alpha": 0.1,
+        "_iter": 18
+      },
+      "score": 847.8045730425503,
+      "map": 0.3777639038886319,
+      "qps": 847.8045730425503,
+      "latency_ms": 1.179517110188802,
+      "index_build_s": 2.434174060821533,
+      "p10": 0.6843333333333333,
+      "ndcg10": 0.7157559097613176,
+      "recall10": 0.19774234088472104,
+      "reasoning": ""
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 150,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object",
+        "alpha": 0.1,
+        "_iter": 19
+      },
+      "score": 3141.118408735181,
+      "map": 0.25144176321088463,
+      "qps": 3141.118408735181,
+      "latency_ms": 0.3183579444885254,
+      "index_build_s": 0.02158498764038086,
+      "p10": 0.3978333333333333,
+      "ndcg10": 0.4262644968930621,
+      "recall10": 0.1168014694956446,
+      "reasoning": ""
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 300,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "verb",
+        "alpha": 0.65,
+        "_iter": 20
+      },
+      "score": 878.828453343996,
+      "map": 0.45561618870572074,
+      "qps": 878.828453343996,
+      "latency_ms": 1.1378784974416096,
+      "index_build_s": 0.0,
+      "p10": 0.7446666666666667,
+      "ndcg10": 0.7815566685766244,
+      "recall10": 0.22322311604747588,
+      "reasoning": ""
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 4
+        },
+        "k_neighbors": 750,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.6,
+        "_iter": 21
+      },
+      "score": 2099.2880255660134,
+      "map": 0.49173530577650515,
+      "qps": 2099.2880255660134,
+      "latency_ms": 0.4763519763946533,
+      "index_build_s": 2.4331140518188477,
+      "p10": 0.5678333333333332,
+      "ndcg10": 0.6377018953850372,
+      "recall10": 0.1962569165868776,
+      "reasoning": ""
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 4
+        },
+        "k_neighbors": 200,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "none",
+        "alpha": 0.3,
+        "_iter": 22
+      },
+      "score": 3417.574708194985,
+      "map": 0.1708868755106466,
+      "qps": 3417.574708194985,
+      "latency_ms": 0.2926051616668701,
+      "index_build_s": 0.0,
+      "p10": 0.3573333333333333,
+      "ndcg10": 0.38614494491174056,
+      "recall10": 0.09341374315789584,
+      "reasoning": ""
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 750,
+        "n_refs": 5,
+        "ref_strategy": "first",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.6,
+        "_iter": 23
+      },
+      "score": 1693.9074503236593,
+      "map": 0.6206525365392328,
+      "qps": 1693.9074503236593,
+      "latency_ms": 0.5903510252634684,
+      "index_build_s": 0.021462440490722656,
+      "p10": 0.9683571428571429,
+      "ndcg10": 0.8654883437691414,
+      "recall10": 0.26675570306293506,
+      "reasoning": ""
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 16
+        },
+        "k_neighbors": 500,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.6,
+        "_iter": 24
+      },
+      "score": 2337.642852564728,
+      "map": 0.4686399593291776,
+      "qps": 2337.642852564728,
+      "latency_ms": 0.427781343460083,
+      "index_build_s": 2.4311087131500244,
+      "p10": 0.5703333333333334,
+      "ndcg10": 0.6280506429160365,
+      "recall10": 0.20265432920658966,
+      "reasoning": ""
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 500,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.5,
+        "_iter": 25
+      },
+      "score": 2309.079297967453,
+      "map": 0.4519003905747358,
+      "qps": 2309.079297967453,
+      "latency_ms": 0.4330730438232422,
+      "index_build_s": 5.2463459968566895,
+      "p10": 0.5411666666666667,
+      "ndcg10": 0.5916919290580764,
+      "recall10": 0.18991642563048644,
+      "reasoning": ""
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 750,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
+        "alpha": 0.6,
+        "_iter": 26
+      },
+      "score": 1593.8035908013976,
+      "map": 0.26910497029103697,
+      "qps": 1593.8035908013976,
+      "latency_ms": 0.6274298826853434,
+      "index_build_s": 7.581163167953491,
+      "p10": 0.4741666666666667,
+      "ndcg10": 0.5446379296058573,
+      "recall10": 0.1518534069363273,
+      "reasoning": ""
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 150,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.4,
+        "_iter": 27
+      },
+      "score": 1885.7429314118592,
+      "map": 0.5661575502546703,
+      "qps": 1885.7429314118592,
+      "latency_ms": 0.5302949746449789,
+      "index_build_s": 0.021526098251342773,
+      "p10": 0.9626904761904762,
+      "ndcg10": 0.857251508504736,
+      "recall10": 0.2599090828325635,
+      "reasoning": ""
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 150,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "verb",
+        "alpha": 0.4,
+        "_iter": 28
+      },
+      "score": 800.5400167832737,
+      "map": 0.4084493037037226,
+      "qps": 800.5400167832737,
+      "latency_ms": 1.2491567929585774,
+      "index_build_s": 7.619201183319092,
+      "p10": 0.724,
+      "ndcg10": 0.7573899574083055,
+      "recall10": 0.2157231769685186,
+      "reasoning": ""
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 500,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.55,
+        "_iter": 29
+      },
+      "score": 1763.65881520208,
+      "map": 0.6078686062320817,
+      "qps": 1763.65881520208,
+      "latency_ms": 0.567003091176351,
+      "index_build_s": 0.02138042449951172,
+      "p10": 0.9625238095238096,
+      "ndcg10": 0.8586642736392823,
+      "recall10": 0.26008183839185234,
+      "reasoning": ""
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 50,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.8,
+        "_iter": 30
+      },
+      "score": 3838.0439656303092,
+      "map": 0.45599030167544036,
+      "qps": 3838.0439656303092,
+      "latency_ms": 0.2605493863423665,
+      "index_build_s": 6.613922834396362,
+      "p10": 0.9608571428571429,
+      "ndcg10": 0.8554225585897357,
+      "recall10": 0.25752744278745665,
+      "reasoning": ""
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 64,
+          "nprobe": 8
+        },
+        "k_neighbors": 100,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "verb",
+        "alpha": 0.2,
+        "_iter": 31
+      },
+      "score": 859.6212256810136,
+      "map": 0.3668874443050818,
+      "qps": 859.6212256810136,
+      "latency_ms": 1.163303057352702,
+      "index_build_s": 0.3539307117462158,
+      "p10": 0.6981666666666667,
+      "ndcg10": 0.730465318124047,
+      "recall10": 0.20443017626540544,
+      "reasoning": ""
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 50,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.55,
+        "_iter": 32
+      },
+      "score": 3745.070330311382,
+      "map": 0.20384121635643696,
+      "qps": 3745.070330311382,
+      "latency_ms": 0.2670176823933919,
+      "index_build_s": 0.021225929260253906,
+      "p10": 0.4603333333333333,
+      "ndcg10": 0.5069367808563482,
+      "recall10": 0.14547151361168253,
+      "reasoning": ""
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 150,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "alpha": 0.25,
+        "_iter": 33
+      },
+      "score": 884.036851168408,
+      "map": 0.20608217262071754,
+      "qps": 884.036851168408,
+      "latency_ms": 1.1311745643615723,
+      "index_build_s": 7.584357738494873,
+      "p10": 0.38183333333333336,
+      "ndcg10": 0.415910230847773,
+      "recall10": 0.11374368871962082,
+      "reasoning": ""
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 200,
+        "n_refs": 3,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.5,
+        "_iter": 34
+      },
+      "score": 2993.7716361767584,
+      "map": 0.3360462155746282,
+      "qps": 2993.7716361767584,
+      "latency_ms": 0.3340268135070801,
+      "index_build_s": 0.021379470825195312,
+      "p10": 0.48583333333333334,
+      "ndcg10": 0.5379044055299681,
+      "recall10": 0.15945590940528515,
+      "reasoning": ""
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 512,
+          "nprobe": 4
+        },
+        "k_neighbors": 50,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object",
+        "alpha": 0.75,
+        "_iter": 35
+      },
+      "score": 4037.047541435932,
+      "map": 0.2274649539728935,
+      "qps": 4037.047541435932,
+      "latency_ms": 0.24770577748616537,
+      "index_build_s": 4.664091110229492,
+      "p10": 0.5013333333333333,
+      "ndcg10": 0.5516272261745611,
+      "recall10": 0.16669637397099468,
+      "reasoning": ""
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 150,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.9,
+        "_iter": 36
+      },
+      "score": 1887.4570901637192,
+      "map": 0.5720818296935518,
+      "qps": 1887.4570901637192,
+      "latency_ms": 0.5298133691151937,
+      "index_build_s": 0.02061605453491211,
+      "p10": 0.966857142857143,
+      "ndcg10": 0.8651173141263768,
+      "recall10": 0.26506180091086456,
+      "reasoning": ""
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 150,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.4,
+        "_iter": 37
+      },
+      "score": 3093.5513888871815,
+      "map": 0.5661269181914719,
+      "qps": 3093.5513888871815,
+      "latency_ms": 0.323253075281779,
+      "index_build_s": 7.345945596694946,
+      "p10": 0.962857142857143,
+      "ndcg10": 0.8573369140593858,
+      "recall10": 0.26067957651292806,
+      "reasoning": ""
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 1000,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object",
+        "alpha": 0.35,
+        "_iter": 38
+      },
+      "score": 1866.0702951208661,
+      "map": 0.47687042211292424,
+      "qps": 1866.0702951208661,
+      "latency_ms": 0.5358854929606119,
+      "index_build_s": 0.021135330200195312,
+      "p10": 0.49883333333333335,
+      "ndcg10": 0.5425375723596827,
+      "recall10": 0.17281718073769015,
+      "reasoning": ""
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 150,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
+        "alpha": 0.85,
+        "_iter": 39
+      },
+      "score": 201.85865912807614,
+      "map": 0.2771862644380486,
+      "qps": 201.85865912807614,
+      "latency_ms": 4.953961372375488,
+      "index_build_s": 0.0,
+      "p10": 0.5115,
+      "ndcg10": 0.5731913704755653,
+      "recall10": 0.1760575957211691,
+      "reasoning": ""
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 8
+        },
+        "k_neighbors": 150,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.8,
+        "_iter": 40
+      },
+      "score": 3627.4329599114394,
+      "map": 0.566906404341408,
+      "qps": 3627.4329599114394,
+      "latency_ms": 0.27567704518636066,
+      "index_build_s": 2.4417479038238525,
+      "p10": 0.9638571428571429,
+      "ndcg10": 0.8611820430211176,
+      "recall10": 0.2596336619836839,
+      "reasoning": ""
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 200,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.4,
+        "_iter": 41
+      },
+      "score": 3400.1437565865917,
+      "map": 0.5801727827472193,
+      "qps": 3400.1437565865917,
+      "latency_ms": 0.29410521189371747,
+      "index_build_s": 5.230579137802124,
+      "p10": 0.9618571428571427,
+      "ndcg10": 0.8554920137874943,
+      "recall10": 0.2589179428881312,
+      "reasoning": ""
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 150,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.0,
+        "_iter": 42
+      },
+      "score": 2044.5657684358305,
+      "map": 0.5599957282810849,
+      "qps": 2044.5657684358305,
+      "latency_ms": 0.4891014099121094,
+      "index_build_s": 0.021421194076538086,
+      "p10": 0.9581904761904761,
+      "ndcg10": 0.8496453698801409,
+      "recall10": 0.2544328412258713,
+      "reasoning": ""
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 64,
+          "nprobe": 32
+        },
+        "k_neighbors": 500,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "verb",
+        "alpha": 0.75,
+        "_iter": 43
+      },
+      "score": 820.7067663288068,
+      "map": 0.47444256401159796,
+      "qps": 820.7067663288068,
+      "latency_ms": 1.2184619903564453,
+      "index_build_s": 0.348447322845459,
+      "p10": 0.7575,
+      "ndcg10": 0.7941523068598235,
+      "recall10": 0.2274644963149235,
+      "reasoning": ""
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 50,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.65,
+        "_iter": 44
+      },
+      "score": 3875.487057236444,
+      "map": 0.4563054905099613,
+      "qps": 3875.487057236444,
+      "latency_ms": 0.25803208351135254,
+      "index_build_s": 5.25411057472229,
+      "p10": 0.9610238095238094,
+      "ndcg10": 0.8555720384479666,
+      "recall10": 0.2576653824357381,
+      "reasoning": ""
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
+        "alpha": 0.15,
+        "_iter": 45
+      },
+      "score": 1515.5779935524552,
+      "map": 0.1928919514199152,
+      "qps": 1515.5779935524552,
+      "latency_ms": 0.6598142782847086,
+      "index_build_s": 6.567854166030884,
+      "p10": 0.3686666666666667,
+      "ndcg10": 0.3992208461912798,
+      "recall10": 0.10538439763473739,
+      "reasoning": ""
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 200,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "none",
+        "alpha": 0.75,
+        "_iter": 46
+      },
+      "score": 199.15730688309117,
+      "map": 0.23247572028763774,
+      "qps": 199.15730688309117,
+      "latency_ms": 5.021156469980876,
+      "index_build_s": 0.02131366729736328,
+      "p10": 0.4058333333333333,
+      "ndcg10": 0.45999717730048245,
+      "recall10": 0.12231798374739415,
+      "reasoning": ""
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 4
+        },
+        "k_neighbors": 1000,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "verb",
+        "alpha": 0.65,
+        "_iter": 47
+      },
+      "score": 746.4994135581094,
+      "map": 0.4431390485332741,
+      "qps": 746.4994135581094,
+      "latency_ms": 1.339585781097412,
+      "index_build_s": 2.436955213546753,
+      "p10": 0.6945,
+      "ndcg10": 0.7340015646495419,
+      "recall10": 0.2050217769720548,
+      "reasoning": ""
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 500,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "verb",
+        "alpha": 0.05,
+        "_iter": 48
+      },
+      "score": 777.2562471102858,
+      "map": 0.4097544368551286,
+      "qps": 777.2562471102858,
+      "latency_ms": 1.2865769863128662,
+      "index_build_s": 7.638128042221069,
+      "p10": 0.6753333333333335,
+      "ndcg10": 0.7063671367740215,
+      "recall10": 0.1938374163126053,
+      "reasoning": ""
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 500,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.0,
+        "_iter": 49
+      },
+      "score": 1982.3039186340707,
+      "map": 0.6001676696268352,
+      "qps": 1982.3039186340707,
+      "latency_ms": 0.5044635136922201,
+      "index_build_s": 0.021445512771606445,
+      "p10": 0.9581904761904761,
+      "ndcg10": 0.8496453698801409,
+      "recall10": 0.2544328412258713,
+      "reasoning": ""
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 200,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object_and_verb",
+        "alpha": 0.1,
+        "_iter": 50
+      },
+      "score": 1863.2421350656389,
+      "map": 0.5767813797755793,
+      "qps": 1863.2421350656389,
+      "latency_ms": 0.5366988976796468,
+      "index_build_s": 0.0,
+      "p10": 0.9588571428571429,
+      "ndcg10": 0.8507094397918712,
+      "recall10": 0.2556950338527222,
+      "reasoning": ""
+    }
+  ]
+}
