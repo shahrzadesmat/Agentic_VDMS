@@ -1,0 +1,1177 @@
+{
+  "method": "vdtuner",
+  "seed": 42,
+  "iterations": 50,
+  "map_threshold": 0.15,
+  "best_score": 6025.8617404793085,
+  "best_map": 0.155662918097381,
+  "best_qps": 6025.8617404793085,
+  "best_config": {
+    "engine": "FaissHNSWFlat",
+    "params": {
+      "M": 8,
+      "efConstruction": 200,
+      "efSearch": 32
+    },
+    "k_neighbors": 50,
+    "alpha": 0.9,
+    "n_refs": 1,
+    "ref_strategy": "diverse",
+    "n_aqe": 1,
+    "aqe_weight": 0.0,
+    "_iter": 40
+  },
+  "n_feasible": 31,
+  "all_results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 750,
+        "alpha": 0.1,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 1
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.1322796928238767,
+      "qps": 249.71489191405016,
+      "latency_ms": 4.004566937658616
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 300,
+        "alpha": 0.7,
+        "n_refs": 3,
+        "ref_strategy": "centroid",
+        "n_aqe": 3,
+        "aqe_weight": 0.5,
+        "_iter": 2
+      },
+      "search_method": "vdtuner",
+      "score": 739.2910628162623,
+      "map": 0.1976222837887449,
+      "qps": 739.2910628162623,
+      "latency_ms": 1.3526472187971414
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 300,
+        "alpha": 0.6,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
+        "_iter": 3
+      },
+      "search_method": "vdtuner",
+      "score": 918.7784083148105,
+      "map": 0.18819403185163217,
+      "qps": 918.7784083148105,
+      "latency_ms": 1.088401720099369
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 4
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.14686345946874318,
+      "qps": 1304.8138824678927,
+      "latency_ms": 0.7663928269284082
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 100,
+        "alpha": 0.5,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "n_aqe": 10,
+        "aqe_weight": 0.2,
+        "_iter": 5
+      },
+      "search_method": "vdtuner",
+      "score": 937.7676248445675,
+      "map": 0.1629904361005124,
+      "qps": 937.7676248445675,
+      "latency_ms": 1.0663622559647945
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 200,
+        "alpha": 0.7,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 6
+      },
+      "search_method": "vdtuner",
+      "score": 1210.6518873831276,
+      "map": 0.15974100393850912,
+      "qps": 1210.6518873831276,
+      "latency_ms": 0.8260012728857509
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 200,
+        "alpha": 0.7,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 7
+      },
+      "search_method": "vdtuner",
+      "score": 1215.5012495456665,
+      "map": 0.18705651853788133,
+      "qps": 1215.5012495456665,
+      "latency_ms": 0.8227058593101265
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 150,
+        "alpha": 0.7,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 8
+      },
+      "search_method": "vdtuner",
+      "score": 1071.8301574777129,
+      "map": 0.1817017098394229,
+      "qps": 1071.8301574777129,
+      "latency_ms": 0.9329836383343166
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 750,
+        "alpha": 0.7,
+        "n_refs": 3,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.5,
+        "_iter": 9
+      },
+      "search_method": "vdtuner",
+      "score": 365.5713748511291,
+      "map": 0.21365394312490887,
+      "qps": 365.5713748511291,
+      "latency_ms": 2.735443934600262
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 200,
+        "alpha": 0.7,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "n_aqe": 5,
+        "aqe_weight": 0.1,
+        "_iter": 10
+      },
+      "search_method": "vdtuner",
+      "score": 700.7513386488614,
+      "map": 0.15841857801254947,
+      "qps": 700.7513386488614,
+      "latency_ms": 1.4270397284265322
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 200,
+        "alpha": 0.7,
+        "n_refs": 3,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 11
+      },
+      "search_method": "vdtuner",
+      "score": 799.2779236395485,
+      "map": 0.19017972220990256,
+      "qps": 799.2779236395485,
+      "latency_ms": 1.2511292635813764
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 3,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 12
+      },
+      "search_method": "vdtuner",
+      "score": 1358.482730684513,
+      "map": 0.17803481009124295,
+      "qps": 1358.482730684513,
+      "latency_ms": 0.7361153567967106
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 750,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 3,
+        "aqe_weight": 0.3,
+        "_iter": 13
+      },
+      "search_method": "vdtuner",
+      "score": 402.6481396640501,
+      "map": 0.21466279237629626,
+      "qps": 402.6481396640501,
+      "latency_ms": 2.4835579790194755
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.8,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 14
+      },
+      "search_method": "vdtuner",
+      "score": 1616.319221878921,
+      "map": 0.1773975032396837,
+      "qps": 1616.319221878921,
+      "latency_ms": 0.6186896662885263
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 300,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 10,
+        "aqe_weight": 0.5,
+        "_iter": 15
+      },
+      "search_method": "vdtuner",
+      "score": 966.3803837832995,
+      "map": 0.18160038031338882,
+      "qps": 966.3803837832995,
+      "latency_ms": 1.034789216317784
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 150,
+        "alpha": 0.9,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 16
+      },
+      "search_method": "vdtuner",
+      "score": 2170.7199884115053,
+      "map": 0.17377266721149287,
+      "qps": 2170.7199884115053,
+      "latency_ms": 0.46067664431089633
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 200,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 17
+      },
+      "search_method": "vdtuner",
+      "score": 1592.9753133308013,
+      "map": 0.18716829611691121,
+      "qps": 1592.9753133308013,
+      "latency_ms": 0.6277561187744141
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 18
+      },
+      "search_method": "vdtuner",
+      "score": 2877.9091149979945,
+      "map": 0.16620720509367326,
+      "qps": 2877.9091149979945,
+      "latency_ms": 0.34747448930495395
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.6,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 19
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.1482989040680072,
+      "qps": 4387.8879790509745,
+      "latency_ms": 0.22790007511000385
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 20
+      },
+      "search_method": "vdtuner",
+      "score": 3638.1112307074136,
+      "map": 0.1576916521309131,
+      "qps": 3638.1112307074136,
+      "latency_ms": 0.2748679016626863
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.0,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 21
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.1109742449669504,
+      "qps": 8963.952418090817,
+      "latency_ms": 0.11155793263491959
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 50,
+        "alpha": 0.4,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 22
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.13367322192406644,
+      "qps": 1103.781190983778,
+      "latency_ms": 0.9059766629187801
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.0,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.5,
+        "_iter": 23
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.11180413204258023,
+      "qps": 5258.027683827857,
+      "latency_ms": 0.1901853813124083
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.4,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 24
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.1269460091361349,
+      "qps": 4634.453980573023,
+      "latency_ms": 0.21577514939016743
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.0,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 25
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.11496042732658394,
+      "qps": 921.7927550986641,
+      "latency_ms": 1.0848425467316296
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.0,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 26
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.11967301347748871,
+      "qps": 2860.215073819204,
+      "latency_ms": 0.34962405769882
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 100,
+        "alpha": 0.0,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 27
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.11786281377668129,
+      "qps": 1610.4386431607436,
+      "latency_ms": 0.6209488354286754
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 150,
+        "alpha": 0.0,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 28
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.11853975432858922,
+      "qps": 3853.907375079249,
+      "latency_ms": 0.25947691593896616
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 200,
+        "alpha": 0.1,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 29
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.1222900605348456,
+      "qps": 1852.9644399435897,
+      "latency_ms": 0.5396757641125823
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.2,
+        "n_refs": 5,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 30
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.12644340397169795,
+      "qps": 3942.300555542143,
+      "latency_ms": 0.25365899578462775
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.2,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 31
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.11988081707113109,
+      "qps": 4574.338768338191,
+      "latency_ms": 0.21861083112637272
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.0,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 32
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.11494170564227843,
+      "qps": 2438.335375505265,
+      "latency_ms": 0.41011585610645657
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.6,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
+        "_iter": 33
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.13526138812191682,
+      "qps": 2368.0279720559483,
+      "latency_ms": 0.4222923089594203
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.4,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 34
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.13654089739058686,
+      "qps": 3459.5344319207943,
+      "latency_ms": 0.28905623565214306
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 35
+      },
+      "search_method": "vdtuner",
+      "score": 4400.773970266656,
+      "map": 0.15079823818922786,
+      "qps": 4400.773970266656,
+      "latency_ms": 0.22723275650064959
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 36
+      },
+      "search_method": "vdtuner",
+      "score": 3554.8711570409864,
+      "map": 0.15941137033546532,
+      "qps": 3554.8711570409864,
+      "latency_ms": 0.28130414741455295
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 37
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.11963559294475581,
+      "qps": 5894.139324846932,
+      "latency_ms": 0.1696600546553876
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 1000,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 38
+      },
+      "search_method": "vdtuner",
+      "score": 363.859484812068,
+      "map": 0.1870010684286081,
+      "qps": 363.859484812068,
+      "latency_ms": 2.748313680805919
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 39
+      },
+      "search_method": "vdtuner",
+      "score": 5933.362589776617,
+      "map": 0.155662918097381,
+      "qps": 5933.362589776617,
+      "latency_ms": 0.16853849480276722
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 40
+      },
+      "search_method": "vdtuner",
+      "score": 6025.8617404793085,
+      "map": 0.155662918097381,
+      "qps": 6025.8617404793085,
+      "latency_ms": 0.1659513681308689
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 41
+      },
+      "search_method": "vdtuner",
+      "score": 6016.414212114474,
+      "map": 0.155662918097381,
+      "qps": 6016.414212114474,
+      "latency_ms": 0.16621196027135723
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 42
+      },
+      "search_method": "vdtuner",
+      "score": 4565.034098676098,
+      "map": 0.16217586392314035,
+      "qps": 4565.034098676098,
+      "latency_ms": 0.21905641412185925
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 1000,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 43
+      },
+      "search_method": "vdtuner",
+      "score": 460.2254079237541,
+      "map": 0.21494187921667418,
+      "qps": 460.2254079237541,
+      "latency_ms": 2.1728483103776637
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 1000,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.5,
+        "_iter": 44
+      },
+      "search_method": "vdtuner",
+      "score": 315.50414504143777,
+      "map": 0.22836680018792102,
+      "qps": 315.50414504143777,
+      "latency_ms": 3.169530466449694
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 45
+      },
+      "search_method": "vdtuner",
+      "score": 6015.825680427668,
+      "map": 0.1551278427297961,
+      "qps": 6015.825680427668,
+      "latency_ms": 0.16622822088304084
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 46
+      },
+      "search_method": "vdtuner",
+      "score": 3776.6662620459083,
+      "map": 0.16962236389136298,
+      "qps": 3776.6662620459083,
+      "latency_ms": 0.26478378829753324
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 1000,
+        "alpha": 0.5,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 47
+      },
+      "search_method": "vdtuner",
+      "score": 279.29701768251687,
+      "map": 0.19493813217576206,
+      "qps": 279.29701768251687,
+      "latency_ms": 3.5804177513156343
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 48
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "map": 0.12398751746042906,
+      "qps": 2749.376411086526,
+      "latency_ms": 0.3637188403769021
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 5,
+        "aqe_weight": 0.5,
+        "_iter": 49
+      },
+      "search_method": "vdtuner",
+      "score": 4219.260796812323,
+      "map": 0.15487054394041938,
+      "qps": 4219.260796812323,
+      "latency_ms": 0.23700834059736386
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 50
+      },
+      "search_method": "vdtuner",
+      "score": 6014.167710438181,
+      "map": 0.15417993910167413,
+      "qps": 6014.167710438181,
+      "latency_ms": 0.16627404624324016
+    }
+  ]
+}

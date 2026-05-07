@@ -1,0 +1,1177 @@
+{
+  "method": "gp_bo",
+  "seed": 99,
+  "iterations": 50,
+  "map_threshold": 0.15,
+  "best_score": 2667.003775191646,
+  "best_map": 0.1575261788772609,
+  "best_qps": 2667.003775191646,
+  "best_config": {
+    "engine": "FaissHNSWFlat",
+    "params": {
+      "M": 8,
+      "efConstruction": 100,
+      "efSearch": 64
+    },
+    "k_neighbors": 150,
+    "alpha": 0.4,
+    "n_refs": 1,
+    "ref_strategy": "first",
+    "n_aqe": 1,
+    "aqe_weight": 0.0,
+    "_iter": 46
+  },
+  "n_feasible": 37,
+  "all_results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 10,
+        "aqe_weight": 0.5,
+        "_iter": 1
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.12126459568696284,
+      "qps": 1565.5546693036024,
+      "latency_ms": 0.6387512487474007
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 200,
+        "alpha": 0.3,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.1,
+        "_iter": 2
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.13978012321765138,
+      "qps": 1164.1630015805322,
+      "latency_ms": 0.8589862404511607
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 150,
+        "alpha": 0.2,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 3
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.1402685301717762,
+      "qps": 1571.8911400052448,
+      "latency_ms": 0.6361763703284589
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "k_neighbors": 750,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 4
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.1396958321722079,
+      "qps": 439.19482860819113,
+      "latency_ms": 2.276893840414745
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.2,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 5
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.12914034835128424,
+      "qps": 3985.1221498289096,
+      "latency_ms": 0.2509333371482559
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 50,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 6
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.12610946493482394,
+      "qps": 2262.0751074581035,
+      "latency_ms": 0.4420719704235202
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 100,
+          "efSearch": 500
+        },
+        "k_neighbors": 750,
+        "alpha": 0.2,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 7
+      },
+      "search_method": "gp_bo",
+      "score": 486.59714018279215,
+      "map": 0.1509875687326961,
+      "qps": 486.59714018279215,
+      "latency_ms": 2.0550881158577012
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 8
+      },
+      "search_method": "gp_bo",
+      "score": 1818.0771564802774,
+      "map": 0.17987347097523773,
+      "qps": 1818.0771564802774,
+      "latency_ms": 0.5500316619873047
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "k_neighbors": 1000,
+        "alpha": 0.0,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 10,
+        "aqe_weight": 0.1,
+        "_iter": 9
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.12119854306441268,
+      "qps": 524.594788050319,
+      "latency_ms": 1.906233197086358
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 300,
+        "alpha": 0.7,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.3,
+        "_iter": 10
+      },
+      "search_method": "gp_bo",
+      "score": 921.9271732373436,
+      "map": 0.16828936350513013,
+      "qps": 921.9271732373436,
+      "latency_ms": 1.0846843753270707
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 300,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 11
+      },
+      "search_method": "gp_bo",
+      "score": 1204.083244358477,
+      "map": 0.19280654016820187,
+      "qps": 1204.083244358477,
+      "latency_ms": 0.8305073629130929
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 12
+      },
+      "search_method": "gp_bo",
+      "score": 1756.3546395117455,
+      "map": 0.18054896302375356,
+      "qps": 1756.3546395117455,
+      "latency_ms": 0.5693610945668656
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 13
+      },
+      "search_method": "gp_bo",
+      "score": 1816.2654954489508,
+      "map": 0.18480446639474496,
+      "qps": 1816.2654954489508,
+      "latency_ms": 0.550580299249046
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
+        "_iter": 14
+      },
+      "search_method": "gp_bo",
+      "score": 1467.0110024991457,
+      "map": 0.185836174327453,
+      "qps": 1467.0110024991457,
+      "latency_ms": 0.6816581459146775
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 15
+      },
+      "search_method": "gp_bo",
+      "score": 1808.9552984123309,
+      "map": 0.16066157530945793,
+      "qps": 1808.9552984123309,
+      "latency_ms": 0.552805257751627
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 16
+      },
+      "search_method": "gp_bo",
+      "score": 1833.3011544057354,
+      "map": 0.17235929003497458,
+      "qps": 1833.3011544057354,
+      "latency_ms": 0.545464119518405
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 17
+      },
+      "search_method": "gp_bo",
+      "score": 1861.7107280431585,
+      "map": 0.18816626163936107,
+      "qps": 1861.7107280431585,
+      "latency_ms": 0.5371403757505865
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 18
+      },
+      "search_method": "gp_bo",
+      "score": 1859.4700574054345,
+      "map": 0.18767475142342635,
+      "qps": 1859.4700574054345,
+      "latency_ms": 0.5377876325663051
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.0,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 19
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.11751027652227279,
+      "qps": 3424.535710385695,
+      "latency_ms": 0.2920103875591863
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 20
+      },
+      "search_method": "gp_bo",
+      "score": 1384.191577054436,
+      "map": 0.18873801000506044,
+      "qps": 1384.191577054436,
+      "latency_ms": 0.722443350022403
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 21
+      },
+      "search_method": "gp_bo",
+      "score": 1820.2485093192531,
+      "map": 0.18825961197149357,
+      "qps": 1820.2485093192531,
+      "latency_ms": 0.5493755357470315
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 22
+      },
+      "search_method": "gp_bo",
+      "score": 1871.7155498778243,
+      "map": 0.17191590503632098,
+      "qps": 1871.7155498778243,
+      "latency_ms": 0.5342692163161623
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 23
+      },
+      "search_method": "gp_bo",
+      "score": 1878.6391445340425,
+      "map": 0.18418502891733787,
+      "qps": 1878.6391445340425,
+      "latency_ms": 0.5323002040650171
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.7,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 24
+      },
+      "search_method": "gp_bo",
+      "score": 894.8089473917928,
+      "map": 0.1531722478507744,
+      "qps": 894.8089473917928,
+      "latency_ms": 1.1175569968481207
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 25
+      },
+      "search_method": "gp_bo",
+      "score": 1885.6959969417073,
+      "map": 0.1602174673124845,
+      "qps": 1885.6959969417073,
+      "latency_ms": 0.5303081735453846
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.5,
+        "_iter": 26
+      },
+      "search_method": "gp_bo",
+      "score": 1498.9325381010972,
+      "map": 0.15963329781886873,
+      "qps": 1498.9325381010972,
+      "latency_ms": 0.6671414320399214
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 27
+      },
+      "search_method": "gp_bo",
+      "score": 2650.366021990446,
+      "map": 0.1667545098329614,
+      "qps": 2650.366021990446,
+      "latency_ms": 0.37730637644116494
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 10,
+        "aqe_weight": 0.5,
+        "_iter": 28
+      },
+      "search_method": "gp_bo",
+      "score": 1928.3802933678664,
+      "map": 0.16623306600605142,
+      "qps": 1928.3802933678664,
+      "latency_ms": 0.5185699125007784
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 29
+      },
+      "search_method": "gp_bo",
+      "score": 2569.1593704070024,
+      "map": 0.17199911808315602,
+      "qps": 2569.1593704070024,
+      "latency_ms": 0.3892323736388457
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 500,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 30
+      },
+      "search_method": "gp_bo",
+      "score": 978.5163121552213,
+      "map": 0.1891951359679914,
+      "qps": 978.5163121552213,
+      "latency_ms": 1.0219553701638964
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 31
+      },
+      "search_method": "gp_bo",
+      "score": 2486.76718479467,
+      "map": 0.17243154000499222,
+      "qps": 2486.76718479467,
+      "latency_ms": 0.40212851694139157
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 32
+      },
+      "search_method": "gp_bo",
+      "score": 2431.6191708594065,
+      "map": 0.1723640841131747,
+      "qps": 2431.6191708594065,
+      "latency_ms": 0.4112486083281579
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 33
+      },
+      "search_method": "gp_bo",
+      "score": 2378.5354868911977,
+      "map": 0.1727005038081758,
+      "qps": 2378.5354868911977,
+      "latency_ms": 0.42042677332808004
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 34
+      },
+      "search_method": "gp_bo",
+      "score": 1882.6552059607334,
+      "map": 0.17713964780723168,
+      "qps": 1882.6552059607334,
+      "latency_ms": 0.5311647065452393
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 35
+      },
+      "search_method": "gp_bo",
+      "score": 2647.7207982241803,
+      "map": 0.16659160937351247,
+      "qps": 2647.7207982241803,
+      "latency_ms": 0.37768332698474005
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 36
+      },
+      "search_method": "gp_bo",
+      "score": 2593.070397330359,
+      "map": 0.16801072332388572,
+      "qps": 2593.070397330359,
+      "latency_ms": 0.38564321316904043
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 5,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 37
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.1497358947963224,
+      "qps": 1775.2952218852279,
+      "latency_ms": 0.5632865946307659
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 38
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.14472712558651457,
+      "qps": 2122.3504469137783,
+      "latency_ms": 0.4711757200391447
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 39
+      },
+      "search_method": "gp_bo",
+      "score": 2628.6125149946906,
+      "map": 0.16785238982077194,
+      "qps": 2628.6125149946906,
+      "latency_ms": 0.38042883623797247
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 40
+      },
+      "search_method": "gp_bo",
+      "score": 2579.8445763473665,
+      "map": 0.16039817928689723,
+      "qps": 2579.8445763473665,
+      "latency_ms": 0.38762025013763995
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 41
+      },
+      "search_method": "gp_bo",
+      "score": 2641.7665686100036,
+      "map": 0.15814080618901447,
+      "qps": 2641.7665686100036,
+      "latency_ms": 0.37853458056521694
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 42
+      },
+      "search_method": "gp_bo",
+      "score": 2583.5787856435145,
+      "map": 0.18615439369059894,
+      "qps": 2583.5787856435145,
+      "latency_ms": 0.3870599981532675
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 43
+      },
+      "search_method": "gp_bo",
+      "score": 2647.1420730844934,
+      "map": 0.18092238004405925,
+      "qps": 2647.1420730844934,
+      "latency_ms": 0.37776589710380887
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 44
+      },
+      "search_method": "gp_bo",
+      "score": 2598.064039616976,
+      "map": 0.183444113461418,
+      "qps": 2598.064039616976,
+      "latency_ms": 0.38490198268839704
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 45
+      },
+      "search_method": "gp_bo",
+      "score": 2632.012343647868,
+      "map": 0.18035790469577706,
+      "qps": 2632.012343647868,
+      "latency_ms": 0.37993742788228657
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 46
+      },
+      "search_method": "gp_bo",
+      "score": 2667.003775191646,
+      "map": 0.1575261788772609,
+      "qps": 2667.003775191646,
+      "latency_ms": 0.3749526001057654
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.7,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 47
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.14488054832199193,
+      "qps": 1913.9625579701535,
+      "latency_ms": 0.5224762604868022
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 48
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.14387370903854324,
+      "qps": 2197.899100393688,
+      "latency_ms": 0.4549799396254723
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 49
+      },
+      "search_method": "gp_bo",
+      "score": 0.0,
+      "map": 0.1488032841114953,
+      "qps": 683.009718607513,
+      "latency_ms": 1.4641080101155093
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 50
+      },
+      "search_method": "gp_bo",
+      "score": 2340.105297021948,
+      "map": 0.17196168259714986,
+      "qps": 2340.105297021948,
+      "latency_ms": 0.42733119799037017
+    }
+  ]
+}

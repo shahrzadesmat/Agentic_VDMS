@@ -5,7 +5,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=64G
-#SBATCH --time=04:00:00
+#SBATCH --time=06:00:00
 #SBATCH --exclude=gpub066,gpub088
 #SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/milvus/gldv2/logs/gldv2_random_s99_%j.log
 #SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/milvus/gldv2/logs/gldv2_random_s99_%j.err
