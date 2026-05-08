@@ -294,38 +294,51 @@ class LLMAgent:
 
     async def suggest(self, context: str, provider: ConfigProvider) -> Dict:
         import aiohttp
-        messages = [{"role": "system", "content": _SYSTEM_PROMPT},
-                    {"role": "user",   "content": context}]
+        prompt = f"{_SYSTEM_PROMPT}\n\n{context}"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
-        payload = {"model": self.model, "messages": messages, "temperature": 0.3, "max_tokens": 2048}
-        try:
-            async with aiohttp.ClientSession() as sess:
-                async with sess.post(f"{self.base_url}/chat/completions",
-                                     headers=headers, json=payload,
-                                     timeout=aiohttp.ClientTimeout(total=60)) as r:
-                    data = await r.json()
-            if "choices" not in data:
-                raise RuntimeError(f"API error: {data}")
-            msg = data["choices"][0]["message"]
-            raw = (msg.get("content") or msg.get("reasoning_content") or "").strip()
-            m   = re.search(r'\{.*\}', raw, re.DOTALL)
-            if not m:
-                raise ValueError("No JSON")
-            cfg = json.loads(m.group())
-            cfg.setdefault("engine", "FaissHNSWFlat")
-            cfg.setdefault("params", {})
-            for fld, default in [("k_neighbors", 100), ("alpha", 0.30),
-                                  ("n_refs", 1), ("ref_strategy", "first"),
-                                  ("n_aqe", 1), ("aqe_weight", 0.0)]:
-                cfg.setdefault(fld, default)
-            if cfg.get("n_aqe", 1) == 1:
-                cfg["aqe_weight"] = 0.0
-            if cfg.get("ref_strategy") == "centroid":
-                cfg["n_refs"] = 1
-            return cfg
-        except Exception as e:
-            print(f"  [LLM error: {e}] → random fallback")
-            return provider.random_config()
+        max_tokens = 4096
+        for attempt in range(3):
+            try:
+                payload = {"model": self.model,
+                           "messages": [{"role": "user", "content": prompt}],
+                           "temperature": 0.3, "max_tokens": max_tokens}
+                async with aiohttp.ClientSession() as sess:
+                    async with sess.post(f"{self.base_url}/chat/completions",
+                                         headers=headers, json=payload,
+                                         timeout=aiohttp.ClientTimeout(total=120)) as r:
+                        data = await r.json()
+                if "choices" not in data:
+                    raise RuntimeError(f"API error: {data}")
+                choice = data["choices"][0]
+                if choice.get("finish_reason") == "length":
+                    max_tokens = min(max_tokens * 2, 16384)
+                    print(f"  [LLM] finish_reason=length; retrying with max_tokens={max_tokens}")
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                msg = choice["message"]
+                content = msg.get("content") or msg.get("reasoning_content") or ""
+                if not content:
+                    raise RuntimeError(f"Empty content: {data}")
+                content = content.strip()
+                content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content, flags=re.MULTILINE).strip()
+                cfg = json.loads(content)
+                cfg.pop("reasoning", None)
+                cfg.setdefault("engine", "FaissHNSWFlat")
+                cfg.setdefault("params", {})
+                for fld, default in [("k_neighbors", 100), ("alpha", 0.30),
+                                      ("n_refs", 1), ("ref_strategy", "first"),
+                                      ("n_aqe", 1), ("aqe_weight", 0.0)]:
+                    cfg.setdefault(fld, default)
+                if cfg.get("n_aqe", 1) == 1:
+                    cfg["aqe_weight"] = 0.0
+                if cfg.get("ref_strategy") == "centroid":
+                    cfg["n_refs"] = 1
+                return cfg
+            except Exception as e:
+                if attempt == 2:
+                    print(f"  [LLM error after 3 attempts: {e}] → random fallback")
+                    return provider.random_config()
+                await asyncio.sleep(2 ** attempt)
 
 
 # ---------------------------------------------------------------------------
