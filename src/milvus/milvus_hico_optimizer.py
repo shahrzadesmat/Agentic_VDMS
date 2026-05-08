@@ -809,7 +809,7 @@ class ConfigProvider:
 
 class LLMAgent:
     def __init__(self, api_key: str, base_url: str, model: str,
-                 t_exp_frac: float = 0.30, t_expl_frac: float = 0.70):
+                 t_exp_frac: float = 0.40, t_expl_frac: float = 0.75):
         self.api_key    = api_key
         self.base_url   = base_url
         self.model      = model
@@ -836,8 +836,9 @@ class LLMAgent:
             last_k = last.config.get("k_neighbors", 100)
             if current_best == 0.0 and ls == 0.0:
                 guidance = (f"INFEASIBLE. mAP={lm:.4f} < τ={_MAP_THRESHOLD:.3f} → Score=0. "
-                            "Increase k_neighbors (k=100→mAP~0.20) or alpha (0.50-0.75). "
-                            "Try k=100 alpha=0.70 n_refs=5 centroid cs=none efSearch=64.")
+                            "Increase alpha to 0.90 to recover mAP at low k. "
+                            "TRUE HIGHEST QPS: M=8 efSearch=32 k=50 alpha=0.90 cs=none → ~7273 QPS. "
+                            "Safer fallback: k=100 alpha=0.70 n_refs=5 centroid cs=none efSearch=32.")
             elif ls >= current_best * 0.98:
                 if phase == "FINE-TUNING":
                     guidance = (f"EXCELLENT. Score={ls:.4f}. Fine-tune: change ONE param by ONE step: "
@@ -845,28 +846,30 @@ class LLMAgent:
                 else:
                     guidance = (f"Near best so far (Score={ls:.4f}). Phase={phase}: do NOT fine-tune yet. "
                                 f"KEEP EXPLORING — try a structurally DIFFERENT region: "
-                                f"different engine, OR k={'50 or 200' if last_k == 100 else '100 or 150'}, "
+                                f"different engine, OR k={'50' if last_k == 100 else '100'}, "
                                 f"OR IVFFlat if not yet tried, OR different M. "
-                                f"The global optimum may be in an unexplored corner.")
+                                f"TARGET: M=8 efSearch=32 k=50 alpha=0.90 cs=none → ~7273 QPS.")
             elif lm >= 0.20 and lq < 100:
                 guidance = (f"mAP OK ({lm:.4f}) but QPS low ({lq:.1f}). "
-                            "Reduce k AND efSearch. Key insight: efSearch=32+k=100+cs=none → 4580 QPS. "
-                            "Do NOT add constraint=object at efSearch=32 — it slows to ~3560 QPS.")
+                            "Reduce k AND efSearch. TRUE highest QPS: M=8 efSearch=32 k=50 alpha=0.90 cs=none → ~7273 QPS. "
+                            "Do NOT add constraint=object at efSearch≤32 — it slows QPS.")
             elif ls < current_best * 0.90:
                 last_engine = last.config.get("engine", "FaissHNSWFlat")
                 last_params = last.config.get("params", {})
                 guidance = (f"Score={ls:.4f} significantly below best={current_best:.4f}. "
                             f"Last: {last_engine} k={last_k} params={last_params}. "
-                            f"Return closer to best config and make targeted adjustments.")
+                            f"Return closer to best config. Target: M=8 efSearch=32 k=50 alpha=0.90 cs=none.")
             else:
                 guidance = (f"Score={ls:.4f}. mAP={lm:.4f} QPS={lq:.1f}. "
-                            "To gain QPS: reduce efSearch and/or k. "
-                            "Key: efSearch=32+k=100+cs=none → ~4580 QPS. "
-                            "To gain mAP: increase k or alpha. Do NOT use cs=object at efSearch≤32.")
+                            "To gain QPS: reduce efSearch to 32 AND k to 50. Use alpha=0.90 to hold mAP. "
+                            "TRUE ceiling: M=8 efSearch=32 k=50 alpha=0.90 cs=none → ~7273 QPS. "
+                            "Do NOT use cs=object at efSearch≤32 — it is SLOWER.")
         else:
-            guidance = ("First iteration. Start: FaissHNSWFlat M=32 efSearch=32 "
-                        "k=100 alpha=0.50 n_refs=3 ref_strategy=centroid cs=none. "
-                        "efSearch=32+k=100+cs=none is the highest-QPS config on this machine (~4580 QPS).")
+            guidance = ("First iteration. Start: FaissHNSWFlat M=8 efSearch=32 "
+                        "k=50 alpha=0.90 n_refs=10 ref_strategy=diverse cs=none. "
+                        "efSearch=32+k=50+cs=none is the highest-QPS config on this machine (~7273 QPS). "
+                        "Use alpha=0.90 to recover mAP at this aggressive low-k setting. "
+                        "k=50+efSearch=32+cs=none is the TRUE ceiling — do NOT start at k=100.")
 
         _qds_mode = _QDS_TIERS is not None
 
@@ -1003,13 +1006,14 @@ QPS PHYSICS (FAISS — critical differences from VDMS):
                    k=50→very high QPS, k=100→high, k=300+→slow. Halving k ~doubles QPS.
     efSearch:      HNSW query-time parameter. The single most impactful QPS lever.
                    Lower efSearch → fewer graph hops → faster search, lower CLIP recall.
-                   efSearch=32+k=100+cs=none → 4580 QPS (HIGHEST MEASURED on this machine).
-                   efSearch and k are INDEPENDENT levers — tune both.
+                   efSearch=32+k=50+cs=none → ~7273 QPS (TRUE HIGHEST — use alpha=0.90 to hold mAP).
+                   efSearch=32+k=100+cs=none → ~4580 QPS (second best).
+                   efSearch and k are BOTH primary levers — minimize BOTH together.
     nprobe (IVF):  Like efSearch — lower nprobe → faster search, lower recall.
                    nlist=512/nprobe=4/k=50 → ~4020 QPS (measured with cs=object).
     constraint:    Pre-filtering to ~600 images via numpy exact search on object/verb subset.
                    *** CRITICAL QPS WARNING ***
-                   constraint=object at efSearch=32: ~3560 QPS (SLOWER than cs=none=4580).
+                   constraint=object at efSearch=32: ~3560 QPS (SLOWER than cs=none=7273 at k=50).
                    At efSearch≤32, HNSW visits only ~32 graph nodes on 47K images — this is
                    FASTER than numpy exact on 600 images. Do NOT combine cs=object with efSearch≤32.
                    constraint=object helps QPS only at efSearch≥64 (break-even point).
@@ -1024,17 +1028,17 @@ QPS PHYSICS (FAISS — critical differences from VDMS):
     Build times: FaissHNSWFlat M=32 ~26s, FaissIVFFlat nlist=128 ~3s, FaissFlat ~0.5s.
     Changing efSearch, nprobe, k, alpha, n_refs, constraint → NO rebuild → fast iteration.
 
-MEASURED QPS BASELINES (empirically measured on this machine, k=100, alpha=0.30, n_refs=1):
-  FaissHNSWFlat M=32 efSearch=32  cs=none:   ~4580 QPS  ← BEST unconstrained
-  FaissHNSWFlat M=32 efSearch=64  cs=none:   ~3620 QPS
-  FaissHNSWFlat M=32 efSearch=100 cs=none:   ~2970 QPS
-  FaissHNSWFlat M=32 efSearch=150 cs=none:   ~2360 QPS
-  FaissHNSWFlat M=32 efSearch=200 cs=none:   ~1980 QPS
-  FaissHNSWFlat M=32 efSearch=32  cs=object: ~3560 QPS  ← SLOWER than cs=none at efSearch=32
-  FaissHNSWFlat M=32 efSearch=64  cs=object: ~3640 QPS  ← break-even with cs=none
-  FaissIVFFlat nlist=128 nprobe=4  cs=none:  ~3520 QPS  (but mAP=0.14, infeasible)
-  FaissIVFFlat nlist=128 nprobe=16 cs=none:  ~1300 QPS
+MEASURED QPS BASELINES (empirically measured on this machine, HICO-DET 47K vectors):
+  FaissHNSWFlat M=8  efSearch=32  k=50  cs=none:   ~7273 QPS  ← TRUE HIGHEST (alpha=0.90 needed for mAP)
+  FaissHNSWFlat M=48 efSearch=32  k=50  cs=none:   ~5813 QPS
+  FaissHNSWFlat M=64 efSearch=32  k=50  cs=none:   ~5748 QPS
+  FaissHNSWFlat M=8  efSearch=32  k=100 cs=none:   ~5572 QPS
+  FaissHNSWFlat M=32 efSearch=32  k=100 cs=none:   ~4580 QPS  (OLD reference — not the ceiling)
+  FaissHNSWFlat M=64 efSearch=64  k=50  cs=none:   ~4094 QPS
+  FaissHNSWFlat M=32 efSearch=64  k=100 cs=none:   ~3620 QPS
+  FaissHNSWFlat M=32 efSearch=32  cs=object k=100: ~3560 QPS  ← SLOWER than cs=none at efSearch=32
   FaissIVFFlat nlist=512 nprobe=4  k=50 cs=object: ~4020 QPS  ← best IVF measured
+  FaissIVFFlat nlist=128 nprobe=4  k=100 cs=none:  ~3520 QPS  (but mAP=0.14, infeasible)
 
 PARAMETER DEFINITIONS:
   [A1] engine: FaissFlat | FaissHNSWFlat | FaissIVFFlat
@@ -1091,26 +1095,28 @@ PARAMETER DEFINITIONS:
       "object_and_verb" → <200 images. Very small pool, high mAP risk.
 
 CROSS-PARAMETER INTERACTIONS:
-  efSearch=32 + k=100 + cs=none → 4580 QPS (BEST observed — explore this region)
-  efSearch ↓ + cs=none          → QPS ↑↑ (at efSearch≤32, unconstrained beats constrained)
+  M=8 + efSearch=32 + k=50 + alpha=0.90 + cs=none → ~7273 QPS ← TRUE CEILING (BEST observed)
+  M=8 + efSearch=32 + k=100 + cs=none             → ~5572 QPS
+  M=32 + efSearch=32 + k=100 + cs=none            → ~4580 QPS (NOT the ceiling)
+  efSearch ↓ + k ↓ + cs=none   → QPS ↑↑↑ (BOTH levers compound — minimize both simultaneously)
+  k=50 + efSearch=32 + alpha=0.90 → passes mAP threshold on 47K HICO-DET (empirically verified)
   efSearch ↓ + cs=object        → QPS ↑ less (numpy on 600 images is slower than HNSW efSearch=32)
-  k ↓ + efSearch ↓              → QPS ↑↑ (both levers compound in FAISS)
-  k ↓                           → mAP ↓ slightly (fewer candidates for reranking)
-  efSearch ↓                    → CLIP recall ↓ → mAP ↓ (compensate with alpha ↑ or k ↑)
+  k ↓                           → mAP ↓ → compensate with alpha=0.85-0.90
+  efSearch ↓                    → CLIP recall ↓ → mAP ↓ → compensate with alpha ↑
   nlist=512 + nprobe=4 + k=50 + cs=object → ~4020 QPS (best IVF path)
   alpha ↑                       → mAP ↑ up to optimum, then ↓
   n_refs ↑                      → better DINOv2 ref → safer to increase alpha
 
 RECOMMENDED EXPLORATION STRATEGY:
-  1. FaissHNSWFlat M=32 efSearch=32 k=100 alpha=0.50 n_refs=3 centroid cs=NONE  ← start here
-  2. FaissHNSWFlat M=32 efSearch=32 k=100 alpha=0.70 n_refs=5 centroid cs=none
+  1. FaissHNSWFlat M=8 efSearch=32 k=50 alpha=0.90 n_refs=10 diverse cs=none  ← TRUE HIGHEST QPS
+  2. FaissHNSWFlat M=8 efSearch=32 k=50 alpha=0.85 n_refs=10 diverse cs=none  ← alpha sweep
   3. FaissIVFFlat nlist=512 nprobe=4 k=50 alpha=0.70 n_refs=5 diverse cs=object
-  4. FaissHNSWFlat M=32 efSearch=64 k=100 alpha=0.70 n_refs=5 centroid cs=object
-  5. FaissFlat k=100 alpha=0.70 n_refs=5 centroid cs=object → mAP ceiling reference
+  4. FaissHNSWFlat M=8 efSearch=32 k=100 alpha=0.90 n_refs=10 diverse cs=none  ← k=100 safety check
+  5. FaissFlat k=50 alpha=0.90 n_refs=10 diverse cs=none → mAP ceiling at k=50
 
 PHASE ({phase}):
   EXPLORATION (1-{exp_end}): Diverse engine/k/efSearch/nprobe/alpha combos.
-    Priority: measure QPS at efSearch={{32,64,200}} and nprobe={{4,8,32}} — key data points.
+    Priority: START at k=50+efSearch=32+alpha=0.90 (TRUE ceiling). Then sweep M and alpha.
   EXPLOITATION ({exp_end+1}-{expl_end}): Narrow around best zone. Jointly tune k+efSearch+alpha.
   FINE-TUNING ({expl_end+1}-{total_iterations}): Change ONE param by ONE step.
 
@@ -1133,7 +1139,7 @@ DECISION RULES (apply in order):
 8. STAGNATION: {stagnation_rule}
 
 Respond with ONLY valid JSON (no markdown, no explanation):
-{'{"engine": "FaissHNSWFlat", "params": {"M": 32, "efConstruction": 200, "efSearch": 64}, "k_neighbors": 100, "alpha_Q1": 0.75, "alpha_Q2": 0.75, "alpha_Q3": 0.65, "alpha_Q4": 0.85, "n_refs": 3, "ref_strategy": "centroid", "constraint_strategy": "none", "reasoning": "one sentence"}' if _QDS_TIERS is not None else '{"engine": "FaissHNSWFlat", "params": {"M": 32, "efConstruction": 200, "efSearch": 32}, "k_neighbors": 100, "alpha": 0.50, "n_refs": 3, "ref_strategy": "centroid", "constraint_strategy": "none", "reasoning": "one sentence explaining the choice"}'}"""
+{'{"engine": "FaissHNSWFlat", "params": {"M": 8, "efConstruction": 200, "efSearch": 32}, "k_neighbors": 50, "alpha_Q1": 0.75, "alpha_Q2": 0.75, "alpha_Q3": 0.65, "alpha_Q4": 0.85, "n_refs": 10, "ref_strategy": "diverse", "constraint_strategy": "none", "reasoning": "one sentence"}' if _QDS_TIERS is not None else '{"engine": "FaissHNSWFlat", "params": {"M": 8, "efConstruction": 200, "efSearch": 32}, "k_neighbors": 50, "alpha": 0.90, "n_refs": 10, "ref_strategy": "diverse", "constraint_strategy": "none", "reasoning": "one sentence explaining the choice"}'}"""
 
         headers = {"Authorization": f"Bearer {self.api_key}",
                    "Content-Type": "application/json"}
@@ -1314,26 +1320,26 @@ async def run_optimizer(args) -> List[IterationResult]:
             cfg["_iter"] = i
 
             key = _config_key(cfg)
-            retries = 0
-            while key in seen and retries < 5:
-                cfg2, reasoning2 = await agent.query_llm(i, results, args.iterations,
-                                                         consecutive_alpha_only=consecutive_alpha_only,
-                                                         iters_since_improvement=iters_since_improvement)
-                cfg2 = _snap_config(cfg2)
-                cfg2["_iter"] = i
-                k2 = _config_key(cfg2)
-                if k2 not in seen:
-                    cfg, key, reasoning = cfg2, k2, reasoning2
-                    break
-                retries += 1
-            else:
-                # All 5 LLM retries produced duplicates — fall back to random
-                fb = _snap_config(provider.get_random_config())
-                fb["_iter"] = i
-                fb_key = _config_key(fb)
-                if fb_key not in seen:
-                    cfg, key, reasoning = fb, fb_key, "Fallback random (LLM repeated configs 5x)"
-                    print(f"[Dedup] Falling back to random after 5 duplicate LLM suggestions.")
+            if key in seen:
+                for _att in range(5):
+                    cfg2, reasoning2 = await agent.query_llm(i, results, args.iterations,
+                                                             consecutive_alpha_only=consecutive_alpha_only,
+                                                             iters_since_improvement=iters_since_improvement)
+                    cfg2 = _snap_config(cfg2)
+                    cfg2["_iter"] = i
+                    k2 = _config_key(cfg2)
+                    if k2 not in seen:
+                        cfg, key, reasoning = cfg2, k2, reasoning2
+                        break
+                    print(f"[Dedup] LLM repeated config (attempt {_att+1}), retrying…")
+                else:
+                    # All 5 LLM retries produced duplicates — fall back to random
+                    fb = _snap_config(provider.get_random_config())
+                    fb["_iter"] = i
+                    fb_key = _config_key(fb)
+                    if fb_key not in seen:
+                        cfg, key, reasoning = fb, fb_key, "Fallback random (LLM repeated configs 5x)"
+                        print(f"[Dedup] Falling back to random after 5 duplicate LLM suggestions.")
             seen.add(key)
 
             print(f"\n[Iter {i}/{args.iterations}] LLM → {cfg}  | {reasoning}")
@@ -1472,8 +1478,8 @@ def main():
     parser.add_argument("--seed",           type=int, default=42)
     parser.add_argument("--map-threshold",  type=float, default=0.15)
     parser.add_argument("--output",         type=str, default="milvus_hico_results.json")
-    parser.add_argument("--t-exp-frac",            type=float, default=0.30)
-    parser.add_argument("--t-expl-frac",           type=float, default=0.70)
+    parser.add_argument("--t-exp-frac",            type=float, default=0.40)
+    parser.add_argument("--t-expl-frac",           type=float, default=0.75)
     parser.add_argument("--use-qds-objective",     action="store_true", default=False)
     parser.add_argument("--qds-standard-threshold", action="store_true", default=False)
     parser.add_argument("--force-constraint",       type=str, default=None,

@@ -3,58 +3,56 @@
   "seed": 200,
   "iterations": 50,
   "recall_threshold": 0.9,
-  "best_score": 35322.35842605412,
-  "best_recall": 0.9232899999999999,
-  "best_qps": 35322.35842605412,
+  "best_score": 42136.86960016074,
+  "best_recall": 0.9018200000000001,
+  "best_qps": 42136.86960016074,
   "best_config": {
     "engine": "FaissHNSWFlat",
     "params": {
-      "M": 32,
-      "efConstruction": 100,
-      "efSearch": 32
+      "M": 24,
+      "efConstruction": 200,
+      "efSearch": 24
     },
     "k_neighbors": 10,
-    "reasoning": "M=24 fails at 0.8978 and M=26 passes at 0.9232, so testing M=25 (the exact midpoint) to find the minimum M that clears the 0.90 recall threshold for maximum QPS with proven efS=32 and k=10.",
-    "_iter": 40
+    "_iter": 17
   },
-  "n_feasible": 38,
+  "n_feasible": 33,
   "all_results": [
     {
       "iteration": 1,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
+          "M": 16,
           "efConstruction": 200,
-          "efSearch": 16
+          "efSearch": 32
         },
         "k_neighbors": 10,
-        "reasoning": "Increasing M to 32 compensates for the reduced efSearch, targeting recall\u22650.90 while boosting QPS.",
         "_iter": 1
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8602700000000001,
-      "qps": 11414.985477837918,
-      "latency_ms": 0.08760414123535157
+      "search_method": "hyperparameter_only",
+      "score": 39528.92923383145,
+      "recall_at_10": 0.91401,
+      "qps": 39528.92923383145,
+      "latency_ms": 0.025297927856445315
     },
     {
       "iteration": 2,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 100,
-          "efSearch": 150
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 200,
+        "k_neighbors": 10,
         "_iter": 2
       },
-      "search_method": "llm",
-      "score": 11386.061582346965,
-      "recall_at_10": 0.9909,
-      "qps": 11386.061582346965,
-      "latency_ms": 0.08782668113708496
+      "search_method": "hyperparameter_only",
+      "score": 33942.599568667276,
+      "recall_at_10": 0.93242,
+      "qps": 33942.599568667276,
+      "latency_ms": 0.02946150302886963
     },
     {
       "iteration": 3,
@@ -62,17 +60,17 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 16,
-          "efConstruction": 400,
-          "efSearch": 100
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 500,
+        "k_neighbors": 10,
         "_iter": 3
       },
-      "search_method": "llm",
-      "score": 11027.546096613127,
-      "recall_at_10": 0.9893200000000001,
-      "qps": 11027.546096613127,
-      "latency_ms": 0.09068200588226318
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.8772900000000001,
+      "qps": 49131.98255554475,
+      "latency_ms": 0.020353341102600096
     },
     {
       "iteration": 4,
@@ -81,36 +79,34 @@
         "params": {
           "M": 16,
           "efConstruction": 200,
-          "efSearch": 100
+          "efSearch": 32
         },
-        "k_neighbors": 50,
-        "reasoning": "Reducing k to 50 while using efS=120 balances maintaining recall \u22650.90 with smaller result set for faster ranking.",
+        "k_neighbors": 20,
         "_iter": 4
       },
-      "search_method": "llm",
-      "score": 7607.574810558998,
-      "recall_at_10": 0.9872200000000001,
-      "qps": 7607.574810558998,
-      "latency_ms": 0.1314479351043701
+      "search_method": "hyperparameter_only",
+      "score": 39768.913279901084,
+      "recall_at_10": 0.91385,
+      "qps": 39768.913279901084,
+      "latency_ms": 0.02514526844024658
     },
     {
       "iteration": 5,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
+          "M": 8,
           "efConstruction": 200,
-          "efSearch": 100
+          "efSearch": 32
         },
-        "k_neighbors": 100,
-        "reasoning": "Increasing M to 48 compensates for lower efSearch, aiming for similar recall to iter2 with higher QPS due to reduced k.",
+        "k_neighbors": 30,
         "_iter": 5
       },
-      "search_method": "llm",
-      "score": 10961.37688331109,
-      "recall_at_10": 0.99482,
-      "qps": 10961.37688331109,
-      "latency_ms": 0.09122941493988036
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.8356,
+      "qps": 58376.56978305922,
+      "latency_ms": 0.017130160331726076
     },
     {
       "iteration": 6,
@@ -118,32 +114,35 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 16,
-          "efConstruction": 100,
-          "efSearch": 100
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 200,
-        "reasoning": "Reducing efSearch from 150 to 100 while keeping M=16 and k=200 should maintain recall\u22480.99 while improving QPS, as efSearch is the primary search-time bottleneck.",
+        "k_neighbors": 50,
         "_iter": 6
       },
-      "search_method": "llm",
-      "score": 15250.949751871869,
-      "recall_at_10": 0.9806400000000002,
-      "qps": 15250.949751871869,
-      "latency_ms": 0.06556968688964844
+      "search_method": "hyperparameter_only",
+      "score": 38241.73700089443,
+      "recall_at_10": 0.9141799999999999,
+      "qps": 38241.73700089443,
+      "latency_ms": 0.026149439811706546
     },
     {
       "iteration": 7,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 150,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
         "_iter": 7
       },
-      "search_method": "llm",
-      "score": 293.6812511667802,
-      "recall_at_10": 1.0,
-      "qps": 293.6812511667802,
-      "latency_ms": 3.4050522327423094
+      "search_method": "hyperparameter_only",
+      "score": 31412.078019729608,
+      "recall_at_10": 0.94005,
+      "qps": 31412.078019729608,
+      "latency_ms": 0.031834888458251956
     },
     {
       "iteration": 8,
@@ -151,18 +150,17 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 16,
-          "efConstruction": 100,
-          "efSearch": 64
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 200,
-        "reasoning": "Reducing efSearch to 64 lowers search time while keeping recall above 0.90, using M=16 and k=200 for high QPS.",
+        "k_neighbors": 20,
         "_iter": 8
       },
-      "search_method": "llm",
-      "score": 20872.002293066656,
-      "recall_at_10": 0.96024,
-      "qps": 20872.002293066656,
-      "latency_ms": 0.04791107177734375
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.8773500000000002,
+      "qps": 48008.14957678286,
+      "latency_ms": 0.02082979679107666
     },
     {
       "iteration": 9,
@@ -170,210 +168,215 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 16,
-          "efConstruction": 100,
+          "efConstruction": 200,
           "efSearch": 32
         },
-        "k_neighbors": 200,
-        "reasoning": "Reducing efSearch from 64 to 48 while keeping k=200 should push QPS above iter8's 20872 while maintaining recall above 0.90.",
+        "k_neighbors": 30,
         "_iter": 9
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8986799999999999,
-      "qps": 32735.775720774862,
-      "latency_ms": 0.030547618865966797
+      "search_method": "hyperparameter_only",
+      "score": 39276.70182023175,
+      "recall_at_10": 0.9136800000000002,
+      "qps": 39276.70182023175,
+      "latency_ms": 0.02546038627624512
     },
     {
       "iteration": 10,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 64
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 24
         },
-        "k_neighbors": 200,
-        "reasoning": "Increasing M to 32 from 16 should compensate for efSearch=64, targeting recall above 0.90 while maintaining high QPS near iter8's 20872.",
+        "k_neighbors": 10,
         "_iter": 10
       },
-      "search_method": "llm",
-      "score": 17437.475549184543,
-      "recall_at_10": 0.9732299999999999,
-      "qps": 17437.475549184543,
-      "latency_ms": 0.05734775066375732
+      "search_method": "hyperparameter_only",
+      "score": 38551.615805936,
+      "recall_at_10": 0.9103399999999999,
+      "qps": 38551.615805936,
+      "latency_ms": 0.025939249992370607
     },
     {
       "iteration": 11,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
+          "M": 16,
           "efConstruction": 200,
-          "efSearch": 500
+          "efSearch": 24
         },
-        "k_neighbors": 50,
+        "k_neighbors": 30,
         "_iter": 11
       },
-      "search_method": "llm",
-      "score": 5495.139891876482,
-      "recall_at_10": 0.9959900000000002,
-      "qps": 5495.139891876482,
-      "latency_ms": 0.18197898864746095
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.8776700000000001,
+      "qps": 47200.091827571225,
+      "latency_ms": 0.021186399459838866
     },
     {
       "iteration": 12,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 500,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 48
+        },
+        "k_neighbors": 10,
         "_iter": 12
       },
-      "search_method": "llm",
-      "score": 295.6545678604794,
-      "recall_at_10": 1.0,
-      "qps": 295.6545678604794,
-      "latency_ms": 3.382325553894043
+      "search_method": "hyperparameter_only",
+      "score": 28767.398762419358,
+      "recall_at_10": 0.9514900000000002,
+      "qps": 28767.398762419358,
+      "latency_ms": 0.034761571884155275
     },
     {
       "iteration": 13,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
+          "M": 24,
+          "efConstruction": 200,
           "efSearch": 32
         },
-        "k_neighbors": 200,
-        "reasoning": "Increasing M to 48 compensates for lower efSearch=32, aiming to beat iter8's QPS of 20872 while maintaining recall above 0.90.",
+        "k_neighbors": 20,
         "_iter": 13
       },
-      "search_method": "llm",
-      "score": 25399.627571798403,
-      "recall_at_10": 0.9283100000000001,
-      "qps": 25399.627571798403,
-      "latency_ms": 0.03937065601348877
+      "search_method": "hyperparameter_only",
+      "score": 33619.7619213656,
+      "recall_at_10": 0.9324100000000002,
+      "qps": 33619.7619213656,
+      "latency_ms": 0.02974441051483154
     },
     {
       "iteration": 14,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 4,
+          "efConstruction": 300,
+          "efSearch": 500
         },
-        "k_neighbors": 150,
-        "reasoning": "Increasing efSearch slightly from 32 to 48 while reducing k to 150 should improve recall and maintain competitive QPS, leveraging M=48 to compensate.",
+        "k_neighbors": 200,
         "_iter": 14
       },
-      "search_method": "llm",
-      "score": 26892.028700703926,
-      "recall_at_10": 0.9283,
-      "qps": 26892.028700703926,
-      "latency_ms": 0.03718574047088623
+      "search_method": "hyperparameter_only",
+      "score": 7474.243439171571,
+      "recall_at_10": 0.9410299999999999,
+      "qps": 7474.243439171571,
+      "latency_ms": 0.13379280567169188
     },
     {
       "iteration": 15,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
         "k_neighbors": 20,
         "_iter": 15
       },
-      "search_method": "llm",
-      "score": 310.29959829323917,
-      "recall_at_10": 1.0,
-      "qps": 310.29959829323917,
-      "latency_ms": 3.2226918935775757
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.89669,
+      "qps": 44087.314726345256,
+      "latency_ms": 0.02268226146697998
     },
     {
       "iteration": 16,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
+          "M": 16,
+          "efConstruction": 200,
           "efSearch": 32
         },
-        "k_neighbors": 150,
-        "reasoning": "Increasing efSearch from 32 to 48 with M=48 should push recall above 0.90 (target ~0.94-0.95) while maintaining high QPS above 25000, improving on iter14's 26892 QPS.",
+        "k_neighbors": 75,
         "_iter": 16
       },
-      "search_method": "llm",
-      "score": 26844.23281236,
-      "recall_at_10": 0.9282900000000002,
-      "qps": 26844.23281236,
-      "latency_ms": 0.037251949310302734
+      "search_method": "hyperparameter_only",
+      "score": 36884.124179862585,
+      "recall_at_10": 0.91381,
+      "qps": 36884.124179862585,
+      "latency_ms": 0.02711193561553955
     },
     {
       "iteration": 17,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
-          "efConstruction": 400,
-          "efSearch": 300
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
         },
         "k_neighbors": 10,
         "_iter": 17
       },
-      "search_method": "llm",
-      "score": 6597.429611283209,
-      "recall_at_10": 0.99235,
-      "qps": 6597.429611283209,
-      "latency_ms": 0.15157418251037597
+      "search_method": "hyperparameter_only",
+      "score": 42136.86960016074,
+      "recall_at_10": 0.9018200000000001,
+      "qps": 42136.86960016074,
+      "latency_ms": 0.02373218536376953
     },
     {
       "iteration": 18,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 100,
-        "reasoning": "Reducing k from 150 to 100 should boost QPS further while M=48 with efSearch=32 maintains recall at 0.9283 above 0.90, building on iter14's success.",
+        "k_neighbors": 10,
         "_iter": 18
       },
-      "search_method": "llm",
-      "score": 28835.868835868834,
-      "recall_at_10": 0.92817,
-      "qps": 28835.868835868834,
-      "latency_ms": 0.03467903137207031
+      "search_method": "hyperparameter_only",
+      "score": 37760.77035751294,
+      "recall_at_10": 0.91209,
+      "qps": 37760.77035751294,
+      "latency_ms": 0.026482510566711425
     },
     {
       "iteration": 19,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 300,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
+        },
+        "k_neighbors": 20,
         "_iter": 19
       },
-      "search_method": "llm",
-      "score": 293.95291294142464,
-      "recall_at_10": 1.0,
-      "qps": 293.95291294142464,
-      "latency_ms": 3.401905393600464
+      "search_method": "hyperparameter_only",
+      "score": 41516.088545399114,
+      "recall_at_10": 0.9018400000000002,
+      "qps": 41516.088545399114,
+      "latency_ms": 0.0240870475769043
     },
     {
       "iteration": 20,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 16
         },
-        "k_neighbors": 75,
-        "reasoning": "Reducing k from 100 to 75 should further boost QPS while M=48 with efSearch=32 maintains recall at ~0.928 above the 0.90 threshold, building on iter18's success.",
+        "k_neighbors": 10,
         "_iter": 20
       },
-      "search_method": "llm",
-      "score": 29779.615576861906,
-      "recall_at_10": 0.9284099999999998,
-      "qps": 29779.615576861906,
-      "latency_ms": 0.03358001708984375
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.81492,
+      "qps": 64871.974523278135,
+      "latency_ms": 0.015414977073669435
     },
     {
       "iteration": 21,
@@ -381,131 +384,125 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 48,
-          "efConstruction": 100,
-          "efSearch": 32
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 50,
-        "reasoning": "Continuing the proven M=48/efS=32 config, reducing k from 75 to 50 should further boost QPS while maintaining the stable ~0.928 recall well above 0.90 threshold.",
+        "k_neighbors": 10,
         "_iter": 21
       },
-      "search_method": "llm",
-      "score": 30868.638220611603,
-      "recall_at_10": 0.92842,
-      "qps": 30868.638220611603,
-      "latency_ms": 0.032395339012145995
+      "search_method": "hyperparameter_only",
+      "score": 33967.99918366091,
+      "recall_at_10": 0.9229700000000001,
+      "qps": 33967.99918366091,
+      "latency_ms": 0.029439473152160642
     },
     {
       "iteration": 22,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 30,
-        "reasoning": "Pushing k even lower from 50 to 30 should further boost QPS while the proven M=48/efS=32 config maintains recall above 0.90 threshold.",
+        "k_neighbors": 75,
         "_iter": 22
       },
-      "search_method": "llm",
-      "score": 31644.04314262779,
-      "recall_at_10": 0.9284099999999998,
-      "qps": 31644.04314262779,
-      "latency_ms": 0.03160152435302734
+      "search_method": "hyperparameter_only",
+      "score": 38028.36235120464,
+      "recall_at_10": 0.9017,
+      "qps": 38028.36235120464,
+      "latency_ms": 0.026296162605285646
     },
     {
       "iteration": 23,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
+          "M": 24,
           "efConstruction": 200,
-          "efSearch": 100
+          "efSearch": 16
         },
-        "k_neighbors": 75,
+        "k_neighbors": 10,
         "_iter": 23
       },
-      "search_method": "llm",
-      "score": 22836.683269340083,
-      "recall_at_10": 0.9550200000000001,
-      "qps": 22836.683269340083,
-      "latency_ms": 0.0437891960144043
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.84477,
+      "qps": 55520.89758897393,
+      "latency_ms": 0.0180112361907959
     },
     {
       "iteration": 24,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
+          "M": 64,
+          "efConstruction": 200,
           "efSearch": 32
         },
-        "k_neighbors": 20,
-        "reasoning": "Reducing k from 30 to 20 should further boost QPS while the proven M=48/efS=32 config maintains recall at 0.928 well above the 0.90 threshold, building on iter22's success.",
+        "k_neighbors": 10,
         "_iter": 24
       },
-      "search_method": "llm",
-      "score": 31936.64910303658,
-      "recall_at_10": 0.9287400000000001,
-      "qps": 31936.64910303658,
-      "latency_ms": 0.031311988830566406
+      "search_method": "hyperparameter_only",
+      "score": 26938.351356229057,
+      "recall_at_10": 0.9491,
+      "qps": 26938.351356229057,
+      "latency_ms": 0.03712179660797119
     },
     {
       "iteration": 25,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 24
         },
         "k_neighbors": 10,
-        "reasoning": "Reducing k from 20 to 10 should further boost QPS while the proven M=48/efS=32 config maintains recall at ~0.928 above the 0.90 threshold, continuing the steady QPS improvement observed from iter16 through iter24.",
         "_iter": 25
       },
-      "search_method": "llm",
-      "score": 31875.89820211381,
-      "recall_at_10": 0.92837,
-      "qps": 31875.89820211381,
-      "latency_ms": 0.03137166500091553
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.8841100000000001,
+      "qps": 46829.460004131055,
+      "latency_ms": 0.021354079246520996
     },
     {
       "iteration": 26,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 64,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 20,
-        "reasoning": "Testing M=64 with efS=32 and k=20, building on the optimal k=20 finding from iter24 which achieved 31936.6 QPS; higher M may maintain recall while potentially improving QPS.",
+        "k_neighbors": 10,
         "_iter": 26
       },
-      "search_method": "llm",
-      "score": 16779.417459570697,
-      "recall_at_10": 0.9752000000000002,
-      "qps": 16779.417459570697,
-      "latency_ms": 0.05959682464599609
+      "search_method": "hyperparameter_only",
+      "score": 31039.18987221868,
+      "recall_at_10": 0.9253300000000001,
+      "qps": 31039.18987221868,
+      "latency_ms": 0.03221733570098877
     },
     {
       "iteration": 27,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 4,
+          "efConstruction": 150,
+          "efSearch": 200
         },
-        "k_neighbors": 20,
-        "reasoning": "Testing M=56 (between 48 and 64) with the proven k=20 and efS=32 to see if higher M can further boost recall while maintaining the high QPS from iter24.",
+        "k_neighbors": 50,
         "_iter": 27
       },
-      "search_method": "llm",
-      "score": 31532.63511476551,
-      "recall_at_10": 0.9287,
-      "qps": 31532.63511476551,
-      "latency_ms": 0.03171317577362061
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.86754,
+      "qps": 19593.03259849994,
+      "latency_ms": 0.05103855133056641
     },
     {
       "iteration": 28,
@@ -513,340 +510,323 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 32,
-          "efConstruction": 100,
+          "efConstruction": 200,
           "efSearch": 16
         },
-        "k_neighbors": 50,
+        "k_neighbors": 10,
         "_iter": 28
       },
-      "search_method": "llm",
+      "search_method": "hyperparameter_only",
       "score": 0.0,
-      "recall_at_10": 0.8352,
-      "qps": 50731.75923876429,
-      "latency_ms": 0.019711518287658693
+      "recall_at_10": 0.85975,
+      "qps": 44144.66697609898,
+      "latency_ms": 0.022652792930603027
     },
     {
       "iteration": 29,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 16
+          "M": 32,
+          "efConstruction": 50,
+          "efSearch": 32
         },
-        "k_neighbors": 20,
-        "reasoning": "Testing lower efSearch=16 (down from 32) with proven M=48 and k=20 to trade slight recall loss for higher QPS, building on iter24's optimal 31936.6 QPS baseline.",
+        "k_neighbors": 500,
         "_iter": 29
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.84301,
-      "qps": 50790.73529821349,
-      "latency_ms": 0.019688630104064943
+      "search_method": "hyperparameter_only",
+      "score": 17719.42142720144,
+      "recall_at_10": 0.9399,
+      "qps": 17719.42142720144,
+      "latency_ms": 0.056435251235961915
     },
     {
       "iteration": 30,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 64
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 16
         },
         "k_neighbors": 20,
-        "reasoning": "Increasing efSearch from 32 to 64 expands the search breadth while keeping the optimal k=20 from iter24, aiming to maintain recall above 0.90 while potentially improving QPS through more efficient graph traversal.",
         "_iter": 30
       },
-      "search_method": "llm",
-      "score": 18617.107500011098,
-      "recall_at_10": 0.97515,
-      "qps": 18617.107500011098,
-      "latency_ms": 0.05371403694152832
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.84446,
+      "qps": 53371.405739618844,
+      "latency_ms": 0.018736624717712404
     },
     {
       "iteration": 31,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 16
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing efSearch=24 (between 16 and 32) with k=10 to see if we can push QPS above 40k while maintaining recall above 0.90, as lower efSearch values gave high QPS but dropped below threshold in iter29.",
+        "k_neighbors": 30,
         "_iter": 31
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8422,
-      "qps": 14235.3322898014,
-      "latency_ms": 0.07024774551391602
+      "search_method": "hyperparameter_only",
+      "score": 40017.63166983744,
+      "recall_at_10": 0.9015,
+      "qps": 40017.63166983744,
+      "latency_ms": 0.02498898506164551
     },
     {
       "iteration": 32,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 64,
+          "efConstruction": 50,
+          "efSearch": 48
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing M=32 with the proven efSearch=32 and k=10 to see if lower M can maintain recall above 0.90 while potentially achieving even higher QPS than the 31875.9 QPS from M=48/k=10, as the trend suggests M reduction may improve throughput.",
+        "k_neighbors": 500,
         "_iter": 32
       },
-      "search_method": "llm",
-      "score": 34684.62352049048,
-      "recall_at_10": 0.9233,
-      "qps": 34684.62352049048,
-      "latency_ms": 0.02883121967315674
+      "search_method": "hyperparameter_only",
+      "score": 10240.762556782181,
+      "recall_at_10": 0.98416,
+      "qps": 10240.762556782181,
+      "latency_ms": 0.0976489782333374
     },
     {
       "iteration": 33,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing M=24 (between 16 and 32) with proven efS=32 and k=10 to see if further reducing M can boost QPS above 34k while maintaining recall above 0.90, building on iter32's success where M=32 outperformed M=48.",
+        "k_neighbors": 100,
         "_iter": 33
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8977700000000001,
-      "qps": 42862.088910417166,
-      "latency_ms": 0.02333064079284668
+      "search_method": "hyperparameter_only",
+      "score": 36078.42057817629,
+      "recall_at_10": 0.9015799999999999,
+      "qps": 36078.42057817629,
+      "latency_ms": 0.027717399597167968
     },
     {
       "iteration": 34,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 16
         },
-        "k_neighbors": 10,
-        "reasoning": "M=16 failed by only 0.0022 (recall=0.8978) with 42862 QPS, so testing M=20 (between 16 and 32) with proven efS=32 and k=10 to find the minimum M that clears the 0.90 recall threshold for maximum QPS.",
+        "k_neighbors": 50,
         "_iter": 34
       },
-      "search_method": "llm",
+      "search_method": "hyperparameter_only",
       "score": 0.0,
-      "recall_at_10": 0.8977700000000001,
-      "qps": 43316.386018723635,
-      "latency_ms": 0.023085951805114746
+      "recall_at_10": 0.8917,
+      "qps": 5723.202643453125,
+      "latency_ms": 0.17472734451293945
     },
     {
       "iteration": 35,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing M=24 (between 16 and 32) as the critical boundary point where recall may cross the 0.90 threshold; iter33/34 with M=16 fell just short at 0.8978, while M=32 cleared it with 0.9233, so finding the minimum M that meets recall maximizes QPS.",
+        "k_neighbors": 150,
         "_iter": 35
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8977700000000001,
-      "qps": 42887.20174644805,
-      "latency_ms": 0.02331697940826416
+      "search_method": "hyperparameter_only",
+      "score": 33777.90663026584,
+      "recall_at_10": 0.90166,
+      "qps": 33777.90663026584,
+      "latency_ms": 0.02960515022277832
     },
     {
       "iteration": 36,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 24,
+          "efConstruction": 400,
+          "efSearch": 16
         },
         "k_neighbors": 10,
-        "reasoning": "M=32 cleared recall at 34684.6 QPS while M=16/24 failed at 0.8978, so testing M=28 (between 24 and 32) to find the minimum M that crosses the 0.90 recall threshold and maximize QPS.",
         "_iter": 36
       },
-      "search_method": "llm",
-      "score": 34736.09849297337,
-      "recall_at_10": 0.9231900000000002,
-      "qps": 34736.09849297337,
-      "latency_ms": 0.028788495063781738
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.8530700000000001,
+      "qps": 51413.38563373376,
+      "latency_ms": 0.01945018768310547
     },
     {
       "iteration": 37,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 8,
+          "efConstruction": 150,
+          "efSearch": 100
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing M=26 (between 24 and 28) to find the exact minimum M that clears the 0.90 recall threshold; iter36 showed M=28 works (recall=0.9232) while iter33-35 showed M=24 fails (recall=0.8978), so M=26 may achieve the balance for maximum QPS.",
+        "k_neighbors": 500,
         "_iter": 37
       },
-      "search_method": "llm",
-      "score": 34413.24904312011,
-      "recall_at_10": 0.9231900000000002,
-      "qps": 34413.24904312011,
-      "latency_ms": 0.02905857563018799
+      "search_method": "hyperparameter_only",
+      "score": 15401.442137333159,
+      "recall_at_10": 0.9516,
+      "qps": 15401.442137333159,
+      "latency_ms": 0.06492898464202881
     },
     {
       "iteration": 38,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing M=24 which sits between the failing M=16/16 (recall=0.8978) and passing M=26 (recall=0.9232), hoping to find the minimum M that crosses \u03c4 while using proven efS=32 for maximum QPS.",
+        "k_neighbors": 300,
         "_iter": 38
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8977600000000002,
-      "qps": 41687.74425418735,
-      "latency_ms": 0.023987865447998045
+      "search_method": "hyperparameter_only",
+      "score": 28352.84224416017,
+      "recall_at_10": 0.90156,
+      "qps": 28352.84224416017,
+      "latency_ms": 0.03526983261108398
     },
     {
       "iteration": 39,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
+          "M": 12,
+          "efConstruction": 200,
           "efSearch": 32
         },
         "k_neighbors": 10,
-        "reasoning": "Testing efSearch=28 (between 24 and 32) with M=26 to see if we can increase QPS above 34k while maintaining recall >= 0.90, as iter37 with efS=32 passed at 34413.2 QPS and iter29 with efS=16 failed.",
         "_iter": 39
       },
-      "search_method": "llm",
-      "score": 32634.834577345722,
-      "recall_at_10": 0.9232899999999999,
-      "qps": 32634.834577345722,
-      "latency_ms": 0.030642104148864747
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.89259,
+      "qps": 44993.17213200044,
+      "latency_ms": 0.022225594520568846
     },
     {
       "iteration": 40,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 48
         },
         "k_neighbors": 10,
-        "reasoning": "M=24 fails at 0.8978 and M=26 passes at 0.9232, so testing M=25 (the exact midpoint) to find the minimum M that clears the 0.90 recall threshold for maximum QPS with proven efS=32 and k=10.",
         "_iter": 40
       },
-      "search_method": "llm",
-      "score": 35322.35842605412,
-      "recall_at_10": 0.9232899999999999,
-      "qps": 35322.35842605412,
-      "latency_ms": 0.028310680389404298
+      "search_method": "hyperparameter_only",
+      "score": 24418.481715993006,
+      "recall_at_10": 0.96365,
+      "qps": 24418.481715993006,
+      "latency_ms": 0.04095258712768554
     },
     {
       "iteration": 41,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 24,
+          "efConstruction": 150,
+          "efSearch": 100
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing M=24 which sits between failing M=16 and passing M=25 (recall 0.9233 at 35322 QPS), hoping to find the minimum M that crosses \u03c4=0.90 with the proven efS=32 for maximum QPS.",
+        "k_neighbors": 500,
         "_iter": 41
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8977599999999999,
-      "qps": 43954.76152549904,
-      "latency_ms": 0.022750663757324218
+      "search_method": "hyperparameter_only",
+      "score": 10502.419462872982,
+      "recall_at_10": 0.9893,
+      "qps": 10502.419462872982,
+      "latency_ms": 0.09521615505218506
     },
     {
       "iteration": 42,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 8
         },
-        "k_neighbors": 10,
-        "reasoning": "M=25 is the minimum M that clears recall=0.90 (0.9233), achieving the highest passing QPS of 35322.4 so far; no further M tuning needed, but testing slightly higher efSearch=36 may push QPS higher while maintaining recall.",
+        "k_neighbors": 30,
         "_iter": 42
       },
-      "search_method": "llm",
-      "score": 35180.20791220515,
-      "recall_at_10": 0.9232899999999999,
-      "qps": 35180.20791220515,
-      "latency_ms": 0.028425073623657225
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.75678,
+      "qps": 60450.506672277945,
+      "latency_ms": 0.016542458534240724
     },
     {
       "iteration": 43,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 100
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing efSearch=40 with the optimal M=25 (recall=0.9233 at 35322 QPS) to see if higher efSearch increases QPS while maintaining recall >= 0.90; iter42 showed efSearch=36 slightly decreased QPS, but efSearch=32 remains the best so far.",
+        "k_neighbors": 20,
         "_iter": 43
       },
-      "search_method": "llm",
-      "score": 34938.150461393394,
-      "recall_at_10": 0.9232899999999999,
-      "qps": 34938.150461393394,
-      "latency_ms": 0.02862200736999512
+      "search_method": "hyperparameter_only",
+      "score": 11341.41596265662,
+      "recall_at_10": 0.9921200000000001,
+      "qps": 11341.41596265662,
+      "latency_ms": 0.08817241191864014
     },
     {
       "iteration": 44,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
+          "M": 64,
           "efConstruction": 100,
-          "efSearch": 16
+          "efSearch": 24
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing lower efSearch=20 with M=32 to see if we can push QPS higher than 35322 while maintaining recall >= 0.90; iter40 confirmed M=25 is minimum M for recall >= 0.90 at efS=32, but higher M may allow lower efS for better QPS.",
+        "k_neighbors": 200,
         "_iter": 44
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8347599999999998,
-      "qps": 55991.691296419405,
-      "latency_ms": 0.017859792709350588
+      "search_method": "hyperparameter_only",
+      "score": 17482.45108373754,
+      "recall_at_10": 0.95885,
+      "qps": 17482.45108373754,
+      "latency_ms": 0.05720021724700928
     },
     {
       "iteration": 45,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 100
+          "M": 96,
+          "efConstruction": 50,
+          "efSearch": 150
         },
-        "k_neighbors": 10,
-        "reasoning": "With M=25 confirmed as the minimum for recall=0.9233 at 35322 QPS (efS=32), testing efSearch=100 to see if higher efSearch can increase QPS further while maintaining recall >= 0.90.",
+        "k_neighbors": 100,
         "_iter": 45
       },
-      "search_method": "llm",
-      "score": 14083.579347192488,
-      "recall_at_10": 0.9873,
-      "qps": 14083.579347192488,
-      "latency_ms": 0.07100467681884766
+      "search_method": "hyperparameter_only",
+      "score": 4583.0487346883565,
+      "recall_at_10": 0.99846,
+      "qps": 4583.0487346883565,
+      "latency_ms": 0.21819536685943602
     },
     {
       "iteration": 46,
@@ -854,94 +834,89 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 32,
-          "efConstruction": 100,
-          "efSearch": 16
+          "efConstruction": 400,
+          "efSearch": 24
         },
         "k_neighbors": 10,
-        "reasoning": "Testing efSearch=24 with M=25 (confirmed minimum for recall >= 0.90) to see if lower efS can improve QPS beyond 35322 while maintaining recall >= 0.90; iter38 showed efS=32 with M=24 failed, so efS=24 with M=25 may be near the threshold.",
         "_iter": 46
       },
-      "search_method": "llm",
-      "score": 0.0,
-      "recall_at_10": 0.8347599999999998,
-      "qps": 55890.74245083264,
-      "latency_ms": 0.01789205074310303
+      "search_method": "hyperparameter_only",
+      "score": 34369.70899308313,
+      "recall_at_10": 0.92401,
+      "qps": 34369.70899308313,
+      "latency_ms": 0.029095387458801268
     },
     {
       "iteration": 47,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 24,
+          "efConstruction": 200,
+          "efSearch": 8
         },
-        "k_neighbors": 20,
-        "reasoning": "Testing k_neighbors=20 (double the default 10) with the optimal M=25/efS=32 to see if returning more results enables faster search while maintaining recall >= 0.90; a higher k may allow reducing efSearch to improve QPS.",
+        "k_neighbors": 10,
         "_iter": 47
       },
-      "search_method": "llm",
-      "score": 34856.27192902268,
-      "recall_at_10": 0.92374,
-      "qps": 34856.27192902268,
-      "latency_ms": 0.02868924140930176
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.7147100000000001,
+      "qps": 76090.18409805017,
+      "latency_ms": 0.013142299652099608
     },
     {
       "iteration": 48,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
+          "M": 24,
+          "efConstruction": 200,
           "efSearch": 64
         },
         "k_neighbors": 10,
-        "reasoning": "Testing efSearch=64 (between passing efS=32 at 35k QPS and efS=100 which gave lower QPS) to find if moderate efS increase can boost QPS while maintaining recall >= 0.90.",
         "_iter": 48
       },
-      "search_method": "llm",
-      "score": 20202.920107432827,
-      "recall_at_10": 0.9728600000000002,
-      "qps": 20202.920107432827,
-      "latency_ms": 0.049497795104980466
+      "search_method": "hyperparameter_only",
+      "score": 19445.14423551676,
+      "recall_at_10": 0.97849,
+      "qps": 19445.14423551676,
+      "latency_ms": 0.05142672061920166
     },
     {
       "iteration": 49,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 48,
+          "efConstruction": 150,
+          "efSearch": 64
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing efSearch=48 (between proven efS=32 at 35k QPS and efS=64 at 20k) with M=32 to see if slightly higher efS improves QPS over efS=32 while maintaining recall >= 0.90.",
+        "k_neighbors": 200,
         "_iter": 49
       },
-      "search_method": "llm",
-      "score": 34954.42669811282,
-      "recall_at_10": 0.9234600000000001,
-      "qps": 34954.42669811282,
-      "latency_ms": 0.02860867977142334
+      "search_method": "hyperparameter_only",
+      "score": 14840.752995092009,
+      "recall_at_10": 0.98154,
+      "qps": 14840.752995092009,
+      "latency_ms": 0.06738202571868897
     },
     {
       "iteration": 50,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 4,
+          "efConstruction": 200,
+          "efSearch": 48
         },
-        "k_neighbors": 10,
-        "reasoning": "Testing k_neighbors=15 (between the proven 10 and 20) with the best config M=32/efS=32 to see if slightly increasing k can improve QPS beyond 35322 while maintaining recall >= 0.90.",
+        "k_neighbors": 100,
         "_iter": 50
       },
-      "search_method": "llm",
-      "score": 35091.583733878826,
-      "recall_at_10": 0.9234600000000001,
-      "qps": 35091.583733878826,
-      "latency_ms": 0.028496861457824707
+      "search_method": "hyperparameter_only",
+      "score": 0.0,
+      "recall_at_10": 0.7017100000000001,
+      "qps": 53381.051227586104,
+      "latency_ms": 0.018733239173889162
     }
   ]
 }

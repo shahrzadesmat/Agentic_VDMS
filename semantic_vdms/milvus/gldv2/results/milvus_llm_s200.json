@@ -3,25 +3,25 @@
   "seed": 200,
   "iterations": 50,
   "map_threshold": 0.15,
-  "best_score": 3190.5948570408277,
-  "best_map": 0.1622147816483314,
-  "best_qps": 3190.5948570408277,
+  "best_score": 6105.749808847554,
+  "best_map": 0.15568265669773645,
+  "best_qps": 6105.749808847554,
   "best_config": {
     "engine": "FaissHNSWFlat",
     "params": {
-      "M": 48,
-      "efConstruction": 200,
-      "efSearch": 64
+      "M": 8,
+      "efConstruction": 100,
+      "efSearch": 32
     },
     "k_neighbors": 50,
-    "alpha": 0.7,
+    "alpha": 0.9,
     "n_refs": 1,
-    "ref_strategy": "centroid",
-    "n_aqe": 5,
-    "aqe_weight": 0.3,
-    "_iter": 3
+    "ref_strategy": "first",
+    "n_aqe": 1,
+    "aqe_weight": 0.0,
+    "_iter": 48
   },
-  "n_feasible": 26,
+  "n_feasible": 37,
   "all_results": [
     {
       "iteration": 1,
@@ -30,21 +30,21 @@
         "params": {
           "M": 32,
           "efConstruction": 200,
-          "efSearch": 32
+          "efSearch": 64
         },
-        "k_neighbors": 300,
-        "alpha": 0.9,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
+        "k_neighbors": 200,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "first",
         "n_aqe": 1,
         "aqe_weight": 0.0,
         "_iter": 1
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.14748759553542604,
-      "qps": 372.9017420280257,
-      "latency_ms": 2.681671569999918
+      "score": 1118.8975727368488,
+      "map": 0.1522136673015453,
+      "qps": 1118.8975727368488,
+      "latency_ms": 0.8937368570332827
     },
     {
       "iteration": 2,
@@ -53,67 +53,67 @@
         "params": {
           "M": 48,
           "efConstruction": 200,
-          "efSearch": 64
+          "efSearch": 100
         },
-        "k_neighbors": 50,
-        "alpha": 0.1,
-        "n_refs": 5,
-        "ref_strategy": "diverse",
-        "n_aqe": 10,
-        "aqe_weight": 0.5,
+        "k_neighbors": 150,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 2
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.11434380113583888,
-      "qps": 1333.5683580026591,
-      "latency_ms": 0.749867821922336
+      "score": 2054.2065290477294,
+      "map": 0.15100179608134365,
+      "qps": 2054.2065290477294,
+      "latency_ms": 0.4868059690490668
     },
     {
       "iteration": 3,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
+          "M": 64,
           "efConstruction": 200,
-          "efSearch": 64
+          "efSearch": 150
         },
-        "k_neighbors": 50,
-        "alpha": 0.7,
+        "k_neighbors": 100,
+        "alpha": 0.2,
         "n_refs": 1,
-        "ref_strategy": "centroid",
-        "n_aqe": 5,
-        "aqe_weight": 0.3,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 3
       },
       "search_method": "llm",
-      "score": 3190.5948570408277,
-      "map": 0.1622147816483314,
-      "qps": 3190.5948570408277,
-      "latency_ms": 0.313421178434252
+      "score": 0.0,
+      "map": 0.13787870824249984,
+      "qps": 861.9389285159771,
+      "latency_ms": 1.1601750041870442
     },
     {
       "iteration": 4,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
-          "efConstruction": 400,
-          "efSearch": 500
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 100
         },
-        "k_neighbors": 1000,
-        "alpha": 0.0,
+        "k_neighbors": 100,
+        "alpha": 0.4,
         "n_refs": 1,
         "ref_strategy": "first",
-        "n_aqe": 10,
-        "aqe_weight": 0.2,
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 4
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.12044404185950078,
-      "qps": 357.7139138805368,
-      "latency_ms": 2.7955300624229085
+      "score": 2539.8032656051637,
+      "map": 0.15740846127943095,
+      "qps": 2539.8032656051637,
+      "latency_ms": 0.39373128365583393
     },
     {
       "iteration": 5,
@@ -122,136 +122,137 @@
         "params": {
           "M": 48,
           "efConstruction": 200,
-          "efSearch": 300
+          "efSearch": 100
         },
-        "k_neighbors": 150,
-        "alpha": 0.4,
-        "n_refs": 3,
-        "ref_strategy": "diverse",
-        "n_aqe": 1,
-        "aqe_weight": 0.0,
+        "k_neighbors": 50,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
         "_iter": 5
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.14671603380936793,
-      "qps": 877.3270449853043,
-      "latency_ms": 1.139825798960467
+      "score": 1265.2666407665715,
+      "map": 0.15457191129864753,
+      "qps": 1265.2666407665715,
+      "latency_ms": 0.7903472420596992
     },
     {
       "iteration": 6,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
-          "efConstruction": 100,
-          "efSearch": 32
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 100
         },
-        "k_neighbors": 50,
-        "alpha": 0.0,
+        "k_neighbors": 100,
+        "alpha": 0.4,
         "n_refs": 1,
         "ref_strategy": "centroid",
-        "n_aqe": 10,
-        "aqe_weight": 0.1,
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 6
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.11034448989721442,
-      "qps": 8015.574928356335,
-      "latency_ms": 0.12475711460975127
+      "score": 2578.219428295154,
+      "map": 0.15740846127943095,
+      "qps": 2578.219428295154,
+      "latency_ms": 0.38786458166644466
     },
     {
       "iteration": 7,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
+          "M": 48,
           "efConstruction": 200,
-          "efSearch": 500
+          "efSearch": 100
         },
-        "k_neighbors": 300,
+        "k_neighbors": 50,
         "alpha": 0.4,
-        "n_refs": 5,
-        "ref_strategy": "first",
-        "n_aqe": 5,
-        "aqe_weight": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "reason": "Reduced k_neighbors to lower reranking cost, aiming for higher QPS while keeping mAP above 0.15",
         "_iter": 7
       },
       "search_method": "llm",
-      "score": 609.5492398219972,
-      "map": 0.15269971221271555,
-      "qps": 609.5492398219972,
-      "latency_ms": 1.6405565533836506
+      "score": 0.0,
+      "map": 0.14697286050277916,
+      "qps": 3359.6020838550894,
+      "latency_ms": 0.29765429805083227
     },
     {
       "iteration": 8,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 150
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 100
         },
-        "k_neighbors": 300,
-        "alpha": 0.2,
-        "n_refs": 3,
-        "ref_strategy": "first",
+        "k_neighbors": 50,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
         "n_aqe": 1,
         "aqe_weight": 0.0,
         "_iter": 8
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.13797767453441867,
-      "qps": 1110.5592739126866,
-      "latency_ms": 0.9004472102392448
+      "score": 3393.534953551253,
+      "map": 0.15450517801128527,
+      "qps": 3393.534953551253,
+      "latency_ms": 0.29467797258240236
     },
     {
       "iteration": 9,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
+          "M": 48,
           "efConstruction": 200,
-          "efSearch": 32
+          "efSearch": 100
         },
-        "k_neighbors": 750,
-        "alpha": 0.9,
+        "k_neighbors": 50,
+        "alpha": 0.6,
         "n_refs": 1,
         "ref_strategy": "centroid",
-        "n_aqe": 5,
-        "aqe_weight": 0.2,
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 9
       },
       "search_method": "llm",
-      "score": 662.0433799635576,
-      "map": 0.20423629879172886,
-      "qps": 662.0433799635576,
-      "latency_ms": 1.510475038742998
+      "score": 3383.6609543109194,
+      "map": 0.15984711990555134,
+      "qps": 3383.6609543109194,
+      "latency_ms": 0.2955378844106588
     },
     {
       "iteration": 10,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
-          "efConstruction": 400,
-          "efSearch": 64
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 100
         },
-        "k_neighbors": 1000,
-        "alpha": 0.0,
+        "k_neighbors": 50,
+        "alpha": 0.6,
         "n_refs": 1,
         "ref_strategy": "centroid",
-        "n_aqe": 3,
-        "aqe_weight": 0.2,
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 10
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.12413428982817125,
-      "qps": 800.3340379441994,
-      "latency_ms": 1.24947828355355
+      "score": 3499.6136432165263,
+      "map": 0.15899583740785284,
+      "qps": 3499.6136432165263,
+      "latency_ms": 0.28574582852548575
     },
     {
       "iteration": 11,
@@ -259,22 +260,22 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 32,
-          "efConstruction": 400,
-          "efSearch": 300
+          "efConstruction": 200,
+          "efSearch": 64
         },
-        "k_neighbors": 200,
-        "alpha": 0.1,
+        "k_neighbors": 50,
+        "alpha": 0.7,
         "n_refs": 1,
-        "ref_strategy": "diverse",
-        "n_aqe": 10,
-        "aqe_weight": 0.2,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 11
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.13112390190276005,
-      "qps": 942.8067000754585,
-      "latency_ms": 1.060662805981294
+      "score": 4285.6890108477855,
+      "map": 0.15995190966213124,
+      "qps": 4285.6890108477855,
+      "latency_ms": 0.23333470941751377
     },
     {
       "iteration": 12,
@@ -283,44 +284,45 @@
         "params": {
           "M": 16,
           "efConstruction": 200,
-          "efSearch": 64
+          "efSearch": 32
         },
-        "k_neighbors": 1000,
-        "alpha": 0.8,
-        "n_refs": 10,
-        "ref_strategy": "first",
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
         "n_aqe": 1,
         "aqe_weight": 0.0,
         "_iter": 12
       },
       "search_method": "llm",
-      "score": 462.0823168396307,
-      "map": 0.16537769076320794,
-      "qps": 462.0823168396307,
-      "latency_ms": 2.164116573080328
+      "score": 5422.838753268051,
+      "map": 0.15852774524545732,
+      "qps": 5422.838753268051,
+      "latency_ms": 0.18440526180081498
     },
     {
       "iteration": 13,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 64,
+          "M": 8,
           "efConstruction": 200,
-          "efSearch": 500
+          "efSearch": 16
         },
-        "k_neighbors": 200,
-        "alpha": 0.7,
-        "n_refs": 10,
-        "ref_strategy": "first",
-        "n_aqe": 5,
-        "aqe_weight": 0.3,
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "reason": "Reduced M and efSearch to boost QPS; higher alpha compensates recall loss, expecting mAP\u22650.15",
         "_iter": 13
       },
       "search_method": "llm",
       "score": 0.0,
-      "map": 0.14461122746561544,
-      "qps": 728.7636539807554,
-      "latency_ms": 1.372186983444714
+      "map": 0.14782605076669425,
+      "qps": 6380.282645367481,
+      "latency_ms": 0.15673286836690034
     },
     {
       "iteration": 14,
@@ -329,159 +331,166 @@
         "params": {
           "M": 16,
           "efConstruction": 200,
-          "efSearch": 300
+          "efSearch": 16
         },
-        "k_neighbors": 300,
-        "alpha": 0.5,
-        "n_refs": 3,
-        "ref_strategy": "first",
-        "n_aqe": 10,
-        "aqe_weight": 0.1,
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 14
       },
       "search_method": "llm",
-      "score": 628.7792483706128,
-      "map": 0.15966984895738381,
-      "qps": 628.7792483706128,
-      "latency_ms": 1.5903832745615416
+      "score": 976.1822306632554,
+      "map": 0.15177174722584047,
+      "qps": 976.1822306632554,
+      "latency_ms": 1.0243988966287185
     },
     {
       "iteration": 15,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
+          "M": 8,
           "efConstruction": 200,
-          "efSearch": 100
+          "efSearch": 16
         },
-        "k_neighbors": 500,
+        "k_neighbors": 50,
         "alpha": 0.9,
-        "n_refs": 10,
-        "ref_strategy": "first",
+        "n_refs": 1,
+        "ref_strategy": "centroid",
         "n_aqe": 3,
-        "aqe_weight": 0.3,
+        "aqe_weight": 0.1,
+        "reason": "Low M and efSearch maximize QPS; high alpha and AQE boost recall to meet mAP\u22650.15",
+        "iteration": 15,
         "_iter": 15
       },
       "search_method": "llm",
-      "score": 588.1693666524656,
-      "map": 0.15220729934510213,
-      "qps": 588.1693666524656,
-      "latency_ms": 1.7001905517307818
+      "score": 0.0,
+      "map": 0.14725397868153378,
+      "qps": 1663.8291424622118,
+      "latency_ms": 0.6010232508129731
     },
     {
       "iteration": 16,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
+          "M": 24,
           "efConstruction": 200,
-          "efSearch": 100
+          "efSearch": 48
         },
-        "k_neighbors": 750,
-        "alpha": 0.9,
-        "n_refs": 5,
-        "ref_strategy": "diverse",
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
         "n_aqe": 1,
         "aqe_weight": 0.0,
+        "reason": "Testing M=24 with efSearch=48 - between iter 11 (mAP=0.1600) and iter 12 (mAP=0.1585) configurations. Expected to maintain mAP\u22650.15 while targeting QPS>5000",
         "_iter": 16
       },
       "search_method": "llm",
-      "score": 240.66543587033033,
-      "map": 0.1600395756695051,
-      "qps": 240.66543587033033,
-      "latency_ms": 4.155145903621974
+      "score": 799.2872324875221,
+      "map": 0.16067970806517673,
+      "qps": 799.2872324875221,
+      "latency_ms": 1.2511146923838936
     },
     {
       "iteration": 17,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 64,
-          "efConstruction": 100,
-          "efSearch": 100
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 32
         },
         "k_neighbors": 50,
-        "alpha": 0.3,
-        "n_refs": 3,
-        "ref_strategy": "first",
-        "n_aqe": 5,
-        "aqe_weight": 0.1,
-        "_iter": 17
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 17,
+        "reason": "Reduce M to 12 for higher QPS; efSearch=32 keeps recall; alpha=0.6 should maintain mAP\u22650.15 based on prior runs."
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.1345514716277869,
-      "qps": 1765.6559584657628,
-      "latency_ms": 0.5663617508299483
+      "score": 5570.380374968533,
+      "map": 0.15266679360067822,
+      "qps": 5570.380374968533,
+      "latency_ms": 0.17952095416924718
     },
     {
       "iteration": 18,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
+          "M": 16,
           "efConstruction": 200,
-          "efSearch": 200
+          "efSearch": 64
         },
-        "k_neighbors": 100,
-        "alpha": 0.8,
+        "k_neighbors": 50,
+        "alpha": 0.7,
         "n_refs": 1,
         "ref_strategy": "centroid",
-        "n_aqe": 10,
-        "aqe_weight": 0.1,
-        "_iter": 18
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 18,
+        "reason": "Increase efSearch to 64 from iter 12's 32 while keeping M=16; alpha=0.7 maintains recall based on iter 11 (mAP=0.1600 at efSearch=64); targeting QPS>5500 while keeping mAP>=0.15"
       },
       "search_method": "llm",
-      "score": 1099.0630529846344,
-      "map": 0.1804182845366704,
-      "qps": 1099.0630529846344,
-      "latency_ms": 0.9098659055860197
+      "score": 4578.646717506471,
+      "map": 0.1620417277497675,
+      "qps": 4578.646717506471,
+      "latency_ms": 0.21840514494741356
     },
     {
       "iteration": 19,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 300
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 16
         },
-        "k_neighbors": 500,
-        "alpha": 0.1,
+        "k_neighbors": 50,
+        "alpha": 0.8,
         "n_refs": 1,
-        "ref_strategy": "first",
-        "n_aqe": 5,
-        "aqe_weight": 0.3,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "reason": "Low M=8 and efSearch=16 maximize QPS; adding PRF with n_refs=3 boosts recall; alpha=0.8 balances CLIP\u2013DINOv2 scores; expect mAP\u22650.15 while targeting QPS\u202f>\u202f6000",
         "_iter": 19
       },
       "search_method": "llm",
       "score": 0.0,
-      "map": 0.13691282607373007,
-      "qps": 560.4952350966942,
-      "latency_ms": 1.784136487489469
+      "map": 0.14788025405273222,
+      "qps": 6343.878689310828,
+      "latency_ms": 0.15763227025210275
     },
     {
       "iteration": 20,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 64,
-          "efConstruction": 100,
-          "efSearch": 100
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 16
         },
-        "k_neighbors": 750,
-        "alpha": 0.3,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
-        "n_aqe": 1,
-        "aqe_weight": 0.0,
-        "_iter": 20
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 20,
+        "reason": "Drop efSearch to 16 to maximize QPS, raise alpha to 0.8 for stronger DINOv2 ranking, add n_refs=3 for PRF query expansion and n_aqe=5 with weight 0.3 to broaden recall; expect mAP>=0.15 while targeting QPS>6000"
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.1492299130305078,
-      "qps": 159.51895717298797,
-      "latency_ms": 6.26884740047269
+      "score": 4063.9725096055895,
+      "map": 0.15206759056026253,
+      "qps": 4063.9725096055895,
+      "latency_ms": 0.24606465659804638
     },
     {
       "iteration": 21,
@@ -489,22 +498,22 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 8,
-          "efConstruction": 100,
-          "efSearch": 100
+          "efConstruction": 200,
+          "efSearch": 16
         },
-        "k_neighbors": 100,
-        "alpha": 0.5,
-        "n_refs": 3,
-        "ref_strategy": "diverse",
-        "n_aqe": 5,
-        "aqe_weight": 0.2,
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 21
       },
       "search_method": "llm",
       "score": 0.0,
-      "map": 0.1423720350620939,
-      "qps": 1456.9385066052473,
-      "latency_ms": 0.6863707668280792
+      "map": 0.14789918718564174,
+      "qps": 2163.1777806201694,
+      "latency_ms": 0.46228285486239895
     },
     {
       "iteration": 22,
@@ -512,160 +521,163 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 8,
-          "efConstruction": 100,
-          "efSearch": 500
+          "efConstruction": 200,
+          "efSearch": 16
         },
-        "k_neighbors": 500,
-        "alpha": 0.2,
-        "n_refs": 3,
-        "ref_strategy": "first",
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
         "n_aqe": 5,
-        "aqe_weight": 0.2,
-        "_iter": 22
+        "aqe_weight": 0.3,
+        "_iter": 22,
+        "reason": "Low M=8 and efSearch=16 maximize QPS; n_aqe=5 with weight 0.3 expands query to improve recall; alpha=0.8 balances CLIP\u2013DINOv2 ranking; expect mAP>=0.15 while targeting QPS>6000"
       },
       "search_method": "llm",
       "score": 0.0,
-      "map": 0.14036858143013212,
-      "qps": 530.55931448342,
-      "latency_ms": 1.8848034003015322
+      "map": 0.14783457318383225,
+      "qps": 1852.1541654378605,
+      "latency_ms": 0.5399118597471577
     },
     {
       "iteration": 23,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
-          "efConstruction": 400,
-          "efSearch": 300
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 24
         },
-        "k_neighbors": 500,
-        "alpha": 0.4,
-        "n_refs": 10,
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 3,
         "ref_strategy": "first",
-        "n_aqe": 10,
-        "aqe_weight": 0.5,
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
+        "reason": "M=12 yields good recall; efSearch=24 reduces search time versus 32 while still meeting recall; n_refs=3 with 'first' strategy boosts PRF; n_aqe=3 with weight 0.2 provides query expansion to keep mAP\u22650.15; expect QPS>6000 while satisfying threshold",
         "_iter": 23
       },
       "search_method": "llm",
       "score": 0.0,
-      "map": 0.1368326514857917,
-      "qps": 558.9028484236745,
-      "latency_ms": 1.7892197236431924
+      "map": 0.1384056896892267,
+      "qps": 3605.966183471875,
+      "latency_ms": 0.277318185784312
     },
     {
       "iteration": 24,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 64,
-          "efConstruction": 400,
-          "efSearch": 150
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 200,
-        "alpha": 0.0,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
         "n_aqe": 1,
         "aqe_weight": 0.0,
         "_iter": 24
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.12006032824356172,
-      "qps": 573.2621844731302,
-      "latency_ms": 1.7444025213682515
+      "score": 5701.753758830407,
+      "map": 0.15612093631730795,
+      "qps": 5701.753758830407,
+      "latency_ms": 0.17538463467512647
     },
     {
       "iteration": 25,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
-          "efSearch": 200
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 16
         },
         "k_neighbors": 50,
-        "alpha": 0.7,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
-        "n_aqe": 1,
-        "aqe_weight": 0.0,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
         "_iter": 25
       },
       "search_method": "llm",
       "score": 0.0,
-      "map": 0.1273396995238364,
-      "qps": 701.3963165271043,
-      "latency_ms": 1.4257274759459855
+      "map": 0.143947215938297,
+      "qps": 4540.61323320152,
+      "latency_ms": 0.22023456935020966
     },
     {
       "iteration": 26,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 100,
+          "M": 8,
+          "efConstruction": 200,
           "efSearch": 32
         },
-        "k_neighbors": 300,
-        "alpha": 0.2,
+        "k_neighbors": 50,
+        "alpha": 0.7,
         "n_refs": 1,
         "ref_strategy": "centroid",
-        "n_aqe": 5,
-        "aqe_weight": 0.1,
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 26
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.14654560894134055,
-      "qps": 1120.9561059766565,
-      "latency_ms": 0.8920955911371115
+      "score": 6086.937070991162,
+      "map": 0.15414854910124168,
+      "qps": 6086.937070991162,
+      "latency_ms": 0.16428623925910998
     },
     {
       "iteration": 27,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
+          "M": 8,
           "efConstruction": 200,
-          "efSearch": 300
+          "efSearch": 32
         },
-        "k_neighbors": 200,
-        "alpha": 0.6,
+        "k_neighbors": 50,
+        "alpha": 0.7,
         "n_refs": 1,
         "ref_strategy": "centroid",
         "n_aqe": 1,
         "aqe_weight": 0.0,
+        "reason": "M=8 and efSearch=32 give the highest QPS (>6000) while mAP stays just above threshold (0.1541). Keeping minimal overhead (no PRF or AQE) to preserve speed. This configuration replicates the best performing iteration 26.",
         "_iter": 27
       },
       "search_method": "llm",
-      "score": 1170.6085740701371,
-      "map": 0.18838164952181272,
-      "qps": 1170.6085740701371,
-      "latency_ms": 0.8542565142189749
+      "score": 6084.6688784780135,
+      "map": 0.15414854910124168,
+      "qps": 6084.6688784780135,
+      "latency_ms": 0.16434748052389248
     },
     {
       "iteration": 28,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
+          "M": 8,
           "efConstruction": 200,
           "efSearch": 64
         },
-        "k_neighbors": 100,
-        "alpha": 0.8,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
-        "n_aqe": 10,
-        "aqe_weight": 0.5,
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 28
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.1289722030606612,
-      "qps": 851.1826680725515,
-      "latency_ms": 1.174835951799202
+      "score": 5326.390873741197,
+      "map": 0.15746174715867514,
+      "qps": 5326.390873741197,
+      "latency_ms": 0.18774438896888754
     },
     {
       "iteration": 29,
@@ -673,91 +685,93 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 8,
-          "efConstruction": 100,
-          "efSearch": 100
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 300,
-        "alpha": 0.1,
-        "n_refs": 1,
-        "ref_strategy": "centroid",
-        "n_aqe": 5,
-        "aqe_weight": 0.2,
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 29
       },
       "search_method": "llm",
       "score": 0.0,
-      "map": 0.13162659657232856,
-      "qps": 1080.9289502704166,
-      "latency_ms": 0.9251301852446726
+      "map": 0.1376611895600284,
+      "qps": 4795.7379655098375,
+      "latency_ms": 0.2085184818669903
     },
     {
       "iteration": 30,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
+          "M": 8,
           "efConstruction": 200,
-          "efSearch": 300
+          "efSearch": 32
         },
-        "k_neighbors": 300,
-        "alpha": 0.9,
-        "n_refs": 5,
-        "ref_strategy": "diverse",
-        "n_aqe": 5,
-        "aqe_weight": 0.1,
-        "_iter": 30
+        "k_neighbors": 50,
+        "alpha": 0.75,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 30,
+        "reason": "Increase DINO weight to alpha=0.75 to improve ranking quality while keeping fastest HNSW settings; expect mAP to stay >=0.15 and QPS near the ~6000 QPS plateau."
       },
       "search_method": "llm",
-      "score": 437.39238917147065,
-      "map": 0.15645995702605336,
-      "qps": 437.39238917147065,
-      "latency_ms": 2.2862766357097506
+      "score": 6088.97206106242,
+      "map": 0.154970985737168,
+      "qps": 6088.97206106242,
+      "latency_ms": 0.1642313332975808
     },
     {
       "iteration": 31,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 100
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 1000,
-        "alpha": 0.5,
-        "n_refs": 3,
-        "ref_strategy": "first",
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
         "n_aqe": 1,
         "aqe_weight": 0.0,
         "_iter": 31
       },
       "search_method": "llm",
-      "score": 411.7030008765504,
-      "map": 0.1710703382953531,
-      "qps": 411.7030008765504,
-      "latency_ms": 2.42893541672253
+      "score": 6104.624219094446,
+      "map": 0.1550379802824458,
+      "qps": 6104.624219094446,
+      "latency_ms": 0.1638102468080073
     },
     {
       "iteration": 32,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 100,
-          "efSearch": 150
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 300,
-        "alpha": 0.4,
+        "k_neighbors": 50,
+        "alpha": 0.85,
         "n_refs": 1,
         "ref_strategy": "centroid",
         "n_aqe": 1,
         "aqe_weight": 0.0,
-        "_iter": 32
+        "_iter": 32,
+        "reason": "Keep fastest HNSW settings (M=8, efSearch=32). Increase DINOv2 weight to alpha=0.85 to push mAP slightly higher while maintaining QPS near 6100."
       },
       "search_method": "llm",
-      "score": 1253.2331996479047,
-      "map": 0.17153247074882225,
-      "qps": 1253.2331996479047,
-      "latency_ms": 0.7979360906501277
+      "score": 6067.695616351645,
+      "map": 0.1556636676857763,
+      "qps": 6067.695616351645,
+      "latency_ms": 0.16480721236331153
     },
     {
       "iteration": 33,
@@ -765,22 +779,23 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 8,
-          "efConstruction": 100,
-          "efSearch": 200
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 100,
-        "alpha": 0.2,
-        "n_refs": 3,
-        "ref_strategy": "diverse",
-        "n_aqe": 5,
-        "aqe_weight": 0.2,
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "reason": "Boost DINOv2 weight to max 0.9 to improve ranking while preserving fastest HNSW settings; expected QPS near 6100, mAP >= 0.15",
         "_iter": 33
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.13018588920263963,
-      "qps": 1342.4002444763898,
-      "latency_ms": 0.744934310102167
+      "score": 6089.238275754762,
+      "map": 0.15544027532196897,
+      "qps": 6089.238275754762,
+      "latency_ms": 0.16422415328722703
     },
     {
       "iteration": 34,
@@ -788,45 +803,46 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 8,
-          "efConstruction": 100,
-          "efSearch": 200
+          "efConstruction": 200,
+          "efSearch": 32
         },
         "k_neighbors": 50,
-        "alpha": 0.9,
+        "alpha": 0.8,
         "n_refs": 1,
         "ref_strategy": "centroid",
-        "n_aqe": 10,
-        "aqe_weight": 0.1,
-        "_iter": 34
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 34,
+        "reason": "Fastest HNSW config (M=8, efSearch=32) with alpha=0.8 yields the highest observed QPS (~6104) while keeping mAP above the 0.15 threshold."
       },
       "search_method": "llm",
-      "score": 2946.6973837732085,
-      "map": 0.1609382156300621,
-      "qps": 2946.6973837732085,
-      "latency_ms": 0.33936297819612293
+      "score": 6087.915261798514,
+      "map": 0.1550379802824458,
+      "qps": 6087.915261798514,
+      "latency_ms": 0.16425984216222098
     },
     {
       "iteration": 35,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 400,
-          "efSearch": 300
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 750,
-        "alpha": 0.6,
-        "n_refs": 3,
-        "ref_strategy": "first",
-        "n_aqe": 5,
-        "aqe_weight": 0.2,
+        "k_neighbors": 100,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 35
       },
       "search_method": "llm",
-      "score": 351.8239267086425,
-      "map": 0.17172414907060538,
-      "qps": 351.8239267086425,
-      "latency_ms": 2.8423308481464775
+      "score": 3647.8193102885134,
+      "map": 0.1772251773251644,
+      "qps": 3647.8193102885134,
+      "latency_ms": 0.274136385313698
     },
     {
       "iteration": 36,
@@ -834,91 +850,93 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 8,
-          "efConstruction": 100,
+          "efConstruction": 200,
           "efSearch": 32
         },
-        "k_neighbors": 300,
-        "alpha": 0.7,
-        "n_refs": 3,
-        "ref_strategy": "first",
-        "n_aqe": 3,
-        "aqe_weight": 0.3,
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 36
       },
       "search_method": "llm",
-      "score": 733.3739534555249,
-      "map": 0.1585418403572117,
-      "qps": 733.3739534555249,
-      "latency_ms": 1.3635608345349348
+      "score": 6008.642655118114,
+      "map": 0.15540733030932216,
+      "qps": 6008.642655118114,
+      "latency_ms": 0.16642693822842133
     },
     {
       "iteration": 37,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 400,
-          "efSearch": 100
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 200,
-        "alpha": 0.6,
+        "k_neighbors": 50,
+        "alpha": 0.9,
         "n_refs": 1,
-        "ref_strategy": "first",
-        "n_aqe": 3,
-        "aqe_weight": 0.2,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "reason": "Maintain fastest HNSW (M=8, efSearch=32) with maximal DINO weight 0.9 to keep mAP\u22650.15 while maximizing QPS",
         "_iter": 37
       },
       "search_method": "llm",
-      "score": 675.4644530847704,
-      "map": 0.18826947081408538,
-      "qps": 675.4644530847704,
-      "latency_ms": 1.4804628066408412
+      "score": 6102.004698241703,
+      "map": 0.15540733030932216,
+      "qps": 6102.004698241703,
+      "latency_ms": 0.16388056867411963
     },
     {
       "iteration": 38,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 100,
-          "efSearch": 64
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 300,
+        "k_neighbors": 50,
         "alpha": 0.8,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
+        "n_refs": 1,
+        "ref_strategy": "centroid",
         "n_aqe": 1,
         "aqe_weight": 0.0,
         "_iter": 38
       },
       "search_method": "llm",
-      "score": 306.1464709042267,
-      "map": 0.1542067417131089,
-      "qps": 306.1464709042267,
-      "latency_ms": 3.2664103461536715
+      "score": 6076.221072513756,
+      "map": 0.1550432757215691,
+      "qps": 6076.221072513756,
+      "latency_ms": 0.1645759737945638
     },
     {
       "iteration": 39,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 400,
-          "efSearch": 64
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 750,
-        "alpha": 0.2,
+        "k_neighbors": 50,
+        "alpha": 0.85,
         "n_refs": 1,
         "ref_strategy": "centroid",
-        "n_aqe": 10,
-        "aqe_weight": 0.5,
-        "_iter": 39
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 39,
+        "reason": "Enable AQE with n_aqe=3 and aqe_weight=0.1 to potentially improve mAP while maintaining fast HNSW settings (M=8, efSearch=32). Testing if query expansion boosts mAP without significantly degrading QPS."
       },
       "search_method": "llm",
-      "score": 455.7608799974591,
-      "map": 0.153315231186458,
-      "qps": 455.7608799974591,
-      "latency_ms": 2.194133028717987
+      "score": 4381.602973520897,
+      "map": 0.1555887441525942,
+      "qps": 4381.602973520897,
+      "latency_ms": 0.22822697675787737
     },
     {
       "iteration": 40,
@@ -926,22 +944,23 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 8,
-          "efConstruction": 400,
-          "efSearch": 100
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 750,
-        "alpha": 0.3,
-        "n_refs": 5,
-        "ref_strategy": "first",
-        "n_aqe": 3,
-        "aqe_weight": 0.5,
-        "_iter": 40
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 40,
+        "reason": "Maintain fastest HNSW settings (M=8, efSearch=32) with maximal DINO weight (alpha=0.9) to maintain mAP\u22650.15 while maximizing QPS."
       },
       "search_method": "llm",
-      "score": 419.4435888816699,
-      "map": 0.15230133189534656,
-      "qps": 419.4435888816699,
-      "latency_ms": 2.3841108232604604
+      "score": 6070.643727789715,
+      "map": 0.15540733030932216,
+      "qps": 6070.643727789715,
+      "latency_ms": 0.16472717636554404
     },
     {
       "iteration": 41,
@@ -950,21 +969,22 @@
         "params": {
           "M": 8,
           "efConstruction": 200,
-          "efSearch": 500
+          "efSearch": 32
         },
-        "k_neighbors": 150,
-        "alpha": 0.7,
+        "k_neighbors": 50,
+        "alpha": 0.9,
         "n_refs": 1,
         "ref_strategy": "centroid",
-        "n_aqe": 3,
-        "aqe_weight": 0.3,
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "reason": "Keep fastest HNSW settings (M=8, efSearch=32) with maximal DINO weight (alpha=0.9). This yields ~6100\u202fQPS while maintaining mAP\u22480.155, safely above the 0.15 threshold.",
         "_iter": 41
       },
       "search_method": "llm",
-      "score": 1197.688481107969,
-      "map": 0.1878851126862699,
-      "qps": 1197.688481107969,
-      "latency_ms": 0.8349416528368968
+      "score": 6079.66138348695,
+      "map": 0.15540733030932216,
+      "qps": 6079.66138348695,
+      "latency_ms": 0.16448284483673933
     },
     {
       "iteration": 42,
@@ -975,65 +995,65 @@
           "efConstruction": 200,
           "efSearch": 32
         },
-        "k_neighbors": 300,
-        "alpha": 0.4,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "first",
         "n_aqe": 1,
         "aqe_weight": 0.0,
         "_iter": 42
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.14728169817040282,
-      "qps": 184.47110535116158,
-      "latency_ms": 5.4209031712385904
+      "score": 6080.78559422043,
+      "map": 0.1550432757215691,
+      "qps": 6080.78559422043,
+      "latency_ms": 0.1644524353811232
     },
     {
       "iteration": 43,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
-          "efConstruction": 400,
-          "efSearch": 150
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 300,
-        "alpha": 0.1,
+        "k_neighbors": 50,
+        "alpha": 0.9,
         "n_refs": 1,
-        "ref_strategy": "diverse",
-        "n_aqe": 5,
-        "aqe_weight": 0.5,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 43
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.13417450514383697,
-      "qps": 900.2423366073491,
-      "latency_ms": 1.1108120106510402
+      "score": 6104.222885377176,
+      "map": 0.15540733030932216,
+      "qps": 6104.222885377176,
+      "latency_ms": 0.163821016823538
     },
     {
       "iteration": 44,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 64,
-          "efConstruction": 100,
-          "efSearch": 150
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 300,
-        "alpha": 0.4,
+        "k_neighbors": 50,
+        "alpha": 0.9,
         "n_refs": 1,
         "ref_strategy": "first",
-        "n_aqe": 5,
-        "aqe_weight": 0.5,
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 44
       },
       "search_method": "llm",
-      "score": 788.7297254801632,
-      "map": 0.1738285019884973,
-      "qps": 788.7297254801632,
-      "latency_ms": 1.2678614330038336
+      "score": 6079.513081167689,
+      "map": 0.15540733030932216,
+      "qps": 6079.513081167689,
+      "latency_ms": 0.16448685719546646
     },
     {
       "iteration": 45,
@@ -1041,92 +1061,91 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 8,
-          "efConstruction": 200,
-          "efSearch": 600
+          "efConstruction": 100,
+          "efSearch": 32
         },
-        "k_neighbors": 120,
-        "alpha": 0.7,
+        "k_neighbors": 50,
+        "alpha": 0.9,
         "n_refs": 1,
-        "ref_strategy": "centroid",
-        "n_aqe": 3,
-        "aqe_weight": 0.3,
-        "reasoning": "Building on iter 41's success (best QPS 1197.7 with mAP 0.1879), slightly reducing k_neighbors to 120 and increasing efSearch to 600 to push QPS higher while maintaining quality",
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 45
       },
       "search_method": "llm",
-      "score": 1211.2489307437052,
-      "map": 0.18448006846904477,
-      "qps": 1211.2489307437052,
-      "latency_ms": 0.8255941240633348
+      "score": 6081.090139513859,
+      "map": 0.1550225374317864,
+      "qps": 6081.090139513859,
+      "latency_ms": 0.16444419948689382
     },
     {
       "iteration": 46,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 100,
-          "efSearch": 150
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 150,
-        "alpha": 0.5,
-        "n_refs": 3,
+        "k_neighbors": 300,
+        "alpha": 0.9,
+        "n_refs": 10,
         "ref_strategy": "diverse",
         "n_aqe": 1,
         "aqe_weight": 0.0,
         "_iter": 46
       },
       "search_method": "llm",
-      "score": 1188.4189052039403,
-      "map": 0.15218237056627523,
-      "qps": 1188.4189052039403,
-      "latency_ms": 0.8414541334045789
+      "score": 0.0,
+      "map": 0.14657406508502727,
+      "qps": 373.66403554573856,
+      "latency_ms": 2.6762008244638635
     },
     {
       "iteration": 47,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 8,
-          "efConstruction": 400,
-          "efSearch": 200
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 64
         },
-        "k_neighbors": 750,
-        "alpha": 0.8,
-        "n_refs": 1,
-        "ref_strategy": "centroid",
+        "k_neighbors": 50,
+        "alpha": 0.1,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
         "n_aqe": 10,
         "aqe_weight": 0.5,
         "_iter": 47
       },
       "search_method": "llm",
-      "score": 449.11712127654266,
-      "map": 0.22034743097257986,
-      "qps": 449.11712127654266,
-      "latency_ms": 2.226590687875942
+      "score": 0.0,
+      "map": 0.11433909590872708,
+      "qps": 1789.7237486705676,
+      "latency_ms": 0.5587454492587554
     },
     {
       "iteration": 48,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
-          "efConstruction": 400,
-          "efSearch": 500
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
         },
         "k_neighbors": 50,
-        "alpha": 0.6,
+        "alpha": 0.9,
         "n_refs": 1,
-        "ref_strategy": "centroid",
-        "n_aqe": 5,
-        "aqe_weight": 0.2,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
         "_iter": 48
       },
       "search_method": "llm",
-      "score": 1254.1283602921217,
-      "map": 0.16288172801494963,
-      "qps": 1254.1283602921217,
-      "latency_ms": 0.7973665468876504
+      "score": 6105.749808847554,
+      "map": 0.15568265669773645,
+      "qps": 6105.749808847554,
+      "latency_ms": 0.16378004852916625
     },
     {
       "iteration": 49,
@@ -1134,45 +1153,45 @@
         "engine": "FaissHNSWFlat",
         "params": {
           "M": 48,
-          "efConstruction": 400,
-          "efSearch": 500
+          "efConstruction": 200,
+          "efSearch": 64
         },
-        "k_neighbors": 100,
-        "alpha": 0.8,
-        "n_refs": 5,
-        "ref_strategy": "diverse",
-        "n_aqe": 10,
-        "aqe_weight": 0.2,
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
         "_iter": 49
       },
       "search_method": "llm",
-      "score": 0.0,
-      "map": 0.1451760236462842,
-      "qps": 615.7528660833486,
-      "latency_ms": 1.6240281695491767
+      "score": 3196.2026646219765,
+      "map": 0.162223503965875,
+      "qps": 3196.2026646219765,
+      "latency_ms": 0.3128712741118601
     },
     {
       "iteration": 50,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 64,
-          "efConstruction": 100,
-          "efSearch": 300
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 500
         },
-        "k_neighbors": 750,
-        "alpha": 0.6,
+        "k_neighbors": 1000,
+        "alpha": 0.0,
         "n_refs": 1,
-        "ref_strategy": "centroid",
-        "n_aqe": 3,
-        "aqe_weight": 0.3,
+        "ref_strategy": "first",
+        "n_aqe": 10,
+        "aqe_weight": 0.2,
         "_iter": 50
       },
       "search_method": "llm",
-      "score": 360.58758446400645,
-      "map": 0.2171630748193759,
-      "qps": 360.58758446400645,
-      "latency_ms": 2.7732513350021324
+      "score": 0.0,
+      "map": 0.12045834425300792,
+      "qps": 225.9323714756165,
+      "latency_ms": 4.4261032337631345
     }
   ]
 }
