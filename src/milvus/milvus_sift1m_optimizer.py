@@ -205,8 +205,8 @@ Key tradeoffs:
 
 Good starting point: M=16 efC=200 efS=32 k=10 → Recall≈0.91 ≥ τ, QPS~1000+
 
-Respond ONLY with JSON:
-{"engine": "FaissHNSWFlat", "params": {"M": <int>, "efConstruction": <int>, "efSearch": <int>}, "k_neighbors": <int>, "reasoning": "<one sentence>"}"""
+YOU MUST respond with ONLY a valid JSON object. No explanation, no markdown, no code blocks.
+Example: {"engine": "FaissHNSWFlat", "params": {"M": 16, "efConstruction": 200, "efSearch": 32}, "k_neighbors": 10, "reasoning": "low efSearch for high QPS"}"""
 
 
 class LLMAgent:

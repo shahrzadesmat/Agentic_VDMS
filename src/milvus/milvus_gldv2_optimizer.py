@@ -282,8 +282,8 @@ Parameters:
   n_aqe: [1, 3, 5, 10]          — AQE candidates (1=disabled)
   aqe_weight: [0.1, 0.2, 0.3, 0.5] — AQE blend (only when n_aqe>1)
 
-Respond ONLY with JSON:
-{"engine": "FaissHNSWFlat", "params": {"M": <int>, "efConstruction": <int>, "efSearch": <int>}, "k_neighbors": <int>, "alpha": <float>, "n_refs": <int>, "ref_strategy": "<str>", "n_aqe": <int>, "aqe_weight": <float>, "reasoning": "<one sentence>"}"""
+YOU MUST respond with ONLY a valid JSON object. No explanation, no markdown, no code blocks.
+Example: {"engine": "FaissHNSWFlat", "params": {"M": 32, "efConstruction": 200, "efSearch": 64}, "k_neighbors": 100, "alpha": 0.3, "n_refs": 1, "ref_strategy": "first", "n_aqe": 1, "aqe_weight": 0.0, "reasoning": "low efSearch for high QPS"}"""
 
 
 class LLMAgent:
