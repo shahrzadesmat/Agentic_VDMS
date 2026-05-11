@@ -1,48 +1,54 @@
 # Pending TODOs
 
-## 1. Top up OpenRouter credits
-- Visit https://openrouter.ai/settings/credits
-- Unblocks all LLM rerun jobs below
+## COMPLETED
 
-## 2. Rerun HICO-DET Milvus LLM s42 + s200 (blocked on #1)
-Old results (s42=4273, s200=3854) were produced by buggy `while/else` dedup code — effectively
-pure random search. Fixed code confirmed working (s99=7327, beats VDTuner 7273).
-```bash
-cd /work/hdd/bdjd/vdms_workflow/semantic_vdms/milvus/hico_det
-sbatch run_milvus_llm_s42.sh
-sbatch run_milvus_llm_s200.sh
-```
+### ~~1. Top up OpenRouter credits~~  ✓
+Credits restored — LLM jobs unblocked.
 
-## 3. Fix `all_verb_ids` in constraint filter (code change)
-Currently both Milvus and VDMS map each image to a single bucket using `primary_object_id` /
-`primary_verb_id` only. 56% of images have multiple verbs — the verb filter misses secondary
-verb associations. Fix: use `all_object_ids` and `all_verb_ids` from `hico_metadata.json`.
+### ~~2. Rerun HICO-DET Milvus LLM s42 + s200~~  ✓
+Buggy `while/else` dedup code fixed. Corrected results:
+- s42: 7327.7 QPS, mAP=0.1596
+- s99: 7327.4 QPS, mAP=0.1525 (prior reference run)
+- s200: 7162.3 QPS, mAP=0.1614
 
-- **Milvus**: trivial — update `obj_img_map` / `verb_img_map` building in
-  `src/milvus/milvus_hico_optimizer.py` to iterate over `all_object_ids` / `all_verb_ids`
-- **VDMS**: requires rebuilding the graph database (see #5)
+### ~~4. Add `constraint_strategy` to Grid search space~~  ✓
+Grid extended to 50 systematic configs with full `constraint_strategy` sweep
+(`none`, `object`, `verb`, `object_and_verb`). See commit d5cb52d.
 
-Near-miss that motivates this fix: VDMS LLM seed99 iter41 got QPS=394 with `cs=verb` but
-mAP=0.1293 (threshold τ=0.15). Fixing the verb map may push this above threshold, raising
-LLM's best VDMS HICO-DET score from 300 → 394 QPS.
+---
 
-## 4. Add `constraint_strategy` to Grid search space (code change)
-Grid is currently fixed to `constraint_strategy=none`. This is methodologically unfair at VLDB:
-LLM has access to a dimension Grid cannot explore. Per NeurIPS 2021 "HPO Is Deceiving Us",
-fair comparison requires all methods to search the same configuration space.
+## IN PROGRESS
 
-Fix: in `src/hico_det/hico_agent_optimizer.py`, remove the `cs=none` lock on Grid and add
-`constraint_strategy ∈ {none, object, verb, object_and_verb}` to its sweep.
+### 3 / 5 / 6. ConditionB — VDMS HICO-DET with `all_verb_ids`  (running)
+All 16 SLURM scripts submitted under `supplementary/experiments/hico_det/conditionB/`.
+Results land in `supplementary/results/hico_det_condB/`.
 
-## 5. Rebuild VDMS HICO-DET database (after #3)
-Wipe the VDMS graph DB and re-insert all 47K descriptors using corrected `all_verb_ids`
-mapping so the PMGD constraint filter uses full metadata.
+**Completed so far:**
+| Method | Seed | QPS | mAP |
+|--------|------|-----|-----|
+| random | 42 | 401.9 | 0.1589 |
+| random | 99 | 182.7 | 0.2220 |
 
-## 6. Rerun all VDMS HICO-DET experiments (after #4 and #5)
-6 methods × 3 seeds = 18 runs: LLM, Random, Optuna, GP-BO, VDTuner, Grid (now with
-`constraint_strategy` in sweep).
+**Still running / pending:**
+- random/seed200
+- grid × 3 seeds
+- optuna × 3 seeds
+- gpbo × 3 seeds
+- vdtuner × 3 seeds
+- llm × 3 seeds (needs OPENROUTER_API_KEY exported before sbatch)
 
-## 7. Update paper (after #2 and #6)
-- Report corrected Milvus HICO-DET LLM results (s42, s200)
-- Report corrected VDMS HICO-DET results with fair Grid baseline and `all_verb_ids` fix
-- Add one sentence acknowledging `primary_object_id` limitation as a design choice
+Submission order: random → grid → optuna → gpbo → vdtuner → llm (last).
+Max 4 concurrent GPU jobs (gpuA40x4 partition).
+
+### Fix `all_verb_ids` in Milvus constraint filter  (pending)
+VDMS side fixed via ConditionB (`--use-all-verb-ids` flag). Milvus side still maps each
+image to a single bucket using `primary_verb_id`. Fix: update `obj_img_map` / `verb_img_map`
+building in `src/milvus/milvus_hico_optimizer.py` to iterate over `all_verb_ids`.
+
+---
+
+## 7. Update paper  (after ConditionB completes)
+- Report corrected Milvus HICO-DET LLM results (s42=7327.7, s200=7162.3)
+- Decide ConditionA vs ConditionB as primary results (methodologically B is correct;
+  whichever is higher goes in main table, other in ablation)
+- Add one sentence acknowledging `primary_verb_id` as a design choice limitation

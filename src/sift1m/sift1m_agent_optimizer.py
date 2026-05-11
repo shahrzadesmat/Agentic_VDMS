@@ -256,7 +256,30 @@ class ConfigProvider:
         configs.append(hnsw(32, 400, 48, 30))  # mid efS + best efC + mid k
         configs.append(hnsw(16, 200, 24, 100)) # low M + very low efS + high k
 
-        assert len(configs) == 30, f"Grid must have exactly 30 configs, got {len(configs)}"
+        # ---- S7a: efS × k cross — high recall zone (5) ----
+        for efS, k in [(64, 75), (64, 150), (100, 50), (100, 100), (200, 50)]:
+            configs.append(hnsw(32, 200, efS, k))
+
+        # ---- S7b: high-M cross (5) ----
+        for M, efC, efS, k in [(64, 200, 64, 20), (64, 200, 200, 50),
+                                (64, 400, 64, 10), (96, 200, 64, 20),
+                                (48, 200, 64, 20)]:
+            configs.append(hnsw(M, efC, efS, k))
+
+        # ---- S7c: low-M compensation — low M + higher efS/k (5) ----
+        for M, efC, efS, k in [(4, 200, 64, 50), (8, 200, 64, 20),
+                                (8, 200, 200, 30), (12, 200, 64, 30),
+                                (16, 200, 64, 20)]:
+            configs.append(hnsw(M, efC, efS, k))
+
+        # ---- S7d: efC × efS cross (5) ----
+        for M, efC, efS, k in [(32, 400, 64, 10), (32, 400, 200, 10),
+                                (64, 400, 64, 10), (32, 400, 64, 50),
+                                (48, 400, 64, 20)]:
+            configs.append(hnsw(M, efC, efS, k))
+
+        # Total: 1+9+6+5+4+5 + 5+5+5+5 = 50
+        assert len(configs) == 50, f"Grid must have exactly 50 configs, got {len(configs)}"
         return configs
 
 
@@ -922,9 +945,6 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
 
     if method == "grid":
         configs = config_provider.grid_search_configs()
-        if len(configs) < iterations:
-            configs += [config_provider.get_random_config()
-                        for _ in range(iterations - len(configs))]
         configs = configs[:iterations]
     elif method == "random":
         configs = [config_provider.get_random_config() for _ in range(iterations)]

@@ -63,6 +63,7 @@ _QDS_WEIGHTS: Optional[np.ndarray] = None   # shape (n_queries,), weights in [1,
 _QDS_STANDARD_THRESHOLD: bool = False       # when True: QDS exploration active but score() uses raw mAP ≥ τ
 _QDS_TIERS:   Optional[np.ndarray] = None   # shape (n_queries,), integer tier 1-4 per query
 _NO_THRESHOLD: bool = False                 # ablation: Score = QPS always (removes the mAP quality gate)
+_USE_ALL_VERB_IDS: bool = False             # Condition B: multi-row VDMS indexing with all_verb_ids
 _PER_QUERY_CONSTRAINT: Optional[np.ndarray] = None  # shape (n_queries,), "none" or "object" per query
 
 # Per-class exact indices (built once at startup from clip_db + img_metadata).
@@ -641,16 +642,28 @@ class LLMProvider:
                         "Expected: Q1/Q2 VDMS QPS~1600, combined system QPS~820, Score~200-260. "
                         "FaissFlat k=100-150 also excellent for Q1/Q2 (exact search, high QPS).")
                 else:
-                    guidance = (
-                        "First iteration — cold start, no prior data. "
-                        "OBJECTIVE: maximize QPS subject to mAP ≥ τ (batch: 600 queries/call). "
-                        "CRITICAL PHYSICS: k_neighbors is the PRIMARY QPS lever. efSearch has negligible QPS effect. "
-                        "Measured QPS: k=50→295, k=100→145, k=200→58. efSearch=32 vs 150 at k=100: no difference. "
-                        "SAFE START: FaissHNSWFlat M=64 efSearch=64 k=100 alpha=0.65 constraint_strategy=object n_refs=10. "
-                        "This gives QPS~145, mAP~0.20 (safely above τ). Then try k=50 M=64 alpha=0.65 constraint=object n_refs=10 "
-                        "for QPS~295 — but mAP is marginal (0.155-0.163) so this is high-risk/high-reward. "
-                        "Avoid k>200: QPS drops below 60. Avoid efSearch changes as primary QPS strategy. "
-                        "FaissIVFFlat (nlist=128, nprobe=8, k=100) is also valid: QPS~155, mAP~0.18.")
+                    if _USE_ALL_VERB_IDS:
+                        guidance = (
+                            "CONDITION-B (all_verb_ids multi-row): ~90K descriptors indexed (avg 1.89 verb_ids/image). "
+                            "KEY DIFFERENCE FROM CONDITION-A: without verb_id in constraint, retrieval uses k×3 for dedup "
+                            "→ effective QPS: k=50→~85, k=100→~34, k=150→~22. "
+                            "USE constraint_strategy=verb or object_and_verb to keep k nominal and avoid inflation "
+                            "(VDMS filters to images with that exact verb_id, which are already unique per image). "
+                            "Effective QPS with verb constraint: k=50→~290, k=100→~140. "
+                            "SAFE START: FaissHNSWFlat M=64 efSearch=64 k=50 constraint_strategy=verb alpha=0.65 n_refs=10. "
+                            "Verb-constrained search is semantically correct here — all verb annotations are indexed, "
+                            "so constraint_strategy=verb retrieves all images that carry that verb among their HOI annotations.")
+                    else:
+                        guidance = (
+                            "First iteration — cold start, no prior data. "
+                            "OBJECTIVE: maximize QPS subject to mAP ≥ τ (batch: 600 queries/call). "
+                            "CRITICAL PHYSICS: k_neighbors is the PRIMARY QPS lever. efSearch has negligible QPS effect. "
+                            "Measured QPS: k=50→295, k=100→145, k=200→58. efSearch=32 vs 150 at k=100: no difference. "
+                            "SAFE START: FaissHNSWFlat M=64 efSearch=64 k=100 alpha=0.65 constraint_strategy=object n_refs=10. "
+                            "This gives QPS~145, mAP~0.20 (safely above τ). Then try k=50 M=64 alpha=0.65 constraint=object n_refs=10 "
+                            "for QPS~295 — but mAP is marginal (0.155-0.163) so this is high-risk/high-reward. "
+                            "Avoid k>200: QPS drops below 60. Avoid efSearch changes as primary QPS strategy. "
+                            "FaissIVFFlat (nlist=128, nprobe=8, k=100) is also valid: QPS~155, mAP~0.18.")
             else:
                 guidance = (
                     "First iteration. Start with a known-good baseline to calibrate: "
@@ -1501,7 +1514,12 @@ def run_benchmark(port: int, dataset_dir: str, config: Dict,
         # Per-class mode: Q3/Q4 bypass VDMS (exact numpy search). Q1/Q2 use unconstrained VDMS.
         constraint_strategy = "none"   # force — VDMS constraint not needed, per-class handles it
         obj_vocab = _PER_CLASS_OBJ_VOCAB  # needed by benchmark for per-class obj_id lookup
-    elif constraint_strategy != "none" or _PER_QUERY_CONSTRAINT is not None:
+        if _USE_ALL_VERB_IDS:
+            # Multi-row indexing still needs img_meta for all_verb_ids; obj_vocab already set above.
+            img_meta, _, _ = load_hico_metadata(dataset_dir)
+    elif constraint_strategy != "none" or _PER_QUERY_CONSTRAINT is not None or _USE_ALL_VERB_IDS:
+        # Also load when _USE_ALL_VERB_IDS: setup_clip_index needs all_verb_ids from metadata
+        # even when constraint_strategy="none" (the multi-row index still needs metadata).
         img_meta, obj_vocab, verb_vocab = load_hico_metadata(dataset_dir)
 
     # Build DINOv2 reference vectors (single n_refs for all queries).
@@ -1522,10 +1540,12 @@ def run_benchmark(port: int, dataset_dir: str, config: Dict,
     if not res:
         raise RuntimeError(f"Cannot connect to VDMS on port {port}")
 
-    print(f"[Iter {iteration}] Building {set_name}  (graph={'yes' if constraint_strategy != 'none' else 'no'})...")
+    _graph_label = "condB-multirow" if _USE_ALL_VERB_IDS else ("yes" if constraint_strategy != "none" else "no")
+    print(f"[Iter {iteration}] Building {set_name}  (graph={_graph_label})...")
     t_build_start = time.time()
     setup_clip_index(db, data["clip_db"], engine, engine_params,
-                     set_name=set_name, metadata=img_meta)
+                     set_name=set_name, metadata=img_meta,
+                     use_all_verb_ids=_USE_ALL_VERB_IDS)
     index_build_s = time.time() - t_build_start
     print(f"[Iter {iteration}] Index built in {index_build_s:.1f}s")
 
@@ -1547,6 +1567,7 @@ def run_benchmark(port: int, dataset_dir: str, config: Dict,
         verb_vocab=verb_vocab,
         per_query_constraint=_PER_QUERY_CONSTRAINT,
         per_class_indices=_PER_CLASS_INDICES,
+        use_all_verb_ids=_USE_ALL_VERB_IDS,
     )
 
     print(f"[Iter {iteration}] Timing breakdown:")
@@ -1978,6 +1999,10 @@ def main():
     parser.add_argument("--no-threshold", action="store_true", default=False,
                         help="Ablation: remove mAP quality gate. Score = QPS always (no constraint). "
                              "Measures whether the SIEVE cliff is necessary for good optimization.")
+    parser.add_argument("--use-all-verb-ids", action="store_true", default=False,
+                        help="Condition B: index one VDMS descriptor per (image, verb_id) in all_verb_ids "
+                             "instead of one descriptor per image using primary_verb_id. Enables "
+                             "constraint_strategy=verb to match any verb annotation, not just primary.")
     args = parser.parse_args()
 
     api_key = None
@@ -1988,8 +2013,11 @@ def main():
             print("ERROR: OPENROUTER_API_KEY not set")
             sys.exit(1)
 
-    global _MAP_THRESHOLD, _QDS_STANDARD_THRESHOLD, _NO_THRESHOLD
+    global _MAP_THRESHOLD, _QDS_STANDARD_THRESHOLD, _NO_THRESHOLD, _USE_ALL_VERB_IDS
     _MAP_THRESHOLD = args.map_threshold
+    _USE_ALL_VERB_IDS = args.use_all_verb_ids
+    if _USE_ALL_VERB_IDS:
+        print("[ConditionB] use_all_verb_ids=True: multi-row VDMS indexing with all_verb_ids")
     _QDS_STANDARD_THRESHOLD = args.qds_standard_threshold
     _NO_THRESHOLD = args.no_threshold
     if _NO_THRESHOLD:

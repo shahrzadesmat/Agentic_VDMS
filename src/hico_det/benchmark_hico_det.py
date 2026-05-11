@@ -897,7 +897,8 @@ def run_hico_queries(db, sift_query: np.ndarray, deep_query: np.ndarray,
 def setup_clip_index(db, clip_db: np.ndarray,
                      engine: str, engine_params: dict,
                      set_name: str = "CLIP_Set",
-                     metadata: List[Dict] = None) -> float:
+                     metadata: List[Dict] = None,
+                     use_all_verb_ids: bool = False) -> float:
     """
     Create a MobileCLIP-S2 DescriptorSet (512-d L2) and index all images.
 
@@ -945,6 +946,8 @@ def setup_clip_index(db, clip_db: np.ndarray,
         return props
 
     BATCH_PROPS_SIZE = 500  # batch_properties mode: single FAISS insert_descriptor call per batch
+    n_indexed = n  # total descriptors indexed (> n when use_all_verb_ids)
+
     if not use_graph:
         # No per-descriptor metadata — use fast batch_properties path (238x speedup vs individual)
         print(f"Indexing {n:,} CLIP vectors  dim={clip_db.shape[1]}  set={set_name}  (batch_properties={BATCH_PROPS_SIZE})...")
@@ -959,8 +962,43 @@ def setup_clip_index(db, clip_db: np.ndarray,
                 fail += (1 if res[0].get("AddDescriptor", {}).get("status", -1) != 0 else 0)
             if start % 50000 == 0 and start > 0:
                 print(f"  CLIP progress: {start:,}/{n:,}")
+
+    elif use_all_verb_ids:
+        # Condition B: multi-row indexing — one descriptor per (image, verb_id) in all_verb_ids.
+        # PMGD has no "in" operator, so the only way to match any verb annotation is to index
+        # the same CLIP vector once per verb_id. After retrieval, caller deduplicates by image id.
+        descriptor_list = []  # (img_idx, props_dict)
+        for i in range(n):
+            m   = metadata[i]
+            oid = int(m["primary_object_id"]) if m["primary_object_id"] >= 0 else None
+            verbs = m.get("all_verb_ids") or []
+            if not verbs:  # fallback: should never happen with well-formed metadata
+                verbs = [m["primary_verb_id"]] if m["primary_verb_id"] >= 0 else []
+            for vid in verbs:
+                props = {"id": i}
+                if oid is not None:
+                    props["object_id"] = oid
+                props["verb_id"] = int(vid)
+                descriptor_list.append((i, props))
+
+        n_indexed = len(descriptor_list)
+        print(f"Indexing {n_indexed:,} descriptors  ({n:,} images × avg {n_indexed/n:.2f} verb_ids)  "
+              f"dim={clip_db.shape[1]}  set={set_name}  (batch_properties={BATCH_PROPS_SIZE})...")
+        for start in range(0, n_indexed, BATCH_PROPS_SIZE):
+            end   = min(start + BATCH_PROPS_SIZE, n_indexed)
+            batch = descriptor_list[start:end]
+            batch_props = [p for _, p in batch]
+            # Each row in the blob must match exactly one entry in batch_props.
+            blob = np.stack([clip_db[idx] for idx, _ in batch]).astype(np.float32).tobytes()
+            cmd = {"AddDescriptor": {"set": set_name, "batch_properties": batch_props}}
+            res, _ = db.query([cmd], [blob])
+            if res:
+                fail += (1 if res[0].get("AddDescriptor", {}).get("status", -1) != 0 else 0)
+            if start % 50000 == 0 and start > 0:
+                print(f"  CLIP progress: {start:,}/{n_indexed:,}")
+
     else:
-        # Per-descriptor metadata — use batch_properties with full props (test confirmed safe)
+        # Condition A: one descriptor per image, verb_id = primary_verb_id (original behaviour).
         print(f"Indexing {n:,} CLIP vectors  dim={clip_db.shape[1]}  set={set_name}  (batch_properties={BATCH_PROPS_SIZE}, with metadata)...")
         for start in range(0, n, BATCH_PROPS_SIZE):
             end        = min(start + BATCH_PROPS_SIZE, n)
@@ -975,10 +1013,10 @@ def setup_clip_index(db, clip_db: np.ndarray,
                 print(f"  CLIP progress: {start:,}/{n:,}")
 
     elapsed = time.time() - t0
-    print(f"  CLIP failures: {fail}/{n}  ({'FAIL' if fail > 0 else 'OK'})")
+    print(f"  CLIP failures: {fail}/{n_indexed}  ({'FAIL' if fail > 0 else 'OK'})")
     print(f"[OK] '{set_name}' indexed  ({elapsed:.1f}s)")
     if fail > 0:
-        raise RuntimeError(f"CLIP indexing failures: {fail}/{n}")
+        raise RuntimeError(f"CLIP indexing failures: {fail}/{n_indexed}")
     return elapsed
 
 
@@ -1074,7 +1112,8 @@ def run_hico_text_dinov2_rerank(db, text_q: np.ndarray, dinov2_q: np.ndarray,
                                 obj_vocab: Dict = None,
                                 verb_vocab: Dict = None,
                                 per_query_constraint: Optional[np.ndarray] = None,
-                                per_class_indices: Optional[Dict] = None) -> Dict:
+                                per_class_indices: Optional[Dict] = None,
+                                use_all_verb_ids: bool = False) -> Dict:
     # per_class_indices: dict obj_id → (vecs (N,D), img_ids (N,)) from build_per_class_clip_indices.
     # When provided, queries with per_query_constraint=='object' bypass VDMS and use exact numpy
     # search against the per-class pool (~600 images). Q1/Q2 still go to VDMS unconstrained.
@@ -1142,9 +1181,17 @@ def run_hico_text_dinov2_rerank(db, text_q: np.ndarray, dinov2_q: np.ndarray,
     clip_ops   = []
     clip_blobs = []
     q_to_vdms  = {}  # q_idx → position in clip_ops
+    # When use_all_verb_ids=True, images with n verbs appear n times in the DB.
+    # Queries whose constraint does NOT include verb_id may return duplicate image ids;
+    # we request 3× k and deduplicate after retrieval to guarantee ≥ k unique results.
+    # Queries with a verb_id constraint are already unique-per-image — no inflation needed.
+    q_needs_dedup = set()  # q_idxs that need dedup (inflated k was used)
     for pos, q_idx in enumerate(vdms_idxs):
         constraint = _build_constraint_clip(q_idx)
         k_q = int(k_neighbors[q_idx]) if hasattr(k_neighbors, '__len__') else int(k_neighbors)
+        if use_all_verb_ids and "verb_id" not in constraint:
+            q_needs_dedup.add(q_idx)
+            k_q = min(k_q * 3, 10000)
         clip_find = {
             "set": clip_name, "k_neighbors": k_q,
             "results": {"list": ["id", "_distance"]}
@@ -1191,6 +1238,15 @@ def run_hico_text_dinov2_rerank(db, text_q: np.ndarray, dinov2_q: np.ndarray,
             clip_results = _parse_entities(
                 batch_res[vdms_pos] if (batch_res and vdms_pos < len(batch_res)) else None
             )
+            # Condition B: deduplicate by image id (each image may appear once per verb_id in DB).
+            # Results are sorted ascending by distance; keep the first (best) occurrence per image.
+            if use_all_verb_ids and q_idx in q_needs_dedup:
+                k_orig = int(k_neighbors[q_idx]) if hasattr(k_neighbors, '__len__') else int(k_neighbors)
+                seen: Dict[int, Dict] = {}
+                for r in clip_results:
+                    if r["id"] not in seen:
+                        seen[r["id"]] = r
+                clip_results = sorted(seen.values(), key=lambda x: x["distance"])[:k_orig]
 
         a = float(alpha[q_idx]) if hasattr(alpha, '__len__') else float(alpha)
 

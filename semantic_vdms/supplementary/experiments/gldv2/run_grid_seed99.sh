@@ -1,26 +1,26 @@
 #!/bin/bash
-#SBATCH --job-name=gldv2_grid_s42
+#SBATCH --job-name=gldv2_grid_s99
 #SBATCH --account=bdjd-delta-gpu
 #SBATCH --partition=gpuA40x4
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=08:00:00
-#SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/gldv2/gldv2_grid_s42_%j.log
-#SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/gldv2/gldv2_grid_s42_%j.err
+#SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/gldv2/gldv2_grid_s99_%j.log
+#SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/gldv2/gldv2_grid_s99_%j.err
 
-PORT=55643
-INSTANCE="vdms_gldv2_grid_s42_${SLURM_JOB_ID}"
+PORT=55644
+INSTANCE="vdms_gldv2_grid_s99_${SLURM_JOB_ID}"
 BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"
 DATASET_DIR="/work/hdd/bdjd/vdms/datasets"
 CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
 PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
-DB_ROOT="/tmp/vdms_gldv2_grid_s42_${SLURM_JOB_ID}"
-VDMS_CFG="/tmp/vdms_gldv2_grid_s42_${SLURM_JOB_ID}.json"
+DB_ROOT="/tmp/vdms_gldv2_grid_s99_${SLURM_JOB_ID}"
+VDMS_CFG="/tmp/vdms_gldv2_grid_s99_${SLURM_JOB_ID}.json"
 FINAL_RESULTS="${BASE_DIR}/FINAL_RESULTS/gldv2/results"
-OUTPUT="${FINAL_RESULTS}/grid_seed42.json"
+OUTPUT="${FINAL_RESULTS}/grid_seed99.json"
 
-echo "===== GLDv2 Grid seed=42 ====="
+echo "===== GLDv2 Grid seed=99 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"
 
 mkdir -p "$FINAL_RESULTS"
@@ -45,7 +45,7 @@ start_vdms() {
     apptainer instance start --no-init --nv --bind "${DB_ROOT}:/db" "$CONTAINER" "$INSTANCE"
     if [ $? -ne 0 ]; then echo "ERROR: Failed to start Apptainer instance"; exit 1; fi
     apptainer exec instance://${INSTANCE} \
-        /vdms/build/vdms -cfg "$VDMS_CFG" > /tmp/vdms_gldv2_grid_s42_${SLURM_JOB_ID}.log 2>&1 &
+        /vdms/build/vdms -cfg "$VDMS_CFG" > /tmp/vdms_gldv2_grid_s99_${SLURM_JOB_ID}.log 2>&1 &
     timeout 180 bash -c "until nc -z localhost ${PORT}; do sleep 1; done" 2>/dev/null
     if [ $? -ne 0 ]; then
         echo "ERROR: VDMS did not become ready within 180 seconds"
@@ -63,7 +63,7 @@ PYTHONUNBUFFERED=1 $PYTHON "$OPTIMIZER" \
     --dataset-dir "$DATASET_DIR" \
     --method grid \
     --iterations 50 \
-    --seed 42 \
+    --seed 99 \
     --output "$OUTPUT" \
     --patience 0 \
     --vdms-restart-cmd "bash -c start_vdms"

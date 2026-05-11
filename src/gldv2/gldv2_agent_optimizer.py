@@ -241,8 +241,34 @@ class ConfigProvider:
         for n_aqe, aqe_weight in [(3, 0.1), (3, 0.3), (5, 0.2), (5, 0.5), (10, 0.2), (10, 0.5)]:
             configs.append({**BASE, "n_aqe": n_aqe, "aqe_weight": aqe_weight})
 
-        # Total: 5+6+7+3+3+6 = 30
-        assert len(configs) == 30, f"Grid must have exactly 30 configs, got {len(configs)}"
+        # ---- S8a: efSearch sweep (5) — baseline has efS=500; explore lower/faster range ----
+        for efS in [16, 32, 64, 100, 200]:
+            configs.append(_gc(**{**BASE,
+                "params": {"M": 32, "efConstruction": 400, "efSearch": efS}}))
+
+        # ---- S8b: low-efS × k cross — high-QPS zone (5) ----
+        for efS, k, alpha in [(32, 50, 0.90), (64, 100, 0.85), (100, 150, 0.80),
+                               (200, 100, 0.70), (32, 200, 0.90)]:
+            configs.append(_gc(**{**BASE,
+                "params": {"M": 32, "efConstruction": 400, "efSearch": efS},
+                "k_neighbors": k, "alpha": alpha}))
+
+        # ---- S8c: high-M interactions (5) ----
+        for M, efS, k, alpha in [(64, 200, 100, 0.90), (64, 100, 100, 0.85),
+                                  (64, 500, 200, 0.90), (48, 200, 100, 0.85),
+                                  (16, 100,  50, 0.80)]:
+            configs.append(_gc(**{**BASE,
+                "params": {"M": M, "efConstruction": 400, "efSearch": efS},
+                "k_neighbors": k, "alpha": alpha}))
+
+        # ---- S8d: AQE × alpha cross (5) ----
+        for alpha, n_aqe, aqe_weight in [(0.70, 3, 0.3), (0.80, 5, 0.3),
+                                          (0.70, 5, 0.2), (0.85, 10, 0.3),
+                                          (0.75, 3, 0.5)]:
+            configs.append({**BASE, "alpha": alpha, "n_aqe": n_aqe, "aqe_weight": aqe_weight})
+
+        # Total: 5+6+7+3+3+6 + 5+5+5+5 = 50
+        assert len(configs) == 50, f"Grid must have exactly 50 configs, got {len(configs)}"
         return configs
 
 
@@ -1001,9 +1027,6 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
 
     if method == "grid":
         configs = config_provider.grid_search_configs()
-        if len(configs) < iterations:
-            configs += [config_provider.get_random_config()
-                        for _ in range(iterations - len(configs))]
         configs = configs[:iterations]
     elif method == "random":
         configs = [config_provider.get_random_config() for _ in range(iterations)]

@@ -3,26 +3,306 @@
   "seed": 42,
   "iterations": 50,
   "map_threshold": 0.15,
-  "best_score": 4272.802503323559,
-  "best_map": 0.1804526411655211,
-  "best_qps": 4272.802503323559,
+  "best_score": 7327.681802961259,
+  "best_map": 0.15962964819970385,
+  "best_qps": 7327.681802961259,
   "best_config": {
     "engine": "FaissHNSWFlat",
     "params": {
-      "M": 64,
+      "M": 8,
       "efConstruction": 200,
-      "efSearch": 64
+      "efSearch": 32
     },
     "k_neighbors": 50,
-    "n_refs": 10,
+    "alpha": 0.8,
+    "n_refs": 3,
     "ref_strategy": "first",
     "constraint_strategy": "none",
-    "alpha": 0.7,
-    "_iter": 13
+    "_iter": 44
   },
   "all_results": [
     {
       "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 1
+      },
+      "score": 1823.6368643023811,
+      "map": 0.17263703104448822,
+      "qps": 1823.6368643023811,
+      "latency_ms": 0.5483547846476237,
+      "index_build_s": 6.131383419036865,
+      "p10": 0.43149999999999994,
+      "ndcg10": 0.4792186746461455,
+      "recall10": 0.13307349348135805,
+      "reasoning": "Starting at the TRUE highest QPS ceiling (7273 QPS) with k=50 efSearch=32 cs=none and alpha=0.90 to recover mAP at this aggressive ANN setting."
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissFlat",
+        "params": {},
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 2
+      },
+      "score": 199.97253795102603,
+      "map": 0.18952002134187518,
+      "qps": 199.97253795102603,
+      "latency_ms": 5.0006866455078125,
+      "index_build_s": 0.16356539726257324,
+      "p10": 0.4553333333333334,
+      "ndcg10": 0.5108149978428146,
+      "recall10": 0.1483188630304605,
+      "reasoning": "EXPLORATION: try FaissFlat to establish mAP ceiling at k=50 and diagnose why actual QPS differs from theoretical baseline"
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 3
+      },
+      "score": 6818.12181998472,
+      "map": 0.172735994638147,
+      "qps": 6818.12181998472,
+      "latency_ms": 0.1466679573059082,
+      "index_build_s": 5.3950276374816895,
+      "p10": 0.43133333333333324,
+      "ndcg10": 0.4790347478908982,
+      "recall10": 0.13333143016057208,
+      "reasoning": "alpha sweep from best known config (M=8 efSearch=32 k=50) with 0.05 decrement to find optimal alpha below 0.90"
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 4
+      },
+      "score": 6854.931357594247,
+      "map": 0.17191165659506738,
+      "qps": 6854.931357594247,
+      "latency_ms": 0.14588038126627603,
+      "index_build_s": 0.0,
+      "p10": 0.43333333333333335,
+      "ndcg10": 0.4793791055643314,
+      "recall10": 0.13358805542847038,
+      "reasoning": "Explore alpha=0.80 with the proven high-QPS M=8 efSearch=32 k=50 config to find if lower alpha maintains mAP while preserving high QPS"
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.75,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 5
+      },
+      "score": 6563.736186350276,
+      "map": 0.17056745084115243,
+      "qps": 6563.736186350276,
+      "latency_ms": 0.15235225359598795,
+      "index_build_s": 0.0,
+      "p10": 0.432,
+      "ndcg10": 0.4764453257403867,
+      "recall10": 0.1335344555921108,
+      "reasoning": "Continue alpha downward sweep - iter04 with alpha=0.80 achieved highest QPS (6854.9) so alpha=0.75 may push QPS even higher while maintaining mAP >0.15"
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 6
+      },
+      "score": 5328.694179177166,
+      "map": 0.1783616546129139,
+      "qps": 5328.694179177166,
+      "latency_ms": 0.18766323725382486,
+      "index_build_s": 0.0,
+      "p10": 0.44166666666666665,
+      "ndcg10": 0.48898157898864203,
+      "recall10": 0.13903929401354528,
+      "reasoning": "Increase efSearch to 64 to improve ANN recall while maintaining high QPS; exploration around the best zone"
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 512,
+          "nprobe": 4
+        },
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "object",
+        "_iter": 7
+      },
+      "score": 1529.1587319912744,
+      "map": 0.22341883344613891,
+      "qps": 1529.1587319912744,
+      "latency_ms": 0.6539543469746908,
+      "index_build_s": 6.3989481925964355,
+      "p10": 0.48616666666666675,
+      "ndcg10": 0.5407570430073668,
+      "recall10": 0.16381681543613644,
+      "reasoning": "try IVF which has different algorithm than HNSW, at nlist=512/nprobe=4 to maintain high QPS while exploring algorithm space"
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "none",
+        "_iter": 8
+      },
+      "score": 2345.470914876127,
+      "map": 0.17027960344337975,
+      "qps": 2345.470914876127,
+      "latency_ms": 0.42635361353556317,
+      "index_build_s": 5.762040376663208,
+      "p10": 0.43083333333333335,
+      "ndcg10": 0.4891222756566428,
+      "recall10": 0.13069640332183374,
+      "reasoning": "Testing alpha=0.90 with centroid ref_strategy to verify QPS behavior; iter01 had anomalous low QPS=1823 vs expected ~7K, using different ref_strategy to avoid exact repeat"
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "none",
+        "_iter": 9
+      },
+      "score": 6846.613669381825,
+      "map": 0.16907096954222822,
+      "qps": 6846.613669381825,
+      "latency_ms": 0.1460576057434082,
+      "index_build_s": 0.0,
+      "p10": 0.42933333333333334,
+      "ndcg10": 0.4840121269857161,
+      "recall10": 0.13089408208423733,
+      "reasoning": "At alpha=0.80 with diverse refs, we achieved BEST score=6854.9314; testing same alpha with centroid refs to isolate ref_strategy effect while staying at peak performance zone"
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "alpha": 0.85,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 10
+      },
+      "score": 4897.43722475319,
+      "map": 0.21451245297593824,
+      "qps": 4897.43722475319,
+      "latency_ms": 0.20418842633565268,
+      "index_build_s": 0.0,
+      "p10": 0.4476666666666667,
+      "ndcg10": 0.4981130664602056,
+      "recall10": 0.1454373089564246,
+      "reasoning": "ESCAPE: increase k from 50 to 100 to break alpha-only stagnation pattern, while using alpha=0.85 near optimal zone"
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 256,
+          "nprobe": 8
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 11
+      },
+      "score": 2027.5643034680568,
+      "map": 0.15902344410919383,
+      "qps": 2027.5643034680568,
+      "latency_ms": 0.49320260683695477,
+      "index_build_s": 2.918766498565674,
+      "p10": 0.43166666666666664,
+      "ndcg10": 0.478933992450289,
+      "recall10": 0.1291692749078641,
+      "reasoning": "Try IVF with balanced nlist/nprobe for different recall/QPS tradeoff; different engine to escape HNSW stagnation"
+    },
+    {
+      "iteration": 12,
       "config": {
         "engine": "FaissIVFFlat",
         "params": {
@@ -34,20 +314,46 @@
         "ref_strategy": "first",
         "constraint_strategy": "none",
         "alpha": 0.3,
-        "_iter": 1
+        "_iter": 12
       },
-      "score": 505.07099562460076,
+      "score": 695.3427514445884,
       "map": 0.2889266264849,
-      "qps": 505.07099562460076,
-      "latency_ms": 1.979919672012329,
-      "index_build_s": 5.145404577255249,
+      "qps": 695.3427514445884,
+      "latency_ms": 1.4381396770477295,
+      "index_build_s": 4.6933417320251465,
       "p10": 0.41050000000000003,
       "ndcg10": 0.4470856757720003,
       "recall10": 0.12540795247123374,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
-      "iteration": 2,
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 13
+      },
+      "score": 4935.617260464186,
+      "map": 0.1786794057434385,
+      "qps": 4935.617260464186,
+      "latency_ms": 0.20260890324910483,
+      "index_build_s": 5.302424430847168,
+      "p10": 0.4405,
+      "ndcg10": 0.49039937268265515,
+      "recall10": 0.13865386641006022,
+      "reasoning": "Escape stagnation by increasing efSearch to 64 with higher alpha=0.85 - different from best zone while staying near high-QPS territory"
+    },
+    {
+      "iteration": 14,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
@@ -60,20 +366,20 @@
         "ref_strategy": "first",
         "constraint_strategy": "object_and_verb",
         "alpha": 0.35,
-        "_iter": 2
+        "_iter": 14
       },
-      "score": 2924.602463488699,
+      "score": 2994.045892527206,
       "map": 0.5655895730118394,
-      "qps": 2924.602463488699,
-      "latency_ms": 0.34192681312561035,
-      "index_build_s": 7.516676425933838,
+      "qps": 2994.045892527206,
+      "latency_ms": 0.3339962164560954,
+      "index_build_s": 7.5742974281311035,
       "p10": 0.962857142857143,
       "ndcg10": 0.8570674258264154,
       "recall10": 0.2606694102124402,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
-      "iteration": 3,
+      "iteration": 15,
       "config": {
         "engine": "FaissIVFFlat",
         "params": {
@@ -85,20 +391,46 @@
         "ref_strategy": "centroid",
         "constraint_strategy": "object",
         "alpha": 0.05,
-        "_iter": 3
+        "_iter": 15
       },
-      "score": 3686.2038104417293,
+      "score": 3438.475506531728,
       "map": 0.21816907769565252,
-      "qps": 3686.2038104417293,
-      "latency_ms": 0.27128179868062335,
-      "index_build_s": 0.9789214134216309,
+      "qps": 3438.475506531728,
+      "latency_ms": 0.29082655906677246,
+      "index_build_s": 1.7147836685180664,
       "p10": 0.3968333333333333,
       "ndcg10": 0.4247259904816307,
       "recall10": 0.11595777705589082,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
-      "iteration": 4,
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 16
+      },
+      "score": 3244.3564356435645,
+      "map": 0.17734738883047663,
+      "qps": 3244.3564356435645,
+      "latency_ms": 0.3082275390625,
+      "index_build_s": 7.073304176330566,
+      "p10": 0.4395,
+      "ndcg10": 0.4853691003263748,
+      "recall10": 0.1374804617145784,
+      "reasoning": "M=16 provides denser graph than M=8 while maintaining same efSearch=32 and k=50; this explores higher recall ceiling without sacrificing the high-QPS configuration"
+    },
+    {
+      "iteration": 17,
       "config": {
         "engine": "FaissFlat",
         "params": {},
@@ -107,20 +439,20 @@
         "ref_strategy": "centroid",
         "constraint_strategy": "object",
         "alpha": 0.55,
-        "_iter": 4
+        "_iter": 17
       },
-      "score": 3967.9834505898566,
+      "score": 3815.668823223494,
       "map": 0.21021736770623414,
-      "qps": 3967.9834505898566,
-      "latency_ms": 0.25201718012491864,
-      "index_build_s": 0.036948204040527344,
+      "qps": 3815.668823223494,
+      "latency_ms": 0.26207725207010907,
+      "index_build_s": 0.024102449417114258,
       "p10": 0.47133333333333327,
       "ndcg10": 0.5152661486488728,
       "recall10": 0.15567596558562843,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
-      "iteration": 5,
+      "iteration": 18,
       "config": {
         "engine": "FaissFlat",
         "params": {},
@@ -129,12 +461,12 @@
         "ref_strategy": "diverse",
         "constraint_strategy": "verb",
         "alpha": 0.45,
-        "_iter": 5
+        "_iter": 18
       },
-      "score": 905.3620574160269,
+      "score": 685.0781178540784,
       "map": 0.33195026622644874,
-      "qps": 905.3620574160269,
-      "latency_ms": 1.1045304934183757,
+      "qps": 685.0781178540784,
+      "latency_ms": 1.4596875508626301,
       "index_build_s": 0.0,
       "p10": 0.7188333333333333,
       "ndcg10": 0.7530995605554648,
@@ -142,7 +474,7 @@
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
-      "iteration": 6,
+      "iteration": 19,
       "config": {
         "engine": "FaissIVFFlat",
         "params": {
@@ -154,20 +486,20 @@
         "ref_strategy": "first",
         "constraint_strategy": "verb",
         "alpha": 0.2,
-        "_iter": 6
+        "_iter": 19
       },
-      "score": 796.5998502764188,
+      "score": 767.0849197536264,
       "map": 0.40377903509520974,
-      "qps": 796.5998502764188,
-      "latency_ms": 1.2553354104359944,
-      "index_build_s": 0.9854857921600342,
+      "qps": 767.0849197536264,
+      "latency_ms": 1.30363663037618,
+      "index_build_s": 2.850034713745117,
       "p10": 0.6991666666666667,
       "ndcg10": 0.7316776421079771,
       "recall10": 0.2057628290856659,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
-      "iteration": 7,
+      "iteration": 20,
       "config": {
         "engine": "FaissIVFFlat",
         "params": {
@@ -179,432 +511,120 @@
         "ref_strategy": "centroid",
         "constraint_strategy": "object_and_verb",
         "alpha": 0.65,
-        "_iter": 7
+        "_iter": 20
       },
-      "score": 3092.42996947608,
+      "score": 2985.758522747496,
       "map": 0.45863554427956926,
-      "qps": 3092.42996947608,
-      "latency_ms": 0.3233702977498372,
-      "index_build_s": 2.4458069801330566,
+      "qps": 2985.758522747496,
+      "latency_ms": 0.33492326736450195,
+      "index_build_s": 2.5567567348480225,
       "p10": 0.9625238095238096,
       "ndcg10": 0.8584256879658408,
       "recall10": 0.25864565181913246,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
-      "iteration": 8,
-      "config": {
-        "engine": "FaissHNSWFlat",
-        "params": {
-          "M": 16,
-          "efConstruction": 200,
-          "efSearch": 32
-        },
-        "k_neighbors": 100,
-        "n_refs": 1,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.7,
-        "_iter": 8
-      },
-      "score": 3828.2062554477707,
-      "map": 0.5340185368599584,
-      "qps": 3828.2062554477707,
-      "latency_ms": 0.26121894518534344,
-      "index_build_s": 6.547768592834473,
-      "p10": 0.9620238095238096,
-      "ndcg10": 0.8574450385210622,
-      "recall10": 0.25854477211081117,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 9,
-      "config": {
-        "engine": "FaissIVFFlat",
-        "params": {
-          "nlist": 512,
-          "nprobe": 64
-        },
-        "k_neighbors": 1000,
-        "n_refs": 5,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "object",
-        "alpha": 0.8,
-        "_iter": 9
-      },
-      "score": 2019.0290364817336,
-      "map": 0.5568579779273936,
-      "qps": 2019.0290364817336,
-      "latency_ms": 0.49528757731119794,
-      "index_build_s": 4.685892343521118,
-      "p10": 0.6241666666666666,
-      "ndcg10": 0.7060988359407422,
-      "recall10": 0.2325472441881513,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 10,
-      "config": {
-        "engine": "FaissHNSWFlat",
-        "params": {
-          "M": 48,
-          "efConstruction": 200,
-          "efSearch": 64
-        },
-        "k_neighbors": 500,
-        "n_refs": 3,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "object",
-        "alpha": 0.15,
-        "_iter": 10
-      },
-      "score": 2329.1983895599055,
-      "map": 0.3676152173838711,
-      "qps": 2329.1983895599055,
-      "latency_ms": 0.42933225631713867,
-      "index_build_s": 7.6598875522613525,
-      "p10": 0.4246666666666667,
-      "ndcg10": 0.4568113116923632,
-      "recall10": 0.1292891073569851,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 11,
-      "config": {
-        "engine": "FaissHNSWFlat",
-        "params": {
-          "M": 64,
-          "efConstruction": 200,
-          "efSearch": 500
-        },
-        "k_neighbors": 100,
-        "n_refs": 3,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "object",
-        "alpha": 0.15,
-        "_iter": 11
-      },
-      "score": 3603.756433278631,
-      "map": 0.22696228172076502,
-      "qps": 3603.756433278631,
-      "latency_ms": 0.27748823165893555,
-      "index_build_s": 7.604384899139404,
-      "p10": 0.4093333333333333,
-      "ndcg10": 0.4391533875883666,
-      "recall10": 0.12184468834679615,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 12,
-      "config": {
-        "engine": "FaissHNSWFlat",
-        "params": {
-          "M": 48,
-          "efConstruction": 200,
-          "efSearch": 32
-        },
-        "k_neighbors": 500,
-        "n_refs": 10,
-        "ref_strategy": "first",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.6,
-        "_iter": 12
-      },
-      "score": 3375.027358753728,
-      "map": 0.6100891381106702,
-      "qps": 3375.027358753728,
-      "latency_ms": 0.2962938944498698,
-      "index_build_s": 7.572278738021851,
-      "p10": 0.9661904761904763,
-      "ndcg10": 0.8624985095742759,
-      "recall10": 0.2637767668778131,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 13,
-      "config": {
-        "engine": "FaissHNSWFlat",
-        "params": {
-          "M": 64,
-          "efConstruction": 200,
-          "efSearch": 64
-        },
-        "k_neighbors": 50,
-        "n_refs": 10,
-        "ref_strategy": "first",
-        "constraint_strategy": "none",
-        "alpha": 0.7,
-        "_iter": 13
-      },
-      "score": 4272.802503323559,
-      "map": 0.1804526411655211,
-      "qps": 4272.802503323559,
-      "latency_ms": 0.2340384324391683,
-      "index_build_s": 7.602180242538452,
-      "p10": 0.45433333333333337,
-      "ndcg10": 0.5025728000906875,
-      "recall10": 0.14674467183502904,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 14,
-      "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 50,
-        "n_refs": 1,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "none",
-        "alpha": 0.0,
-        "_iter": 14
-      },
-      "score": 0.0,
-      "map": 0.12891936493863587,
-      "qps": 208.51963529440326,
-      "latency_ms": 4.795711437861125,
-      "index_build_s": 0.021888256072998047,
-      "p10": 0.34400000000000003,
-      "ndcg10": 0.37306657391165443,
-      "recall10": 0.09538382034230826,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 15,
-      "config": {
-        "engine": "FaissIVFFlat",
-        "params": {
-          "nlist": 256,
-          "nprobe": 16
-        },
-        "k_neighbors": 50,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "verb",
-        "alpha": 0.0,
-        "_iter": 15
-      },
-      "score": 924.8421406978223,
-      "map": 0.2986973680754727,
-      "qps": 924.8421406978223,
-      "latency_ms": 1.0812656084696453,
-      "index_build_s": 2.4459879398345947,
-      "p10": 0.6656666666666666,
-      "ndcg10": 0.6957742212609628,
-      "recall10": 0.19017442108292978,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 16,
-      "config": {
-        "engine": "FaissIVFFlat",
-        "params": {
-          "nlist": 64,
-          "nprobe": 8
-        },
-        "k_neighbors": 750,
-        "n_refs": 3,
-        "ref_strategy": "first",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.3,
-        "_iter": 16
-      },
-      "score": 2893.617921561548,
-      "map": 0.6096479903797961,
-      "qps": 2893.617921561548,
-      "latency_ms": 0.34558812777201336,
-      "index_build_s": 0.35606956481933594,
-      "p10": 0.9610238095238096,
-      "ndcg10": 0.8546647181407949,
-      "recall10": 0.25738690105493117,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 17,
-      "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 1000,
-        "n_refs": 10,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "none",
-        "alpha": 0.75,
-        "_iter": 17
-      },
-      "score": 171.59410992927675,
-      "map": 0.40999064241023275,
-      "qps": 171.59410992927675,
-      "latency_ms": 5.8277058601379395,
-      "index_build_s": 0.021582365036010742,
-      "p10": 0.5578333333333334,
-      "ndcg10": 0.6235302712168523,
-      "recall10": 0.19807413661242557,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 18,
-      "config": {
-        "engine": "FaissIVFFlat",
-        "params": {
-          "nlist": 256,
-          "nprobe": 64
-        },
-        "k_neighbors": 150,
-        "n_refs": 10,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "verb",
-        "alpha": 0.1,
-        "_iter": 18
-      },
-      "score": 789.8753629101866,
-      "map": 0.3777639038886319,
-      "qps": 789.8753629101866,
-      "latency_ms": 1.266022523244222,
-      "index_build_s": 2.4474899768829346,
-      "p10": 0.6843333333333333,
-      "ndcg10": 0.7157559097613176,
-      "recall10": 0.19774234088472104,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 19,
-      "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 150,
-        "n_refs": 1,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "object",
-        "alpha": 0.1,
-        "_iter": 19
-      },
-      "score": 3256.611552601645,
-      "map": 0.25144176321088463,
-      "qps": 3256.611552601645,
-      "latency_ms": 0.3070676326751709,
-      "index_build_s": 0.021419763565063477,
-      "p10": 0.3978333333333333,
-      "ndcg10": 0.4262644968930621,
-      "recall10": 0.1168014694956446,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 20,
-      "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 300,
-        "n_refs": 3,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "verb",
-        "alpha": 0.65,
-        "_iter": 20
-      },
-      "score": 740.2786345196524,
-      "map": 0.45561618870572074,
-      "qps": 740.2786345196524,
-      "latency_ms": 1.3508427143096924,
-      "index_build_s": 0.0,
-      "p10": 0.7446666666666667,
-      "ndcg10": 0.7815566685766244,
-      "recall10": 0.22322311604747588,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
       "iteration": 21,
       "config": {
-        "engine": "FaissIVFFlat",
+        "engine": "FaissHNSWFlat",
         "params": {
-          "nlist": 256,
-          "nprobe": 4
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 750,
+        "k_neighbors": 50,
+        "alpha": 0.9,
         "n_refs": 5,
         "ref_strategy": "centroid",
-        "constraint_strategy": "object",
-        "alpha": 0.6,
+        "constraint_strategy": "none",
         "_iter": 21
       },
-      "score": 2145.6124450825605,
-      "map": 0.49173530577650515,
-      "qps": 2145.6124450825605,
-      "latency_ms": 0.4660673936208089,
-      "index_build_s": 2.4362411499023438,
-      "p10": 0.5678333333333332,
-      "ndcg10": 0.6377018953850372,
-      "recall10": 0.1962569165868776,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 3038.484683109645,
+      "map": 0.16217849725582306,
+      "qps": 3038.484683109645,
+      "latency_ms": 0.32911141713460285,
+      "index_build_s": 5.326505422592163,
+      "p10": 0.41533333333333333,
+      "ndcg10": 0.4776774061117903,
+      "recall10": 0.11977813102280223,
+      "reasoning": "Targeting high QPS zone with alpha=0.90 but varying n_refs and ref_strategy to improve upon iter01's mAP"
     },
     {
       "iteration": 22,
       "config": {
-        "engine": "FaissIVFFlat",
+        "engine": "FaissHNSWFlat",
         "params": {
-          "nlist": 256,
-          "nprobe": 4
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 200,
-        "n_refs": 1,
-        "ref_strategy": "centroid",
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
         "constraint_strategy": "none",
-        "alpha": 0.3,
         "_iter": 22
       },
-      "score": 3458.0504736542694,
-      "map": 0.1708868755106466,
-      "qps": 3458.0504736542694,
-      "latency_ms": 0.28918027877807617,
+      "score": 622.7971175819287,
+      "map": 0.1638905019965177,
+      "qps": 622.7971175819287,
+      "latency_ms": 1.6056593259175618,
       "index_build_s": 0.0,
-      "p10": 0.3573333333333333,
-      "ndcg10": 0.38614494491174056,
-      "recall10": 0.09341374315789584,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "p10": 0.41966666666666663,
+      "ndcg10": 0.4665736467746291,
+      "recall10": 0.12591289351343035,
+      "reasoning": "n_refs=3 with diverse ref gives intra-class variation but less overhead than refs=10 while preserving best alpha=0.80 and config from iter04 which achieved best score 6854.9314"
     },
     {
       "iteration": 23,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 750,
-        "n_refs": 5,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 10,
         "ref_strategy": "first",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.6,
+        "constraint_strategy": "none",
         "_iter": 23
       },
-      "score": 1738.6977293689697,
-      "map": 0.6206525365392328,
-      "qps": 1738.6977293689697,
-      "latency_ms": 0.5751430988311768,
-      "index_build_s": 0.02147078514099121,
-      "p10": 0.9683571428571429,
-      "ndcg10": 0.8654883437691414,
-      "recall10": 0.26675570306293506,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 6836.66276375234,
+      "map": 0.1725415216686903,
+      "qps": 6836.66276375234,
+      "latency_ms": 0.1462701956431071,
+      "index_build_s": 0.0,
+      "p10": 0.4426666666666667,
+      "ndcg10": 0.49732081844917836,
+      "recall10": 0.13397720021992524,
+      "reasoning": "Target config with untried n_refs=10 ref_strategy=first combination for alpha=0.90"
     },
     {
       "iteration": 24,
       "config": {
         "engine": "FaissIVFFlat",
         "params": {
-          "nlist": 256,
-          "nprobe": 16
+          "nlist": 512,
+          "nprobe": 4
         },
-        "k_neighbors": 500,
+        "k_neighbors": 50,
+        "alpha": 0.85,
         "n_refs": 10,
-        "ref_strategy": "centroid",
+        "ref_strategy": "diverse",
         "constraint_strategy": "object",
-        "alpha": 0.6,
         "_iter": 24
       },
-      "score": 2377.415621749641,
-      "map": 0.4686399593291776,
-      "qps": 2377.415621749641,
-      "latency_ms": 0.4206248124440511,
-      "index_build_s": 2.443295955657959,
-      "p10": 0.5703333333333334,
-      "ndcg10": 0.6280506429160365,
-      "recall10": 0.20265432920658966,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 3953.2853686889316,
+      "map": 0.23068459444111747,
+      "qps": 3953.2853686889316,
+      "latency_ms": 0.2529541651407878,
+      "index_build_s": 5.427653074264526,
+      "p10": 0.5025,
+      "ndcg10": 0.5586816215077859,
+      "recall10": 0.16876975837786565,
+      "reasoning": "Escape stagnation: try IVF with constraint_object at k=50 to break from HNSW zone and potentially reach higher mAP to offset lower QPS"
     },
     {
       "iteration": 25,
@@ -613,120 +633,127 @@
         "params": {
           "M": 8,
           "efConstruction": 200,
-          "efSearch": 200
+          "efSearch": 32
         },
-        "k_neighbors": 500,
-        "n_refs": 10,
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 5,
         "ref_strategy": "centroid",
-        "constraint_strategy": "object",
-        "alpha": 0.5,
+        "constraint_strategy": "none",
         "_iter": 25
       },
-      "score": 2351.515423343014,
-      "map": 0.4519003905747358,
-      "qps": 2351.515423343014,
-      "latency_ms": 0.42525768280029297,
-      "index_build_s": 5.212547779083252,
-      "p10": 0.5411666666666667,
-      "ndcg10": 0.5916919290580764,
-      "recall10": 0.18991642563048644,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 7148.772547794222,
+      "map": 0.16162291170224893,
+      "qps": 7148.772547794222,
+      "latency_ms": 0.13988415400187174,
+      "index_build_s": 5.372406959533691,
+      "p10": 0.41733333333333333,
+      "ndcg10": 0.4738673753129921,
+      "recall10": 0.12070010123515383,
+      "reasoning": "Probing n_refs=5 with centroid strategy (untried combo) to see if reduced refs maintains high QPS while centroid selection may improve DINOv2 reference quality"
     },
     {
       "iteration": 26,
       "config": {
-        "engine": "FaissHNSWFlat",
+        "engine": "FaissIVFFlat",
         "params": {
-          "M": 48,
-          "efConstruction": 200,
-          "efSearch": 32
+          "nlist": 512,
+          "nprobe": 4
         },
-        "k_neighbors": 750,
-        "n_refs": 3,
-        "ref_strategy": "first",
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
         "constraint_strategy": "none",
-        "alpha": 0.6,
         "_iter": 26
       },
-      "score": 1604.750390254354,
-      "map": 0.2694777622834619,
-      "qps": 1604.750390254354,
-      "latency_ms": 0.6231498718261719,
-      "index_build_s": 7.650623798370361,
-      "p10": 0.47333333333333333,
-      "ndcg10": 0.5441042701024184,
-      "recall10": 0.15195058502932535,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 0.0,
+      "map": 0.14018544337827835,
+      "qps": 1437.8137490830059,
+      "latency_ms": 0.695500373840332,
+      "index_build_s": 4.694294452667236,
+      "p10": 0.3998333333333333,
+      "ndcg10": 0.45325659545374,
+      "recall10": 0.10961583934073905,
+      "reasoning": "Explore structurally different IVF engine at best k=50 with proven alpha=0.80, different from all HNSW attempts to find new optimization path"
     },
     {
       "iteration": 27,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 150,
-        "n_refs": 5,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
         "ref_strategy": "centroid",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.4,
+        "constraint_strategy": "none",
         "_iter": 27
       },
-      "score": 1899.6759371440348,
-      "map": 0.5661575502546703,
-      "qps": 1899.6759371440348,
-      "latency_ms": 0.5264055728912354,
-      "index_build_s": 0.021256208419799805,
-      "p10": 0.9626904761904762,
-      "ndcg10": 0.857251508504736,
-      "recall10": 0.2599090828325635,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 0.0,
+      "map": 0.14201253508109063,
+      "qps": 7130.118345039396,
+      "latency_ms": 0.14025012652079263,
+      "index_build_s": 5.278423070907593,
+      "p10": 0.3783333333333333,
+      "ndcg10": 0.4162785826593848,
+      "recall10": 0.105395302548804,
+      "reasoning": "Probing untried n_refs=1 at the best alpha=0.80 config - fewer refs may improve QPS while centroid strategy maintains reference quality"
     },
     {
       "iteration": 28,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 64,
+          "M": 8,
           "efConstruction": 200,
           "efSearch": 32
         },
-        "k_neighbors": 150,
+        "k_neighbors": 50,
+        "alpha": 0.8,
         "n_refs": 3,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "verb",
-        "alpha": 0.4,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "none",
         "_iter": 28
       },
-      "score": 778.4490054491192,
-      "map": 0.4084490772394678,
-      "qps": 778.4490054491192,
-      "latency_ms": 1.2846056620279949,
-      "index_build_s": 7.618125915527344,
-      "p10": 0.724,
-      "ndcg10": 0.7573899574083055,
-      "recall10": 0.2157231769685186,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 6702.8965473155995,
+      "map": 0.15740587358550703,
+      "qps": 6702.8965473155995,
+      "latency_ms": 0.14918923377990723,
+      "index_build_s": 0.0,
+      "p10": 0.4171666666666667,
+      "ndcg10": 0.46948140091242424,
+      "recall10": 0.11924513052583706,
+      "reasoning": "Testing n_refs=3 with centroid at best alpha=0.80 - refs=1 failed threshold but refs=5 passed, intermediate refs=3 may improve mAP while maintaining high QPS"
     },
     {
       "iteration": 29,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 500,
-        "n_refs": 1,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.55,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
         "_iter": 29
       },
-      "score": 1800.0660920567934,
-      "map": 0.6078686062320817,
-      "qps": 1800.0660920567934,
-      "latency_ms": 0.5555351575215658,
-      "index_build_s": 0.0214385986328125,
-      "p10": 0.9625238095238096,
-      "ndcg10": 0.8586642736392823,
-      "recall10": 0.26008183839185234,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 6787.320680624742,
+      "map": 0.171855736777625,
+      "qps": 6787.320680624742,
+      "latency_ms": 0.14733354250590006,
+      "index_build_s": 0.0,
+      "p10": 0.44333333333333336,
+      "ndcg10": 0.49440855414908347,
+      "recall10": 0.13391334306148642,
+      "reasoning": "Exploring n_refs=10 with ref_strategy=first to test if higher reference count with different selection improves over refs=5 centroid (Score=7148.77)"
     },
     {
       "iteration": 30,
@@ -735,122 +762,53 @@
         "params": {
           "M": 16,
           "efConstruction": 200,
-          "efSearch": 100
+          "efSearch": 32
         },
-        "k_neighbors": 50,
+        "k_neighbors": 100,
         "n_refs": 1,
-        "ref_strategy": "first",
+        "ref_strategy": "centroid",
         "constraint_strategy": "object_and_verb",
-        "alpha": 0.8,
+        "alpha": 0.7,
         "_iter": 30
       },
-      "score": 3824.2736549376573,
-      "map": 0.4559938820549606,
-      "qps": 3824.2736549376573,
-      "latency_ms": 0.26148756345113117,
-      "index_build_s": 6.604680299758911,
-      "p10": 0.9608571428571429,
-      "ndcg10": 0.8554225585897357,
-      "recall10": 0.25752744278745665,
+      "score": 1314.1244035329025,
+      "map": 0.5340317970616096,
+      "qps": 1314.1244035329025,
+      "latency_ms": 0.760962963104248,
+      "index_build_s": 6.791467905044556,
+      "p10": 0.9620238095238096,
+      "ndcg10": 0.8574538030775244,
+      "recall10": 0.25854477211081117,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
       "iteration": 31,
       "config": {
-        "engine": "FaissIVFFlat",
+        "engine": "FaissHNSWFlat",
         "params": {
-          "nlist": 64,
-          "nprobe": 8
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 100,
-        "n_refs": 10,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "verb",
-        "alpha": 0.2,
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 5,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
         "_iter": 31
       },
-      "score": 803.641223385146,
-      "map": 0.3668874443050818,
-      "qps": 803.641223385146,
-      "latency_ms": 1.2443363666534424,
-      "index_build_s": 0.3549203872680664,
-      "p10": 0.6981666666666667,
-      "ndcg10": 0.730465318124047,
-      "recall10": 0.20443017626540544,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 7021.067814626444,
+      "map": 0.1663583734489325,
+      "qps": 7021.067814626444,
+      "latency_ms": 0.14242847760518393,
+      "index_build_s": 5.303285121917725,
+      "p10": 0.432,
+      "ndcg10": 0.4834799177368299,
+      "recall10": 0.12702822767403232,
+      "reasoning": "Explore untried n_refs=5 with ref_strategy=first at best alpha=0.80 zone to break stagnation while staying near high-QPS config"
     },
     {
       "iteration": 32,
-      "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 50,
-        "n_refs": 5,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "object",
-        "alpha": 0.55,
-        "_iter": 32
-      },
-      "score": 3911.8367854505886,
-      "map": 0.20384121635643696,
-      "qps": 3911.8367854505886,
-      "latency_ms": 0.2556343873341878,
-      "index_build_s": 0.021549463272094727,
-      "p10": 0.4603333333333333,
-      "ndcg10": 0.5069367808563482,
-      "recall10": 0.14547151361168253,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 33,
-      "config": {
-        "engine": "FaissHNSWFlat",
-        "params": {
-          "M": 48,
-          "efConstruction": 200,
-          "efSearch": 500
-        },
-        "k_neighbors": 150,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "none",
-        "alpha": 0.25,
-        "_iter": 33
-      },
-      "score": 893.467762722046,
-      "map": 0.2060499958172473,
-      "qps": 893.467762722046,
-      "latency_ms": 1.119234561920166,
-      "index_build_s": 7.568939447402954,
-      "p10": 0.38183333333333336,
-      "ndcg10": 0.415910230847773,
-      "recall10": 0.11374368871962082,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 34,
-      "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 200,
-        "n_refs": 3,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "object",
-        "alpha": 0.5,
-        "_iter": 34
-      },
-      "score": 3092.2855745577062,
-      "map": 0.3360462155746282,
-      "qps": 3092.2855745577062,
-      "latency_ms": 0.32338539759318036,
-      "index_build_s": 0.021500587463378906,
-      "p10": 0.48583333333333334,
-      "ndcg10": 0.5379044055299681,
-      "recall10": 0.15945590940528515,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
-    },
-    {
-      "iteration": 35,
       "config": {
         "engine": "FaissIVFFlat",
         "params": {
@@ -858,138 +816,228 @@
           "nprobe": 4
         },
         "k_neighbors": 50,
-        "n_refs": 10,
+        "alpha": 0.9,
+        "n_refs": 5,
         "ref_strategy": "diverse",
-        "constraint_strategy": "object",
-        "alpha": 0.75,
+        "constraint_strategy": "none",
+        "_iter": 32
+      },
+      "score": 0.0,
+      "map": 0.14432904822722004,
+      "qps": 6259.719223536669,
+      "latency_ms": 0.15975157419840494,
+      "index_build_s": 5.3068132400512695,
+      "p10": 0.3978333333333333,
+      "ndcg10": 0.45214127446688973,
+      "recall10": 0.11249546698262897,
+      "reasoning": "Escape stuck HNSW zone with different IVF engine - targets ~4000 QPS with high alpha for mAP boost"
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
+        "_iter": 33
+      },
+      "score": 6702.575206743638,
+      "map": 0.1678705950807588,
+      "qps": 6702.575206743638,
+      "latency_ms": 0.14919638633728027,
+      "index_build_s": 5.318010568618774,
+      "p10": 0.4215,
+      "ndcg10": 0.47128052324262776,
+      "recall10": 0.12930684894233294,
+      "reasoning": "Probing diverse ref strategy at n_refs=5 to potentially recover the best score of 7148.7725 while staying in the optimal k=50/efSearch=32 zone."
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 10,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "none",
+        "_iter": 34
+      },
+      "score": 6809.543059851123,
+      "map": 0.16929701101950173,
+      "qps": 6809.543059851123,
+      "latency_ms": 0.14685273170471191,
+      "index_build_s": 0.0,
+      "p10": 0.43,
+      "ndcg10": 0.4881446295615629,
+      "recall10": 0.13099080428359786,
+      "reasoning": "Stagnation escape: try alpha=0.85 with centroid ref_strategy (untried combo) to break the 8-iter slump from best=7148"
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
         "_iter": 35
       },
-      "score": 4104.216448945643,
-      "map": 0.2274649539728935,
-      "qps": 4104.216448945643,
-      "latency_ms": 0.2436518669128418,
-      "index_build_s": 4.68459153175354,
-      "p10": 0.5013333333333333,
-      "ndcg10": 0.5516272261745611,
-      "recall10": 0.16669637397099468,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 0.0,
+      "map": 0.13905506990900932,
+      "qps": 6754.203357532978,
+      "latency_ms": 0.1480559508005778,
+      "index_build_s": 0.0,
+      "p10": 0.3721666666666667,
+      "ndcg10": 0.41093216954176354,
+      "recall10": 0.1019339007870354,
+      "reasoning": "Probing n_refs=1 which has not been tried; this tests if single best reference with alpha=0.85 can achieve high QPS while maintaining mAP above threshold, escaping the stagnation zone."
     },
     {
       "iteration": 36,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 150,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.9,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
         "_iter": 36
       },
-      "score": 1891.3623225003494,
-      "map": 0.5720818296935518,
-      "qps": 1891.3623225003494,
-      "latency_ms": 0.528719425201416,
-      "index_build_s": 0.021483182907104492,
-      "p10": 0.966857142857143,
-      "ndcg10": 0.8651173141263768,
-      "recall10": 0.26506180091086456,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 0.0,
+      "map": 0.14128034224589403,
+      "qps": 6770.739739295371,
+      "latency_ms": 0.14769434928894043,
+      "index_build_s": 0.0,
+      "p10": 0.3775,
+      "ndcg10": 0.4156579536740323,
+      "recall10": 0.105489722740973,
+      "reasoning": "Probing untried n_refs=1 to isolate CLIP-only baseline and check if lower refs compensates for the QPS drop seen at alpha=0.90 in iter01"
     },
     {
       "iteration": 37,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 32,
+          "M": 8,
           "efConstruction": 200,
-          "efSearch": 500
+          "efSearch": 32
         },
-        "k_neighbors": 150,
-        "n_refs": 10,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.4,
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 5,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
         "_iter": 37
       },
-      "score": 3094.7078723396407,
-      "map": 0.5661269181914719,
-      "qps": 3094.7078723396407,
-      "latency_ms": 0.3231322765350342,
-      "index_build_s": 7.410821437835693,
-      "p10": 0.962857142857143,
-      "ndcg10": 0.8573369140593858,
-      "recall10": 0.26067957651292806,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 3830.0007152956073,
+      "map": 0.212717542317017,
+      "qps": 3830.0007152956073,
+      "latency_ms": 0.2610965569814046,
+      "index_build_s": 0.0,
+      "p10": 0.4768333333333334,
+      "ndcg10": 0.5410670609296594,
+      "recall10": 0.15037947719364544,
+      "reasoning": "Use constraint_strategy=object to escape stagnation while keeping proven M=8/efSearch=32/k=50/alpha=0.80; at efSearch=32 this may be slower but could improve precision and break 11-iteration plateau"
     },
     {
       "iteration": 38,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
+        "engine": "FaissIVFFlat",
+        "params": {
+          "nlist": 512,
+          "nprobe": 64
+        },
         "k_neighbors": 1000,
-        "n_refs": 10,
+        "n_refs": 5,
         "ref_strategy": "diverse",
         "constraint_strategy": "object",
-        "alpha": 0.35,
+        "alpha": 0.8,
         "_iter": 38
       },
-      "score": 1940.1397255753927,
-      "map": 0.47687042211292424,
-      "qps": 1940.1397255753927,
-      "latency_ms": 0.5154267946879069,
-      "index_build_s": 0.021664857864379883,
-      "p10": 0.49883333333333335,
-      "ndcg10": 0.5425375723596827,
-      "recall10": 0.17281718073769015,
+      "score": 1971.0090625070977,
+      "map": 0.5568579779273936,
+      "qps": 1971.0090625070977,
+      "latency_ms": 0.5073543389638265,
+      "index_build_s": 4.866339683532715,
+      "p10": 0.6241666666666666,
+      "ndcg10": 0.7060988359407422,
+      "recall10": 0.2325472441881513,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
       "iteration": 39,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 150,
-        "n_refs": 10,
-        "ref_strategy": "first",
-        "constraint_strategy": "none",
-        "alpha": 0.85,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 500,
+        "n_refs": 3,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "object",
+        "alpha": 0.15,
         "_iter": 39
       },
-      "score": 201.2629767982936,
-      "map": 0.2771862644380486,
-      "qps": 201.2629767982936,
-      "latency_ms": 4.968623717625936,
-      "index_build_s": 0.0,
-      "p10": 0.5115,
-      "ndcg10": 0.5731913704755653,
-      "recall10": 0.1760575957211691,
+      "score": 2260.956407600302,
+      "map": 0.3676152173838711,
+      "qps": 2260.956407600302,
+      "latency_ms": 0.4422907034556071,
+      "index_build_s": 7.660596132278442,
+      "p10": 0.4246666666666667,
+      "ndcg10": 0.4568113116923632,
+      "recall10": 0.1292891073569851,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
       "iteration": 40,
       "config": {
-        "engine": "FaissIVFFlat",
+        "engine": "FaissHNSWFlat",
         "params": {
-          "nlist": 256,
-          "nprobe": 8
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 150,
-        "n_refs": 5,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "object_and_verb",
+        "k_neighbors": 50,
         "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
         "_iter": 40
       },
-      "score": 3638.5621463126877,
-      "map": 0.566906404341408,
-      "qps": 3638.5621463126877,
-      "latency_ms": 0.27483383814493817,
-      "index_build_s": 2.4344117641448975,
-      "p10": 0.9638571428571429,
-      "ndcg10": 0.8611820430211176,
-      "recall10": 0.2596336619836839,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 0.0,
+      "map": 0.14184824824637138,
+      "qps": 7236.903115231651,
+      "latency_ms": 0.13818065325419107,
+      "index_build_s": 5.37163519859314,
+      "p10": 0.3786666666666667,
+      "ndcg10": 0.4163876667814139,
+      "recall10": 0.10569188606116628,
+      "reasoning": "Exploring untried n_refs=1 with diverse strategy to escape 14-iteration stagnation around alpha=0.80"
     },
     {
       "iteration": 41,
@@ -998,70 +1046,75 @@
         "params": {
           "M": 8,
           "efConstruction": 200,
-          "efSearch": 300
+          "efSearch": 32
         },
-        "k_neighbors": 200,
-        "n_refs": 1,
-        "ref_strategy": "first",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.4,
+        "k_neighbors": 50,
+        "alpha": 0.65,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "constraint_strategy": "none",
         "_iter": 41
       },
-      "score": 3384.93273397842,
-      "map": 0.5801719275835817,
-      "qps": 3384.93273397842,
-      "latency_ms": 0.2954268455505371,
-      "index_build_s": 5.261538505554199,
-      "p10": 0.9618571428571427,
-      "ndcg10": 0.8554920137874943,
-      "recall10": 0.2589179428881312,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 2566.639571564217,
+      "map": 0.16765739296813847,
+      "qps": 2566.639571564217,
+      "latency_ms": 0.3896145025889079,
+      "index_build_s": 0.0,
+      "p10": 0.425,
+      "ndcg10": 0.46595265556583465,
+      "recall10": 0.13086978986966596,
+      "reasoning": "Escape stagnation by trying untried alpha=0.65 with best config params (refs=10 avoids mAP failure seen at refs=1-3)"
     },
     {
       "iteration": 42,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 150,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
         "n_refs": 5,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.0,
+        "ref_strategy": "centroid",
+        "constraint_strategy": "none",
         "_iter": 42
       },
-      "score": 2046.2431750084359,
-      "map": 0.5599957282810849,
-      "qps": 2046.2431750084359,
-      "latency_ms": 0.48870046933492023,
-      "index_build_s": 0.02150750160217285,
-      "p10": 0.9581904761904761,
-      "ndcg10": 0.8496453698801409,
-      "recall10": 0.2544328412258713,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 5656.906639932205,
+      "map": 0.16286062298971815,
+      "qps": 5656.906639932205,
+      "latency_ms": 0.17677505811055502,
+      "index_build_s": 0.0,
+      "p10": 0.4181666666666667,
+      "ndcg10": 0.47707674631848457,
+      "recall10": 0.1204819220153591,
+      "reasoning": "Fine-tune alpha to 0.85 with refs=5 (untried combo) \u2014 both params independently showed 6800+ QPS in prior iterations"
     },
     {
       "iteration": 43,
       "config": {
-        "engine": "FaissIVFFlat",
+        "engine": "FaissHNSWFlat",
         "params": {
-          "nlist": 64,
-          "nprobe": 32
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 500
         },
-        "k_neighbors": 500,
-        "n_refs": 10,
+        "k_neighbors": 100,
+        "n_refs": 3,
         "ref_strategy": "centroid",
-        "constraint_strategy": "verb",
-        "alpha": 0.75,
+        "constraint_strategy": "object",
+        "alpha": 0.15,
         "_iter": 43
       },
-      "score": 803.731311822847,
-      "map": 0.47444256401159796,
-      "qps": 803.731311822847,
-      "latency_ms": 1.244196891784668,
-      "index_build_s": 0.34724974632263184,
-      "p10": 0.7575,
-      "ndcg10": 0.7941523068598235,
-      "recall10": 0.2274644963149235,
+      "score": 3112.425051944197,
+      "map": 0.22696228172076502,
+      "qps": 3112.425051944197,
+      "latency_ms": 0.3212928771972656,
+      "index_build_s": 7.72404408454895,
+      "p10": 0.4093333333333333,
+      "ndcg10": 0.4391533875883666,
+      "recall10": 0.12184468834679615,
       "reasoning": "Fallback random (LLM repeated configs 5x)"
     },
     {
@@ -1071,167 +1124,179 @@
         "params": {
           "M": 8,
           "efConstruction": 200,
-          "efSearch": 100
+          "efSearch": 32
         },
         "k_neighbors": 50,
-        "n_refs": 1,
-        "ref_strategy": "centroid",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.65,
+        "alpha": 0.8,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
         "_iter": 44
       },
-      "score": 3857.2864537271066,
-      "map": 0.45630248750695823,
-      "qps": 3857.2864537271066,
-      "latency_ms": 0.25924960772196454,
-      "index_build_s": 5.232218503952026,
-      "p10": 0.9610238095238094,
-      "ndcg10": 0.8555720384479666,
-      "recall10": 0.2576653824357381,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 7327.681802961259,
+      "map": 0.15962964819970385,
+      "qps": 7327.681802961259,
+      "latency_ms": 0.13646880785624185,
+      "index_build_s": 5.597719192504883,
+      "p10": 0.4176666666666667,
+      "ndcg10": 0.4672564998758538,
+      "recall10": 0.12173914799735155,
+      "reasoning": "Escape stagnation by trying untried n_refs=3 with ref_strategy=first at best alpha=0.80 config \u2014 minimal change to break 18-iter stagnation"
     },
     {
       "iteration": 45,
       "config": {
         "engine": "FaissHNSWFlat",
         "params": {
-          "M": 16,
+          "M": 8,
           "efConstruction": 200,
-          "efSearch": 300
+          "efSearch": 32
         },
-        "k_neighbors": 150,
-        "n_refs": 10,
-        "ref_strategy": "first",
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
         "constraint_strategy": "none",
-        "alpha": 0.15,
         "_iter": 45
       },
-      "score": 1512.7756073897256,
-      "map": 0.19271947340313283,
-      "qps": 1512.7756073897256,
-      "latency_ms": 0.6610365708669027,
-      "index_build_s": 6.600057125091553,
-      "p10": 0.3686666666666667,
-      "ndcg10": 0.3993519863029357,
-      "recall10": 0.10522980826275673,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 6937.052820764443,
+      "map": 0.16375110027310819,
+      "qps": 6937.052820764443,
+      "latency_ms": 0.14415343602498373,
+      "index_build_s": 0.0,
+      "p10": 0.4175,
+      "ndcg10": 0.46706772721614415,
+      "recall10": 0.12463448746257628,
+      "reasoning": "Increment alpha to 0.85 while keeping refs=3 to probe if higher DINOv2 weight improves mAP while maintaining high QPS"
     },
     {
       "iteration": 46,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 200,
-        "n_refs": 1,
-        "ref_strategy": "centroid",
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 3,
+        "ref_strategy": "first",
         "constraint_strategy": "none",
-        "alpha": 0.75,
         "_iter": 46
       },
-      "score": 199.8687969634598,
-      "map": 0.23247572028763774,
-      "qps": 199.8687969634598,
-      "latency_ms": 5.003282229105632,
-      "index_build_s": 0.021616697311401367,
-      "p10": 0.4058333333333333,
-      "ndcg10": 0.45999717730048245,
-      "recall10": 0.12231798374739415,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 5416.140063919766,
+      "map": 0.15911711425954958,
+      "qps": 5416.140063919766,
+      "latency_ms": 0.18463333447774252,
+      "index_build_s": 0.0,
+      "p10": 0.4151666666666667,
+      "ndcg10": 0.4687879886098866,
+      "recall10": 0.11923138315685056,
+      "reasoning": "alpha=0.90 with refs=3 first strategy - iter44 achieved 7327 QPS with a=0.80, trying higher alpha to match diagnosis ceiling"
     },
     {
       "iteration": 47,
       "config": {
-        "engine": "FaissIVFFlat",
+        "engine": "FaissHNSWFlat",
         "params": {
-          "nlist": 256,
-          "nprobe": 4
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
         },
-        "k_neighbors": 1000,
-        "n_refs": 1,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "verb",
-        "alpha": 0.65,
+        "k_neighbors": 50,
+        "alpha": 0.75,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
         "_iter": 47
       },
-      "score": 696.9258172859637,
-      "map": 0.4431390485332741,
-      "qps": 696.9258172859637,
-      "latency_ms": 1.4348729451497395,
-      "index_build_s": 2.4291019439697266,
-      "p10": 0.6945,
-      "ndcg10": 0.7340015646495419,
-      "recall10": 0.2050217769720548,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 6801.004240185282,
+      "map": 0.1595859805529414,
+      "qps": 6801.004240185282,
+      "latency_ms": 0.14703710873921713,
+      "index_build_s": 0.0,
+      "p10": 0.41866666666666663,
+      "ndcg10": 0.4656689852598786,
+      "recall10": 0.12282793363836696,
+      "reasoning": "Fine-tune alpha down from 0.80 (best at 7327) to 0.75 while keeping refs=3 which produced the best mAP"
     },
     {
       "iteration": 48,
       "config": {
-        "engine": "FaissHNSWFlat",
+        "engine": "FaissIVFFlat",
         "params": {
-          "M": 64,
-          "efConstruction": 200,
-          "efSearch": 100
+          "nlist": 512,
+          "nprobe": 4
         },
-        "k_neighbors": 500,
+        "k_neighbors": 50,
+        "alpha": 0.8,
         "n_refs": 10,
         "ref_strategy": "diverse",
-        "constraint_strategy": "verb",
-        "alpha": 0.05,
+        "constraint_strategy": "object",
         "_iter": 48
       },
-      "score": 724.6127918691691,
-      "map": 0.4097552451490437,
-      "qps": 724.6127918691691,
-      "latency_ms": 1.3800474007924397,
-      "index_build_s": 7.605134725570679,
-      "p10": 0.6753333333333335,
-      "ndcg10": 0.7063671367740215,
-      "recall10": 0.1938374163126053,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 3896.6758951299726,
+      "map": 0.2293973613141513,
+      "qps": 3896.6758951299726,
+      "latency_ms": 0.25662899017333984,
+      "index_build_s": 5.101323127746582,
+      "p10": 0.5023333333333333,
+      "ndcg10": 0.5562884498998625,
+      "recall10": 0.16807496715622824,
+      "reasoning": "Break alpha-only streak by testing IVF engine (measured ~4020 QPS baseline) - different architecture may yield higher ceiling than HNSW at these low k/alpha"
     },
     {
       "iteration": 49,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 500,
-        "n_refs": 1,
-        "ref_strategy": "diverse",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.0,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "constraint_strategy": "none",
         "_iter": 49
       },
-      "score": 1973.8690724099552,
-      "map": 0.6001676696268352,
-      "qps": 1973.8690724099552,
-      "latency_ms": 0.5066192150115967,
-      "index_build_s": 0.02199387550354004,
-      "p10": 0.9581904761904761,
-      "ndcg10": 0.8496453698801409,
-      "recall10": 0.2544328412258713,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "score": 7157.942880547473,
+      "map": 0.15939888084126763,
+      "qps": 7157.942880547473,
+      "latency_ms": 0.13970494270324707,
+      "index_build_s": 5.335731506347656,
+      "p10": 0.4175,
+      "ndcg10": 0.461460263639796,
+      "recall10": 0.1214941826394489,
+      "reasoning": "Probe alpha=0.70 at best config (M=8 efSearch=32 k=50 refs=3 cs=none) - untried value between best alpha=0.80 and lower range"
     },
     {
       "iteration": 50,
       "config": {
-        "engine": "FaissFlat",
-        "params": {},
-        "k_neighbors": 200,
-        "n_refs": 1,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.75,
+        "n_refs": 3,
         "ref_strategy": "diverse",
-        "constraint_strategy": "object_and_verb",
-        "alpha": 0.1,
+        "constraint_strategy": "none",
         "_iter": 50
       },
-      "score": 1866.2737225546607,
-      "map": 0.5767813797755793,
-      "qps": 1866.2737225546607,
-      "latency_ms": 0.5358270804087321,
+      "score": 700.5280023872567,
+      "map": 0.1641266566077598,
+      "qps": 700.5280023872567,
+      "latency_ms": 1.4274946848551433,
       "index_build_s": 0.0,
-      "p10": 0.9588571428571429,
-      "ndcg10": 0.8507094397918712,
-      "recall10": 0.2556950338527222,
-      "reasoning": "Fallback random (LLM repeated configs 5x)"
+      "p10": 0.41966666666666663,
+      "ndcg10": 0.465483772713187,
+      "recall10": 0.12554522698384446,
+      "reasoning": "Fine-tuning alpha downward one step from best 0.80 toward 0.75 to probe if lower alpha improves QPS while maintaining mAP above threshold"
     }
   ]
 }
