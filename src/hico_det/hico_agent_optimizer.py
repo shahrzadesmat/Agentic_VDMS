@@ -395,42 +395,39 @@ class ConfigProvider:
         return params
 
     def grid_search_configs(self) -> List[Dict]:
-        # Blind 1D-sweep grid (30 configs, no pre-loaded domain knowledge).
+        # Systematic 1D-sweep grid (50 configs).
         #
         # Design rationale: a practitioner without domain knowledge sweeps one
         # parameter at a time, fixing all others at a default midpoint.
-        # All stages use n_refs=1 and ref_strategy="first" — the naive defaults.
-        # Grid never jointly optimises n_refs × ref_strategy × alpha, which is
-        # exactly the interaction the LLM agent is designed to discover.
+        # S1–S7 sweep ANN parameters (cs=none throughout — pure ANN baseline).
+        # S8 sweeps constraint_strategy so all methods compete on the same space.
         #
-        #   S1: Engine/M baselines (5)    k=200, α=0.30, n_refs=1
+        #   S1: Engine/M baselines (5)    k=200, α=0.30, n_refs=1, cs=none
         #       FaissFlat, IVFFlat(nlist=128,nprobe=8),
         #       HNSW M=16/32/64 efS=200
-        #   S2: k sweep (5)               HNSW M=32 efS=200, α=0.30, n_refs=1
+        #   S2: k sweep (5)               HNSW M=32 efS=200, α=0.30, n_refs=1, cs=none
         #       k ∈ {50, 100, 150, 500, 1000}
-        #   S3: alpha sweep (5)           HNSW M=32 efS=200, k=100, n_refs=1
+        #   S3: alpha sweep (5)           HNSW M=32 efS=200, k=100, n_refs=1, cs=none
         #       α ∈ {0.10, 0.30, 0.50, 0.70, 0.90}
-        #   S4: n_refs sweep (5)          HNSW M=32 efS=200, k=100, α=0.30
+        #   S4: n_refs sweep (5)          HNSW M=32 efS=200, k=100, α=0.30, cs=none
         #       n_refs ∈ {1, 3, 5, 10}, ref_strategy="first"  (4 configs)
         #       + n_refs=3, ref_strategy="centroid"            (1 config)
-        #   S5: ref_strategy sweep (3)    HNSW M=32 efS=200, k=100, α=0.30, n_refs=3
+        #   S5: ref_strategy sweep (3)    HNSW M=32 efS=200, k=100, α=0.30, n_refs=3, cs=none
         #       ref_strategy ∈ {first, centroid, diverse}
-        #   S6: efSearch sweep (4)        HNSW M=32 k=100, α=0.30, n_refs=1
+        #   S6: efSearch sweep (4)        HNSW M=32 k=100, α=0.30, n_refs=1, cs=none
         #       efSearch ∈ {32, 64, 100, 150}
-        #   S7: IVFFlat nprobe sweep (3)  nlist=128, k=100, α=0.30, n_refs=1
+        #   S7: IVFFlat nprobe sweep (3)  nlist=128, k=100, α=0.30, n_refs=1, cs=none
         #       nprobe ∈ {4, 16, 64}
+        #   S8: constraint_strategy sweep (20)  — fair comparison, same space as LLM/Random
+        #       S8a: cs × {none,object,verb,obj+verb}  M=64 efS=32  k=50  α=0.90 n_refs=10 centroid (4)
+        #       S8b: cs × {none,object,verb,obj+verb}  M=64 efS=64  k=100 α=0.65 n_refs=5  centroid (4)
+        #       S8c: cs × {none,object,verb,obj+verb}  M=64 efS=200 k=100 α=0.30 n_refs=1  first    (4)
+        #       S8d: cs=object, α ∈ {0.30,0.50,0.70,0.90}  M=64 efS=32 k=50 n_refs=5 centroid     (4)
+        #       S8e: cs=object, n_refs ∈ {1,3,5,10}         M=64 efS=32 k=50 α=0.65 centroid       (4)
         #
-        # Key blind spots vs LLM agent (by design):
-        #   - M=48 never tested
-        #   - Joint (n_refs=3, ref_strategy=centroid, α=0.55) never tested
-        #   - efSearch and n_refs never co-optimised
-        #
-        # Total: 5+5+5+5+3+4+3 = 30
+        # Total: 5+5+5+5+3+4+3+20 = 50
         configs = []
 
-        # Grid = pure ANN baseline (constraint_strategy="none" throughout).
-        # This is intentional: grid never tests PMGD constraints, making it a
-        # clean no-graph baseline. LLM agent and random search explore constraints.
         def _gc(**kw):
             kw.setdefault("constraint_strategy", "none")
             return kw
@@ -485,8 +482,47 @@ class ConfigProvider:
                                params={"nlist": 128, "nprobe": nprobe},
                                k_neighbors=100, alpha=0.30, n_refs=1, ref_strategy="first"))
 
-        # Total: 5+5+5+5+3+4+3 = 30
-        assert len(configs) == 30, f"Grid must have exactly 30 configs, got {len(configs)}"
+        # ---- S8: constraint_strategy sweep (20) ----
+        # Gives Grid a fair shot at the constraint dimension on the same footing
+        # as LLM and Random. Five sub-stages each fix all params except the focus.
+
+        # S8a: full cs sweep at high-QPS params (M=64 efS=32 k=50 α=0.90 n_refs=10 centroid)
+        for cs in ["none", "object", "verb", "object_and_verb"]:
+            configs.append(dict(engine="FaissHNSWFlat",
+                                params={"M": 64, "efConstruction": 200, "efSearch": 32},
+                                k_neighbors=50, alpha=0.90, n_refs=10,
+                                ref_strategy="centroid", constraint_strategy=cs))
+
+        # S8b: full cs sweep at balanced params (M=64 efS=64 k=100 α=0.65 n_refs=5 centroid)
+        for cs in ["none", "object", "verb", "object_and_verb"]:
+            configs.append(dict(engine="FaissHNSWFlat",
+                                params={"M": 64, "efConstruction": 200, "efSearch": 64},
+                                k_neighbors=100, alpha=0.65, n_refs=5,
+                                ref_strategy="centroid", constraint_strategy=cs))
+
+        # S8c: full cs sweep at default Grid base (M=64 efS=200 k=100 α=0.30 n_refs=1 first)
+        for cs in ["none", "object", "verb", "object_and_verb"]:
+            configs.append(dict(engine="FaissHNSWFlat",
+                                params={"M": 64, "efConstruction": 200, "efSearch": 200},
+                                k_neighbors=100, alpha=0.30, n_refs=1,
+                                ref_strategy="first", constraint_strategy=cs))
+
+        # S8d: cs=object, alpha sweep (M=64 efS=32 k=50 n_refs=5 centroid)
+        for alpha in [0.30, 0.50, 0.70, 0.90]:
+            configs.append(dict(engine="FaissHNSWFlat",
+                                params={"M": 64, "efConstruction": 200, "efSearch": 32},
+                                k_neighbors=50, alpha=alpha, n_refs=5,
+                                ref_strategy="centroid", constraint_strategy="object"))
+
+        # S8e: cs=object, n_refs sweep (M=64 efS=32 k=50 α=0.65 centroid)
+        for n_refs in [1, 3, 5, 10]:
+            configs.append(dict(engine="FaissHNSWFlat",
+                                params={"M": 64, "efConstruction": 200, "efSearch": 32},
+                                k_neighbors=50, alpha=0.65, n_refs=n_refs,
+                                ref_strategy="centroid", constraint_strategy="object"))
+
+        # Total: 5+5+5+5+3+4+3+20 = 50
+        assert len(configs) == 50, f"Grid must have exactly 50 configs, got {len(configs)}"
         return configs
 
 
@@ -1567,9 +1603,6 @@ def run_optimization(method: str, iterations: int, port: int, dataset_dir: Path,
 
     if method == "grid":
         configs = config_provider.grid_search_configs()
-        if len(configs) < iterations:
-            configs += [config_provider.get_random_config()
-                        for _ in range(iterations - len(configs))]
         configs = configs[:iterations]
     elif method == "random":
         configs = [config_provider.get_random_config() for _ in range(iterations)]
