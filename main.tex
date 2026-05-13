@@ -55,8 +55,8 @@
 \usepackage{algpseudocode}
 \usepackage{subcaption}
 \usepackage[compact]{titlesec}
-\titlespacing*{\section}{0pt}{3pt plus 1pt minus 1pt}{1pt}
-\titlespacing*{\subsection}{0pt}{3pt plus 1pt minus 1pt}{0pt}
+\titlespacing*{\section}{0pt}{2pt plus 1pt minus 1pt}{0pt}
+\titlespacing*{\subsection}{0pt}{2pt plus 1pt minus 1pt}{0pt}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 % ── Float placement tuning ───────────────────────────────────────────────────
@@ -1232,8 +1232,7 @@ by conditioning each proposal on the full history of observed outcomes.
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
 \centering
-\caption{ANN optimizer comparison on HICO-DET (50 iterations, means over 3 seeds; Grid: 1 run).
-  $^\P$GP-BO: \texttt{GPSampler}+EI~\cite{snoek2012bayesian}. $^\S$QDS: difficulty-weighted objective.}
+\caption{ANN optimizer comparison on HICO-DET (50~iters, 3-seed means; Grid: 1~run). $^\P$\texttt{GPSampler+EI}~\cite{snoek2012bayesian}; $^\S$difficulty-weighted.}
 \label{tab:optimizer}
 \vspace{3pt}
 \small
@@ -1299,7 +1298,7 @@ The LLM-optimal configuration --- FaissHNSWFlat, $M{=}64$,
 $\mathit{efSearch}{=}64$, $k{=}50$, $\alpha{=}0.80$, $n_r{=}5$,
 \textit{centroid} (Table~\ref{tab:efficiency}) --- achieves
 QPS\,$=$\,$300.5$ while maintaining mAP\,$=$\,$0.160$ just above the
-feasibility threshold $\tau$.
+feasibility threshold $\tau$.\looseness=-1
 
 \noindent\textbf{GP-BO comparison.}
 GP-BO achieves mean Score $= 199.3$, trailing the LLM agent by $50.7\%$,
@@ -1411,7 +1410,7 @@ GLDv2 and SIFT1M are each evaluated at a single seed (seed~42): as complexity co
 GP-BO achieves only $77.62$ QPS (vs.\ $\approx\!273$ for the top-3 methods), the same structural failure as on HICO-DET but more acute.
 The SIEVE objective imposes a hard feasibility cliff at $\tau{=}0.15$: configurations with mAP just below this threshold score $0$ regardless of QPS.
 GP-BO's smooth Gaussian Process surface cannot model this discontinuity --- it interpolates over the cliff, assigning moderate expected value to boundary-adjacent configurations instead of committing to the high-QPS side.
-As a result, GP-BO locked onto $k{=}150$ for $40$ of $50$ iterations (maximizing mAP at the cost of QPS), never probing $k{=}100$ --- a high-scoring setting (mAP$\approx$0.165, QPS$\approx$273) --- because the GP surface predicted it lay in a risky low-mAP zone given nearby $k{=}50$ trials with Score\,$=$\,$0$.
+As a result, GP-BO locked onto $k{=}150$ for $40$ of $50$ iterations (maximizing mAP at the cost of QPS), never probing $k{=}100$ --- a high-scoring setting (mAP$\approx$0.165, QPS$\approx$273) --- because the GP surface predicted it lay in a risky low-mAP zone given nearby $k{=}50$ trials with Score\,$=$\,$0$.\looseness=-1
 
 \noindent\textbf{Sample efficiency.}
 Grid Search reaches its best Score at iteration~6 out of 50,
@@ -1419,7 +1418,7 @@ while Optuna~TPE requires 41 and Random Search 48 iterations out of 50.
 The LLM Agent converges to its best at iteration~40, outperforming VDTuner~\cite{yang2024vdtuner} by $+0.9\%$,
 confirming that semantic guidance provides a modest advantage even in this lower-coupling regime.
 This reflects the compressed performance landscape at 762K scale, where high-QPS HNSW
-configurations are relatively accessible and early grid points happen to land near the optimum.
+configurations are relatively accessible and early grid points happen to land near the optimum.\looseness=-1
 
 % ══════════════════════════════════════════════════════════════════════════════
 \subsection{Complexity-Matched Validation: SIFT1M}
@@ -1427,7 +1426,7 @@ configurations are relatively accessible and early grid points happen to land ne
 % ══════════════════════════════════════════════════════════════════════════════
 
 SIFT1M~\cite{jegou2011pq} ($1$M 128-d SIFT vectors, $10{,}000$ queries) provides a complexity-matched control: the optimizer tunes only $M$, \textit{efConstruction}, \textit{efSearch}, and $k$ --- four uncoupled HNSW parameters with no reranking stage or fusion weight $\alpha$.
-We evaluate five methods (LLM Agent, Optuna~TPE, Grid, Random, and GP-BO) under the same 50-iteration budget.
+We evaluate five methods (LLM Agent, Optuna~TPE, Grid, Random, and GP-BO) under the same 50-iteration budget.\looseness=-1
 
 % ── Table: SIFT1M optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
