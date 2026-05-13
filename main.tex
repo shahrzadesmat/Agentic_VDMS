@@ -662,7 +662,7 @@ $\mathit{ref\_strategy}$ --- govern the accuracy--throughput trade-off across bo
 stages and constitute the search space $\Theta$ (Table~\ref{tab:config-space}).
 The oracle cost per call is dominated by index construction (${\approx}425$--$455$~s)
 and 600 batch queries (${\approx}35$--$99$~s), yielding ${\approx}8$--$9$~minutes
-of wall-clock time per oracle evaluation.
+of wall-clock time per oracle evaluation.\looseness=-1
 
 \subsection{Stage 1: ANN Candidate Generation}
 \label{sec:stage1}
@@ -985,7 +985,7 @@ determine the achievable QPS ceiling and must be resolved before $\alpha$ and $n
 are refined---a conditional dependency that Optuna~TPE, which models each parameter
 independently via univariate kernel density estimation, cannot exploit.
 The benefit of imposing this ordered structure over unphased search is quantified
-in the \emph{phase structure} ablation in Section~\ref{sec:ablation}.
+in the \emph{phase structure} ablation in Section~\ref{sec:ablation}.\looseness=-1
 
 \paragraph{Exploration ($1 \leq t \leq 20$).}
 Diversity-focused engine coverage: the \textit{excellent} directive instructs the agent
@@ -1204,7 +1204,7 @@ the best achievable mAP is $0.276$\footnote{With pseudo-relevance feedback ($n_\
 the FaissFlat oracle reaches mAP $= 0.424$ at $\alpha{=}0.80$, confirming PRF and index
 tuning are complementary optimization axes.} --- reflecting fine-grained categories such as
 \textit{ride horse}, \textit{sit\_on horse}, and \textit{straddle horse} that share
-the same object but differ only in verb.
+the same object but differ only in verb.\looseness=-1
 
 \noindent\textbf{UniIR comparison.}
 UniIR's fine-tuned CLIP-SF achieves mAP $= 0.095$ in VDMS --- a $2.6\times$ drop
@@ -1212,7 +1212,7 @@ from zero-shot CLIP ($0.246$) --- because multi-task fine-tuning on COCO-style p
 disrupts HOI semantic alignment for compositional queries.
 Under the SIEVE metric, all UniIR variants score $0$ (mAP $< \tau{=}0.15$),
 failing to meet the minimum quality threshold; our unoptimized CLIP baseline
-already achieves SIEVE Score\,$=$\,8.21 (QPS at $k{=}500$; Table~\ref{tab:baselines}).
+already achieves SIEVE Score\,$=$\,8.21 (QPS at $k{=}500$; Table~\ref{tab:baselines}).\looseness=-1
 
 \noindent\textbf{Modality complementarity and throughput.}
 DINOv2 alone (mAP\,$=$\,0.217) underperforms CLIP alone (0.240) by 2.3\,pp,
@@ -1533,7 +1533,7 @@ The \textit{centroid} reference strategy (minimizes $\varepsilon_j$, Eq.~\eqref{
 
 \noindent\textbf{History conditioning and phase structure.}
 Figure~\ref{fig:ablation_convergence} and Table~\ref{tab:ablation_arch} isolate each architectural component across 3 seeds, revealing that the
-primary effect of history conditioning is \emph{not} a marginal Score improvement but a binary reliability switch.
+primary effect of history conditioning is \emph{not} a marginal Score improvement but a binary reliability switch.\looseness=-1
 
 \begin{figure}[!h]
   \centering
