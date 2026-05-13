@@ -224,7 +224,7 @@ optimizers cannot see.
 On HICO-DET, the gap between an unoptimized baseline and our agent-optimized
 configuration reaches $\mathbf{36.6\times}$ in throughput on a single A40 GPU
 node --- the difference between 8 and 300 queries per second.
-No existing method is designed to close this throughput gap.
+No existing method is designed to close this throughput gap.\looseness=-1
 
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
 and $\lambda$-Tune~\cite{giannakouris2025lambdatune} apply LLM guidance to
@@ -235,7 +235,7 @@ Optuna~TPE~\cite{akiba2019optuna}, grid and random
 search~\cite{bergstra2012random} all treat parameters independently, missing
 the coupling entirely.
 VDTuner has a further weakness: it performs less reliably when performance
-changes discontinuously at a quality threshold rather than gradually.
+changes discontinuously at a quality threshold rather than gradually.\looseness=-1
 
 We propose a \emph{phase-aware LLM agent} that jointly optimizes ANN index
 and reranking parameters on Intel's VDMS~\cite{remis2021vdms}, and validate
@@ -250,7 +250,7 @@ detection~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
 Alongside the agent, we introduce the first such benchmark built from
 HICO-DET~\cite{chao2018hico}: its 600 verb--object categories map directly to
 natural language queries, and its 90{,}641 annotated positive pairs provide
-retrieval ground truth without additional labeling.
+retrieval ground truth without additional labeling.\looseness=-1
 
 Under SIEVE, our joint quality-throughput optimization objective defined in
 Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over
@@ -336,7 +336,7 @@ pre-training over interaction primitives.
 All operate in the detection paradigm --- predicting (person, object, interaction)
 triples from an image --- and the sole prior non-detection use of
 HICO-DET~\cite{kilickaya2021structured} employs spatial canvas composition with IoU
-matching rather than free-form text queries.
+matching rather than free-form text queries.\looseness=-1
 
 CLIP~\cite{radford2021clip} established joint vision-language embedding via contrastive
 pre-training on 400 million image-text pairs, enabling zero-shot text-to-image retrieval.
@@ -348,7 +348,7 @@ trained on M-BEIR, establishing a strong cross-modal baseline.
 LamRA~\cite{liu2025lamra} proposed a unified framework in which a large multi-modal
 model serves as both retriever and reranker across heterogeneous query types.
 We fill the orthogonal HOI \emph{retrieval} direction and adopt CLIP and UniIR as
-primary baselines.
+primary baselines.\looseness=-1
 
 \subsection{Vector Database Systems and ANN Indexing}
 The efficiency of HOI retrieval depends not only on the query models above but also on how the underlying approximate nearest-neighbor indices are configured.
@@ -371,7 +371,7 @@ VDMS~\cite{remis2021vdms} co-locates graph-property metadata with vector data an
 HNSW index parameters through a Python API, making it the natural platform for an
 optimizer that must rebuild and re-query the index at each evaluation step.
 Across all these systems, index configuration is left to manual tuning or blind search;
-automated optimization for multi-stage coupled parameter spaces remains an open problem.
+automated optimization for multi-stage coupled parameter spaces remains an open problem.\looseness=-1
 
 \subsection{Hyperparameter Optimization}
 Standard HPO methods include random search~\cite{bergstra2012random}, which provides a
@@ -382,7 +382,7 @@ Hyperband~\cite{li2018hyperband}, which allocates evaluation budget adaptively.
 Auto-sklearn~\cite{feurer2015autosklearn} combines Bayesian optimization with
 meta-learning over prior tasks to warm-start configuration search.
 Optuna~\cite{akiba2019optuna} implements Tree-structured Parzen Estimators for
-mixed-type spaces and serves as our strongest non-LLM baseline.
+mixed-type spaces and serves as our strongest non-LLM baseline.\looseness=-1
 
 For DBMS tuning, OtterTune~\cite{vanaken2017ottertune} pioneered ML-guided knob
 selection via Gaussian Process regression over workload representations.
@@ -391,7 +391,7 @@ optimization across seven index types in Milvus, improving over manual baselines
 operating on single-stage vector search without cross-stage coupling.
 All of these methods --- standard HPO~\cite{bergstra2012random,snoek2012bayesian,li2018hyperband,akiba2019optuna}, AutoML~\cite{feurer2015autosklearn}, and system-specific Bayesian optimization~\cite{vanaken2017ottertune,yang2024vdtuner}
 --- are designed for single-stage configuration spaces; none addresses the compensatory
-interactions that arise when index and reranking parameters are coupled across retrieval stages.
+interactions that arise when index and reranking parameters are coupled across retrieval stages.\looseness=-1
 
 \subsection{LLM-Guided System Configuration}
 Recent work has explored whether large language models can serve as optimization agents, bringing natural language reasoning to configuration search.
@@ -451,7 +451,7 @@ by language-aligned semantic similarity while DINOv2 captures fine-grained visua
 structure complementary to CLIP's representations~\cite{oquab2024dinov2}; CLIP
 alone (Stage~1 without DINOv2 reranking) achieves lower mAP than the two-stage
 fusion, so the Stage-2 fusion weight $\alpha$ is a data-dependent parameter that
-must be tuned jointly with the Stage-1 ANN configuration.
+must be tuned jointly with the Stage-1 ANN configuration.\looseness=-1
 
 \subsection{Benchmark Construction}
 \noindent\textbf{Retrieval Corpus.}
@@ -619,7 +619,7 @@ We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.88\textwidth]{figures/pipeline_figure.pdf}
+  \includegraphics[width=0.80\textwidth]{figures/pipeline_figure.pdf}
   \Description{Two-stage retrieval pipeline diagram.}
   \caption{Two-stage retrieval pipeline (CLIP ANN retrieval + DINOv2 reranking).}
   \label{fig:pipeline}
@@ -693,7 +693,7 @@ where $|Q|{=}600$ is the number of HOI text queries and $T_{\mathrm{total}}(\the
 is the elapsed wall-clock time for all queries issued in a single batch to the live
 VDMS container under configuration $\theta$.
 This end-to-end latency encompasses the VDMS round-trip for Stage~1, the in-memory
-reranking computation in Stage~2, and all inter-process communication overhead.
+reranking computation in Stage~2, and all inter-process communication overhead.\looseness=-1
 
 \subsection{Stage 2: Feature Fusion and Reranking}
 \label{sec:stage2}
@@ -819,7 +819,7 @@ Eq.~\eqref{eq:textquery}.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth, trim=0 102 10 0, clip]{figures/workflow.pdf}
+  \includegraphics[width=0.91\textwidth, trim=0 102 10 0, clip]{figures/workflow.pdf}
   \Description{Optimization framework diagram showing five methods.}
   \caption{Optimization framework: five methods over $N{=}50$ iterations (adaptive methods receive score feedback).}
   \label{fig:workflow}
@@ -876,7 +876,7 @@ structural choices before continuous ones.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.90\textwidth]{figures/prompts.pdf}
+  \includegraphics[width=0.82\textwidth]{figures/prompts.pdf}
   \Description{LLM prompt structure: a single user message encodes parameter physics,
     diagnostic class g(H), history, and untried-value hints, eliciting a structured
     JSON configuration response including engine, k-neighbors, alpha, n-refs,
@@ -1063,7 +1063,7 @@ Optuna~TPE fits univariate kernel density estimators over each parameter indepen
 Neither baseline encodes the $(k,\alpha)$ coupling or the engine-conditional
 structure of $\Theta$; the LLM agent exploits both through its phase-partitioned
 prompt and guidance function.
-Unlike $\lambda$-Tune~\cite{giannakouris2025lambdatune}, which chains LLM calls to translate a fixed workload description into knob recommendations, our agent maintains a live score trajectory $\mathcal{H}_t$ and adapts its proposals iteration-by-iteration under the SIEVE constraint.
+Unlike $\lambda$-Tune~\cite{giannakouris2025lambdatune}, which chains LLM calls to translate a fixed workload description into knob recommendations, our agent maintains a live score trajectory $\mathcal{H}_t$ and adapts its proposals iteration-by-iteration under the SIEVE constraint.\looseness=-1
 
 \subsubsection{Difficulty-Weighted Objective (QDS)}
 \label{sec:qds_def}
@@ -1097,7 +1097,7 @@ scale, where the same VDMS behavior collapses IVFFlat Score to ${\approx}35$
 (verified on SIFT1M, which is why IVFFlat is excluded from the SIFT1M search space).
 The QDS result therefore characterizes the optimizer's ability to discover
 non-obvious high-throughput configurations at 47K scale, not a general IVFFlat
-recommendation.
+recommendation.\looseness=-1
 
 \section{Experiments}
 \label{sec:experiments}
@@ -1216,7 +1216,7 @@ by conditioning each proposal on the full history of observed outcomes.
 % ── Figure: Convergence curves ────────────────────────────────────────────────
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
+  \includegraphics[width=0.84\columnwidth]{figures/convergence_hico_det.pdf}
   \Description{Convergence curves showing best SIEVE Score (QPS if mAP≥τ, τ=0.15) vs.\ iteration
     for five optimizer methods on HICO-DET over 50 iterations. LLM Agent outpaces all baselines
     by iteration 4, reaching a final mean score of 300.3; Optuna~TPE and GP-BO plateau at
@@ -1307,7 +1307,7 @@ $\approx\!150$ with high uncertainty, making $k{=}50$ appear less attractive
 than the consistently feasible $k{=}100$ region (Score\,$\approx\!145$).
 Without natural-language reasoning to diagnose \emph{why} $k{=}50$ fails ---
 that the $(\alpha, n_r)$ compensation was insufficient --- GP-BO cannot
-reliably locate the joint $(k,\alpha)$ optimum.
+reliably locate the joint $(k,\alpha)$ optimum.\looseness=-1
 
 \noindent\textbf{Optuna~TPE comparison.}
 Optuna~TPE achieves Score $= 225.2$, trailing the LLM agent by
@@ -1324,7 +1324,7 @@ ablation (Table~\ref{tab:ablation_arch}), confirming it as the mechanism rather
 than a coincidence.
 As a result, Optuna~TPE's final mean Score ($225.2$) falls below the LLM
 agent's Score at iteration~6 ($295.4$) --- a structural deficit, not a
-sample-size one.
+sample-size one.\looseness=-1
 
 \noindent\textbf{Convergence and sample efficiency.}
 Figure~\ref{fig:convergence} plots best-Score-so-far mean $\pm 1\sigma$ curves.
@@ -1399,7 +1399,7 @@ accuracy and speed under the SIEVE objective.
 The performance gap between methods is substantially compressed relative to HICO-DET
 (${\lesssim}1.3\%$ spread among the top-4 vs.\ $33.3\%$ on HICO-DET), a pattern analysed further
 in Section~\ref{sec:sift1m}; each iteration completes in $\approx$5\,min ($\approx$4\,h total), slightly faster than HICO-DET (8--9\,min).
-GLDv2 and SIFT1M are each evaluated at a single seed (seed~42): as complexity controls whose purpose is to demonstrate compression of LLM advantage with decreasing coupling---rather than to establish statistical significance of small gaps in a flat performance landscape---single-seed evaluation is sufficient.
+GLDv2 and SIFT1M are each evaluated at a single seed (seed~42): as complexity controls whose purpose is to demonstrate compression of LLM advantage with decreasing coupling---rather than to establish statistical significance of small gaps in a flat performance landscape---single-seed evaluation is sufficient.\looseness=-1
 
 \noindent\textbf{GP-BO cliff effect on GLDv2.}
 GP-BO achieves only $77.62$ QPS (vs.\ $\approx\!273$ for the top-3 methods), the same structural failure as on HICO-DET but more acute.
@@ -1453,7 +1453,7 @@ a spread under $2.7\%$.
 GP-BO collapses to $471.4$ ($-59.9\%$ vs.\ LLM Agent): its acquisition surface
 converges on $k{=}30$ configurations that maximize raw throughput but oscillate around
 the $\tau{=}0.90$ recall threshold, with 11 of 50 trials scoring zero due to recall
-violations and no recovery across the remaining budget.
+violations and no recovery across the remaining budget.\looseness=-1
 
 \noindent\textbf{Complexity-proportional advantage.}
 The result confirms the paper's central theoretical prediction: the LLM agent's
@@ -1489,7 +1489,7 @@ feasibility cliff is sharp.
 GP-BO collapses on GLDv2 ($-70.5\%$ vs.\ LLM), replicating the same cliff
 failure observed on VDMS.
 On SIFT1M the gap compresses to $+5.8\%$ (41\,847 vs.\ 39\,540 vs.\ VDTuner),
-matching the complexity-proportional scaling seen on VDMS.
+matching the complexity-proportional scaling seen on VDMS.\looseness=-1
 
 \vspace{2pt}
 \begingroup
@@ -1528,7 +1528,7 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
 
 \begingroup
   \centering
-  \includegraphics[width=\columnwidth]{figures/convergence_ablation.pdf}
+  \includegraphics[width=0.84\columnwidth]{figures/convergence_ablation.pdf}
   \Description{Ablation convergence curves. Without history conditioning the agent
     stagnates completely after iteration 5, gaining only 0.1 Score points over the
     next 45 iterations and reaching Score>=299 in 0 of 3 seeds. The full agent
@@ -1577,7 +1577,7 @@ GPT-4o-mini (seed~42, Score\,$=$\,\textbf{297.44}) and Llama-3.3-70B (Score\,$=$
 
 \noindent\textbf{Phase boundary sensitivity.}
 To assess sensitivity to the phase-boundary thresholds $(t_{\mathrm{exp}},t_{\mathrm{expl}})$, we ran two additional configurations at seed~42: equal-thirds ($0.33/0.66$, Score\,$=$\,299.73) and late-exploitation ($0.50/0.80$, Score\,$=$\,302.12), versus the default ($0.40/0.75$, Score\,$=$\,300.54).
-All three fall within $\pm$0.53\% of the default, confirming that the optimizer is insensitive to moderate boundary shifts and that the phase-structure benefit reported above holds across schedule variants.
+All three fall within $\pm$0.53\% of the default, confirming that the optimizer is insensitive to moderate boundary shifts and that the phase-structure benefit reported above holds across schedule variants.\looseness=-1
 
 \section{Conclusion and Outlook}
 \label{sec:conclusion}
@@ -1593,7 +1593,7 @@ On HICO-DET the agent outperforms the best non-LLM baseline by $+33.3\%$ and ach
 reproducibility (vs.\ 1/3 for Optuna~TPE and GP-BO); on GLDv2 the advantage compresses to $+0.9\%$ and on SIFT1M to ${<}0.1\%$,
 confirming that \emph{LLM optimization advantage scales with configuration-space coupling complexity}.
 Future work targets billion-scale deployment with hardware-profile telemetry
-and multi-tenant settings with per-workload history conditioning.
+and multi-tenant settings with per-workload history conditioning.\looseness=-1
 
 \begin{acks}
 This work used NCSA Delta GPU at NCSA through allocation CIS240646 from the Advanced Cyberinfrastructure
