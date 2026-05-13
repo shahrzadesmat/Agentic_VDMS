@@ -949,7 +949,7 @@ if a duplicate is detected, the LLM is re-queried up to four times with the same
 (a different response may arise from the model's sampling temperature);
 if all four attempts remain duplicates, a uniformly random fallback is applied,
 guaranteeing loop progress.
-Each LLM call consumes approximately 2{,}000--3{,}500 tokens; the full 50-iteration run costs fewer than 250{,}000 tokens (\textless\$0.20 at GPT-4o-mini pricing), negligible relative to the 6.5--7.5~h oracle cost.\looseness=-1
+Each LLM call consumes approximately 2{,}000--3{,}500 tokens (growing with history; for larger $N$, top-$k$ history retention is a natural mitigation); the full 50-iteration run costs fewer than 250{,}000 tokens (\textless\$0.20), negligible relative to the 6.5--7.5~h oracle cost.\looseness=-1
 
 \subsection{Phase-Aware Budget Partition}
 \label{sec:phases}
@@ -1305,9 +1305,10 @@ are feasible (Score\,$\approx$\,$300$) and others score $0$ due to an
 insufficient $\alpha$, the GP averages these into an expected value of
 $\approx\!150$ with high uncertainty, making $k{=}50$ appear less attractive
 than the consistently feasible $k{=}100$ region (Score\,$\approx\!145$).
-Without natural-language reasoning to diagnose \emph{why} $k{=}50$ fails ---
-that the $(\alpha, n_r)$ compensation was insufficient --- GP-BO cannot
-reliably locate the joint $(k,\alpha)$ optimum.\looseness=-1
+Without natural-language reasoning to diagnose \emph{why} $k{=}50$ fails,
+GP-BO cannot locate the joint $(k,\alpha)$ optimum; a constrained-BO variant
+would better model the $\tau$ cliff but not the cross-stage $(k,\alpha)$
+coupling, which requires joint history-conditioned reasoning.\looseness=-1
 
 \noindent\textbf{Optuna~TPE comparison.}
 Optuna~TPE achieves Score $= 225.2$, trailing the LLM agent by
