@@ -75,11 +75,12 @@
 \setcounter{totalnumber}{6}
 \setcounter{dbltopnumber}{4}
 % ── Float and caption spacing ────────────────────────────────────────────────
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{6pt plus 2pt minus 1pt}
-\setlength{\intextsep}{5pt plus 1pt minus 1pt}
-\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\dblfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{6pt plus 2pt minus 1pt}
+\setlength{\floatsep}{5pt plus 2pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\dbltextfloatsep}{6pt plus 2pt minus 1pt}
+\setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
+\renewcommand{\arraystretch}{0.95}
 \setlength{\abovecaptionskip}{3pt plus 1pt minus 1pt}
 \setlength{\belowcaptionskip}{0pt}
 
@@ -619,7 +620,7 @@ We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.80\textwidth]{figures/pipeline_figure.pdf}
+  \includegraphics[width=0.76\textwidth]{figures/pipeline_figure.pdf}
   \Description{Two-stage retrieval pipeline diagram.}
   \caption{Two-stage retrieval pipeline (CLIP ANN retrieval + DINOv2 reranking).}
   \label{fig:pipeline}
@@ -819,7 +820,7 @@ Eq.~\eqref{eq:textquery}.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.91\textwidth, trim=0 102 10 0, clip]{figures/workflow.pdf}
+  \includegraphics[width=0.86\textwidth, trim=0 102 10 0, clip]{figures/workflow.pdf}
   \Description{Optimization framework diagram showing five methods.}
   \caption{Optimization framework: five methods over $N{=}50$ iterations (adaptive methods receive score feedback).}
   \label{fig:workflow}
@@ -876,7 +877,7 @@ structural choices before continuous ones.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.82\textwidth]{figures/prompts.pdf}
+  \includegraphics[width=0.77\textwidth]{figures/prompts.pdf}
   \Description{LLM prompt structure: a single user message encodes parameter physics,
     diagnostic class g(H), history, and untried-value hints, eliciting a structured
     JSON configuration response including engine, k-neighbors, alpha, n-refs,
@@ -1519,7 +1520,7 @@ VDTuner~\cite{yang2024vdtuner}          & 6798          & 5624          & 39{,}5
 \noindent\textbf{Parameter ablations ($\alpha$, $k$, $n_r$, engine).}
 $\alpha{=}0.5$ raises mAP from $0.240$ to $0.276$ (\textbf{$+$3.65\,pp}) at $0.6\%$ extra latency; $\alpha{\in}(0,1)$ strictly dominates both pure encoders.
 Increasing $k$ $500{\to}2000$ improves mAP but collapses Score $8.21{\to}1.17$ (\textbf{$7{\times}$ throughput penalty}); the agent discovers the non-obvious optimum \textbf{$k{=}50$, $\alpha{=}0.80$, $n_r{=}5$} centroid (Score\,$\approx\!300$, mAP\,$=$\,$0.160$, just above $\tau$).
-The \textit{centroid} reference strategy (minimizes $\varepsilon_j$, Eq.~\eqref{eq:imagequery}) outperforms \textit{first} and \textit{diverse}; the agent selects \textbf{HNSW $M{=}64$} on all seeds while Optuna spreads over $M{\in}\{16,32,48\}$ (mean $225.2$), confirming the value of joint engine-type conditioning.
+The \textit{centroid} reference strategy (minimizes $\varepsilon_j$, Eq.~\eqref{eq:imagequery}) outperforms \textit{first} and \textit{diverse}; the agent selects \textbf{HNSW $M{=}64$} on all seeds while Optuna spreads over $M{\in}\{16,32,48\}$ (mean $225.2$), confirming the value of joint engine-type conditioning.\looseness=-1
 
 \noindent\textbf{History conditioning and phase structure.}
 Figure~\ref{fig:ablation_convergence} and Table~\ref{tab:ablation_arch} isolate each architectural component across 3 seeds, revealing that the
@@ -1527,7 +1528,7 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
 
 \begingroup
   \centering
-  \includegraphics[width=0.97\columnwidth]{figures/convergence_ablation.pdf}
+  \includegraphics[width=0.90\columnwidth]{figures/convergence_ablation.pdf}
   \Description{Ablation convergence curves. Without history conditioning the agent
     stagnates completely after iteration 5, gaining only 0.1 Score points over the
     next 45 iterations and reaching Score>=299 in 0 of 3 seeds. The full agent
@@ -1573,7 +1574,7 @@ LLM Agent (Full)               & 296.0 & \textbf{300.3} & $+4.3$ & 0.3 & \textbf
 \noindent\textbf{Backbone portability.}
 A cross-backbone check confirms that the phase-aware protocol is model-agnostic:
 GPT-4o-mini (seed~42, Score\,$=$\,\textbf{297.44}) and Llama-3.3-70B (Score\,$=$\,\textbf{294.20}) fall within
-\textbf{0.95\%} and \textbf{2.0\%} of the MiniMax-M2.1 mean ($300.3$), respectively.
+\textbf{0.95\%} and \textbf{2.0\%} of the MiniMax-M2.1 mean ($300.3$), respectively.\looseness=-1
 
 \noindent\textbf{Phase boundary sensitivity.}
 To assess sensitivity to the phase-boundary thresholds $(t_{\mathrm{exp}},t_{\mathrm{expl}})$, we ran two additional configurations at seed~42: equal-thirds ($0.33/0.66$, Score\,$=$\,299.73) and late-exploitation ($0.50/0.80$, Score\,$=$\,302.12), versus the default ($0.40/0.75$, Score\,$=$\,300.54).
@@ -1586,13 +1587,14 @@ Two-stage ANN retrieval pipelines impose conditional dependencies ---
 engine-type gating, cross-stage search-depth--fusion-weight coupling, and a
 discontinuous feasibility cliff --- that parameter-independent HPO methods
 model incorrectly by treating jointly coupled parameters as independent
-marginals.\looseness=-1
+marginals.
 We introduced SIEVE, a quality-gated throughput objective, and a phase-aware
 LLM agent (Exploration $\to$ Exploitation $\to$ Fine-tuning) that navigates
 coupling by conditioning each proposal on the full accumulated optimization history.\looseness=-1
+
 On HICO-DET the agent outperforms the best non-LLM baseline by $+33.3\%$ and achieves 3/3-seed
 reproducibility (vs.\ 1/3 for Optuna~TPE and GP-BO); on GLDv2 the advantage compresses to $+0.9\%$ and on SIFT1M to ${<}0.1\%$,
-confirming that \emph{LLM optimization advantage scales with configuration-space coupling complexity}.\looseness=-1
+confirming that \emph{LLM optimization advantage scales with configuration-space coupling complexity}.
 Future work targets billion-scale deployment with hardware-profile telemetry
 and multi-tenant settings with per-workload history conditioning.\looseness=-1
 
@@ -1600,7 +1602,7 @@ and multi-tenant settings with per-workload history conditioning.\looseness=-1
 This work used NCSA Delta GPU at NCSA through allocation CIS240646 from the Advanced Cyberinfrastructure
 Coordination Ecosystem: Services \& Support (ACCESS)
 program~\cite{boerner2023access}, which is supported by National Science Foundation grants \#2138259, \#2138286, \#2138307, \#2137603,
-and \#2138296.
+and \#2138296.\looseness=-1
 \end{acks}
 
 \bibliographystyle{abbrv}
