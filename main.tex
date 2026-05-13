@@ -55,8 +55,8 @@
 \usepackage{algpseudocode}
 \usepackage{subcaption}
 \usepackage[compact]{titlesec}
-\titlespacing*{\section}{0pt}{2pt plus 1pt minus 1pt}{0pt}
-\titlespacing*{\subsection}{0pt}{2pt plus 1pt minus 1pt}{0pt}
+\titlespacing*{\section}{0pt}{1pt plus 1pt minus 0pt}{0pt}
+\titlespacing*{\subsection}{0pt}{1pt plus 1pt minus 0pt}{0pt}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 % ── Float placement tuning ───────────────────────────────────────────────────
@@ -1499,7 +1499,7 @@ matching the complexity-proportional scaling seen on VDMS.\looseness=-1
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
-\captionof{table}{Cross-system results on Milvus (3-seed means, 50 iterations; same Score definitions as Tables~\ref{tab:optimizer} and~\ref{tab:sift1m}).}
+\captionof{table}{Cross-system results on Milvus (3-seed means, 50~iters).}
 \label{tab:milvus}
 \setlength{\topsep}{0pt}\setlength{\partopsep}{0pt}%
 \begin{center}
@@ -1529,7 +1529,7 @@ The \textit{centroid} reference strategy (minimizes $\varepsilon_j$, Eq.~\eqref{
 Figure~\ref{fig:ablation_convergence} and Table~\ref{tab:ablation_arch} isolate each architectural component across 3 seeds, revealing that the
 primary effect of history conditioning is \emph{not} a marginal Score improvement but a binary reliability switch.
 
-\begingroup
+\begin{figure}[!h]
   \centering
   \includegraphics[width=\columnwidth]{figures/convergence_ablation.pdf}
   \Description{Ablation convergence curves. Without history conditioning the agent
@@ -1539,10 +1539,9 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
     on all 3 seeds. Without phase structure the agent still learns (+1.3 gain)
     and reaches 299+ on 3/3 seeds but converges later.}
   \vspace{-8pt}
-  \captionof{figure}{Ablation: BSF convergence (left) and per-seed final Score at $N{=}50$ (right).}
+  \caption{Ablation: BSF convergence (left) and per-seed final Score at $N{=}50$ (right).}
   \label{fig:ablation_convergence}
-\endgroup
-\vspace{5pt}
+\end{figure}
 
 \emph{History conditioning} is a binary reliability switch (Figure~\ref{fig:ablation_convergence}, right).
 Removing it causes complete stagnation after iteration~5 ($+0.1$ pts gain over 45 remaining iterations)
@@ -1558,7 +1557,7 @@ restores structural exploration that occasionally reaches Score\,$\geq$\,299.\lo
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
-\captionof{table}{Mechanistic ablations on HICO-DET (3-seed means, 50 iterations).}
+\captionof{table}{Mechanistic ablations on HICO-DET (3-seed means, 50~iters).}
 \label{tab:ablation_arch}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccccc}
