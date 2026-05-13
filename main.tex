@@ -164,7 +164,7 @@ Optuna~TPE by $+33.3\%$ and GP-BO by $+50.7\%$ in accuracy-throughput score,
 delivering a $15.3\times$ throughput gain over UniIR.
 Validation across three benchmarks confirms that the agent's advantage grows with
 the degree of parameter coupling: $+33.3\%$ on HICO-DET (high coupling),
-$+1.2\%$ on GLDv2 (moderate coupling), and $<+0.1\%$ on SIFT1M (near-independent control).
+$+0.9\%$ on GLDv2 (moderate coupling), and $<+0.1\%$ on SIFT1M (near-independent control).
 These results position our agent as the method of choice for retrieval systems
 where parameter coupling is the dominant source of optimization complexity.
 \end{abstract}
@@ -1234,6 +1234,7 @@ Grid Search                               & 183.0          & 0.178 & 0.508 & 41/
 Random Search~\cite{bergstra2012random}   & 111.4          & 0.179 & 0.455 & 29/50 \\
 Optuna~TPE~\cite{akiba2019optuna}         & 225.2          & 0.164 & 0.465 & 41/50 \\
 GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/50 \\
+VDTuner~\cite{yang2024vdtuner}            & 223.8          & 0.172 & 0.479 & 24/50 \\
 \midrule
 \textbf{LLM Agent (Ours)}                 & \textbf{300.3} & 0.161 & 0.438 & 23/50 \\
 \textbf{LLM Agent + QDS (Ours)}$^\S$      & \textbf{1362.0}& 0.175 & 0.292 & 39/50 \\
@@ -1265,6 +1266,7 @@ CLIP$+$DINOv2 ($\alpha{=}0.5$)   & FaissFlat & 2000 & 430.1 & 855.2 & 4.82  & 86
 Grid Search                  & HNSW $M{=}64$        & 100 &  13.2 &  5.40 & 0.04 &  5.46 &  183.0 \\
 Random Search~\cite{bergstra2012random} & HNSW $M{=}8$ & 100 &  11.7 &  6.95 & 0.13 &  7.13 &  140.2 \\
 Optuna~TPE~\cite{akiba2019optuna} & HNSW $M{=}16$   &  50 &  13.3 &  3.19 & 0.11 &  3.33 &  300.7 \\
+VDTuner~\cite{yang2024vdtuner}   & HNSW $M{=}64$   &  50 &  13.4 &  3.23 & 0.08 &  3.35 &  298.9 \\
 \textbf{LLM Agent (Ours)}    & HNSW $M{=}64$        &  50 &  12.6 &  3.21 & 0.08 &  3.33 & \textbf{300.5} \\
 \textbf{LLM Agent + QDS (Ours)} & IVFFlat $nl{=}128$ & 500 &  17.2 &  0.35 & 0.34 &  0.74 & \textbf{1357.6} \\
 \bottomrule
@@ -1272,7 +1274,7 @@ Optuna~TPE~\cite{akiba2019optuna} & HNSW $M{=}16$   &  50 &  13.3 &  3.19 & 0.11
 \end{table*}
 
 The LLM agent achieves mean Score $= 300.3$, outperforming every baseline:
-Optuna~TPE ($225.2$, $\mathbf{+33.3\%}$), GP-BO ($199.3$, $\mathbf{+50.7\%}$),
+Optuna~TPE ($225.2$, $\mathbf{+33.3\%}$), VDTuner~\cite{yang2024vdtuner} ($223.8$, $\mathbf{+34.2\%}$), GP-BO ($199.3$, $\mathbf{+50.7\%}$),
 Grid Search ($183.0$, $+64.1\%$), and Random Search ($111.4$).
 This corresponds to a $\mathbf{15.3\times}$ throughput gain over UniIR
 (QPS\,$=$\,19.67; SIEVE Score\,$=$\,$0$ since mAP\,$<\tau$) and a
@@ -1373,6 +1375,7 @@ GP-BO~\cite{snoek2012bayesian}  & 77.62  & 0.1791 & 0.2151 & 77.62  & 25/50 \\
 Random Search~\cite{bergstra2012random} & 255.97 & 0.1597 & 0.1954 & 255.97 & 48/50 \\
 Optuna~TPE~\cite{akiba2019optuna} & 272.98 & 0.1614 & 0.1968 & 272.98 & 41/50 \\
 Grid Search                   & 272.98 & 0.1615 & 0.1965 & 272.98 & 6/50  \\
+VDTuner~\cite{yang2024vdtuner} & 273.78 & 0.1559 & 0.1931 & 273.78 & 48/50 \\
 \midrule
 \textbf{LLM Agent (Ours)}     & \textbf{276.30} & 0.1615 & 0.1964 & \textbf{276.30} & 40/50 \\
 \bottomrule
@@ -1381,11 +1384,11 @@ Grid Search                   & 272.98 & 0.1615 & 0.1965 & 272.98 & 6/50  \\
 
 \noindent\textbf{Overall performance.}
 The LLM Agent achieves the highest score of $\textbf{276.30}$ QPS (mAP$\geq\tau{=}0.15$),
-narrowly ahead of Optuna~TPE and Grid Search (both $272.98$) and Random Search ($255.97$).
+narrowly ahead of VDTuner~\cite{yang2024vdtuner} ($273.78$), Optuna~TPE and Grid Search (both $272.98$), and Random Search ($255.97$).
 GP-BO attains the highest mAP ($0.1791$) but low QPS ($77.62$), failing to balance
 accuracy and speed under the SIEVE objective.
 The performance gap between methods is substantially compressed relative to HICO-DET
-(${\lesssim}1.3\%$ spread among the top-3 vs.\ $33.3\%$ on HICO-DET), a pattern analysed further
+(${\lesssim}1.3\%$ spread among the top-4 vs.\ $33.3\%$ on HICO-DET), a pattern analysed further
 in Section~\ref{sec:sift1m}; each iteration completes in $\approx$5\,min ($\approx$4\,h total), slightly faster than HICO-DET (8--9\,min).
 GLDv2 and SIFT1M are each evaluated at a single seed (seed~42): as complexity controls whose purpose is to demonstrate compression of LLM advantage with decreasing coupling---rather than to establish statistical significance of small gaps in a flat performance landscape---single-seed evaluation is sufficient.
 
@@ -1398,7 +1401,7 @@ As a result, GP-BO locked onto $k{=}150$ for $40$ of $50$ iterations (maximizing
 \noindent\textbf{Sample efficiency.}
 Grid Search reaches its best Score at iteration~6 out of 50,
 while Optuna~TPE requires 41 and Random Search 48 iterations out of 50.
-The LLM Agent converges to its best at iteration~40, outperforming Optuna~TPE by $+1.2\%$,
+The LLM Agent converges to its best at iteration~40, outperforming VDTuner~\cite{yang2024vdtuner} by $+0.9\%$,
 confirming that semantic guidance provides a modest advantage even in this lower-coupling regime.
 This reflects the compressed performance landscape at 762K scale, where high-QPS HNSW
 configurations are relatively accessible and early grid points happen to land near the optimum.
@@ -1424,6 +1427,7 @@ We evaluate five methods (LLM Agent, Optuna~TPE, Grid, Random, and GP-BO) under 
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{Recall@10}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
 GP-BO~\cite{snoek2012bayesian} & 471.4  & 0.9204 & 28/50 \\
+VDTuner~\cite{yang2024vdtuner} & 1144.6 & 0.9406 & 42/50 \\
 Random Search~\cite{bergstra2012random} & 1160.4 & 0.9124 & 23/50 \\
 Optuna~TPE~\cite{akiba2019optuna} & 1163.5 & 0.9147 & 42/50 \\
 Grid Search               & 1174.4 & 0.9146 & 5/50 \\
@@ -1435,8 +1439,8 @@ Grid Search               & 1174.4 & 0.9146 & 5/50 \\
 \noindent\textbf{Overall performance.}
 All methods except GP-BO converge to FaissHNSWFlat with \textit{efSearch}$\in\{24,32\}$
 as the optimal operating point. Finalized Scores (50 iterations, seed~42) are
-$1175.0$ (LLM Agent), $1174.4$ (Grid), $1163.5$ (Optuna), and $1160.4$ (Random) ---
-a spread under $1.3\%$.
+$1175.0$ (LLM Agent), $1174.4$ (Grid), $1163.5$ (Optuna), $1160.4$ (Random), and $1144.6$ (VDTuner) ---
+a spread under $2.7\%$.
 GP-BO collapses to $471.4$ ($-59.9\%$ vs.\ LLM Agent): its acquisition surface
 converges on $k{=}30$ configurations that maximize raw throughput but oscillate around
 the $\tau{=}0.90$ recall threshold, with 11 of 50 trials scoring zero due to recall
@@ -1532,7 +1536,7 @@ marginals. We introduced SIEVE, a quality-gated throughput objective, and a phas
 LLM agent (Exploration $\to$ Exploitation $\to$ Fine-tuning) that navigates
 coupling by conditioning each proposal on the full accumulated optimization history.
 On HICO-DET the agent outperforms the best non-LLM baseline by $+33.3\%$ and achieves 3/3-seed
-reproducibility (vs.\ 1/3 for Optuna~TPE and GP-BO); on GLDv2 the advantage compresses to $+1.2\%$ and on SIFT1M to ${<}0.1\%$,
+reproducibility (vs.\ 1/3 for Optuna~TPE and GP-BO); on GLDv2 the advantage compresses to $+0.9\%$ and on SIFT1M to ${<}0.1\%$,
 confirming that \emph{LLM optimization advantage scales with configuration-space coupling complexity}.
 Future work targets billion-scale deployment with hardware-profile telemetry
 and multi-tenant settings with per-workload history conditioning.
