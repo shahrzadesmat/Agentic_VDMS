@@ -1,0 +1,1520 @@
+{
+  "summary": {
+    "best_score": 1164.1284363030315,
+    "best_recall": 0.91033,
+    "best_qps": 1164.1284363030315,
+    "best_config": {
+      "engine": "FaissHNSWFlat",
+      "params": {
+        "M": 16,
+        "efConstruction": 150,
+        "efSearch": 32
+      },
+      "k_neighbors": 10,
+      "_iter": 2
+    },
+    "iterations_used": 50
+  },
+  "results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 1
+      },
+      "benchmark": {
+        "qps": 1157.2143901015845,
+        "recall_at_10": 0.8928,
+        "latency_ms": 0.8641441106796265,
+        "index_build_s": 508.9197793006897,
+        "precision": 0.8928,
+        "f1_score": 0.8928,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "timestamp": 1777989855.5721672
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 0"
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 150,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 2
+      },
+      "benchmark": {
+        "qps": 1164.1284363030315,
+        "recall_at_10": 0.91033,
+        "latency_ms": 0.8590117454528808,
+        "index_build_s": 301.0833423137665,
+        "precision": 0.91033,
+        "f1_score": 0.91033,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 150,
+          "efSearch": 32
+        },
+        "timestamp": 1777990170.0648456
+      },
+      "score": 1164.1284363030315,
+      "reasoning": "Optuna TPE trial 1"
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 150,
+          "efSearch": 16
+        },
+        "k_neighbors": 150,
+        "_iter": 3
+      },
+      "benchmark": {
+        "qps": 79.48606797963156,
+        "recall_at_10": 0.8503799999999999,
+        "latency_ms": 12.580821084976197,
+        "index_build_s": 304.4619519710541,
+        "precision": 0.8503799999999999,
+        "f1_score": 0.8503799999999998,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 150,
+          "efSearch": 16
+        },
+        "timestamp": 1777990605.254493
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 2"
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 50,
+          "efSearch": 16
+        },
+        "k_neighbors": 50,
+        "_iter": 4
+      },
+      "benchmark": {
+        "qps": 292.4667986558129,
+        "recall_at_10": 0.5544,
+        "latency_ms": 3.419191527366638,
+        "index_build_s": 222.8210265636444,
+        "precision": 0.5544,
+        "f1_score": 0.5544,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 50,
+          "efSearch": 16
+        },
+        "timestamp": 1777990867.8801029
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 3"
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 50,
+          "efSearch": 200
+        },
+        "k_neighbors": 150,
+        "_iter": 5
+      },
+      "benchmark": {
+        "qps": 78.63698261611756,
+        "recall_at_10": 0.7689600000000001,
+        "latency_ms": 12.716662907600403,
+        "index_build_s": 220.2826578617096,
+        "precision": 0.7689600000000001,
+        "f1_score": 0.7689600000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 50,
+          "efSearch": 200
+        },
+        "timestamp": 1777991220.377346
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 4"
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 200,
+        "_iter": 6
+      },
+      "benchmark": {
+        "qps": 50.69711862065522,
+        "recall_at_10": 0.99931,
+        "latency_ms": 19.72498688697815,
+        "index_build_s": 346.66539120674133,
+        "precision": 0.99931,
+        "f1_score": 0.99931,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "timestamp": 1777991769.6836004
+      },
+      "score": 50.69711862065522,
+      "reasoning": "Optuna TPE trial 5"
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 150
+        },
+        "k_neighbors": 20,
+        "_iter": 7
+      },
+      "benchmark": {
+        "qps": 503.33432420846185,
+        "recall_at_10": 0.9984799999999999,
+        "latency_ms": 1.9867510557174681,
+        "index_build_s": 336.18003034591675,
+        "precision": 0.9984799999999999,
+        "f1_score": 0.9984799999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 150
+        },
+        "timestamp": 1777992137.2312398
+      },
+      "score": 503.33432420846185,
+      "reasoning": "Optuna TPE trial 6"
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 50,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "_iter": 8
+      },
+      "benchmark": {
+        "qps": 290.4643041469652,
+        "recall_at_10": 0.6456200000000001,
+        "latency_ms": 3.4427638292312626,
+        "index_build_s": 219.93991494178772,
+        "precision": 0.6456200000000001,
+        "f1_score": 0.6456200000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 50,
+          "efSearch": 64
+        },
+        "timestamp": 1777992406.0480223
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 7"
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 300,
+          "efSearch": 150
+        },
+        "k_neighbors": 300,
+        "_iter": 9
+      },
+      "benchmark": {
+        "qps": 30.40387554076285,
+        "recall_at_10": 0.9913,
+        "latency_ms": 32.89054379463196,
+        "index_build_s": 403.9444160461426,
+        "precision": 0.9913,
+        "f1_score": 0.9913,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 300,
+          "efSearch": 150
+        },
+        "timestamp": 1777993144.817826
+      },
+      "score": 30.40387554076285,
+      "reasoning": "Optuna TPE trial 8"
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 50,
+          "efSearch": 100
+        },
+        "k_neighbors": 10,
+        "_iter": 10
+      },
+      "benchmark": {
+        "qps": 935.34168795619,
+        "recall_at_10": 0.98955,
+        "latency_ms": 1.0691280126571656,
+        "index_build_s": 247.45996403694153,
+        "precision": 0.98955,
+        "f1_score": 0.98955,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 50,
+          "efSearch": 100
+        },
+        "timestamp": 1777993409.2647521
+      },
+      "score": 935.34168795619,
+      "reasoning": "Optuna TPE trial 9"
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 150,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "_iter": 11
+      },
+      "benchmark": {
+        "qps": 133.74612376006854,
+        "recall_at_10": 0.90995,
+        "latency_ms": 7.476852202415467,
+        "index_build_s": 300.40196228027344,
+        "precision": 0.90995,
+        "f1_score": 0.90995,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 150,
+          "efSearch": 32
+        },
+        "timestamp": 1777993794.5092037
+      },
+      "score": 133.74612376006854,
+      "reasoning": "Optuna TPE trial 10"
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 150,
+          "efSearch": 100
+        },
+        "k_neighbors": 10,
+        "_iter": 12
+      },
+      "benchmark": {
+        "qps": 981.4503188487865,
+        "recall_at_10": 0.99016,
+        "latency_ms": 1.0189002752304077,
+        "index_build_s": 303.916077375412,
+        "precision": 0.99016,
+        "f1_score": 0.99016,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 150,
+          "efSearch": 100
+        },
+        "timestamp": 1777994113.5417707
+      },
+      "score": 981.4503188487865,
+      "reasoning": "Optuna TPE trial 11"
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 13
+      },
+      "benchmark": {
+        "qps": 1191.0970782240183,
+        "recall_at_10": 0.87323,
+        "latency_ms": 0.8395621299743652,
+        "index_build_s": 301.04163217544556,
+        "precision": 0.87323,
+        "f1_score": 0.87323,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "timestamp": 1777994427.764756
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 12"
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 150,
+          "efSearch": 100
+        },
+        "k_neighbors": 30,
+        "_iter": 14
+      },
+      "benchmark": {
+        "qps": 439.33776046996724,
+        "recall_at_10": 0.9909899999999999,
+        "latency_ms": 2.276153087615967,
+        "index_build_s": 305.27622842788696,
+        "precision": 0.9909899999999999,
+        "f1_score": 0.9909899999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 150,
+          "efSearch": 100
+        },
+        "timestamp": 1777994760.5853739
+      },
+      "score": 439.33776046996724,
+      "reasoning": "Optuna TPE trial 13"
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 150,
+          "efSearch": 32
+        },
+        "k_neighbors": 500,
+        "_iter": 15
+      },
+      "benchmark": {
+        "qps": 14.399448698597517,
+        "recall_at_10": 0.92745,
+        "latency_ms": 69.44710321426392,
+        "index_build_s": 303.01816487312317,
+        "precision": 0.92745,
+        "f1_score": 0.92745,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 150,
+          "efSearch": 32
+        },
+        "timestamp": 1777995763.3446555
+      },
+      "score": 14.399448698597517,
+      "reasoning": "Optuna TPE trial 14"
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "k_neighbors": 75,
+        "_iter": 16
+      },
+      "benchmark": {
+        "qps": 186.24182346534351,
+        "recall_at_10": 0.9572,
+        "latency_ms": 5.369363236427307,
+        "index_build_s": 478.7937617301941,
+        "precision": 0.9572,
+        "f1_score": 0.9572,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 48
+        },
+        "timestamp": 1777996308.418997
+      },
+      "score": 186.24182346534351,
+      "reasoning": "Optuna TPE trial 15"
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "k_neighbors": 10,
+        "_iter": 17
+      },
+      "benchmark": {
+        "qps": 707.9872116460958,
+        "recall_at_10": 0.9981899999999999,
+        "latency_ms": 1.412454891204834,
+        "index_build_s": 261.270632982254,
+        "precision": 0.9981899999999999,
+        "f1_score": 0.9981899999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 300
+        },
+        "timestamp": 1777996607.6823049
+      },
+      "score": 707.9872116460958,
+      "reasoning": "Optuna TPE trial 16"
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 300,
+          "efSearch": 8
+        },
+        "k_neighbors": 10,
+        "_iter": 18
+      },
+      "benchmark": {
+        "qps": 1221.8981963392148,
+        "recall_at_10": 0.7671800000000001,
+        "latency_ms": 0.8183987855911254,
+        "index_build_s": 428.33845496177673,
+        "precision": 0.7671800000000001,
+        "f1_score": 0.7671800000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 300,
+          "efSearch": 8
+        },
+        "timestamp": 1777997048.9809222
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 17"
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 30,
+        "_iter": 19
+      },
+      "benchmark": {
+        "qps": 453.5322568630466,
+        "recall_at_10": 0.9801,
+        "latency_ms": 2.2049148321151733,
+        "index_build_s": 335.8231551647186,
+        "precision": 0.9801,
+        "f1_score": 0.9801,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "timestamp": 1777997413.4645543
+      },
+      "score": 453.5322568630466,
+      "reasoning": "Optuna TPE trial 18"
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 150,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "_iter": 20
+      },
+      "benchmark": {
+        "qps": 132.0864886248017,
+        "recall_at_10": 0.8352900000000002,
+        "latency_ms": 7.570797061920166,
+        "index_build_s": 294.30102920532227,
+        "precision": 0.8352900000000002,
+        "f1_score": 0.8352900000000003,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 150,
+          "efSearch": 32
+        },
+        "timestamp": 1777997789.8904448
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 19"
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 150,
+          "efSearch": 500
+        },
+        "k_neighbors": 500,
+        "_iter": 21
+      },
+      "benchmark": {
+        "qps": 13.4300749500123,
+        "recall_at_10": 0.9992800000000001,
+        "latency_ms": 74.45974826812744,
+        "index_build_s": 301.4364821910858,
+        "precision": 0.9992800000000001,
+        "f1_score": 0.9992800000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 150,
+          "efSearch": 500
+        },
+        "timestamp": 1777998843.0135
+      },
+      "score": 13.4300749500123,
+      "reasoning": "Optuna TPE trial 20"
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 150,
+          "efSearch": 64
+        },
+        "k_neighbors": 300,
+        "_iter": 22
+      },
+      "benchmark": {
+        "qps": 30.228591224094043,
+        "recall_at_10": 0.9799899999999999,
+        "latency_ms": 33.08126378059387,
+        "index_build_s": 305.8332190513611,
+        "precision": 0.9799899999999999,
+        "f1_score": 0.9799899999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 150,
+          "efSearch": 64
+        },
+        "timestamp": 1777999486.7376444
+      },
+      "score": 30.228591224094043,
+      "reasoning": "Optuna TPE trial 24"
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 150,
+          "efSearch": 48
+        },
+        "k_neighbors": 20,
+        "_iter": 23
+      },
+      "benchmark": {
+        "qps": 664.289756570813,
+        "recall_at_10": 0.94842,
+        "latency_ms": 1.5053671836853026,
+        "index_build_s": 299.74393033981323,
+        "precision": 0.94842,
+        "f1_score": 0.94842,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 150,
+          "efSearch": 48
+        },
+        "timestamp": 1777999813.5401232
+      },
+      "score": 664.289756570813,
+      "reasoning": "Optuna TPE trial 25"
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "k_neighbors": 200,
+        "_iter": 24
+      },
+      "benchmark": {
+        "qps": 54.16600465341881,
+        "recall_at_10": 0.90556,
+        "latency_ms": 18.461764097213745,
+        "index_build_s": 303.0642282962799,
+        "precision": 0.90556,
+        "f1_score": 0.90556,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "timestamp": 1778000306.2994695
+      },
+      "score": 54.16600465341881,
+      "reasoning": "Optuna TPE trial 26"
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 150,
+          "efSearch": 300
+        },
+        "k_neighbors": 75,
+        "_iter": 25
+      },
+      "benchmark": {
+        "qps": 164.3522673994538,
+        "recall_at_10": 0.9987400000000002,
+        "latency_ms": 6.084491658210754,
+        "index_build_s": 303.18603563308716,
+        "precision": 0.9987400000000002,
+        "f1_score": 0.9987400000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 150,
+          "efSearch": 300
+        },
+        "timestamp": 1778000675.8050249
+      },
+      "score": 164.3522673994538,
+      "reasoning": "Optuna TPE trial 27"
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 10,
+        "_iter": 26
+      },
+      "benchmark": {
+        "qps": 843.7485170343879,
+        "recall_at_10": 0.9967,
+        "latency_ms": 1.1851872682571412,
+        "index_build_s": 338.0184462070465,
+        "precision": 0.9967,
+        "f1_score": 0.9967,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "timestamp": 1778001030.5922742
+      },
+      "score": 843.7485170343879,
+      "reasoning": "Optuna TPE trial 28"
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 400,
+          "efSearch": 8
+        },
+        "k_neighbors": 10,
+        "_iter": 27
+      },
+      "benchmark": {
+        "qps": 1220.138482371193,
+        "recall_at_10": 0.77665,
+        "latency_ms": 0.8195791006088257,
+        "index_build_s": 502.3784170150757,
+        "precision": 0.77665,
+        "f1_score": 0.77665,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 400,
+          "efSearch": 8
+        },
+        "timestamp": 1778001546.0121942
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 29"
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 28
+      },
+      "benchmark": {
+        "qps": 1150.8071789469022,
+        "recall_at_10": 0.9203100000000001,
+        "latency_ms": 0.8689553022384643,
+        "index_build_s": 262.8045732975006,
+        "precision": 0.9203100000000001,
+        "f1_score": 0.92031,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778001822.329963
+      },
+      "score": 1150.8071789469022,
+      "reasoning": "Optuna TPE trial 30"
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 150,
+        "_iter": 29
+      },
+      "benchmark": {
+        "qps": 79.3960122459075,
+        "recall_at_10": 0.68318,
+        "latency_ms": 12.595091009140015,
+        "index_build_s": 258.69314455986023,
+        "precision": 0.68318,
+        "f1_score": 0.68318,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778002211.886644
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 34"
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "_iter": 30
+      },
+      "benchmark": {
+        "qps": 288.3443756504293,
+        "recall_at_10": 0.5544899999999999,
+        "latency_ms": 3.4680752754211426,
+        "index_build_s": 248.0840129852295,
+        "precision": 0.5544899999999999,
+        "f1_score": 0.5544899999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778002499.8889785
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 35"
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 31
+      },
+      "benchmark": {
+        "qps": 1002.2621189535345,
+        "recall_at_10": 0.9853900000000001,
+        "latency_ms": 0.9977429866790772,
+        "index_build_s": 367.1060028076172,
+        "precision": 0.9853900000000001,
+        "f1_score": 0.9853900000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778002890.2426898
+      },
+      "score": 1002.2621189535345,
+      "reasoning": "Optuna TPE trial 36"
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 200,
+        "_iter": 32
+      },
+      "benchmark": {
+        "qps": 54.14230123440818,
+        "recall_at_10": 0.9189700000000001,
+        "latency_ms": 18.469846630096434,
+        "index_build_s": 334.9053134918213,
+        "precision": 0.9189700000000001,
+        "f1_score": 0.9189700000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "timestamp": 1778003414.9119241
+      },
+      "score": 54.14230123440818,
+      "reasoning": "Optuna TPE trial 37"
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 150,
+        "_iter": 33
+      },
+      "benchmark": {
+        "qps": 78.8866396833853,
+        "recall_at_10": 0.9204700000000001,
+        "latency_ms": 12.676417756080628,
+        "index_build_s": 261.3255796432495,
+        "precision": 0.9204700000000001,
+        "f1_score": 0.9204700000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778003817.9697866
+      },
+      "score": 78.8866396833853,
+      "reasoning": "Optuna TPE trial 38"
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 20,
+        "_iter": 34
+      },
+      "benchmark": {
+        "qps": 686.001780891178,
+        "recall_at_10": 0.8784400000000001,
+        "latency_ms": 1.4577221632003785,
+        "index_build_s": 261.3584818840027,
+        "precision": 0.8784400000000001,
+        "f1_score": 0.8784400000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778004101.0420861
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 39"
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 300,
+        "_iter": 35
+      },
+      "benchmark": {
+        "qps": 41.19722561412248,
+        "recall_at_10": 0.6162,
+        "latency_ms": 24.273479223251343,
+        "index_build_s": 249.3866844177246,
+        "precision": 0.6162,
+        "f1_score": 0.6162,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778004598.5979679
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 40"
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 150
+        },
+        "k_neighbors": 10,
+        "_iter": 36
+      },
+      "benchmark": {
+        "qps": 897.0026073637935,
+        "recall_at_10": 0.99271,
+        "latency_ms": 1.1148239612579347,
+        "index_build_s": 261.1576008796692,
+        "precision": 0.99271,
+        "f1_score": 0.99271,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 150
+        },
+        "timestamp": 1778004876.5959816
+      },
+      "score": 897.0026073637935,
+      "reasoning": "Optuna TPE trial 43"
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 300,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 37
+      },
+      "benchmark": {
+        "qps": 1113.418604646224,
+        "recall_at_10": 0.9496399999999999,
+        "latency_ms": 0.8981348037719726,
+        "index_build_s": 421.0217173099518,
+        "precision": 0.9496399999999999,
+        "f1_score": 0.9496399999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 300,
+          "efSearch": 32
+        },
+        "timestamp": 1778005311.3654168
+      },
+      "score": 1113.418604646224,
+      "reasoning": "Optuna TPE trial 44"
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "k_neighbors": 50,
+        "_iter": 38
+      },
+      "benchmark": {
+        "qps": 266.4583740869475,
+        "recall_at_10": 0.9939599999999998,
+        "latency_ms": 3.7529314041137694,
+        "index_build_s": 261.14414286613464,
+        "precision": 0.9939599999999998,
+        "f1_score": 0.9939599999999998,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "timestamp": 1778005614.8783808
+      },
+      "score": 266.4583740869475,
+      "reasoning": "Optuna TPE trial 45"
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 100,
+        "_iter": 39
+      },
+      "benchmark": {
+        "qps": 133.6255504450372,
+        "recall_at_10": 0.8872700000000001,
+        "latency_ms": 7.483598732948303,
+        "index_build_s": 516.5657122135162,
+        "precision": 0.8872700000000001,
+        "f1_score": 0.8872700000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "timestamp": 1778006211.3040228
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 46"
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 100,
+          "efSearch": 500
+        },
+        "k_neighbors": 30,
+        "_iter": 40
+      },
+      "benchmark": {
+        "qps": 328.27670189291024,
+        "recall_at_10": 0.9990400000000002,
+        "latency_ms": 3.0462106943130496,
+        "index_build_s": 261.45141315460205,
+        "precision": 0.9990400000000002,
+        "f1_score": 0.9990400000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 100,
+          "efSearch": 500
+        },
+        "timestamp": 1778006508.859158
+      },
+      "score": 328.27670189291024,
+      "reasoning": "Optuna TPE trial 48"
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 500,
+        "_iter": 41
+      },
+      "benchmark": {
+        "qps": 13.35099666310996,
+        "recall_at_10": 0.9817800000000001,
+        "latency_ms": 74.90077521800994,
+        "index_build_s": 343.04212069511414,
+        "precision": 0.9817800000000001,
+        "f1_score": 0.9817800000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "timestamp": 1778007606.2708323
+      },
+      "score": 13.35099666310996,
+      "reasoning": "Optuna TPE trial 49"
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 75,
+        "_iter": 42
+      },
+      "benchmark": {
+        "qps": 187.57915381716998,
+        "recall_at_10": 0.68308,
+        "latency_ms": 5.331082797050476,
+        "index_build_s": 259.25712180137634,
+        "precision": 0.68308,
+        "f1_score": 0.68308,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778007925.940917
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 50"
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 43
+      },
+      "benchmark": {
+        "qps": 1184.7327768185671,
+        "recall_at_10": 0.8605099999999999,
+        "latency_ms": 0.8440721988677978,
+        "index_build_s": 260.45445585250854,
+        "precision": 0.8605099999999999,
+        "f1_score": 0.8605099999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 24
+        },
+        "timestamp": 1778008199.904831
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 54"
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 44
+      },
+      "benchmark": {
+        "qps": 1047.2704987779857,
+        "recall_at_10": 0.9716,
+        "latency_ms": 0.9548631429672241,
+        "index_build_s": 334.88121342658997,
+        "precision": 0.9716,
+        "f1_score": 0.9716,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778008553.8569407
+      },
+      "score": 1047.2704987779857,
+      "reasoning": "Optuna TPE trial 55"
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 48
+        },
+        "k_neighbors": 10,
+        "_iter": 45
+      },
+      "benchmark": {
+        "qps": 1157.221925089796,
+        "recall_at_10": 0.8869400000000002,
+        "latency_ms": 0.8641384840011597,
+        "index_build_s": 221.19894814491272,
+        "precision": 0.8869400000000002,
+        "f1_score": 0.8869400000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 48
+        },
+        "timestamp": 1778008789.0522745
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 56"
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 300
+        },
+        "k_neighbors": 100,
+        "_iter": 46
+      },
+      "benchmark": {
+        "qps": 122.6345121736471,
+        "recall_at_10": 0.99931,
+        "latency_ms": 8.154311394691469,
+        "index_build_s": 493.8613977432251,
+        "precision": 0.99931,
+        "f1_score": 0.99931,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 300
+        },
+        "timestamp": 1778009369.333662
+      },
+      "score": 122.6345121736471,
+      "reasoning": "Optuna TPE trial 58"
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 8
+        },
+        "k_neighbors": 30,
+        "_iter": 47
+      },
+      "benchmark": {
+        "qps": 480.95739958554657,
+        "recall_at_10": 0.75341,
+        "latency_ms": 2.0791862249374393,
+        "index_build_s": 343.2619755268097,
+        "precision": 0.75341,
+        "f1_score": 0.7534100000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 8
+        },
+        "timestamp": 1778009738.5741677
+      },
+      "score": 0.0,
+      "reasoning": "Optuna TPE trial 59"
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 200,
+        "_iter": 48
+      },
+      "benchmark": {
+        "qps": 54.66100484687815,
+        "recall_at_10": 0.9159699999999998,
+        "latency_ms": 18.294577693939207,
+        "index_build_s": 260.8385946750641,
+        "precision": 0.9159699999999998,
+        "f1_score": 0.9159699999999998,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778010191.806401
+      },
+      "score": 54.66100484687815,
+      "reasoning": "Optuna TPE trial 60"
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 20,
+        "_iter": 49
+      },
+      "benchmark": {
+        "qps": 679.1817259791369,
+        "recall_at_10": 0.9203600000000001,
+        "latency_ms": 1.4723599910736085,
+        "index_build_s": 260.42026925086975,
+        "precision": 0.9203600000000001,
+        "f1_score": 0.9203600000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1778010473.1556926
+      },
+      "score": 679.1817259791369,
+      "reasoning": "Optuna TPE trial 64"
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 300,
+          "efSearch": 500
+        },
+        "k_neighbors": 10,
+        "_iter": 50
+      },
+      "benchmark": {
+        "qps": 554.5325592986552,
+        "recall_at_10": 0.99925,
+        "latency_ms": 1.803320622444153,
+        "index_build_s": 410.133198261261,
+        "precision": 0.99925,
+        "f1_score": 0.99925,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 300,
+          "efSearch": 500
+        },
+        "timestamp": 1778010906.5467982
+      },
+      "score": 554.5325592986552,
+      "reasoning": "Optuna TPE trial 65"
+    }
+  ]
+}
