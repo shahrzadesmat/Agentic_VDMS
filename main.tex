@@ -300,10 +300,8 @@ three datasets.\looseness=-1
     We evaluate across three datasets of increasing simplicity ---
     compositional HOI retrieval (HICO-DET), cross-domain landmark retrieval
     (GLDv2), and synthetic vector search (SIFT1M) --- and show that LLM-guided
-    gains shrink as the search space becomes simpler.
-    We further validate that these gains transfer to Milvus~\cite{wang2021milvus}
-    without modification, giving practitioners a clear signal for when the added
-    complexity of LLM-guided optimization is worth it over standard baselines.
+    gains shrink as the search space becomes simpler, giving practitioners a
+    clear signal for when the added complexity is worth it.
 
   \item \textbf{SIEVE: a quality-constrained throughput objective for
     deployment-aware ANN evaluation.}
@@ -938,8 +936,6 @@ shifts to incremental parameter micro-adjustment in Fine-Tuning;
 \textit{below\_best} directs a return toward the best-known configuration with targeted adjustments;
 and \textit{moderate} suggests coordinated adjustment of $k$ and $\alpha$.
 The thresholds are interpretable: the 0.98 band identifies near-peak iterations where structural exploration still dominates marginal refinement; mAP$<$0.20 marks the infeasibility boundary ($\tau{=}0.15$ leaves only a 33\% headroom); QPS$<$100 marks the latency region where Stage-2 reranking overhead dominates Stage-1 throughput; and the 0.90 below-best threshold triggers a return toward the best configuration before divergence consumes budget. All values were fixed by empirical calibration on HICO-DET validation configurations before any optimizer comparison was run.
-As a concrete illustration: when $g{=}\textit{low\_QPS}$ fires at mAP\,$=$\,0.24, QPS\,$=$\,58 ($k{=}200$), the LLM responds by proposing $k{=}100$, recovering QPS\,$\approx$\,145 while maintaining mAP above $\tau$---a 2.5$\times$ throughput gain achieved in one directed step.
-
 \subsubsection{Untried-Value Hints and Duplicate Avoidance}
 \label{sec:hints}
 
@@ -1006,8 +1002,6 @@ hard-rejection filter would silently discard proposals and retry, consuming LLM
 calls without informing the model \emph{why} its proposal was rejected; the
 prompt-embedded rule requires the agent to reason about and justify a structurally
 distinct alternative.\looseness=-1
-The random fallback triggered in 6 of 150 total LLM proposals (4.0\%), confirming the anti-collapse constraint is rarely binding.
-
 Algorithm~\ref{alg:agent} gives the complete procedure.
 \begin{algorithm}[t]
 \small
