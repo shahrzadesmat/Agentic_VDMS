@@ -492,9 +492,7 @@ Summed over all 600 queries, there are 90{,}641 positive (image, query) pairs.
 For each HOI category, the single image used as the DINOv2 reranking reference
 is excluded from relevance judgments (treated as a junk image), ensuring the
 reference cannot trivially self-retrieve; after this exclusion the minimum
-per-category positive count is 5.
-Every query has at least 5 relevant images, so mAP is well-defined for all
-600 queries.
+per-category positive count is 5, so mAP is well-defined for all 600 queries.
 
 \subsection{Evaluation Protocol}
 We evaluate retrieval quality using mean Average Precision (mAP),
@@ -503,7 +501,7 @@ mAP is our primary metric: it rewards systems that rank relevant images
 higher in the retrieved list and is the standard metric for ranked retrieval
 with multiple relevant documents per query~\cite{manning2008ir}.
 Throughput is measured as batch QPS: 600 queries issued as a single batch to a
-live VDMS container, divided by total wall-clock time.
+live VDMS container, divided by total wall-clock time.\looseness=-1
 The joint optimization objective is
 \begin{equation}
   \mathrm{Score}(\theta) =
@@ -517,7 +515,11 @@ The joint optimization objective is
 This threshold-gated objective rewards throughput only within the feasible region
 ($\mathrm{mAP} \geq \tau$): a configuration that sacrifices retrieval quality below
 $\tau$ scores zero regardless of how high its QPS is, while within the feasible
-region higher QPS is strictly better.\looseness=-1
+region higher QPS is strictly better.
+$\tau{=}0.15$ is calibrated as the minimum acceptable quality floor: it lies between
+UniIR's mAP ($0.095$, failing) and the unoptimized CLIP baseline ($0.208$, passing),
+ensuring optimized configurations retain at least the quality of the simplest
+non-trivial retrieval system.\looseness=-1
 
 \subsection{Problem Statement}
 \label{sec:probstmt}
