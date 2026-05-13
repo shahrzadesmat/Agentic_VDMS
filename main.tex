@@ -1306,7 +1306,10 @@ The LLM-optimal configuration --- FaissHNSWFlat, $M{=}64$,
 $\mathit{efSearch}{=}64$, $k{=}50$, $\alpha{=}0.80$, $n_r{=}5$,
 \textit{centroid} (Table~\ref{tab:efficiency}) --- achieves
 QPS\,$=$\,$300.5$ while maintaining mAP\,$=$\,$0.160$ just above the
-feasibility threshold $\tau$.\looseness=-1
+feasibility threshold $\tau$.
+The mAP of $0.160$ falls below the unoptimized CLIP baseline ($0.208$) by design:
+SIEVE rewards throughput within the feasible region, so the agent trades excess
+mAP margin for higher QPS rather than maximizing mAP.\looseness=-1
 
 \noindent\textbf{GP-BO comparison.}
 GP-BO achieves mean Score $= 199.3$, trailing the LLM agent by $50.7\%$,
