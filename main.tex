@@ -1234,7 +1234,7 @@ by conditioning each proposal on the full history of observed outcomes.\loosenes
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
 \centering
-\caption{ANN optimizer comparison on HICO-DET (50~iters, 3-seed means; Grid: 1~run). $^\P$\texttt{GPSampler+EI}~\cite{snoek2012bayesian}; $^\S$difficulty-weighted.}
+\caption{ANN optimizer comparison on HICO-DET (50~iters, 3-seed means; Grid: 1~run). $^\P$\texttt{GPSampler+EI}~\cite{snoek2012bayesian}; $^\S$difficulty-weighted; $^\dagger$corpus-scale artifact (see Section~\ref{sec:qds_def}).}
 \label{tab:optimizer}
 \vspace{3pt}
 \small
@@ -1252,7 +1252,7 @@ GP-BO$^\P$                                & 199.3          & 0.178 & 0.482 & 39/
 VDTuner~\cite{yang2024vdtuner}            & 223.8          & 0.172 & 0.479 & 24/50 \\
 \midrule
 \textbf{LLM Agent (Ours)}                 & \textbf{300.3} & 0.161 & 0.438 & 23/50 \\
-\textbf{LLM Agent + QDS (Ours)}$^\S$      & \textbf{1362.0}& 0.175 & 0.292 & 39/50 \\
+\textbf{LLM Agent + QDS (Ours)}$^{\S\dagger}$ & \textbf{1362.0}& 0.175 & 0.292 & 39/50 \\
 \bottomrule
 \end{tabular}
 \end{table*}
