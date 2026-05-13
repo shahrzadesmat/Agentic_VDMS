@@ -1481,18 +1481,18 @@ Notably, sample-efficiency rankings invert: Grid Search reaches its best Score a
 % ══════════════════════════════════════════════════════════════════════════════
 
 To verify that results are not VDMS-specific, we replicate all five methods on
-Milvus~\cite{wang2021milvus} under identical protocols: 50 iterations, 3 seeds,
-same dataset splits and $\tau$ thresholds, zero code changes to the optimizer.
-Table~\ref{tab:milvus} reports 3-seed mean Scores; the LLM agent ranks first on
-all three datasets across all nine seeds.
+Milvus~\cite{wang2021milvus} under identical protocols (50 iterations, 3 seeds,
+same dataset splits and $\tau$ thresholds, zero code changes to the optimizer).
+VDMS's PMGD backend incurs per-query property-graph overhead that caps HNSW
+throughput near $300$--$400$~QPS at 47K-vector scale; Milvus's GPU-accelerated
+engine sustains $7{,}000+$~QPS on the same corpus.
+Table~\ref{tab:milvus} therefore reports within-system relative rankings ---
+the comparison tests optimizer transferability, not cross-backend QPS parity ---
+and the LLM agent ranks first on all three datasets across all nine seeds.\looseness=-1
 
-On HICO-DET the margin over VDTuner (the best non-LLM baseline on Milvus) is
-$+7.0\%$ (7272 vs.\ 6798).
-On GLDv2 the margin widens to $+13.3\%$ (6375 vs.\ 5624), consistent with the
-coupled two-stage space penalising marginal optimizers more severely when the
-feasibility cliff is sharp.
-GP-BO collapses on GLDv2 ($-70.5\%$ vs.\ LLM), replicating the same cliff
-failure observed on VDMS.
+On HICO-DET the margin over VDTuner is $+7.0\%$ (7272 vs.\ 6798).
+On GLDv2 the margin widens to $+13.3\%$ (6375 vs.\ 5624);
+GP-BO collapses ($-70.5\%$ vs.\ LLM), replicating the cliff failure on VDMS.
 On SIFT1M the gap compresses to $+5.8\%$ (41\,847 vs.\ 39\,540 vs.\ VDTuner),
 matching the complexity-proportional scaling seen on VDMS.\looseness=-1
 
