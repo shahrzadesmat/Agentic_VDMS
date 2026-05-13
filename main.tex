@@ -1494,13 +1494,13 @@ matching the complexity-proportional scaling seen on VDMS.\looseness=-1
 \vspace{2pt}
 \begingroup
 \small
+\centering
 \setlength{\tabcolsep}{4pt}
 \captionof{table}{Cross-system results on Milvus (3-seed means, 50 iterations).
 HICO-DET: SIEVE ($\tau{=}0.15$);
 GLDv2: mAP${\times}$QPS;
 SIFT1M: Recall@10${\times}$QPS ($\tau{=}0.90$).}
 \label{tab:milvus}
-\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccc}
 \toprule
 \textbf{Method} & \textbf{HICO-DET}$\uparrow$ & \textbf{GLDv2}$\uparrow$ & \textbf{SIFT1M}$\uparrow$ \\
@@ -1511,7 +1511,7 @@ GP-BO~\cite{snoek2012bayesian}          & 5449          & 1882          & 35{,}0
 Optuna~TPE~\cite{akiba2019optuna}       & 5368          & 4792          & 35{,}330 \\
 Random Search~\cite{bergstra2012random} & 4504          & 2632          & 31{,}134 \\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \endgroup
 \vspace{2pt}
 
@@ -1528,7 +1528,7 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
 
 \begingroup
   \centering
-  \includegraphics[width=0.84\columnwidth]{figures/convergence_ablation.pdf}
+  \includegraphics[width=0.93\columnwidth]{figures/convergence_ablation.pdf}
   \Description{Ablation convergence curves. Without history conditioning the agent
     stagnates completely after iteration 5, gaining only 0.1 Score points over the
     next 45 iterations and reaching Score>=299 in 0 of 3 seeds. The full agent
