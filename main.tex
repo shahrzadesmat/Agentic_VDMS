@@ -1346,7 +1346,13 @@ sample-size one.\looseness=-1
 Figure~\ref{fig:convergence} plots best-Score-so-far mean $\pm 1\sigma$ curves.
 The LLM agent reaches Score $= 295.4$ at iteration~6, already exceeding Grid
 Search's final mean ($183.0$) and well ahead of Optuna~TPE
-(mean\,$=$\,$148.5$) and Random Search ($79.4$) at the same iteration.\looseness=-1
+(mean\,$=$\,$148.5$) and Random Search ($79.4$) at the same iteration.
+With $n{=}3$ seeds, pairwise mean tests are underpowered (minimum achievable
+Wilcoxon $p{=}0.125$); the reliability advantage is instead confirmed by a
+Bartlett variance test ($p{=}1.6{\times}10^{-4}$), reflecting the LLM agent's
+near-zero inter-seed variance ($\sigma{=}0.38$) against Optuna~TPE's bimodal
+spread ($\sigma{=}65.4$, alternating between Score\,${\approx}\,188$ and
+Score\,${\approx}\,301$ across seeds).\looseness=-1
 
 \noindent\textbf{Non-obvious operating point.}
 Under the SIEVE objective, the optimal region is $k{=}50$: FaissHNSWFlat
