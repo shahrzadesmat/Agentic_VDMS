@@ -339,7 +339,13 @@ pre-training over interaction primitives.
 All operate in the detection paradigm --- predicting (person, object, interaction)
 triples from an image --- and the sole prior non-detection use of
 HICO-DET~\cite{kilickaya2021structured} employs spatial canvas composition with IoU
-matching rather than free-form text queries.\looseness=-1
+matching rather than free-form text queries.
+Our novelty is specific to the intersection: general text-to-image retrieval benchmarks
+(COCO Captions, Flickr30k) use open-domain descriptive captions; scene-graph retrieval
+uses structured graph predicates; compositional image retrieval pairs images with
+text modifications --- none provides free-form verb--object text queries against a
+large HOI-annotated corpus with per-category retrieval ground truth, which is precisely
+the combination that stresses ANN index configuration and motivates our optimizer.\looseness=-1
 
 CLIP~\cite{radford2021clip} established joint vision-language embedding via contrastive
 pre-training on 400 million image-text pairs, enabling zero-shot text-to-image retrieval.
