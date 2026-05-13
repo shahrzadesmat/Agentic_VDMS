@@ -254,8 +254,8 @@ retrieval ground truth without additional labeling.
 
 Under SIEVE, our joint quality-throughput optimization objective defined in
 Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over
-Optuna~TPE and $\mathbf{+50.7\%}$ over GP-BO~\cite{snoek2012bayesian} on
-HICO-DET.
+Optuna~TPE, $\mathbf{+34.2\%}$ over VDTuner~\cite{yang2024vdtuner}, and
+$\mathbf{+50.7\%}$ over GP-BO~\cite{snoek2012bayesian} on HICO-DET.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
 SIFT1M~\cite{jegou2011pq} (pure ANN search) --- this advantage diminishes
 proportionally to the degree of parameter coupling, confirming that LLM-guided
@@ -270,7 +270,8 @@ three datasets.
     We propose an LLM-guided optimizer that reads its own trial history to discover
     how index construction and reranking parameters must be configured together ---
     a dependency that standard optimizers miss by treating parameters independently.
-    On HICO-DET the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
+    On HICO-DET the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE,
+    $\mathbf{+34.2\%}$ over VDTuner~\cite{yang2024vdtuner}, and
     $\mathbf{+50.7\%}$ over GP-based BO~\cite{snoek2012bayesian}; gains diminish on
     simpler datasets where this inter-parameter dependency is absent, and the optimizer
     transfers to Milvus~\cite{wang2021milvus} without modification, confirming
