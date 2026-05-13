@@ -316,14 +316,6 @@ three datasets.\looseness=-1
     production.
 \end{itemize}
 
-The rest of this paper is organized as follows:
-Section~\ref{sec:related} surveys related work;
-Sections~\ref{sec:benchmark} and~\ref{sec:pipeline} introduce the HICO-DET
-retrieval benchmark and two-stage pipeline;
-Section~\ref{sec:optimizer} details the LLM-guided optimizer;
-Section~\ref{sec:experiments} reports experiments; and
-Section~\ref{sec:conclusion} concludes.\looseness=-1
-
 \section{Related Work}
 \label{sec:related}
 
@@ -1065,8 +1057,6 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
 \State \Return $\theta^*,\;\mathcal{H}_N$
 \end{algorithmic}
 \end{algorithm}
-The algorithm initializes with an empty history and zero stagnation counter (line~1), computes phase boundaries once (line~2), then iterates: each iteration classifies the current phase, computes guidance and hints from history, attempts up to four LLM proposals with duplicate-rejection, falls back to a random config if all fail, evaluates the oracle, and updates the best score and stagnation counter (lines~3--21).
-Throughout the loop $\mathrm{Score}^*$ equals the running maximum $\max_{s \leq t} s_s$; the returned $\theta^*$ is the configuration achieving that maximum over all $N$ oracle calls.\looseness=-1
 
 GP-BO uses \texttt{GPSampler} (Gaussian Process surrogate with Expected Improvement
 acquisition~\cite{snoek2012bayesian}) applied to our single-objective Score.
