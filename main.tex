@@ -1175,10 +1175,10 @@ $N{=}50$ covers 0.05\% of $|\Theta|$ (e.g., 63{,}840 HNSW configs on HICO-DET), 
 \toprule
 \textbf{Method} & \textbf{$\alpha$} & \textbf{$k$} & \textbf{mAP} & \textbf{P@10} & \textbf{R@10} & \textbf{Score (QPS)} \\
 \midrule
-\quad CLIP ViT-L/14                          & 0.0 & 500  & 0.2079 & 0.3370 & 0.0967 &  8.21$^\star$ \\
-\quad CLIP ViT-L/14                          & 0.0 & 2000 & 0.2398 & 0.3370 & 0.0967 &  1.17 \\
-\quad DINOv2 ViT-L/14-reg4                   & 1.0 & 2000 & 0.2165 & 0.3232 & 0.0800 &  1.16 \\
-\quad CLIP\,+\,DINOv2 rerank                 & 0.5 & 2000 & \textbf{0.2763} & \textbf{0.3812} & \textbf{0.1138} & 1.15 \\
+\quad CLIP ViT-L/14                          & 0.0 & 500  & 0.20787 & 0.3370 & 0.0967 &  8.21$^\star$ \\
+\quad CLIP ViT-L/14                          & 0.0 & 2000 & 0.23978 & 0.3370 & 0.0967 &  1.17 \\
+\quad DINOv2 ViT-L/14-reg4                   & 1.0 & 2000 & 0.21655 & 0.3232 & 0.0800 &  1.16 \\
+\quad CLIP\,+\,DINOv2 rerank                 & 0.5 & 2000 & \textbf{0.27629} & \textbf{0.3812} & \textbf{0.1138} & 1.15 \\
 \midrule
 \multicolumn{7}{l}{\footnotesize $^\star$Optimizer reference baseline (SIEVE Score\,=\,8.21, i.e.\ QPS since mAP\,$\geq\tau$); $k{=}500$ trades mAP for higher QPS vs.\ $k{=}2000$.} \\
 \bottomrule
