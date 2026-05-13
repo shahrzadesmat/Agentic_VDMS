@@ -66,6 +66,10 @@ _QDS_WEIGHTS:            Optional[np.ndarray] = None  # (n_queries,) weights in 
 _QDS_TIERS:              Optional[np.ndarray] = None  # (n_queries,) tier 1-4
 _QDS_STANDARD_THRESHOLD: bool = False  # if True: use raw mAP for threshold (not weighted)
 
+# ── ConditionB: multi-row indexing with all_verb_ids ─────────────────────────
+_USE_ALL_VERB_IDS: bool = False          # set by --use-all-verb-ids
+_ROW_TO_IMGID: Optional[np.ndarray] = None  # (n_rows,) maps expanded row idx → img_id
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # DATA STRUCTURES
@@ -198,15 +202,44 @@ def _load_data(dataset_dir: str) -> Dict:
 
     # Precompute per-object and per-verb image index arrays for constraint filtering
     # obj_id -> sorted array of row indices into clip_db
-    obj_img_map:  Dict[int, np.ndarray] = {}
-    verb_img_map: Dict[int, np.ndarray] = {}
-    for img_id in range(len(clip_db)):
-        o = primary_obj.get(img_id, -1)
-        v = primary_verb.get(img_id, -1)
-        obj_img_map.setdefault(o, []).append(img_id)
-        verb_img_map.setdefault(v, []).append(img_id)
-    obj_img_map  = {k: np.array(v) for k, v in obj_img_map.items()}
-    verb_img_map = {k: np.array(v) for k, v in verb_img_map.items()}
+    row_to_imgid: Optional[np.ndarray] = None
+
+    if _USE_ALL_VERB_IDS:
+        # ConditionB: expand clip_db to one row per (img_id, verb_id) pair.
+        # Build all_verb_ids map from metadata.
+        all_verb_ids_map: Dict[int, list] = {}
+        for entry in metadata:
+            img_id = int(entry["img_id"])
+            vids = entry.get("all_verb_ids", [entry.get("primary_verb_id", -1)])
+            all_verb_ids_map[img_id] = [int(v) for v in vids]
+
+        rows_list, row_imgids = [], []
+        obj_img_map: Dict[int, list] = {}
+        verb_img_map: Dict[int, list] = {}
+        for img_id in range(len(clip_db)):
+            o = primary_obj.get(img_id, -1)
+            for v in all_verb_ids_map.get(img_id, [primary_verb.get(img_id, -1)]):
+                row_idx = len(rows_list)
+                rows_list.append(clip_db[img_id])
+                row_imgids.append(img_id)
+                obj_img_map.setdefault(o, []).append(row_idx)
+                verb_img_map.setdefault(v, []).append(row_idx)
+        clip_db = np.stack(rows_list, axis=0).astype(np.float32)
+        row_to_imgid = np.array(row_imgids, dtype=np.int64)
+        obj_img_map  = {k: np.array(v, dtype=np.int64) for k, v in obj_img_map.items()}
+        verb_img_map = {k: np.array(v, dtype=np.int64) for k, v in verb_img_map.items()}
+        print(f"[ConditionB] Expanded clip_db: {len(rows_list)} rows "
+              f"({len(rows_list)/len(dino_db):.2f}× original)")
+    else:
+        obj_img_map: Dict[int, np.ndarray] = {}
+        verb_img_map: Dict[int, np.ndarray] = {}
+        for img_id in range(len(clip_db)):
+            o = primary_obj.get(img_id, -1)
+            v = primary_verb.get(img_id, -1)
+            obj_img_map.setdefault(o, []).append(img_id)
+            verb_img_map.setdefault(v, []).append(img_id)
+        obj_img_map  = {k: np.array(v) for k, v in obj_img_map.items()}
+        verb_img_map = {k: np.array(v) for k, v in verb_img_map.items()}
 
     print(f"[Data] Loaded in {time.time()-t0:.1f}s  "
           f"clip_db={clip_db.shape}  dino_db={dino_db.shape}  text_q={text_q_arr.shape}  "
@@ -223,6 +256,7 @@ def _load_data(dataset_dir: str) -> Dict:
         "hoi_verb_ids": hoi_verb_ids,
         "obj_img_map":  obj_img_map,
         "verb_img_map": verb_img_map,
+        "row_to_imgid": row_to_imgid,
     }
     return _DATA_CACHE
 
@@ -495,6 +529,7 @@ def run_benchmark(config: Dict, dataset_dir: str, iteration: int = 0) -> Benchma
     hoi_verb_ids     = data["hoi_verb_ids"]
     obj_img_map      = data["obj_img_map"]
     verb_img_map     = data["verb_img_map"]
+    row_to_imgid     = data.get("row_to_imgid", None)
 
     engine     = config.get("engine", "FaissHNSWFlat")
     params     = config.get("params", {})
@@ -548,6 +583,23 @@ def run_benchmark(config: Dict, dataset_dir: str, iteration: int = 0) -> Benchma
         hoi_obj_ids, hoi_verb_ids, obj_img_map, verb_img_map,
         per_query_constraint=per_q_constraint)
     stage1_s = time.time() - t_stage1
+
+    # ConditionB: map row indices → img_ids and deduplicate (keep best-scored per image)
+    if row_to_imgid is not None:
+        deduped_ids: List[List[int]] = []
+        deduped_scores: List[List[float]] = []
+        for qi in range(len(all_ids)):
+            seen_imgs: set = set()
+            uniq_ids, uniq_scores = [], []
+            for row_idx, sc in zip(all_ids[qi], all_scores[qi]):
+                img_id = int(row_to_imgid[row_idx])
+                if img_id not in seen_imgs:
+                    seen_imgs.add(img_id)
+                    uniq_ids.append(img_id)
+                    uniq_scores.append(sc)
+            deduped_ids.append(uniq_ids)
+            deduped_scores.append(uniq_scores)
+        all_ids, all_scores = deduped_ids, deduped_scores
 
     # Stage 2: DINOv2 reranking (numpy, same as VDMS version)
     all_ranked: List[List[int]] = []
@@ -1260,8 +1312,12 @@ def _config_key(cfg: Dict) -> str:
 
 async def run_optimizer(args) -> List[IterationResult]:
     global _MAP_THRESHOLD, _QDS_WEIGHTS, _QDS_TIERS, _QDS_STANDARD_THRESHOLD, _FORCE_CONSTRAINT
+    global _USE_ALL_VERB_IDS, _ROW_TO_IMGID
     _MAP_THRESHOLD = args.map_threshold
     _FORCE_CONSTRAINT = getattr(args, "force_constraint", None)
+    _USE_ALL_VERB_IDS = getattr(args, "use_all_verb_ids", False)
+    if _USE_ALL_VERB_IDS:
+        print("[ConditionB] --use-all-verb-ids enabled: expanding index to all verb annotations")
 
     if getattr(args, "use_qds_objective", False):
         data = _load_data(args.dataset_dir)
@@ -1482,6 +1538,8 @@ def main():
     parser.add_argument("--t-expl-frac",           type=float, default=0.75)
     parser.add_argument("--use-qds-objective",     action="store_true", default=False)
     parser.add_argument("--qds-standard-threshold", action="store_true", default=False)
+    parser.add_argument("--use-all-verb-ids",       action="store_true", default=False,
+                        help="ConditionB: index one row per (img_id, verb_id) for all verb annotations")
     parser.add_argument("--force-constraint",       type=str, default=None,
                         choices=["none", "object", "verb", "object_and_verb"],
                         help="Force all iterations to use this constraint_strategy")
@@ -1495,6 +1553,8 @@ def main():
     print(f"  τ (mAP):    {args.map_threshold}")
     if args.use_qds_objective:
         print(f"  QDS:        ON  (standard_threshold={args.qds_standard_threshold})")
+    if args.use_all_verb_ids:
+        print(f"  ConditionB: ON  (all_verb_ids multi-row indexing)")
     if args.force_constraint is not None:
         print(f"  Force constraint: {args.force_constraint}")
     print("=" * 70)

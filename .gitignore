@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# SLURM logs
+*.log
+*.err
+*.out
+slurm-*.out
+
+# ConditionB (all_verb_ids) — dropped from paper per mentor decision
+semantic_vdms/supplementary/experiments/hico_det/conditionB/
+semantic_vdms/supplementary/results/hico_det_condB/
+semantic_vdms/milvus/hico_det/results/milvus_qds_cB_*.json
+semantic_vdms/milvus/hico_det/run_milvus_qds_cB_*.sh
+
+# Large binary / data files
+*.sif
+*.npy
+*.h5
+*.hdf5
+*.pkl
+*.pt
+*.pth
+
+# Misc
+.DS_Store
+*.pdf
+kaggle.json
