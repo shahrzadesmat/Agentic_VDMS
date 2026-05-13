@@ -935,7 +935,7 @@ shifts to incremental parameter micro-adjustment in Fine-Tuning;
 \textit{low\_QPS} directs it to reduce $k$ (the primary QPS lever) or switch engines;
 \textit{below\_best} directs a return toward the best-known configuration with targeted adjustments;
 and \textit{moderate} suggests coordinated adjustment of $k$ and $\alpha$.
-The thresholds are interpretable: the 0.98 band identifies near-peak iterations where structural exploration still dominates marginal refinement; mAP$<$0.20 marks the infeasibility boundary ($\tau{=}0.15$ leaves only a 33\% headroom); QPS$<$100 marks the latency region where Stage-2 reranking overhead dominates Stage-1 throughput; and the 0.90 below-best threshold triggers a return toward the best configuration before divergence consumes budget. All values were fixed by empirical calibration on HICO-DET validation configurations before any optimizer comparison was run.
+All threshold values were fixed by empirical calibration on HICO-DET before any optimizer comparison was run.
 \subsubsection{Untried-Value Hints and Duplicate Avoidance}
 \label{sec:hints}
 
@@ -1331,12 +1331,9 @@ Figure~\ref{fig:convergence} plots best-Score-so-far mean $\pm 1\sigma$ curves.
 The LLM agent reaches Score $= 295.4$ at iteration~6, already exceeding Grid
 Search's final mean ($183.0$) and well ahead of Optuna~TPE
 (mean\,$=$\,$148.5$) and Random Search ($79.4$) at the same iteration.
-With $n{=}3$ seeds, pairwise mean tests are underpowered (minimum achievable
-Wilcoxon $p{=}0.125$); the reliability advantage is instead confirmed by a
-Bartlett variance test ($p{=}1.6{\times}10^{-4}$), reflecting the LLM agent's
-near-zero inter-seed variance ($\sigma{=}0.38$) against Optuna~TPE's bimodal
-spread ($\sigma{=}65.4$, alternating between Score\,${\approx}\,188$ and
-Score\,${\approx}\,301$ across seeds).\looseness=-1
+A Bartlett variance test ($p{=}1.6{\times}10^{-4}$) confirms the reliability gap:
+LLM $\sigma{=}0.38$ versus Optuna~TPE $\sigma{=}65.4$ (bimodal: two seeds at
+Score\,${\approx}\,188$, one at ${\approx}\,301$).\looseness=-1
 
 \noindent\textbf{Non-obvious operating point.}
 Under the SIEVE objective, the optimal region is $k{=}50$: FaissHNSWFlat
@@ -1492,11 +1489,9 @@ the comparison tests optimizer transferability, not cross-backend QPS parity ---
 and the LLM agent ranks first on all three datasets across all nine seeds.\looseness=-1
 
 On HICO-DET the margin over VDTuner is $+7.0\%$ (7272 vs.\ 6798).
-On GLDv2 the margin widens to $+13.3\%$ (6375 vs.\ 5624): Milvus's GPU-accelerated
-engine sustains ${\approx}20{\times}$ higher absolute QPS at 762K scale than VDMS,
-reinstating a wider $(k,\alpha)$ operating range that rewards history-conditioned
-navigation and explains why the LLM advantage reappears here despite VDMS-GLDv2
-collapsing to near-convergence.
+On GLDv2 the margin widens to $+13.3\%$ (6375 vs.\ 5624): Milvus's ${\approx}20{\times}$
+higher absolute QPS at 762K scale reinstates $(k,\alpha)$ coupling absent in the
+lower-QPS VDMS parameter landscape.
 GP-BO collapses ($-70.5\%$ vs.\ LLM), replicating the cliff failure on VDMS.
 On SIFT1M the gap compresses to $+5.8\%$ (41\,847 vs.\ 39\,540 vs.\ VDTuner),
 matching the complexity-proportional scaling seen on VDMS.\looseness=-1
