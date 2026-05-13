@@ -234,11 +234,12 @@ On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner},
 Optuna~TPE~\cite{akiba2019optuna}, grid and random
 search~\cite{bergstra2012random} all treat parameters independently, missing
 the coupling entirely.
-VDTuner has a further weakness: it fails when performance drops sharply at a
-quality threshold rather than changing gradually.
+VDTuner has a further weakness: it performs less reliably when performance
+changes discontinuously at a quality threshold rather than gradually.
 
 We propose a \emph{phase-aware LLM agent} that jointly optimizes ANN index
-and reranking parameters on Intel's VDMS~\cite{remis2021vdms}.
+and reranking parameters on Intel's VDMS~\cite{remis2021vdms}, and validate
+that it transfers without modification to Milvus~\cite{wang2021milvus}.
 At each step, the agent reviews all previous configurations and their results,
 identifies how parameters across stages interact, and decides whether to explore
 new regions or refine the best configuration found so far.
@@ -259,6 +260,9 @@ On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
 SIFT1M~\cite{jegou2011pq} (pure ANN search) --- this advantage diminishes
 proportionally to the degree of parameter coupling, confirming that LLM-guided
 optimization is most valuable when parameters interact across stages.
+Cross-system validation on Milvus~\cite{wang2021milvus} confirms the optimizer
+transfers to a second VDBMS without modification, with LLM ranking first on all
+three datasets.
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 \begin{itemize}[leftmargin=1em, itemsep=3pt, topsep=3pt]
@@ -268,7 +272,8 @@ optimization is most valuable when parameters interact across stages.
     a dependency that standard optimizers miss by treating parameters independently.
     On HICO-DET the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE and
     $\mathbf{+50.7\%}$ over GP-based BO~\cite{snoek2012bayesian}; gains diminish on
-    simpler datasets where this inter-parameter dependency is absent, confirming
+    simpler datasets where this inter-parameter dependency is absent, and the optimizer
+    transfers to Milvus~\cite{wang2021milvus} without modification, confirming
     that the improvement is structural, not incidental.
 
   \item \textbf{First text-query HOI retrieval benchmark.}
@@ -292,8 +297,9 @@ optimization is most valuable when parameters interact across stages.
     compositional HOI retrieval (HICO-DET), cross-domain landmark retrieval
     (GLDv2), and synthetic vector search (SIFT1M) --- and show that LLM-guided
     gains shrink as the search space becomes simpler.
-    This gives practitioners a clear signal for when the added complexity of
-    LLM-guided optimization is worth it over standard baselines.
+    We further validate that these gains transfer to Milvus~\cite{wang2021milvus}
+    without modification, giving practitioners a clear signal for when the added
+    complexity of LLM-guided optimization is worth it over standard baselines.
 
   \item \textbf{SIEVE: a quality-constrained throughput objective for
     deployment-aware ANN evaluation.}
