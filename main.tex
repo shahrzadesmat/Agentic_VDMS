@@ -823,7 +823,7 @@ $n_r$ class embeddings reduces the expected $L_2$ centroid bias of $\mathbf{r}_h
 by $O(1/\sqrt{n_r})$ relative to a single reference image.
 Section~\ref{sec:experiments} confirms this empirically: text queries outperform
 single-image reference queries by $+2.32$\,pp mAP on HICO-DET, consistent with
-Eq.~\eqref{eq:textquery}.
+Eq.~\eqref{eq:textquery}.\looseness=-1
 
 \section{LLM-Guided ANN Hyperparameter Optimization}
 \label{sec:optimizer}
@@ -913,7 +913,7 @@ as structured text; and (iv) dynamically computed untried-value hints
 (Section~\ref{sec:hints}).
 The agent responds with a structured JSON object specifying the next $\theta_t$ and
 a \textit{reasoning} field that articulates its rationale (Figure~\ref{fig:prompts}).
-The necessity of history conditioning is verified in Section~\ref{sec:ablation}.
+The necessity of history conditioning is verified in Section~\ref{sec:ablation}.\looseness=-1
 
 \subsubsection{Diagnostic Guidance Function}
 \label{sec:guidance}
@@ -961,7 +961,7 @@ if a duplicate is detected, the LLM is re-queried up to four times with the same
 (a different response may arise from the model's sampling temperature);
 if all four attempts remain duplicates, a uniformly random fallback is applied,
 guaranteeing loop progress.
-Each LLM call consumes approximately 2{,}000--3{,}500 tokens; the full 50-iteration run costs fewer than 250{,}000 tokens (\textless\$0.20 at GPT-4o-mini pricing), negligible relative to the 6.5--7.5~h oracle cost.
+Each LLM call consumes approximately 2{,}000--3{,}500 tokens; the full 50-iteration run costs fewer than 250{,}000 tokens (\textless\$0.20 at GPT-4o-mini pricing), negligible relative to the 6.5--7.5~h oracle cost.\looseness=-1
 
 \subsection{Phase-Aware Budget Partition}
 \label{sec:phases}
@@ -1066,7 +1066,7 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
 \end{algorithmic}
 \end{algorithm}
 The algorithm initializes with an empty history and zero stagnation counter (line~1), computes phase boundaries once (line~2), then iterates: each iteration classifies the current phase, computes guidance and hints from history, attempts up to four LLM proposals with duplicate-rejection, falls back to a random config if all fail, evaluates the oracle, and updates the best score and stagnation counter (lines~3--21).
-Throughout the loop $\mathrm{Score}^*$ equals the running maximum $\max_{s \leq t} s_s$; the returned $\theta^*$ is the configuration achieving that maximum over all $N$ oracle calls.
+Throughout the loop $\mathrm{Score}^*$ equals the running maximum $\max_{s \leq t} s_s$; the returned $\theta^*$ is the configuration achieving that maximum over all $N$ oracle calls.\looseness=-1
 
 GP-BO uses \texttt{GPSampler} (Gaussian Process surrogate with Expected Improvement
 acquisition~\cite{snoek2012bayesian}) applied to our single-objective Score.
@@ -1409,6 +1409,8 @@ With 3-seed means, VDTuner leads at $\mathbf{273.91}$ QPS, narrowly ahead of
 Grid Search ($272.98$), Optuna~TPE ($272.35$), LLM Agent ($271.45$), and Random Search ($265.47$).
 The spread among the top-4 adaptive methods is under $1\%$ --- substantially compressed
 relative to HICO-DET ($33.3\%$) --- consistent with the lower coupling on this dataset.
+The LLM Agent's fourth-place VDMS result ($271.45$) falls within this $<1\%$ convergence
+band and is consistent with 3-seed measurement variance; it is not a structural loss.
 GP-BO collapses to a 3-seed mean of $56.6$ QPS, replicating the cliff failure from HICO-DET.
 Each iteration completes in $\approx$5\,min ($\approx$4\,h total), slightly faster than HICO-DET.\looseness=-1
 
@@ -1497,7 +1499,11 @@ the comparison tests optimizer transferability, not cross-backend QPS parity ---
 and the LLM agent ranks first on all three datasets across all nine seeds.\looseness=-1
 
 On HICO-DET the margin over VDTuner is $+7.0\%$ (7272 vs.\ 6798).
-On GLDv2 the margin widens to $+13.3\%$ (6375 vs.\ 5624);
+On GLDv2 the margin widens to $+13.3\%$ (6375 vs.\ 5624): Milvus's GPU-accelerated
+engine sustains ${\approx}20{\times}$ higher absolute QPS at 762K scale than VDMS,
+reinstating a wider $(k,\alpha)$ operating range that rewards history-conditioned
+navigation and explains why the LLM advantage reappears here despite VDMS-GLDv2
+collapsing to near-convergence.
 GP-BO collapses ($-70.5\%$ vs.\ LLM), replicating the cliff failure on VDMS.
 On SIFT1M the gap compresses to $+5.8\%$ (41\,847 vs.\ 39\,540 vs.\ VDTuner),
 matching the complexity-proportional scaling seen on VDMS.\looseness=-1
