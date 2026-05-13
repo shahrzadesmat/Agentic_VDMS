@@ -54,6 +54,7 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{subcaption}
+\captionsetup{font=footnotesize}
 \usepackage[compact]{titlesec}
 \titlespacing*{\section}{0pt}{3pt plus 1pt minus 1pt}{1pt}
 \titlespacing*{\subsection}{0pt}{3pt plus 1pt minus 1pt}{0pt}
@@ -75,12 +76,12 @@
 \setcounter{totalnumber}{6}
 \setcounter{dbltopnumber}{4}
 % ── Float and caption spacing ────────────────────────────────────────────────
-\setlength{\textfloatsep}{2pt plus 1pt minus 1pt}
-\setlength{\floatsep}{2pt plus 1pt minus 1pt}
-\setlength{\intextsep}{3pt plus 1pt minus 1pt}
-\setlength{\dbltextfloatsep}{2pt plus 1pt minus 1pt}
-\setlength{\dblfloatsep}{2pt plus 1pt minus 1pt}
-\setlength{\abovecaptionskip}{2pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{5pt plus 2pt minus 1pt}
+\setlength{\floatsep}{3pt plus 1pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\dbltextfloatsep}{5pt plus 2pt minus 1pt}
+\setlength{\dblfloatsep}{3pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{3pt plus 1pt minus 1pt}
 \setlength{\belowcaptionskip}{0pt}
 
 \flushbottom
@@ -398,7 +399,7 @@ Recent work has explored whether large language models can serve as optimization
 OPRO~\cite{yang2024opro} established that LLMs can act as black-box optimizers by
 conditioning successive proposals on a history of candidate solutions and their scores.
 Follow-up work extended this paradigm to ML hyperparameter
-optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}.
+optimization~\cite{zhang2023llmhyperopt,liu2024agenthpo}.\looseness=-1
 
 GPTuner~\cite{lao2024gpttuner} applies LLM-guided Bayesian optimization to PostgreSQL
 knob tuning, extracting structured configuration knowledge from database documentation
@@ -408,7 +409,7 @@ configuration scripts via LLM, framing prompt construction as a cost-based optim
 and is evaluated across PostgreSQL and MySQL.
 Both outperform ML-based and RL-based baselines on DBMS tuning, yet both operate on
 flat, independently interpretable knob spaces where no cross-stage coupling exists by
-construction.
+construction.\looseness=-1
 
 Our work addresses what neither thread has reached: a coupled multi-stage parameter
 space where ANN retrieval depth and fusion reranking weight must be optimized jointly
@@ -514,7 +515,7 @@ The joint optimization objective is
 This threshold-gated objective rewards throughput only within the feasible region
 ($\mathrm{mAP} \geq \tau$): a configuration that sacrifices retrieval quality below
 $\tau$ scores zero regardless of how high its QPS is, while within the feasible
-region higher QPS is strictly better.
+region higher QPS is strictly better.\looseness=-1
 
 \subsection{Problem Statement}
 \label{sec:probstmt}
@@ -1160,7 +1161,7 @@ Each optimization iteration builds a complete ANN index from scratch and issues 
 The full 50-iteration budget therefore demands approximately 6.5--7.5 hours of compute
 per method, making sample efficiency --- how quickly each method reaches a high-scoring
 configuration --- a practically meaningful criterion.
-$N{=}50$ covers 0.05\% of $|\Theta|$ (e.g., 63{,}840 HNSW configs on HICO-DET), totals ${\approx}6.5$--$7.5$\,h of wall-clock compute per method, and matches the protocol of related LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}.
+$N{=}50$ covers 0.05\% of $|\Theta|$ (e.g., 63{,}840 HNSW configs on HICO-DET), totals ${\approx}6.5$--$7.5$\,h of wall-clock compute per method, and matches the protocol of related LLM-guided and Bayesian optimization studies~\cite{lao2024gpttuner,yang2024opro}.\looseness=-1
 
 \subsection{System Baselines}
 \label{sec:baselines}
@@ -1330,7 +1331,7 @@ sample-size one.\looseness=-1
 Figure~\ref{fig:convergence} plots best-Score-so-far mean $\pm 1\sigma$ curves.
 The LLM agent reaches Score $= 295.4$ at iteration~6, already exceeding Grid
 Search's final mean ($183.0$) and well ahead of Optuna~TPE
-(mean\,$=$\,$148.5$) and Random Search ($79.4$) at the same iteration.
+(mean\,$=$\,$148.5$) and Random Search ($79.4$) at the same iteration.\looseness=-1
 
 \noindent\textbf{Non-obvious operating point.}
 Under the SIEVE objective, the optimal region is $k{=}50$: FaissHNSWFlat
@@ -1347,18 +1348,18 @@ TPE's independent marginals over $k$ and $\alpha$ cannot make, explaining
 why the LLM reaches the $k{=}50$ feasible region on all three seeds
 (Scores: $300.5$, $299.9$, $300.5$) while GP-BO succeeds on only one
 ($299.4$, $188.1$, $110.4$).
-Across all $188$ logged $k{=}50$ configurations, $\alpha{<}0.70$ yields only $46.2\%$ feasibility (mean Score\,$=$\,$129.1$) versus $84.2\%$ at $\alpha{\geq}0.70$ (mean Score\,$=$\,$242.6$) --- a $113$-point gap marginal optimizers cannot reliably navigate.
+Across all $188$ logged $k{=}50$ configurations, $\alpha{<}0.70$ yields only $46.2\%$ feasibility (mean Score\,$=$\,$129.1$) versus $84.2\%$ at $\alpha{\geq}0.70$ (mean Score\,$=$\,$242.6$) --- a $113$-point gap marginal optimizers cannot reliably navigate.\looseness=-1
 
 \noindent\textbf{Failure modes.}
 Grid Search reaches its best Score of 183.0 at iteration~41 --- well below the
 LLM optimum (300.3) --- because its one-dimensional lexicographic sweep cannot
 jointly probe the $(k{=}50,\,\alpha{=}0.80)$ operating point: sweeping $k$ and
 $\alpha$ independently misses the coupled interaction that elevates Score from
-183 to 300, even though M\,$=$\,64 is individually explored from iteration~5.
+183 to 300, even though M\,$=$\,64 is individually explored from iteration~5.\looseness=-1
 Random Search's mean Score ($111.4$) reflects frequent infeasible trials
 (score\,$=$\,$0$); the feasible configurations it finds tend toward large-$k$
 safe regions (Score\,$\approx\!140$) rather than the tight $k{=}50$ optimum
-that requires coupled $(k,\alpha)$ inference to locate reliably.
+that requires coupled $(k,\alpha)$ inference to locate reliably.\looseness=-1
 
 % ══════════════════════════════════════════════════════════════════════════════
 \subsection{Cross-Domain Generalization: GLDv2 Landmark Retrieval}
@@ -1366,7 +1367,7 @@ that requires coupled $(k,\alpha)$ inference to locate reliably.
 % ══════════════════════════════════════════════════════════════════════════════
 
 We evaluate on GLDv2~\cite{weyand2020gld} ($762{,}000$ gallery images, $1{,}129$ queries) to test cross-domain generalization.
-The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from text-to-image to image-to-image (removing the text-query centroid advantage), and each image is represented by CLIP ViT-L/14 and DINOv2 ViT-L/14-reg4 embeddings in VDMS under the same SIEVE objective (Score $=$ QPS if mAP$\geq\tau{=}0.15$, else $0$).
+The corpus is $16\times$ larger than HICO-DET, the retrieval task shifts from text-to-image to image-to-image (removing the text-query centroid advantage), and each image is represented by CLIP ViT-L/14 and DINOv2 ViT-L/14-reg4 embeddings in VDMS under the same SIEVE objective (Score $=$ QPS if mAP$\geq\tau{=}0.15$, else $0$).\looseness=-1
 
 % ── Table: GLDv2 optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
