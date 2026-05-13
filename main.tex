@@ -474,7 +474,7 @@ split alone would reduce per-category positive counts below the minimum threshol
 for reliable mAP computation across all 600 classes.
 CLIP ViT-L/14~\cite{radford2021clip} embeddings are pre-computed offline using the
 official OpenAI weights and stored in VDMS as a 768-dimensional L2 DescriptorSet
-of 47{,}776 vectors.
+of 47{,}776 vectors.\looseness=-1
 
 \noindent\textbf{Query Design: One Canonical Query per HOI Class.}
 We construct exactly one canonical natural-language text query per HOI category,
@@ -487,7 +487,7 @@ special case \textit{``a person near a \{object\}''} for the \texttt{no\_interac
 verb class.
 Queries are encoded with the same CLIP ViT-L/14 text encoder, producing
 768-dimensional unit-norm text embeddings that reside in the same embedding space as
-the indexed image vectors.
+the indexed image vectors.\looseness=-1
 
 \noindent\textbf{Ground Truth: Multi-Label Positive Structure.}
 An image is relevant to a query if it carries the corresponding HOI annotation in
@@ -498,7 +498,7 @@ Summed over all 600 queries, there are 90{,}641 positive (image, query) pairs.
 For each HOI category, the single image used as the DINOv2 reranking reference
 is excluded from relevance judgments (treated as a junk image), ensuring the
 reference cannot trivially self-retrieve; after this exclusion the minimum
-per-category positive count is 5, so mAP is well-defined for all 600 queries.
+per-category positive count is 5, so mAP is well-defined for all 600 queries.\looseness=-1
 
 \subsection{Evaluation Protocol}
 We evaluate retrieval quality using mean Average Precision (mAP),
@@ -729,7 +729,7 @@ $\boldsymbol{\mu}_h^d = \frac{1}{|\mathcal{I}_h|}\sum_{i \in \mathcal{I}_h}\math
 anchoring $\mathbf{r}_h$ at the visual core of the class;
 \textbf{diverse} applies greedy farthest-point sampling from the most central image.
 Reference construction requires ${<}1$\,ms per class and does not contribute to
-$T_{\mathrm{total}}$ in Eq.~\eqref{eq:qps}.
+$T_{\mathrm{total}}$ in Eq.~\eqref{eq:qps}.\looseness=-1
 
 CLIP distances $\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$ and DINOv2 distances
 $\delta_j^d = \|\mathbf{d}_j - \mathbf{r}_h\|_2$ operate at different absolute scales;
@@ -747,7 +747,7 @@ $\hat{d}_j \equiv \hat{\delta}_j^d$.
 Pool-local normalization preserves the fine-grained relative ordering of CLIP distances
 within $\mathcal{T}_k(q_h)$: intra-pool CLIP squared L2 distances span a narrow range
 (${\approx}1.55$--$1.75$ for unit-normalized 768-d embeddings), a signal that a
-global corpus statistic would collapse.
+global corpus statistic would collapse.\looseness=-1
 
 The fused relevance score for candidate $j \in \mathcal{T}_k(q_h)$ is the
 convex combination~\cite{bruch2024tois}
@@ -763,7 +763,7 @@ The convex combination is preferred over reciprocal rank fusion because CLIP tex
 queries on a unit-normalized 768-d space produce meaningful intra-pool distance values
 whose fine-grained ordering is destroyed when converted to ranks.
 The optimal $\alpha$ is configuration-dependent and is learned jointly with Stage~1
-parameters by the LLM optimizer (Section~\ref{sec:optimizer}).
+parameters by the LLM optimizer (Section~\ref{sec:optimizer}).\looseness=-1
 
 \subsection{Text Query Superiority: Centroid-Displacement Theory}
 \label{sec:centroid}
@@ -842,13 +842,13 @@ fusion weight $\alpha$, reference count $n_r$, and reference strategy.
 Because engine choice renders some parameters inapplicable---$M$ and
 $\mathit{efSearch}$ are undefined for IVF; $\mathit{nlist}$ and $\mathit{nprobe}$
 are undefined for HNSW---the joint space $|\Theta|{=}102{,}144$ is
-engine-conditional and mixed-type.
+engine-conditional and mixed-type.\looseness=-1
 
 Each evaluation requires a full VDMS rebuild plus a 600-query pass
 (${\approx}8$--$9$ min per oracle call), ruling out exhaustive or
 surrogate-heavy strategies that require thousands of evaluations.
 We address this with a sequential LLM optimizer (Figure~\ref{fig:workflow}) that exploits structural knowledge
-of $\Theta$ to allocate its $N$-iteration budget efficiently.
+of $\Theta$ to allocate its $N$-iteration budget efficiently.\looseness=-1
 
 \subsection{Search Space and Coupling Structure}
 
@@ -865,7 +865,7 @@ FaissIVFFlat contributes $\mathit{nlist}$ and $\mathit{nprobe}$.
 The oracle $\mathcal{O}(\theta)$ loads $\theta$ into a fresh VDMS instance,
 indexes the corpus, and evaluates all $|Q|{=}600$ HOI queries, returning the pair
 $\bigl(\mathrm{mAP}(\theta),\mathrm{QPS}(\theta)\bigr)$
-and $\mathrm{Score}(\theta)=\mathrm{QPS}(\theta)$ if $\mathrm{mAP}(\theta){\geq}\tau$, else $0$ (Eq.~\eqref{eq:score}).
+and $\mathrm{Score}(\theta)=\mathrm{QPS}(\theta)$ if $\mathrm{mAP}(\theta){\geq}\tau$, else $0$ (Eq.~\eqref{eq:score}).\looseness=-1
 
 Two cross-parameter couplings invalidate the independence assumption shared by
 GP-BO~\cite{snoek2012bayesian} and Optuna~TPE.
@@ -881,7 +881,7 @@ any fixed $k$ misses it.
 Second, engine selection sets the QPS range available to any $\mathit{efSearch}$
 sweep, so structural decisions must precede continuous refinement.
 These coupled dependencies motivate a phase-partitioned budget that resolves
-structural choices before continuous ones.
+structural choices before continuous ones.\looseness=-1
 
 \subsection{History Trajectory and Prompt Generation}
 
@@ -1137,7 +1137,7 @@ For SIFT1M, raw 128-dimensional SIFT vectors are stored directly in VDMS without
 any reranking stage; Score $=$ QPS if Recall@10\,$\geq\tau{=}0.90$, else $0$.
 
 \noindent\textbf{Compared Methods.}
-We compare five strategies, each for $N{=}50$ iterations.
+We compare five strategies, each for $N{=}50$ iterations.\looseness=-1
 
 \noindent\textbf{LLM Agent (Ours):} phase-conditioned prompt with full history $\mathcal{H}_{t-1}$ via MiniMax-M2.1/OpenRouter\footnote{Estimated API cost: 50 iterations $\times$ $\approx$5,000 tokens/call $\approx$ 250K tokens total; at MiniMax-M2.1 list pricing this amounts to under \$0.20 per optimizer run.} (seeds: 42, 99, 200). Backbone portability across GPT-4o-mini and Llama-3.3-70B is verified in Section~\ref{sec:ablation}.
 
@@ -1150,7 +1150,7 @@ We compare five strategies, each for $N{=}50$ iterations.
 \noindent\textbf{Grid Search:} lexicographic 1-D sweep (1~run).
 As system baselines we include UniIR~\cite{wei2024uniir}, standalone CLIP
 ViT-L/14, standalone DINOv2 ViT-L/14-reg4, and CLIP$+$DINOv2 reranking,
-all under exact FaissFlat search (Section~\ref{sec:baselines}).
+all under exact FaissFlat search (Section~\ref{sec:baselines}).\looseness=-1
 
 \noindent\textbf{Metrics.}\label{sec:metrics}
 Retrieval quality: mAP, P@10, Recall@10~\cite{manning2008ir}.
