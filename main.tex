@@ -1185,7 +1185,7 @@ $N{=}50$ covers 0.05\% of $|\Theta|$ (e.g., 63{,}840 HNSW configs on HICO-DET), 
 \noindent\textbf{Compositional difficulty.}
 Even with exhaustive FaissFlat search and single-query DINOv2 reranking ($n_\text{refs}{=}1$),
 the best achievable mAP is $0.276$\footnote{With pseudo-relevance feedback ($n_\text{refs}{=}10$),
-the FaissFlat oracle reaches mAP $= 0.424$ at $\alpha{=}0.80$, confirming PRF and index
+the FaissFlat oracle reaches mAP $= 0.426$ at $\alpha{=}0.80$, confirming PRF and index
 tuning are complementary optimization axes.} --- reflecting fine-grained categories such as
 \textit{ride horse}, \textit{sit\_on horse}, and \textit{straddle horse} that share
 the same object but differ only in verb.\looseness=-1
@@ -1453,7 +1453,7 @@ All methods except GP-BO converge to FaissHNSWFlat with \textit{efSearch}$\in\{2
 as the optimal operating point. 3-seed mean Scores are
 $\mathbf{1184.5}$ (LLM Agent), $1174.4$ (Grid, 1~run), $1160.7$ (Optuna), $1150.9$ (VDTuner), and $1143.6$ (Random) ---
 a spread under $3.6\%$.
-GP-BO collapses to a 3-seed mean of $755.4$ ($-36.3\%$ vs.\ LLM Agent): its acquisition surface
+GP-BO collapses to a 3-seed mean of $755.4$ ($-36.2\%$ vs.\ LLM Agent): its acquisition surface
 converges on $k{=}30$ configurations that maximize raw throughput but oscillate around
 the $\tau{=}0.90$ recall threshold, with high seed-to-seed variance ($471$--$1174$) and
 no recovery across the remaining budget.\looseness=-1
