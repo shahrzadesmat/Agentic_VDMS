@@ -1216,7 +1216,7 @@ by conditioning each proposal on the full history of observed outcomes.
 % ── Figure: Convergence curves ────────────────────────────────────────────────
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.84\columnwidth]{figures/convergence_hico_det.pdf}
+  \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
   \Description{Convergence curves showing best SIEVE Score (QPS if mAP≥τ, τ=0.15) vs.\ iteration
     for five optimizer methods on HICO-DET over 50 iterations. LLM Agent outpaces all baselines
     by iteration 4, reaching a final mean score of 300.3; Optuna~TPE and GP-BO plateau at
@@ -1494,13 +1494,13 @@ matching the complexity-proportional scaling seen on VDMS.\looseness=-1
 \vspace{2pt}
 \begingroup
 \small
-\centering
 \setlength{\tabcolsep}{4pt}
 \captionof{table}{Cross-system results on Milvus (3-seed means, 50 iterations).
 HICO-DET: SIEVE ($\tau{=}0.15$);
 GLDv2: mAP${\times}$QPS;
 SIFT1M: Recall@10${\times}$QPS ($\tau{=}0.90$).}
 \label{tab:milvus}
+\begin{center}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Method} & \textbf{HICO-DET}$\uparrow$ & \textbf{GLDv2}$\uparrow$ & \textbf{SIFT1M}$\uparrow$ \\
@@ -1512,6 +1512,7 @@ Optuna~TPE~\cite{akiba2019optuna}       & 5368          & 4792          & 35{,}3
 Random Search~\cite{bergstra2012random} & 4504          & 2632          & 31{,}134 \\
 \bottomrule
 \end{tabular}
+\end{center}
 \endgroup
 \vspace{2pt}
 
@@ -1528,7 +1529,7 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
 
 \begingroup
   \centering
-  \includegraphics[width=0.93\columnwidth]{figures/convergence_ablation.pdf}
+  \includegraphics[width=0.97\columnwidth]{figures/convergence_ablation.pdf}
   \Description{Ablation convergence curves. Without history conditioning the agent
     stagnates completely after iteration 5, gaining only 0.1 Score points over the
     next 45 iterations and reaching Score>=299 in 0 of 3 seeds. The full agent
