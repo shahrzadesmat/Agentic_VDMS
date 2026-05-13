@@ -265,7 +265,7 @@ proportionally to the degree of parameter coupling, confirming that LLM-guided
 optimization is most valuable when parameters interact across stages.
 Cross-system validation on Milvus~\cite{wang2021milvus} confirms the optimizer
 transfers to a second VDBMS without modification, with LLM ranking first on all
-three datasets.
+three datasets.\looseness=-1
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
 \begin{itemize}[leftmargin=1em, itemsep=1pt, topsep=1pt]
@@ -322,7 +322,7 @@ Sections~\ref{sec:benchmark} and~\ref{sec:pipeline} introduce the HICO-DET
 retrieval benchmark and two-stage pipeline;
 Section~\ref{sec:optimizer} details the LLM-guided optimizer;
 Section~\ref{sec:experiments} reports experiments; and
-Section~\ref{sec:conclusion} concludes.
+Section~\ref{sec:conclusion} concludes.\looseness=-1
 
 \section{Related Work}
 \label{sec:related}
@@ -361,7 +361,7 @@ billion-point SSD-resident datasets), inverted file structures with product
 quantization~\cite{jegou2011pq}, and GPU-accelerated flat search~\cite{johnson2021billion}.
 ANN-Benchmarks~\cite{aumuller2020ann} standardizes recall-versus-throughput evaluation
 across these algorithms; the NeurIPS'21 competition~\cite{simhadri2022neurips} established
-billion-scale baselines.
+billion-scale baselines.\looseness=-1
 
 Production VDBMSs integrate ANN indexing with metadata management and query processing.
 Milvus~\cite{wang2021milvus} supports multiple index backends with a cloud-native query
@@ -427,7 +427,7 @@ Our additions --- phase structure, diagnostic guidance $g(\mathcal{H})$, and
 untried-value hints --- directly target each gap and are not decorative:
 removing history conditioning alone (reducing the agent to OPRO-style proposals)
 drops seed reliability from $\mathbf{3/3}$ to $\mathbf{0/3}$ seeds reaching the
-optimum, as verified in Section~\ref{sec:ablation}.
+optimum, as verified in Section~\ref{sec:ablation}.\looseness=-1
 
 \section{The HICO-DET Retrieval Benchmark}
 \label{sec:benchmark}
