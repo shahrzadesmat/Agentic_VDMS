@@ -55,8 +55,8 @@
 \usepackage{algpseudocode}
 \usepackage{subcaption}
 \usepackage[compact]{titlesec}
-\titlespacing*{\section}{0pt}{4pt plus 2pt minus 1pt}{2pt}
-\titlespacing*{\subsection}{0pt}{4pt plus 1pt minus 1pt}{1pt}
+\titlespacing*{\section}{0pt}{3pt plus 1pt minus 1pt}{1pt}
+\titlespacing*{\subsection}{0pt}{3pt plus 1pt minus 1pt}{0pt}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 % ── Float placement tuning ───────────────────────────────────────────────────
@@ -75,25 +75,25 @@
 \setcounter{totalnumber}{6}
 \setcounter{dbltopnumber}{4}
 % ── Float and caption spacing ────────────────────────────────────────────────
-\setlength{\textfloatsep}{4pt plus 2pt minus 2pt}
-\setlength{\floatsep}{4pt plus 2pt minus 1pt}
-\setlength{\intextsep}{6pt plus 2pt minus 1pt}
-\setlength{\dbltextfloatsep}{4pt plus 2pt minus 2pt}
-\setlength{\dblfloatsep}{4pt plus 2pt minus 1pt}
-\setlength{\abovecaptionskip}{3pt plus 1pt minus 1pt}
-\setlength{\belowcaptionskip}{1pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{2pt plus 1pt minus 1pt}
+\setlength{\floatsep}{2pt plus 1pt minus 1pt}
+\setlength{\intextsep}{3pt plus 1pt minus 1pt}
+\setlength{\dbltextfloatsep}{2pt plus 1pt minus 1pt}
+\setlength{\dblfloatsep}{2pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{2pt plus 1pt minus 1pt}
+\setlength{\belowcaptionskip}{0pt}
 
 \flushbottom
 \emergencystretch=2em
 \hfuzz=5pt
 \renewcommand{\bibfont}{\footnotesize}
 \setlength{\bibsep}{4pt plus 0.5ex}
-\setlength{\parskip}{1pt plus 1pt minus 1pt}
+\setlength{\parskip}{0pt}
 % Display math spacing
-\setlength{\abovedisplayskip}{3pt plus 2pt minus 1pt}
-\setlength{\belowdisplayskip}{3pt plus 2pt minus 1pt}
-\setlength{\abovedisplayshortskip}{1pt plus 1pt minus 1pt}
-\setlength{\belowdisplayshortskip}{2pt plus 1pt minus 1pt}
+\setlength{\abovedisplayskip}{2pt plus 1pt minus 1pt}
+\setlength{\belowdisplayskip}{2pt plus 1pt minus 1pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{1pt plus 1pt minus 1pt}
 
 %% The following content must be adapted for the final version
 % paper-specific
@@ -191,7 +191,7 @@ ISSN 2150-8097. \\
 %%% do not modify the following VLDB block %%
 %%% VLDB block start %%%
 \ifdefempty{\vldbavailabilityurl}{}{
-\vspace{.3cm}
+\vspace{.15cm}
 \begingroup\small\noindent\raggedright\textbf{PVLDB Artifact Availability:}\\
 The source code, data, and/or other artifacts have been made available at \url{\vldbavailabilityurl}.
 \endgroup
@@ -265,7 +265,7 @@ transfers to a second VDBMS without modification, with LLM ranking first on all
 three datasets.
 
 \noindent\textbf{Contributions.} This paper makes the following contributions:
-\begin{itemize}[leftmargin=1em, itemsep=3pt, topsep=3pt]
+\begin{itemize}[leftmargin=1em, itemsep=1pt, topsep=1pt]
   \item \textbf{Phase-aware LLM agent for coupled ANN index optimization.}
     We propose an LLM-guided optimizer that reads its own trial history to discover
     how index construction and reranking parameters must be configured together ---
@@ -968,6 +968,7 @@ The 0.40 boundary allocates sufficient budget to survey all three engine familie
 before committing to a structural choice; the 0.75 boundary reserves 25\% of the
 budget for Fine-Tuning, enough to sweep the 19 discrete $\alpha$ values under
 the best-identified engine.
+\looseness=-1
 The boundaries encode the structural-before-continuous principle: engine and $M$
 determine the achievable QPS ceiling and must be resolved before $\alpha$ and $n_r$
 are refined---a conditional dependency that Optuna~TPE, which models each parameter
@@ -1001,7 +1002,7 @@ structural diversity an explicit part of the agent's reasoning: an external
 hard-rejection filter would silently discard proposals and retry, consuming LLM
 calls without informing the model \emph{why} its proposal was rejected; the
 prompt-embedded rule requires the agent to reason about and justify a structurally
-distinct alternative.
+distinct alternative.\looseness=-1
 The random fallback triggered in 6 of 150 total LLM proposals (4.0\%), confirming the anti-collapse constraint is rarely binding.
 
 Algorithm~\ref{alg:agent} gives the complete procedure.
@@ -1456,7 +1457,7 @@ violations and no recovery across the remaining budget.
 
 \noindent\textbf{Complexity-proportional advantage.}
 The result confirms the paper's central theoretical prediction: the LLM agent's
-advantage is complexity-proportional.
+advantage is complexity-proportional.\looseness=-1
 On HICO-DET, the 7-parameter coupled space ($\mathit{efSearch}$--$k$--$\alpha$
 interaction across stages) rewards history-conditioned architectural reasoning;
 removing the cross-stage coupling, as on SIFT1M, eliminates the advantage because
@@ -1490,7 +1491,7 @@ failure observed on VDMS.
 On SIFT1M the gap compresses to $+5.8\%$ (41\,847 vs.\ 39\,540 vs.\ VDTuner),
 matching the complexity-proportional scaling seen on VDMS.
 
-\vspace{4pt}
+\vspace{2pt}
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
@@ -1512,7 +1513,7 @@ Random Search~\cite{bergstra2012random} & 4504          & 2632          & 31{,}1
 \bottomrule
 \end{tabular}}
 \endgroup
-\vspace{5pt}
+\vspace{2pt}
 
 \subsection{Ablation Study}
 \label{sec:ablation}
@@ -1542,14 +1543,14 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
 Removing it causes complete stagnation after iteration~5 ($+0.1$ pts gain over 45 remaining iterations)
 and \textbf{0/3 seeds} reach Score\,$\geq$\,299, versus \textbf{3/3} for the full agent ($\sigma$: $2.6\to0.3$).
 Without the $(\theta,\mathrm{Score})$ trajectory the agent cannot commit to the $(k{=}50,\,\alpha{=}0.80)$
-joint operating point, mirroring the GP-BO cliff failure of Section~\ref{sec:results_optimizer}.
+joint operating point, mirroring the GP-BO cliff failure of Section~\ref{sec:results_optimizer}.\looseness=-1
 \emph{\textbf{Phase structure}} has a secondary effect: removing it reduces the mean to $299.5$ ($-0.3\%$) but \textbf{3/3 seeds}
 still cross the threshold, confirming that phase ordering accelerates convergence rather than enabling it.
 The non-monotonicity (w/o both: \textbf{$298.2$}, $1/3{\geq}299$ $>$ w/o history alone: \textbf{$296.9$}, $0/3{\geq}299$)
 arises because history without phase boundaries anchors the agent to its plateau, while removing both
-restores structural exploration that occasionally reaches Score\,$\geq$\,299.
+restores structural exploration that occasionally reaches Score\,$\geq$\,299.\looseness=-1
 
-\vspace{4pt}
+\vspace{2pt}
 \begingroup
 \small
 \setlength{\tabcolsep}{4pt}
@@ -1567,7 +1568,7 @@ LLM Agent (Full)               & 296.0 & \textbf{300.3} & $+4.3$ & 0.3 & \textbf
 \bottomrule
 \end{tabular}}
 \endgroup
-\vspace{5pt}
+\vspace{2pt}
 
 \noindent\textbf{Backbone portability.}
 A cross-backbone check confirms that the phase-aware protocol is model-agnostic:
