@@ -1214,7 +1214,7 @@ confirming language-aligned embeddings are essential; weighted fusion at $\alpha
 achieves mAP\,$=$\,0.276 ($+$3.65\,pp, $+$15.2\% relative) at only 0.6\% extra latency.
 Reducing $k$ from 2000 to 500 raises QPS by $7.0\times$ at 3.2\,pp mAP cost,
 yielding a $7.0\times$ Score gain --- the non-linear asymmetry the LLM agent exploits
-by conditioning each proposal on the full history of observed outcomes.
+by conditioning each proposal on the full history of observed outcomes.\looseness=-1
 
 \subsection{End-to-End Optimization Performance}
 \label{sec:results_optimizer}
@@ -1475,7 +1475,7 @@ SIFT1M has no $\alpha$ parameter, so cross-stage coupling is absent by
 construction; the remaining $M$--$\mathit{efSearch}$ interaction is monotone
 ($\rho(M,\text{Score}){=}{+}0.287$; $\rho(\mathit{efSearch},\text{Score}){=}{+}0.243$)
 and BO-tractable without joint history-conditioned reasoning.
-Notably, sample-efficiency rankings invert: Grid Search reaches its best Score at iteration~5 vs.\ iteration~31 for the LLM agent, confirming that architectural history confers no navigational advantage on the uncoupled 4-parameter space.
+Notably, sample-efficiency rankings invert: Grid Search reaches its best Score at iteration~5 vs.\ iteration~31 for the LLM agent, confirming that architectural history confers no navigational advantage on the uncoupled 4-parameter space.\looseness=-1
 
 % ══════════════════════════════════════════════════════════════════════════════
 \subsection{Cross-System Generalizability (Milvus)}
