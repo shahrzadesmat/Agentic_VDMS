@@ -1,0 +1,922 @@
+{
+  "method": "vdtuner",
+  "seed": 99,
+  "iterations": 50,
+  "recall_threshold": 0.9,
+  "best_score": 39964.93555001639,
+  "best_recall": 0.9138600000000002,
+  "best_qps": 39964.93555001639,
+  "best_config": {
+    "engine": "FaissHNSWFlat",
+    "params": {
+      "M": 16,
+      "efConstruction": 200,
+      "efSearch": 32
+    },
+    "k_neighbors": 10,
+    "_iter": 48
+  },
+  "n_feasible": 16,
+  "all_results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 200,
+        "_iter": 1
+      },
+      "search_method": "vdtuner",
+      "score": 4552.294134597695,
+      "recall_at_10": 0.9997099999999999,
+      "qps": 4552.294134597695,
+      "latency_ms": 0.21966946125030518
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "_iter": 2
+      },
+      "search_method": "vdtuner",
+      "score": 7602.963381895238,
+      "recall_at_10": 0.9978299999999999,
+      "qps": 7602.963381895238,
+      "latency_ms": 0.13152766227722168
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 100,
+        "_iter": 3
+      },
+      "search_method": "vdtuner",
+      "score": 15790.743018448682,
+      "recall_at_10": 0.97425,
+      "qps": 15790.743018448682,
+      "latency_ms": 0.06332824230194092
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "_iter": 4
+      },
+      "search_method": "vdtuner",
+      "score": 21281.56041287497,
+      "recall_at_10": 0.9736800000000001,
+      "qps": 21281.56041287497,
+      "latency_ms": 0.046989035606384275
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 30,
+        "_iter": 5
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.84285,
+      "qps": 48708.78808219273,
+      "latency_ms": 0.020530176162719727
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "k_neighbors": 10,
+        "_iter": 6
+      },
+      "search_method": "vdtuner",
+      "score": 4003.741900503629,
+      "recall_at_10": 0.99913,
+      "qps": 4003.741900503629,
+      "latency_ms": 0.24976634979248047
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 7
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.8919400000000002,
+      "qps": 38662.34658087947,
+      "latency_ms": 0.02586495876312256
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 8
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.79769,
+      "qps": 69386.51808815452,
+      "latency_ms": 0.014412021636962891
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 500,
+        "_iter": 9
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.70232,
+      "qps": 51193.625793663385,
+      "latency_ms": 0.019533681869506835
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 10
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.8239700000000001,
+      "qps": 61527.84541992572,
+      "latency_ms": 0.016252803802490234
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 11
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.70244,
+      "qps": 99334.36118235794,
+      "latency_ms": 0.010067009925842285
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 200
+        },
+        "k_neighbors": 10,
+        "_iter": 12
+      },
+      "search_method": "vdtuner",
+      "score": 5353.750825852581,
+      "recall_at_10": 0.9988900000000002,
+      "qps": 5353.750825852581,
+      "latency_ms": 0.1867849349975586
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 13
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.71751,
+      "qps": 94453.11690709856,
+      "latency_ms": 0.010587263107299804
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 500,
+        "_iter": 14
+      },
+      "search_method": "vdtuner",
+      "score": 15583.032147612706,
+      "recall_at_10": 0.96144,
+      "qps": 15583.032147612706,
+      "latency_ms": 0.06417236328124999
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 500
+        },
+        "k_neighbors": 10,
+        "_iter": 15
+      },
+      "search_method": "vdtuner",
+      "score": 5493.2104047013445,
+      "recall_at_10": 0.9964900000000001,
+      "qps": 5493.2104047013445,
+      "latency_ms": 0.18204290866851808
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 10,
+        "_iter": 16
+      },
+      "search_method": "vdtuner",
+      "score": 9879.422776378255,
+      "recall_at_10": 0.9938299999999999,
+      "qps": 9879.422776378255,
+      "latency_ms": 0.10122048854827881
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 17
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.70328,
+      "qps": 98615.9499855402,
+      "latency_ms": 0.010140347480773925
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 18
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.8408,
+      "qps": 58400.466724311016,
+      "latency_ms": 0.017123150825500488
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 19
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7028599999999999,
+      "qps": 98709.94464736228,
+      "latency_ms": 0.010130691528320312
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 30,
+        "_iter": 20
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.87226,
+      "qps": 43536.610556188156,
+      "latency_ms": 0.0229691743850708
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 21
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7974399999999999,
+      "qps": 68792.91454813843,
+      "latency_ms": 0.014536380767822266
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 10,
+        "_iter": 22
+      },
+      "search_method": "vdtuner",
+      "score": 33824.15937653222,
+      "recall_at_10": 0.9250200000000001,
+      "qps": 33824.15937653222,
+      "latency_ms": 0.029564666748046878
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 100
+        },
+        "k_neighbors": 500,
+        "_iter": 23
+      },
+      "search_method": "vdtuner",
+      "score": 15711.145639330605,
+      "recall_at_10": 0.9471700000000001,
+      "qps": 15711.145639330605,
+      "latency_ms": 0.06364908218383789
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 24
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.89799,
+      "qps": 42939.31805757178,
+      "latency_ms": 0.023288679122924805
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 25
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.8212,
+      "qps": 61001.31476374975,
+      "latency_ms": 0.01639308929443359
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 26
+      },
+      "search_method": "vdtuner",
+      "score": 34413.10786751011,
+      "recall_at_10": 0.9235,
+      "qps": 34413.10786751011,
+      "latency_ms": 0.02905869483947754
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 27
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7019200000000001,
+      "qps": 98500.84778800134,
+      "latency_ms": 0.010152196884155274
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 28
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.8343799999999999,
+      "qps": 55326.08896381245,
+      "latency_ms": 0.018074655532836912
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 400,
+          "efSearch": 500
+        },
+        "k_neighbors": 500,
+        "_iter": 29
+      },
+      "search_method": "vdtuner",
+      "score": 2396.0637023401973,
+      "recall_at_10": 0.99997,
+      "qps": 2396.0637023401973,
+      "latency_ms": 0.4173511743545532
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 100,
+        "_iter": 30
+      },
+      "search_method": "vdtuner",
+      "score": 24453.203842967472,
+      "recall_at_10": 0.92675,
+      "qps": 24453.203842967472,
+      "latency_ms": 0.04089443683624267
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 31
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7029,
+      "qps": 98493.44598751662,
+      "latency_ms": 0.010152959823608398
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 500,
+        "_iter": 32
+      },
+      "search_method": "vdtuner",
+      "score": 13977.574849920253,
+      "recall_at_10": 0.9734300000000001,
+      "qps": 13977.574849920253,
+      "latency_ms": 0.07154316902160644
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 33
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.82309,
+      "qps": 61488.24785854916,
+      "latency_ms": 0.01626327037811279
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 34
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.8975200000000001,
+      "qps": 43290.85755924968,
+      "latency_ms": 0.023099565505981447
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 35
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.70328,
+      "qps": 99037.41850784048,
+      "latency_ms": 0.010097193717956544
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 36
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.82362,
+      "qps": 61063.21491849365,
+      "latency_ms": 0.016376471519470213
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 37
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7025600000000001,
+      "qps": 99217.10744192648,
+      "latency_ms": 0.010078907012939453
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 38
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7025600000000001,
+      "qps": 95229.64483324668,
+      "latency_ms": 0.010500931739807129
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 39
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7025600000000001,
+      "qps": 95423.76775984257,
+      "latency_ms": 0.010479569435119629
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 40
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7135,
+      "qps": 96208.90085742205,
+      "latency_ms": 0.010394048690795897
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 41
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7024100000000001,
+      "qps": 98444.89926206884,
+      "latency_ms": 0.010157966613769533
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 42
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7024100000000001,
+      "qps": 95500.89938295499,
+      "latency_ms": 0.010471105575561523
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 43
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.7024100000000001,
+      "qps": 96170.07616925074,
+      "latency_ms": 0.010398244857788086
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 44
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.71662,
+      "qps": 10964.603419380323,
+      "latency_ms": 0.09120256900787353
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 45
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.71273,
+      "qps": 95568.57357039183,
+      "latency_ms": 0.010463690757751465
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 46
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.81513,
+      "qps": 63860.363919834715,
+      "latency_ms": 0.015659165382385255
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 47
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.70335,
+      "qps": 99391.09004739336,
+      "latency_ms": 0.010061264038085938
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 10,
+        "_iter": 48
+      },
+      "search_method": "vdtuner",
+      "score": 39964.93555001639,
+      "recall_at_10": 0.9138600000000002,
+      "qps": 39964.93555001639,
+      "latency_ms": 0.025021934509277345
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 49
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.70303,
+      "qps": 98376.78344837938,
+      "latency_ms": 0.010164999961853027
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 50
+      },
+      "search_method": "vdtuner",
+      "score": 0.0,
+      "recall_at_10": 0.70303,
+      "qps": 96285.98123546575,
+      "latency_ms": 0.010385727882385253
+    }
+  ]
+}

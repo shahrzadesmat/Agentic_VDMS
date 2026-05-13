@@ -1,0 +1,1177 @@
+{
+  "method": "optuna",
+  "seed": 99,
+  "iterations": 50,
+  "map_threshold": 0.15,
+  "best_score": 4269.129089840355,
+  "best_map": 0.16053434172058245,
+  "best_qps": 4269.129089840355,
+  "best_config": {
+    "engine": "FaissHNSWFlat",
+    "params": {
+      "M": 32,
+      "efConstruction": 200,
+      "efSearch": 64
+    },
+    "k_neighbors": 50,
+    "alpha": 0.8,
+    "n_refs": 1,
+    "ref_strategy": "centroid",
+    "n_aqe": 1,
+    "aqe_weight": 0.0,
+    "_iter": 36
+  },
+  "n_feasible": 36,
+  "all_results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 10,
+        "aqe_weight": 0.5,
+        "_iter": 1
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.12130519955316173,
+      "qps": 918.246593299281,
+      "latency_ms": 1.0890320827730786
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 200,
+        "alpha": 0.3,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.1,
+        "_iter": 2
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.14002188829448067,
+      "qps": 1185.7599743184664,
+      "latency_ms": 0.8433409978902056
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 150,
+        "alpha": 0.2,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 3
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.14027128503299677,
+      "qps": 1585.2964310009588,
+      "latency_ms": 0.6307968531592532
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "k_neighbors": 750,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 4
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.13962397941881177,
+      "qps": 437.5124120955035,
+      "latency_ms": 2.2856494406876675
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.2,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 5
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.12960914891203326,
+      "qps": 4012.0523466346294,
+      "latency_ms": 0.24924899118996174
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 50,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 6
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.12611109313260438,
+      "qps": 1185.6738737164235,
+      "latency_ms": 0.8434022391549879
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 100,
+          "efSearch": 500
+        },
+        "k_neighbors": 750,
+        "alpha": 0.2,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 7
+      },
+      "search_method": "optuna",
+      "score": 489.7909780606265,
+      "map": 0.15098590983475318,
+      "qps": 489.7909780606265,
+      "latency_ms": 2.0416872600626377
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 8
+      },
+      "search_method": "optuna",
+      "score": 1822.1031841800675,
+      "map": 0.17987194321131014,
+      "qps": 1822.1031841800675,
+      "latency_ms": 0.5488163396465345
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "k_neighbors": 1000,
+        "alpha": 0.0,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 10,
+        "aqe_weight": 0.1,
+        "_iter": 9
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.12121535321061716,
+      "qps": 451.1630253138459,
+      "latency_ms": 2.216493692727507
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 300,
+        "alpha": 0.7,
+        "n_refs": 3,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.3,
+        "_iter": 10
+      },
+      "search_method": "optuna",
+      "score": 939.3171500384128,
+      "map": 0.16898820629931546,
+      "qps": 939.3171500384128,
+      "latency_ms": 1.0646031534281106
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 300
+        },
+        "k_neighbors": 500,
+        "alpha": 0.9,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 11
+      },
+      "search_method": "optuna",
+      "score": 345.8733670444098,
+      "map": 0.16276432305099175,
+      "qps": 345.8733670444098,
+      "latency_ms": 2.891231575721761
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 300,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
+        "_iter": 12
+      },
+      "search_method": "optuna",
+      "score": 1110.6592969359451,
+      "map": 0.19287243908726184,
+      "qps": 1110.6592969359451,
+      "latency_ms": 0.9003661183576018
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 13
+      },
+      "search_method": "optuna",
+      "score": 1744.272148595243,
+      "map": 0.1798758737112575,
+      "qps": 1744.272148595243,
+      "latency_ms": 0.5733050320188591
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 14
+      },
+      "search_method": "optuna",
+      "score": 1747.1353332137921,
+      "map": 0.1798758737112575,
+      "qps": 1747.1353332137921,
+      "latency_ms": 0.5723655065463854
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 15
+      },
+      "search_method": "optuna",
+      "score": 1744.5439693956796,
+      "map": 0.1798758737112575,
+      "qps": 1744.5439693956796,
+      "latency_ms": 0.5732157042429867
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.5,
+        "_iter": 16
+      },
+      "search_method": "optuna",
+      "score": 1466.8342318476766,
+      "map": 0.18199261113908133,
+      "qps": 1466.8342318476766,
+      "latency_ms": 0.6817402936801961
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 17
+      },
+      "search_method": "optuna",
+      "score": 1252.1287082661815,
+      "map": 0.17460986639712908,
+      "qps": 1252.1287082661815,
+      "latency_ms": 0.7986399428415762
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 200,
+        "alpha": 0.8,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 18
+      },
+      "search_method": "optuna",
+      "score": 842.9573187111075,
+      "map": 0.151389389495226,
+      "qps": 842.9573187111075,
+      "latency_ms": 1.186299683036162
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 100,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 19
+      },
+      "search_method": "optuna",
+      "score": 1433.3216041174742,
+      "map": 0.1565330764058497,
+      "qps": 1433.3216041174742,
+      "latency_ms": 0.6976801278424326
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "k_neighbors": 500,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 20
+      },
+      "search_method": "optuna",
+      "score": 570.4148026940271,
+      "map": 0.2029117887740201,
+      "qps": 570.4148026940271,
+      "latency_ms": 1.7531101845132238
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 1000,
+        "alpha": 0.6,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 21
+      },
+      "search_method": "optuna",
+      "score": 134.9228546766214,
+      "map": 0.17946101363313072,
+      "qps": 134.9228546766214,
+      "latency_ms": 7.411642767244784
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 22
+      },
+      "search_method": "optuna",
+      "score": 1734.3972152184328,
+      "map": 0.18018132714084142,
+      "qps": 1734.3972152184328,
+      "latency_ms": 0.5765691914317669
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 23
+      },
+      "search_method": "optuna",
+      "score": 1743.0599473846753,
+      "map": 0.18018132714084142,
+      "qps": 1743.0599473846753,
+      "latency_ms": 0.5737037337702708
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 24
+      },
+      "search_method": "optuna",
+      "score": 1741.7155299625276,
+      "map": 0.18018132714084142,
+      "qps": 1741.7155299625276,
+      "latency_ms": 0.5741465714676809
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.4,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.2,
+        "_iter": 25
+      },
+      "search_method": "optuna",
+      "score": 1741.5176008282137,
+      "map": 0.16061484482560517,
+      "qps": 1741.5176008282137,
+      "latency_ms": 0.5742118250911905
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 150,
+        "alpha": 0.0,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 26
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.12183851419823959,
+      "qps": 1526.1176904340025,
+      "latency_ms": 0.6552574590204878
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 27
+      },
+      "search_method": "optuna",
+      "score": 1852.2490715029742,
+      "map": 0.15070113046670733,
+      "qps": 1852.2490715029742,
+      "latency_ms": 0.539884195589618
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 150,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 28
+      },
+      "search_method": "optuna",
+      "score": 2117.803870426448,
+      "map": 0.15010325173959538,
+      "qps": 2117.803870426448,
+      "latency_ms": 0.47218725679193163
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 100
+        },
+        "k_neighbors": 100,
+        "alpha": 0.3,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 29
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.13655536113697164,
+      "qps": 1587.3040380413759,
+      "latency_ms": 0.6299990273028797
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 500,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 30
+      },
+      "search_method": "optuna",
+      "score": 939.2787686985706,
+      "map": 0.1664190315475466,
+      "qps": 939.2787686985706,
+      "latency_ms": 1.064646655843784
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 100
+        },
+        "k_neighbors": 750,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 31
+      },
+      "search_method": "optuna",
+      "score": 626.1142697042367,
+      "map": 0.1690038999579144,
+      "qps": 626.1142697042367,
+      "latency_ms": 1.59715254608776
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 150,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 32
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.149609136985347,
+      "qps": 2109.9518763517567,
+      "latency_ms": 0.4739444587376394
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 200,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 10,
+        "aqe_weight": 0.5,
+        "_iter": 33
+      },
+      "search_method": "optuna",
+      "score": 1357.4970611835133,
+      "map": 0.1513850110173609,
+      "qps": 1357.4970611835133,
+      "latency_ms": 0.7366498452145194
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 34
+      },
+      "search_method": "optuna",
+      "score": 2341.038903203735,
+      "map": 0.18738427787042428,
+      "qps": 2341.038903203735,
+      "latency_ms": 0.4271607783328547
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 35
+      },
+      "search_method": "optuna",
+      "score": 2347.59506324627,
+      "map": 0.18738427787042428,
+      "qps": 2347.59506324627,
+      "latency_ms": 0.42596784073024646
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 36
+      },
+      "search_method": "optuna",
+      "score": 4269.129089840355,
+      "map": 0.16053434172058245,
+      "qps": 4269.129089840355,
+      "latency_ms": 0.23423981307564423
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 5,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 37
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.14216433614604856,
+      "qps": 3488.0701949778654,
+      "latency_ms": 0.2866914781244378
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 38
+      },
+      "search_method": "optuna",
+      "score": 4265.72562217536,
+      "map": 0.16053434172058245,
+      "qps": 4265.72562217536,
+      "latency_ms": 0.23442670452161843
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 10,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 39
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.13663160064827604,
+      "qps": 3763.5672306676215,
+      "latency_ms": 0.26570536374412246
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 40
+      },
+      "search_method": "optuna",
+      "score": 3289.531364121687,
+      "map": 0.1607224565832564,
+      "qps": 3289.531364121687,
+      "latency_ms": 0.30399466954679805
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 41
+      },
+      "search_method": "optuna",
+      "score": 3334.3396944898614,
+      "map": 0.1607224565832564,
+      "qps": 3334.3396944898614,
+      "latency_ms": 0.29990945483225445
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 42
+      },
+      "search_method": "optuna",
+      "score": 3323.3972901159273,
+      "map": 0.1607224565832564,
+      "qps": 3323.3972901159273,
+      "latency_ms": 0.3008969174326786
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 43
+      },
+      "search_method": "optuna",
+      "score": 3328.9367256080372,
+      "map": 0.1607224565832564,
+      "qps": 3328.9367256080372,
+      "latency_ms": 0.30039621729888777
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 44
+      },
+      "search_method": "optuna",
+      "score": 3507.7822366720225,
+      "map": 0.1630842759541333,
+      "qps": 3507.7822366720225,
+      "latency_ms": 0.28508041050710753
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 45
+      },
+      "search_method": "optuna",
+      "score": 3558.022972441936,
+      "map": 0.1630842759541333,
+      "qps": 3558.022972441936,
+      "latency_ms": 0.2810549588199207
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 46
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.12099283072171294,
+      "qps": 3376.3003025955913,
+      "latency_ms": 0.29618218475152586
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 47
+      },
+      "search_method": "optuna",
+      "score": 2348.740838764941,
+      "map": 0.1657640671236107,
+      "qps": 2348.740838764941,
+      "latency_ms": 0.42576004278353613
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 48
+      },
+      "search_method": "optuna",
+      "score": 3665.6457969506682,
+      "map": 0.16260256075159657,
+      "qps": 3665.6457969506682,
+      "latency_ms": 0.27280322633241527
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.2,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 49
+      },
+      "search_method": "optuna",
+      "score": 0.0,
+      "map": 0.12991233380712167,
+      "qps": 3724.5987743997257,
+      "latency_ms": 0.2684852948116982
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "diverse",
+        "n_aqe": 3,
+        "aqe_weight": 0.5,
+        "_iter": 50
+      },
+      "search_method": "optuna",
+      "score": 4199.321612803961,
+      "map": 0.16073290106243202,
+      "qps": 4199.321612803961,
+      "latency_ms": 0.23813370163193628
+    }
+  ]
+}

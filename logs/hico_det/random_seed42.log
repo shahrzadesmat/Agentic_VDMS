@@ -1,0 +1,1805 @@
+===== Random search rerun seed=42 =====
+Job: 17803359  Node: gpub002.delta.ncsa.illinois.edu  Started: Wed Apr 22 10:26:51 CDT 2026
+Usage:
+  apptainer [global options...] instance stop [stop options...] [instance]
+
+Run 'apptainer --help' for more detailed usage information.
+[VDMS] Ready on port 55637
+[Score] Constrained objective: Score = QPS  if mAP ≥ 0.150 else 0
+Starting random optimization. Iterations: 50, Seed: 42
+
+================================================================================
+ITERATION 1/50 (RANDOM)
+================================================================================
+  engine:       FaissIVFFlat
+  params:       {'nlist': 512, 'nprobe': 64}
+  k_neighbors:  100
+  alpha:        0.30
+[GEOM] SPM-VLAD-SIFT (1×1+2×2+1×3=8 cells, bbox-crop, PCA-512)  shape=(47776, 512)
+[OK] HICO-DET loaded: 47776 images
+     Geom  (47776, 512)  (SPM-VLAD-SIFT (1×1+2×2+1×3=8 cells, bbox-crop, PCA-512))
+     Deep  (47776, 1024)  (DINOv2 ViT-L/14-reg4 HOI-crop  1024-d)
+     Deep norms: 1.000000 ± 0.000000
+     HOI categories: 600
+     Images/HOI: min=6  max=1844  mean=151.1
+[OK] HOI queries built: 600 queries  (skipped 0 HOIs with < 6 images)
+     Relevant/query: min=5  max=1843  mean=150.1
+[Cache] HICO-DET loaded (CLIP ViT-L/14): clip_db=(47776, 768)  dinov2_db=(47776, 1024)  text_q=(600, 768)  queries=600
+
+[Iter 1] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 512, 'nprobe': 64} k=100 alpha=0.30 n_refs=5 ref_strategy=first constraint=none
+[Iter 1] Building CLIP_Set_1  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_1' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_1  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_1' indexed  (14.6s)
+[Iter 1] Index built in 14.6s
+[Iter 1] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=5 candidates  k=100  alpha=0.30  constraint=none
+[Iter 1] Timing breakdown:
+  Index build:      14.6s  (one-time)
+  Query (Stage-1):  0.40ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.29ms/query  (DINOv2 numpy)
+  Total latency:    0.70ms/query
+  QPS:              1427.8
+
+[Results iter 1]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               1427.75
+  P@10:              0.0010
+  nDCG@10:           0.0020
+
+================================================================================
+ITERATION 2/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 2)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 16}
+  k_neighbors:  1000
+  alpha:        0.35
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 2] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 16} k=1000 alpha=0.35 n_refs=10 ref_strategy=first constraint=object_and_verb
+[Iter 2] Building CLIP_Set_2  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_2' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_2  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_2' indexed  (15.5s)
+[Iter 2] Index built in 15.5s
+[Iter 2] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=1000  alpha=0.35  constraint=object_and_verb
+[Iter 2] Timing breakdown:
+  Index build:      15.5s  (one-time)
+  Query (Stage-1):  0.33ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.33ms/query
+  QPS:              3014.3
+
+[Results iter 2]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               3014.30
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 3/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 3)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 128, 'nprobe': 64}
+  k_neighbors:  1000
+  alpha:        0.05
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 3] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 128, 'nprobe': 64} k=1000 alpha=0.05 n_refs=10 ref_strategy=centroid constraint=object
+[Iter 3] Building CLIP_Set_3  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_3' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_3  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_3' indexed  (14.7s)
+[Iter 3] Index built in 14.8s
+[Iter 3] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=1000  alpha=0.05  constraint=object
+[Iter 3] Timing breakdown:
+  Index build:      14.8s  (one-time)
+  Query (Stage-1):  0.32ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.34ms/query
+  QPS:              2951.3
+
+[Results iter 3]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2951.30
+  P@10:              0.0010
+  nDCG@10:           0.0021
+
+================================================================================
+ITERATION 4/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 4)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  50
+  alpha:        0.55
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 4] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=50 alpha=0.55 n_refs=10 ref_strategy=centroid constraint=object
+[Iter 4] Building CLIP_Set_4  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_4' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_4  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_4' indexed  (8.4s)
+[Iter 4] Index built in 8.4s
+[Iter 4] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.55  constraint=object
+[Iter 4] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  11.63ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.09ms/query  (DINOv2 numpy)
+  Total latency:    11.74ms/query
+  QPS:              85.2
+
+[Results iter 4]
+  Score (QPS [constrained]): 85.1520
+  mAP (plain):       0.1678
+  QPS:               85.15
+  P@10:              0.4453
+  nDCG@10:           0.4991
+
+================================================================================
+ITERATION 5/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 5)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  750
+  alpha:        0.75
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 5] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=750 alpha=0.75 n_refs=5 ref_strategy=diverse constraint=object
+[Iter 5] Building CLIP_Set_5  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_5' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_5  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_5' indexed  (8.4s)
+[Iter 5] Index built in 8.4s
+[Iter 5] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=706 candidates  k=750  alpha=0.75  constraint=object
+[Iter 5] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  139.35ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.50ms/query  (DINOv2 numpy)
+  Total latency:    140.07ms/query
+  QPS:              7.1
+
+[Results iter 5]
+  Score (QPS [constrained]): 7.1392
+  mAP (plain):       0.4080
+  QPS:               7.14
+  P@10:              0.5482
+  nDCG@10:           0.6323
+
+================================================================================
+ITERATION 6/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 6)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 32, 'efConstruction': 200, 'efSearch': 150}
+  k_neighbors:  150
+  alpha:        0.20
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 6] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 32, 'efConstruction': 200, 'efSearch': 150} k=150 alpha=0.20 n_refs=10 ref_strategy=first constraint=verb
+[Iter 6] Building CLIP_Set_6  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_6' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_6  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_6' indexed  (11.6s)
+[Iter 6] Index built in 11.7s
+[Iter 6] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=45 candidates  k=150  alpha=0.20  constraint=verb
+[Iter 6] Timing breakdown:
+  Index build:      11.7s  (one-time)
+  Query (Stage-1):  9.22ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.06ms/query  (DINOv2 numpy)
+  Total latency:    9.30ms/query
+  QPS:              107.5
+
+[Results iter 6]
+  Score (QPS [constrained]): 107.5228
+  mAP (plain):       0.2040
+  QPS:               107.52
+  P@10:              0.5248
+  nDCG@10:           0.5919
+
+================================================================================
+ITERATION 7/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 7)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 64, 'nprobe': 4}
+  k_neighbors:  100
+  alpha:        0.65
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 7] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 64, 'nprobe': 4} k=100 alpha=0.65 n_refs=3 ref_strategy=first constraint=object_and_verb
+[Iter 7] Building CLIP_Set_7  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_7' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_7  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_7' indexed  (15.5s)
+[Iter 7] Index built in 15.5s
+[Iter 7] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=100  alpha=0.65  constraint=object_and_verb
+[Iter 7] Timing breakdown:
+  Index build:      15.5s  (one-time)
+  Query (Stage-1):  0.30ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.31ms/query
+  QPS:              3248.8
+
+[Results iter 7]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               3248.78
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 8/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 8)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 8, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  200
+  alpha:        0.30
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 8] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 8, 'efConstruction': 200, 'efSearch': 64} k=200 alpha=0.30 n_refs=3 ref_strategy=diverse constraint=object_and_verb
+[Iter 8] Building CLIP_Set_8  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_8' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_8  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_8' indexed  (11.7s)
+[Iter 8] Index built in 11.7s
+[Iter 8] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=54 candidates  k=200  alpha=0.30  constraint=object_and_verb
+[Iter 8] Timing breakdown:
+  Index build:      11.7s  (one-time)
+  Query (Stage-1):  13.83ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.06ms/query  (DINOv2 numpy)
+  Total latency:    13.92ms/query
+  QPS:              71.9
+
+[Results iter 8]
+  Score (QPS [constrained]): 71.8640
+  mAP (plain):       0.2406
+  QPS:               71.86
+  P@10:              0.5850
+  nDCG@10:           0.6591
+
+================================================================================
+ITERATION 9/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 9)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  200
+  alpha:        0.80
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 9] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=200 alpha=0.80 n_refs=5 ref_strategy=diverse constraint=object
+[Iter 9] Building CLIP_Set_9  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_9' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_9  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_9' indexed  (8.3s)
+[Iter 9] Index built in 8.4s
+[Iter 9] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=200 candidates  k=200  alpha=0.80  constraint=object
+[Iter 9] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  25.16ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.22ms/query  (DINOv2 numpy)
+  Total latency:    25.44ms/query
+  QPS:              39.3
+
+[Results iter 9]
+  Score (QPS [constrained]): 39.3029
+  mAP (plain):       0.2955
+  QPS:               39.30
+  P@10:              0.5042
+  nDCG@10:           0.5832
+
+================================================================================
+ITERATION 10/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 10)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 48, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  500
+  alpha:        0.15
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 10] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 48, 'efConstruction': 200, 'efSearch': 64} k=500 alpha=0.15 n_refs=3 ref_strategy=centroid constraint=object
+[Iter 10] Building CLIP_Set_10  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_10' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_10  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_10' indexed  (11.6s)
+[Iter 10] Index built in 11.6s
+[Iter 10] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=479 candidates  k=500  alpha=0.15  constraint=object
+[Iter 10] Timing breakdown:
+  Index build:      11.6s  (one-time)
+  Query (Stage-1):  62.89ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.40ms/query  (DINOv2 numpy)
+  Total latency:    63.41ms/query
+  QPS:              15.8
+
+[Results iter 10]
+  Score (QPS [constrained]): 15.7710
+  mAP (plain):       0.2362
+  QPS:               15.77
+  P@10:              0.4015
+  nDCG@10:           0.4355
+
+================================================================================
+ITERATION 11/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 11)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  100
+  alpha:        0.05
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 11] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=100 alpha=0.05 n_refs=3 ref_strategy=centroid constraint=object_and_verb
+[Iter 11] Building CLIP_Set_11  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_11' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_11  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_11' indexed  (8.3s)
+[Iter 11] Index built in 8.4s
+[Iter 11] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=29 candidates  k=100  alpha=0.05  constraint=object_and_verb
+[Iter 11] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  13.87ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.04ms/query  (DINOv2 numpy)
+  Total latency:    13.94ms/query
+  QPS:              71.7
+
+[Results iter 11]
+  Score (QPS [constrained]): 71.7203
+  mAP (plain):       0.1930
+  QPS:               71.72
+  P@10:              0.5302
+  nDCG@10:           0.6111
+
+================================================================================
+ITERATION 12/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 12)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 48, 'efConstruction': 200, 'efSearch': 300}
+  k_neighbors:  750
+  alpha:        0.65
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 12] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 48, 'efConstruction': 200, 'efSearch': 300} k=750 alpha=0.65 n_refs=10 ref_strategy=diverse constraint=object_and_verb
+[Iter 12] Building CLIP_Set_12  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_12' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_12  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_12' indexed  (11.6s)
+[Iter 12] Index built in 11.6s
+[Iter 12] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=106 candidates  k=750  alpha=0.65  constraint=object_and_verb
+[Iter 12] Timing breakdown:
+  Index build:      11.6s  (one-time)
+  Query (Stage-1):  111.24ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.07ms/query  (DINOv2 numpy)
+  Total latency:    111.34ms/query
+  QPS:              9.0
+
+[Results iter 12]
+  Score (QPS [constrained]): 8.9814
+  mAP (plain):       0.3017
+  QPS:               8.98
+  P@10:              0.6475
+  nDCG@10:           0.7165
+
+================================================================================
+ITERATION 13/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 13)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  100
+  alpha:        0.60
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 13] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=100 alpha=0.60 n_refs=10 ref_strategy=first constraint=object_and_verb
+[Iter 13] Building CLIP_Set_13  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_13' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_13  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_13' indexed  (8.4s)
+[Iter 13] Index built in 8.4s
+[Iter 13] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=29 candidates  k=100  alpha=0.60  constraint=object_and_verb
+[Iter 13] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  13.86ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.04ms/query  (DINOv2 numpy)
+  Total latency:    13.92ms/query
+  QPS:              71.8
+
+[Results iter 13]
+  Score (QPS [constrained]): 71.8336
+  mAP (plain):       0.1930
+  QPS:               71.83
+  P@10:              0.5302
+  nDCG@10:           0.6113
+
+================================================================================
+ITERATION 14/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 14)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 64, 'nprobe': 8}
+  k_neighbors:  300
+  alpha:        0.70
+
+[Iter 14] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 64, 'nprobe': 8} k=300 alpha=0.70 n_refs=10 ref_strategy=first constraint=none
+[Iter 14] Building CLIP_Set_14  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_14' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_14  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_14' indexed  (15.5s)
+[Iter 14] Index built in 15.5s
+[Iter 14] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=5 candidates  k=300  alpha=0.70  constraint=none
+[Iter 14] Timing breakdown:
+  Index build:      15.5s  (one-time)
+  Query (Stage-1):  0.41ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.03ms/query  (DINOv2 numpy)
+  Total latency:    0.45ms/query
+  QPS:              2225.1
+
+[Results iter 14]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2225.05
+  P@10:              0.0010
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 15/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 15)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  200
+  alpha:        0.00
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 15] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=200 alpha=0.00 n_refs=5 ref_strategy=first constraint=object_and_verb
+[Iter 15] Building CLIP_Set_15  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_15' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_15  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_15' indexed  (8.4s)
+[Iter 15] Index built in 8.4s
+[Iter 15] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=200  alpha=0.00  constraint=object_and_verb
+[Iter 15] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  22.63ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    22.65ms/query
+  QPS:              44.1
+
+[Results iter 15]
+  Score (QPS [constrained]): 44.1492
+  mAP (plain):       0.2623
+  QPS:               44.15
+  P@10:              0.6042
+  nDCG@10:           0.6829
+
+================================================================================
+ITERATION 16/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 16)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 16}
+  k_neighbors:  150
+  alpha:        0.00
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 16] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 16} k=150 alpha=0.00 n_refs=10 ref_strategy=diverse constraint=verb
+[Iter 16] Building CLIP_Set_16  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_16' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_16  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_16' indexed  (15.6s)
+[Iter 16] Index built in 15.6s
+[Iter 16] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=150  alpha=0.00  constraint=verb
+[Iter 16] Timing breakdown:
+  Index build:      15.6s  (one-time)
+  Query (Stage-1):  0.30ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.31ms/query
+  QPS:              3240.4
+
+[Results iter 16]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               3240.44
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 17/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 17)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  50
+  alpha:        0.30
+
+[Iter 17] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=50 alpha=0.30 n_refs=5 ref_strategy=centroid constraint=none
+[Iter 17] Building CLIP_Set_17  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_17' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_17  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_17' indexed  (7.9s)
+[Iter 17] Index built in 7.9s
+[Iter 17] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.30  constraint=none
+[Iter 17] Timing breakdown:
+  Index build:      7.9s  (one-time)
+  Query (Stage-1):  11.80ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    11.93ms/query
+  QPS:              83.8
+
+[Results iter 17]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.1383
+  QPS:               83.83
+  P@10:              0.3790
+  nDCG@10:           0.4151
+
+================================================================================
+ITERATION 18/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 18)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 8, 'efConstruction': 200, 'efSearch': 500}
+  k_neighbors:  1000
+  alpha:        0.55
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 18] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 8, 'efConstruction': 200, 'efSearch': 500} k=1000 alpha=0.55 n_refs=3 ref_strategy=first constraint=verb
+[Iter 18] Building CLIP_Set_18  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_18' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_18  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_18' indexed  (11.6s)
+[Iter 18] Index built in 11.6s
+[Iter 18] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=108 candidates  k=1000  alpha=0.55  constraint=verb
+[Iter 18] Timing breakdown:
+  Index build:      11.6s  (one-time)
+  Query (Stage-1):  137.47ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.15ms/query  (DINOv2 numpy)
+  Total latency:    137.67ms/query
+  QPS:              7.3
+
+[Results iter 18]
+  Score (QPS [constrained]): 7.2636
+  mAP (plain):       0.2813
+  QPS:               7.26
+  P@10:              0.6025
+  nDCG@10:           0.6715
+
+================================================================================
+ITERATION 19/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 19)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 32, 'efConstruction': 200, 'efSearch': 100}
+  k_neighbors:  150
+  alpha:        0.65
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 19] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 32, 'efConstruction': 200, 'efSearch': 100} k=150 alpha=0.65 n_refs=5 ref_strategy=first constraint=verb
+[Iter 19] Building CLIP_Set_19  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_19' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_19  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_19' indexed  (11.6s)
+[Iter 19] Index built in 11.7s
+[Iter 19] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=43 candidates  k=150  alpha=0.65  constraint=verb
+[Iter 19] Timing breakdown:
+  Index build:      11.7s  (one-time)
+  Query (Stage-1):  9.02ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.06ms/query  (DINOv2 numpy)
+  Total latency:    9.10ms/query
+  QPS:              109.9
+
+[Results iter 19]
+  Score (QPS [constrained]): 109.9098
+  mAP (plain):       0.2098
+  QPS:               109.91
+  P@10:              0.5338
+  nDCG@10:           0.6076
+
+================================================================================
+ITERATION 20/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 20)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  750
+  alpha:        0.65
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 20] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=750 alpha=0.65 n_refs=3 ref_strategy=diverse constraint=verb
+[Iter 20] Building CLIP_Set_20  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_20' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_20  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_20' indexed  (8.4s)
+[Iter 20] Index built in 8.4s
+[Iter 20] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=124 candidates  k=750  alpha=0.65  constraint=verb
+[Iter 20] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  133.28ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.21ms/query  (DINOv2 numpy)
+  Total latency:    133.54ms/query
+  QPS:              7.5
+
+[Results iter 20]
+  Score (QPS [constrained]): 7.4883
+  mAP (plain):       0.3816
+  QPS:               7.49
+  P@10:              0.6615
+  nDCG@10:           0.7328
+
+================================================================================
+ITERATION 21/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 21)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 64, 'nprobe': 8}
+  k_neighbors:  50
+  alpha:        0.30
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 21] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 64, 'nprobe': 8} k=50 alpha=0.30 n_refs=10 ref_strategy=first constraint=verb
+[Iter 21] Building CLIP_Set_21  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_21' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_21  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_21' indexed  (15.7s)
+[Iter 21] Index built in 15.7s
+[Iter 21] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=50  alpha=0.30  constraint=verb
+[Iter 21] Timing breakdown:
+  Index build:      15.7s  (one-time)
+  Query (Stage-1):  0.30ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.01ms/query  (DINOv2 numpy)
+  Total latency:    0.31ms/query
+  QPS:              3212.3
+
+[Results iter 21]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               3212.26
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 22/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 22)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  300
+  alpha:        0.30
+
+[Iter 22] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=300 alpha=0.30 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 22] Building CLIP_Set_22  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_22' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_22  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_22' indexed  (7.9s)
+[Iter 22] Index built in 7.9s
+[Iter 22] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=300 candidates  k=300  alpha=0.30  constraint=none
+[Iter 22] Timing breakdown:
+  Index build:      7.9s  (one-time)
+  Query (Stage-1):  39.85ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.43ms/query  (DINOv2 numpy)
+  Total latency:    40.42ms/query
+  QPS:              24.7
+
+[Results iter 22]
+  Score (QPS [constrained]): 24.7401
+  mAP (plain):       0.2373
+  QPS:               24.74
+  P@10:              0.4073
+  nDCG@10:           0.4440
+
+================================================================================
+ITERATION 23/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 23)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  500
+  alpha:        0.90
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 23] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=500 alpha=0.90 n_refs=1 ref_strategy=diverse constraint=verb
+[Iter 23] Building CLIP_Set_23  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_23' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_23  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_23' indexed  (14.6s)
+[Iter 23] Index built in 14.6s
+[Iter 23] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=500  alpha=0.90  constraint=verb
+[Iter 23] Timing breakdown:
+  Index build:      14.6s  (one-time)
+  Query (Stage-1):  0.31ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.01ms/query  (DINOv2 numpy)
+  Total latency:    0.32ms/query
+  QPS:              3094.7
+
+[Results iter 23]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               3094.68
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 24/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 24)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 16, 'efConstruction': 200, 'efSearch': 200}
+  k_neighbors:  200
+  alpha:        0.55
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 24] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 16, 'efConstruction': 200, 'efSearch': 200} k=200 alpha=0.55 n_refs=1 ref_strategy=first constraint=object
+[Iter 24] Building CLIP_Set_24  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_24' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_24  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_24' indexed  (11.6s)
+[Iter 24] Index built in 11.7s
+[Iter 24] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=199 candidates  k=200  alpha=0.55  constraint=object
+[Iter 24] Timing breakdown:
+  Index build:      11.7s  (one-time)
+  Query (Stage-1):  16.89ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.22ms/query  (DINOv2 numpy)
+  Total latency:    17.18ms/query
+  QPS:              58.2
+
+[Results iter 24]
+  Score (QPS [constrained]): 58.2213
+  mAP (plain):       0.2046
+  QPS:               58.22
+  P@10:              0.4087
+  nDCG@10:           0.4380
+
+================================================================================
+ITERATION 25/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 25)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 32, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        0.00
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 25] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 32, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=0.00 n_refs=10 ref_strategy=first constraint=verb
+[Iter 25] Building CLIP_Set_25  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_25' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_25  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_25' indexed  (11.6s)
+[Iter 25] Index built in 11.7s
+[Iter 25] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=17 candidates  k=50  alpha=0.00  constraint=verb
+[Iter 25] Timing breakdown:
+  Index build:      11.7s  (one-time)
+  Query (Stage-1):  2.54ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    2.56ms/query
+  QPS:              390.9
+
+[Results iter 25]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.1248
+  QPS:               390.92
+  P@10:              0.4203
+  nDCG@10:           0.4887
+
+================================================================================
+ITERATION 26/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 26)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  50
+  alpha:        0.60
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 26] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=50 alpha=0.60 n_refs=3 ref_strategy=first constraint=object_and_verb
+[Iter 26] Building CLIP_Set_26  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_26' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_26  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_26' indexed  (8.4s)
+[Iter 26] Index built in 8.4s
+[Iter 26] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=15 candidates  k=50  alpha=0.60  constraint=object_and_verb
+[Iter 26] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  10.91ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.03ms/query  (DINOv2 numpy)
+  Total latency:    10.96ms/query
+  QPS:              91.3
+
+[Results iter 26]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.1393
+  QPS:               91.28
+  P@10:              0.4523
+  nDCG@10:           0.5325
+
+================================================================================
+ITERATION 27/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 27)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 16}
+  k_neighbors:  100
+  alpha:        0.90
+
+[Iter 27] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 16} k=100 alpha=0.90 n_refs=3 ref_strategy=first constraint=none
+[Iter 27] Building CLIP_Set_27  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_27' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_27  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_27' indexed  (15.4s)
+[Iter 27] Index built in 15.5s
+[Iter 27] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=5 candidates  k=100  alpha=0.90  constraint=none
+[Iter 27] Timing breakdown:
+  Index build:      15.5s  (one-time)
+  Query (Stage-1):  0.40ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.04ms/query  (DINOv2 numpy)
+  Total latency:    0.44ms/query
+  QPS:              2247.5
+
+[Results iter 27]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2247.47
+  P@10:              0.0010
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 28/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 28)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 4}
+  k_neighbors:  500
+  alpha:        0.55
+
+[Iter 28] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 4} k=500 alpha=0.55 n_refs=1 ref_strategy=centroid constraint=none
+[Iter 28] Building CLIP_Set_28  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_28' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_28  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_28' indexed  (15.3s)
+[Iter 28] Index built in 15.4s
+[Iter 28] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=5 candidates  k=500  alpha=0.55  constraint=none
+[Iter 28] Timing breakdown:
+  Index build:      15.4s  (one-time)
+  Query (Stage-1):  0.41ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.04ms/query  (DINOv2 numpy)
+  Total latency:    0.45ms/query
+  QPS:              2215.2
+
+[Results iter 28]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2215.20
+  P@10:              0.0010
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 29/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 29)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 128, 'nprobe': 16}
+  k_neighbors:  150
+  alpha:        0.80
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 29] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 128, 'nprobe': 16} k=150 alpha=0.80 n_refs=1 ref_strategy=first constraint=object_and_verb
+[Iter 29] Building CLIP_Set_29  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_29' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_29  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_29' indexed  (15.6s)
+[Iter 29] Index built in 15.6s
+[Iter 29] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=150  alpha=0.80  constraint=object_and_verb
+[Iter 29] Timing breakdown:
+  Index build:      15.6s  (one-time)
+  Query (Stage-1):  0.31ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.33ms/query
+  QPS:              3071.6
+
+[Results iter 29]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               3071.63
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 30/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 30)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  1000
+  alpha:        0.20
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 30] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=1000 alpha=0.20 n_refs=3 ref_strategy=centroid constraint=verb
+[Iter 30] Building CLIP_Set_30  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_30' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_30  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_30' indexed  (8.4s)
+[Iter 30] Index built in 8.4s
+[Iter 30] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=142 candidates  k=1000  alpha=0.20  constraint=verb
+[Iter 30] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  225.62ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.20ms/query  (DINOv2 numpy)
+  Total latency:    226.02ms/query
+  QPS:              4.4
+
+[Results iter 30]
+  Score (QPS [constrained]): 4.4243
+  mAP (plain):       0.3723
+  QPS:               4.42
+  P@10:              0.6395
+  nDCG@10:           0.7034
+
+================================================================================
+ITERATION 31/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 31)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  100
+  alpha:        0.55
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 31] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=100 alpha=0.55 n_refs=5 ref_strategy=centroid constraint=object
+[Iter 31] Building CLIP_Set_31  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_31' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_31  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_31' indexed  (8.4s)
+[Iter 31] Index built in 8.4s
+[Iter 31] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=100 candidates  k=100  alpha=0.55  constraint=object
+[Iter 31] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  15.36ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.13ms/query  (DINOv2 numpy)
+  Total latency:    15.54ms/query
+  QPS:              64.4
+
+[Results iter 31]
+  Score (QPS [constrained]): 64.3604
+  mAP (plain):       0.2099
+  QPS:               64.36
+  P@10:              0.4623
+  nDCG@10:           0.5199
+
+================================================================================
+ITERATION 32/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 32)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 48, 'efConstruction': 200, 'efSearch': 500}
+  k_neighbors:  1000
+  alpha:        0.25
+
+[Iter 32] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 48, 'efConstruction': 200, 'efSearch': 500} k=1000 alpha=0.25 n_refs=10 ref_strategy=diverse constraint=none
+[Iter 32] Building CLIP_Set_32  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_32' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_32  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_32' indexed  (11.2s)
+[Iter 32] Index built in 11.2s
+[Iter 32] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=724 candidates  k=1000  alpha=0.25  constraint=none
+[Iter 32] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  151.20ms/query  (VDMS ANN)
+  Rerank (Stage-2): 1.35ms/query  (DINOv2 numpy)
+  Total latency:    154.03ms/query
+  QPS:              6.5
+
+[Results iter 32]
+  Score (QPS [constrained]): 6.4921
+  mAP (plain):       0.2482
+  QPS:               6.49
+  P@10:              0.4133
+  nDCG@10:           0.4549
+
+================================================================================
+ITERATION 33/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 33)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  750
+  alpha:        0.50
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 33] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=750 alpha=0.50 n_refs=3 ref_strategy=centroid constraint=object
+[Iter 33] Building CLIP_Set_33  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_33' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_33  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_33' indexed  (8.4s)
+[Iter 33] Index built in 8.4s
+[Iter 33] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=706 candidates  k=750  alpha=0.50  constraint=object
+[Iter 33] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  145.24ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.50ms/query  (DINOv2 numpy)
+  Total latency:    145.93ms/query
+  QPS:              6.9
+
+[Results iter 33]
+  Score (QPS [constrained]): 6.8527
+  mAP (plain):       0.3506
+  QPS:               6.85
+  P@10:              0.4948
+  nDCG@10:           0.5625
+
+================================================================================
+ITERATION 34/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 34)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  300
+  alpha:        0.75
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 34] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=300 alpha=0.75 n_refs=10 ref_strategy=diverse constraint=object
+[Iter 34] Building CLIP_Set_34  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_34' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_34  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_34' indexed  (8.5s)
+[Iter 34] Index built in 8.5s
+[Iter 34] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=296 candidates  k=300  alpha=0.75  constraint=object
+[Iter 34] Timing breakdown:
+  Index build:      8.5s  (one-time)
+  Query (Stage-1):  38.73ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.34ms/query  (DINOv2 numpy)
+  Total latency:    39.18ms/query
+  QPS:              25.5
+
+[Results iter 34]
+  Score (QPS [constrained]): 25.5241
+  mAP (plain):       0.3315
+  QPS:               25.52
+  P@10:              0.5195
+  nDCG@10:           0.5863
+
+================================================================================
+ITERATION 35/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 35)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 512, 'nprobe': 32}
+  k_neighbors:  750
+  alpha:        0.10
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 35] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 512, 'nprobe': 32} k=750 alpha=0.10 n_refs=10 ref_strategy=diverse constraint=object
+[Iter 35] Building CLIP_Set_35  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_35' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_35  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_35' indexed  (15.4s)
+[Iter 35] Index built in 15.5s
+[Iter 35] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=750  alpha=0.10  constraint=object
+[Iter 35] Timing breakdown:
+  Index build:      15.5s  (one-time)
+  Query (Stage-1):  0.32ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.34ms/query
+  QPS:              2943.0
+
+[Results iter 35]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2942.98
+  P@10:              0.0010
+  nDCG@10:           0.0021
+
+================================================================================
+ITERATION 36/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 36)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 512, 'nprobe': 32}
+  k_neighbors:  50
+  alpha:        0.35
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 36] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 512, 'nprobe': 32} k=50 alpha=0.35 n_refs=1 ref_strategy=diverse constraint=object
+[Iter 36] Building CLIP_Set_36  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_36' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_36  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_36' indexed  (15.3s)
+[Iter 36] Index built in 15.3s
+[Iter 36] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=50  alpha=0.35  constraint=object
+[Iter 36] Timing breakdown:
+  Index build:      15.3s  (one-time)
+  Query (Stage-1):  0.29ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.30ms/query
+  QPS:              3369.1
+
+[Results iter 36]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               3369.06
+  P@10:              0.0010
+  nDCG@10:           0.0021
+
+================================================================================
+ITERATION 37/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 37)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 512, 'nprobe': 4}
+  k_neighbors:  150
+  alpha:        0.45
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 37] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 512, 'nprobe': 4} k=150 alpha=0.45 n_refs=3 ref_strategy=diverse constraint=verb
+[Iter 37] Building CLIP_Set_37  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_37' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_37  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_37' indexed  (16.1s)
+[Iter 37] Index built in 16.1s
+[Iter 37] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=150  alpha=0.45  constraint=verb
+[Iter 37] Timing breakdown:
+  Index build:      16.1s  (one-time)
+  Query (Stage-1):  0.31ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.01ms/query  (DINOv2 numpy)
+  Total latency:    0.32ms/query
+  QPS:              3108.5
+
+[Results iter 37]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               3108.51
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 38/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 38)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 512, 'nprobe': 8}
+  k_neighbors:  1000
+  alpha:        0.00
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 38] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 512, 'nprobe': 8} k=1000 alpha=0.00 n_refs=1 ref_strategy=first constraint=object
+[Iter 38] Building CLIP_Set_38  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_38' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_38  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_38' indexed  (15.9s)
+[Iter 38] Index built in 16.0s
+[Iter 38] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=1000  alpha=0.00  constraint=object
+[Iter 38] Timing breakdown:
+  Index build:      16.0s  (one-time)
+  Query (Stage-1):  0.32ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.34ms/query
+  QPS:              2919.4
+
+[Results iter 38]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2919.45
+  P@10:              0.0010
+  nDCG@10:           0.0021
+
+================================================================================
+ITERATION 39/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 39)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 48, 'efConstruction': 200, 'efSearch': 200}
+  k_neighbors:  50
+  alpha:        0.40
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 39] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 48, 'efConstruction': 200, 'efSearch': 200} k=50 alpha=0.40 n_refs=10 ref_strategy=diverse constraint=verb
+[Iter 39] Building CLIP_Set_39  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_39' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_39  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_39' indexed  (11.6s)
+[Iter 39] Index built in 11.7s
+[Iter 39] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=16 candidates  k=50  alpha=0.40  constraint=verb
+[Iter 39] Timing breakdown:
+  Index build:      11.7s  (one-time)
+  Query (Stage-1):  2.45ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.04ms/query  (DINOv2 numpy)
+  Total latency:    2.50ms/query
+  QPS:              399.6
+
+[Results iter 39]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.1279
+  QPS:               399.59
+  P@10:              0.4243
+  nDCG@10:           0.4947
+
+================================================================================
+ITERATION 40/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 40)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 16}
+  k_neighbors:  1000
+  alpha:        0.00
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 40] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 16} k=1000 alpha=0.00 n_refs=10 ref_strategy=centroid constraint=object_and_verb
+[Iter 40] Building CLIP_Set_40  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_40' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_40  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_40' indexed  (15.2s)
+[Iter 40] Index built in 15.2s
+[Iter 40] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=1000  alpha=0.00  constraint=object_and_verb
+[Iter 40] Timing breakdown:
+  Index build:      15.2s  (one-time)
+  Query (Stage-1):  0.33ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.34ms/query
+  QPS:              2908.3
+
+[Results iter 40]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2908.32
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 41/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 41)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 64, 'nprobe': 32}
+  k_neighbors:  500
+  alpha:        0.75
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 41] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 64, 'nprobe': 32} k=500 alpha=0.75 n_refs=10 ref_strategy=centroid constraint=verb
+[Iter 41] Building CLIP_Set_41  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_41' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_41  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_41' indexed  (15.4s)
+[Iter 41] Index built in 15.4s
+[Iter 41] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=0 candidates  k=500  alpha=0.75  constraint=verb
+[Iter 41] Timing breakdown:
+  Index build:      15.4s  (one-time)
+  Query (Stage-1):  0.33ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.01ms/query  (DINOv2 numpy)
+  Total latency:    0.34ms/query
+  QPS:              2970.5
+
+[Results iter 41]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2970.46
+  P@10:              0.0008
+  nDCG@10:           0.0017
+
+================================================================================
+ITERATION 42/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 42)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  100
+  alpha:        0.65
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 42] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=100 alpha=0.65 n_refs=1 ref_strategy=first constraint=object
+[Iter 42] Building CLIP_Set_42  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_42' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_42  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_42' indexed  (8.4s)
+[Iter 42] Index built in 8.4s
+[Iter 42] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=100 candidates  k=100  alpha=0.65  constraint=object
+[Iter 42] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  15.64ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.13ms/query  (DINOv2 numpy)
+  Total latency:    15.82ms/query
+  QPS:              63.2
+
+[Results iter 42]
+  Score (QPS [constrained]): 63.2166
+  mAP (plain):       0.1772
+  QPS:               63.22
+  P@10:              0.4192
+  nDCG@10:           0.4503
+
+================================================================================
+ITERATION 43/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 43)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 32, 'efConstruction': 200, 'efSearch': 200}
+  k_neighbors:  500
+  alpha:        0.00
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 43] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 32, 'efConstruction': 200, 'efSearch': 200} k=500 alpha=0.00 n_refs=10 ref_strategy=first constraint=object_and_verb
+[Iter 43] Building CLIP_Set_43  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_43' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_43  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_43' indexed  (11.6s)
+[Iter 43] Index built in 11.7s
+[Iter 43] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=102 candidates  k=500  alpha=0.00  constraint=object_and_verb
+[Iter 43] Timing breakdown:
+  Index build:      11.7s  (one-time)
+  Query (Stage-1):  58.47ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    58.51ms/query
+  QPS:              17.1
+
+[Results iter 43]
+  Score (QPS [constrained]): 17.0921
+  mAP (plain):       0.2949
+  QPS:               17.09
+  P@10:              0.6412
+  nDCG@10:           0.7101
+
+================================================================================
+ITERATION 44/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 44)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  1000
+  alpha:        0.80
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 44] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=1000 alpha=0.80 n_refs=10 ref_strategy=diverse constraint=verb
+[Iter 44] Building CLIP_Set_44  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_44' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_44  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_44' indexed  (8.4s)
+[Iter 44] Index built in 8.5s
+[Iter 44] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=142 candidates  k=1000  alpha=0.80  constraint=verb
+[Iter 44] Timing breakdown:
+  Index build:      8.5s  (one-time)
+  Query (Stage-1):  222.20ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.24ms/query  (DINOv2 numpy)
+  Total latency:    222.99ms/query
+  QPS:              4.5
+
+[Results iter 44]
+  Score (QPS [constrained]): 4.4845
+  mAP (plain):       0.4069
+  QPS:               4.48
+  P@10:              0.6733
+  nDCG@10:           0.7464
+
+================================================================================
+ITERATION 45/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 45)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  500
+  alpha:        0.65
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 45] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=500 alpha=0.65 n_refs=10 ref_strategy=diverse constraint=verb
+[Iter 45] Building CLIP_Set_45  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_45' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_45  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_45' indexed  (8.4s)
+[Iter 45] Index built in 8.4s
+[Iter 45] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=96 candidates  k=500  alpha=0.65  constraint=verb
+[Iter 45] Timing breakdown:
+  Index build:      8.4s  (one-time)
+  Query (Stage-1):  70.03ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.12ms/query  (DINOv2 numpy)
+  Total latency:    70.19ms/query
+  QPS:              14.2
+
+[Results iter 45]
+  Score (QPS [constrained]): 14.2467
+  mAP (plain):       0.3499
+  QPS:               14.25
+  P@10:              0.6412
+  nDCG@10:           0.7146
+
+================================================================================
+ITERATION 46/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 46)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 100}
+  k_neighbors:  300
+  alpha:        0.05
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+
+[Iter 46] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 100} k=300 alpha=0.05 n_refs=10 ref_strategy=diverse constraint=verb
+[Iter 46] Building CLIP_Set_46  (graph=yes)...
+[OK] DescriptorSet 'CLIP_Set_46' created  dim=768  metric=L2
+[GRAPH] PMGD metadata provided — storing object_id + verb_id per descriptor
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_46  (batch_properties=500, with metadata)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_46' indexed  (11.6s)
+[Iter 46] Index built in 11.7s
+[Iter 46] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=75 candidates  k=300  alpha=0.05  constraint=verb
+[Iter 46] Timing breakdown:
+  Index build:      11.7s  (one-time)
+  Query (Stage-1):  26.56ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.09ms/query  (DINOv2 numpy)
+  Total latency:    26.69ms/query
+  QPS:              37.5
+
+[Results iter 46]
+  Score (QPS [constrained]): 37.4730
+  mAP (plain):       0.2456
+  QPS:               37.47
+  P@10:              0.5587
+  nDCG@10:           0.6199
+
+================================================================================
+ITERATION 47/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 47)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 8, 'efConstruction': 200, 'efSearch': 150}
+  k_neighbors:  150
+  alpha:        0.75
+
+[Iter 47] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 8, 'efConstruction': 200, 'efSearch': 150} k=150 alpha=0.75 n_refs=10 ref_strategy=first constraint=none
+[Iter 47] Building CLIP_Set_47  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_47' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_47  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_47' indexed  (11.2s)
+[Iter 47] Index built in 11.2s
+[Iter 47] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=150 candidates  k=150  alpha=0.75  constraint=none
+[Iter 47] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  11.98ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.23ms/query  (DINOv2 numpy)
+  Total latency:    12.29ms/query
+  QPS:              81.4
+
+[Results iter 47]
+  Score (QPS [constrained]): 81.3733
+  mAP (plain):       0.2404
+  QPS:               81.37
+  P@10:              0.4758
+  nDCG@10:           0.5415
+
+================================================================================
+ITERATION 48/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 48)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 512, 'nprobe': 4}
+  k_neighbors:  300
+  alpha:        0.65
+
+[Iter 48] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 512, 'nprobe': 4} k=300 alpha=0.65 n_refs=1 ref_strategy=centroid constraint=none
+[Iter 48] Building CLIP_Set_48  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_48' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_48  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_48' indexed  (15.3s)
+[Iter 48] Index built in 15.4s
+[Iter 48] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=5 candidates  k=300  alpha=0.65  constraint=none
+[Iter 48] Timing breakdown:
+  Index build:      15.4s  (one-time)
+  Query (Stage-1):  0.40ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.03ms/query  (DINOv2 numpy)
+  Total latency:    0.45ms/query
+  QPS:              2229.4
+
+[Results iter 48]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2229.44
+  P@10:              0.0010
+  nDCG@10:           0.0016
+
+================================================================================
+ITERATION 49/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 49)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissHNSWFlat
+  params:       {'M': 32, 'efConstruction': 200, 'efSearch': 150}
+  k_neighbors:  300
+  alpha:        0.65
+
+[Iter 49] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 32, 'efConstruction': 200, 'efSearch': 150} k=300 alpha=0.65 n_refs=1 ref_strategy=first constraint=none
+[Iter 49] Building CLIP_Set_49  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_49' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_49  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_49' indexed  (11.1s)
+[Iter 49] Index built in 11.2s
+[Iter 49] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=300 candidates  k=300  alpha=0.65  constraint=none
+[Iter 49] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  31.18ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.43ms/query  (DINOv2 numpy)
+  Total latency:    31.74ms/query
+  QPS:              31.5
+
+[Results iter 49]
+  Score (QPS [constrained]): 31.5012
+  mAP (plain):       0.1978
+  QPS:               31.50
+  P@10:              0.3702
+  nDCG@10:           0.4012
+
+================================================================================
+ITERATION 50/50 (RANDOM)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 50)...
+[VDMS] Ready on port 55637
+[VDMS] Restart complete.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 32}
+  k_neighbors:  1000
+  alpha:        0.00
+
+[Iter 50] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 32} k=1000 alpha=0.00 n_refs=10 ref_strategy=diverse constraint=none
+[Iter 50] Building CLIP_Set_50  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_50' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_50  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_50' indexed  (15.9s)
+[Iter 50] Index built in 16.0s
+[Iter 50] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=5 candidates  k=1000  alpha=0.00  constraint=none
+[Iter 50] Timing breakdown:
+  Index build:      16.0s  (one-time)
+  Query (Stage-1):  0.42ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.00ms/query  (DINOv2 numpy)
+  Total latency:    0.43ms/query
+  QPS:              2324.5
+
+[Results iter 50]
+  Score (QPS [constrained]): 0.0000
+  mAP (plain):       0.0000
+  QPS:               2324.48
+  P@10:              0.0010
+  nDCG@10:           0.0020
+
+================================================================================
+OPTIMIZATION COMPLETE
+================================================================================
+Best Score:  109.9098
+Best mAP:    0.2098
+Best QPS:    109.91
+Best Config: {'engine': np.str_('FaissHNSWFlat'), 'params': {'M': 32, 'efConstruction': 200, 'efSearch': 100}, 'k_neighbors': 150, 'n_refs': 5, 'ref_strategy': 'first', 'constraint_strategy': 'verb', 'alpha': 0.65, '_iter': 19}
+
+[OK] Results saved to /work/hdd/bdjd/vdms_workflow/semantic_vdms/FINAL_RESULTS/hico_det/results/random_seed42.json
+Finished: Wed Apr 22 11:00:54 CDT 2026  Exit: 0  Output: /work/hdd/bdjd/vdms_workflow/semantic_vdms/FINAL_RESULTS/hico_det/results/random_seed42.json

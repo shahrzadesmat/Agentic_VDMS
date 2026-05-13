@@ -1,0 +1,1520 @@
+{
+  "summary": {
+    "best_score": 1160.4235709377847,
+    "best_recall": 0.9123899999999999,
+    "best_qps": 1160.4235709377847,
+    "best_config": {
+      "engine": "FaissHNSWFlat",
+      "params": {
+        "M": 64,
+        "efConstruction": 150,
+        "efSearch": 24
+      },
+      "k_neighbors": 10,
+      "_iter": 23
+    },
+    "iterations_used": 50
+  },
+  "results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "k_neighbors": 200,
+        "_iter": 1
+      },
+      "benchmark": {
+        "qps": 50.74593875744266,
+        "recall_at_10": 0.9993300000000002,
+        "latency_ms": 19.706010460853577,
+        "index_build_s": 334.3713028430939,
+        "precision": 0.9993300000000002,
+        "f1_score": 0.9993300000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 500
+        },
+        "timestamp": 1776975952.0407085
+      },
+      "score": 50.74593875744266,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 100,
+          "efSearch": 24
+        },
+        "k_neighbors": 150,
+        "_iter": 2
+      },
+      "benchmark": {
+        "qps": 80.90555042814732,
+        "recall_at_10": 0.8816400000000001,
+        "latency_ms": 12.360091423988344,
+        "index_build_s": 248.2680904865265,
+        "precision": 0.8816400000000001,
+        "f1_score": 0.8816400000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 100,
+          "efSearch": 24
+        },
+        "timestamp": 1776976329.4137545
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 300,
+          "efSearch": 32
+        },
+        "k_neighbors": 200,
+        "_iter": 3
+      },
+      "benchmark": {
+        "qps": 53.99028557835877,
+        "recall_at_10": 0.9571299999999999,
+        "latency_ms": 18.521850538253783,
+        "index_build_s": 415.76248025894165,
+        "precision": 0.9571299999999999,
+        "f1_score": 0.9571299999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 300,
+          "efSearch": 32
+        },
+        "timestamp": 1776976936.7370539
+      },
+      "score": 53.99028557835877,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 64
+        },
+        "k_neighbors": 75,
+        "_iter": 4
+      },
+      "benchmark": {
+        "qps": 184.4377645933829,
+        "recall_at_10": 0.9802299999999999,
+        "latency_ms": 5.4218831062316895,
+        "index_build_s": 289.8555347919464,
+        "precision": 0.9802299999999999,
+        "f1_score": 0.9802299999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 64
+        },
+        "timestamp": 1776977286.4906971
+      },
+      "score": 184.4377645933829,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 20,
+        "_iter": 5
+      },
+      "benchmark": {
+        "qps": 668.0676381403294,
+        "recall_at_10": 0.9230200000000001,
+        "latency_ms": 1.4968544244766235,
+        "index_build_s": 312.7705593109131,
+        "precision": 0.9230200000000001,
+        "f1_score": 0.9230200000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "timestamp": 1776977619.2355604
+      },
+      "score": 668.0676381403294,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 50,
+          "efSearch": 300
+        },
+        "k_neighbors": 100,
+        "_iter": 6
+      },
+      "benchmark": {
+        "qps": 125.72327458091652,
+        "recall_at_10": 0.9935,
+        "latency_ms": 7.953976726531982,
+        "index_build_s": 207.4175989627838,
+        "precision": 0.9935,
+        "f1_score": 0.9935,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 50,
+          "efSearch": 300
+        },
+        "timestamp": 1776977911.0881743
+      },
+      "score": 125.72327458091652,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 50,
+          "efSearch": 500
+        },
+        "k_neighbors": 500,
+        "_iter": 7
+      },
+      "benchmark": {
+        "qps": 13.366643121972258,
+        "recall_at_10": 0.99935,
+        "latency_ms": 74.813099360466,
+        "index_build_s": 260.8540155887604,
+        "precision": 0.99935,
+        "f1_score": 0.99935,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 50,
+          "efSearch": 500
+        },
+        "timestamp": 1776978925.6795943
+      },
+      "score": 13.366643121972258,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 50,
+        "_iter": 8
+      },
+      "benchmark": {
+        "qps": 278.9797941545731,
+        "recall_at_10": 0.98015,
+        "latency_ms": 3.5844889879226685,
+        "index_build_s": 322.85842990875244,
+        "precision": 0.98015,
+        "f1_score": 0.98015,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "timestamp": 1776979292.3668504
+      },
+      "score": 278.9797941545731,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 150,
+          "efSearch": 48
+        },
+        "k_neighbors": 30,
+        "_iter": 9
+      },
+      "benchmark": {
+        "qps": 425.588711210081,
+        "recall_at_10": 0.9925,
+        "latency_ms": 2.34968638420105,
+        "index_build_s": 426.0438392162323,
+        "precision": 0.9925,
+        "f1_score": 0.9925,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 150,
+          "efSearch": 48
+        },
+        "timestamp": 1776979748.8845265
+      },
+      "score": 425.588711210081,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 300,
+          "efSearch": 200
+        },
+        "k_neighbors": 150,
+        "_iter": 10
+      },
+      "benchmark": {
+        "qps": 76.48906415776696,
+        "recall_at_10": 0.9987299999999999,
+        "latency_ms": 13.07376434803009,
+        "index_build_s": 415.76601791381836,
+        "precision": 0.9987299999999999,
+        "f1_score": 0.9987299999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 300,
+          "efSearch": 200
+        },
+        "timestamp": 1776980308.9331117
+      },
+      "score": 76.48906415776696,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 20,
+        "_iter": 11
+      },
+      "benchmark": {
+        "qps": 596.6675474248748,
+        "recall_at_10": 0.9831,
+        "latency_ms": 1.675975179672241,
+        "index_build_s": 312.7927894592285,
+        "precision": 0.9831,
+        "f1_score": 0.9831,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "timestamp": 1776980643.5688279
+      },
+      "score": 596.6675474248748,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 100,
+          "efSearch": 48
+        },
+        "k_neighbors": 20,
+        "_iter": 12
+      },
+      "benchmark": {
+        "qps": 586.0058177469855,
+        "recall_at_10": 0.9930200000000001,
+        "latency_ms": 1.7064677000045776,
+        "index_build_s": 355.838116645813,
+        "precision": 0.9930200000000001,
+        "f1_score": 0.9930200000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 100,
+          "efSearch": 48
+        },
+        "timestamp": 1776981024.4486282
+      },
+      "score": 586.0058177469855,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 200,
+        "_iter": 13
+      },
+      "benchmark": {
+        "qps": 53.754358768110805,
+        "recall_at_10": 0.9867600000000001,
+        "latency_ms": 18.60314257144928,
+        "index_build_s": 325.59533858299255,
+        "precision": 0.9867600000000001,
+        "f1_score": 0.9867600000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "timestamp": 1776981541.1289709
+      },
+      "score": 53.754358768110805,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 400,
+          "efSearch": 8
+        },
+        "k_neighbors": 50,
+        "_iter": 14
+      },
+      "benchmark": {
+        "qps": 291.0933804090351,
+        "recall_at_10": 0.6404,
+        "latency_ms": 3.435323739051819,
+        "index_build_s": 453.7639820575714,
+        "precision": 0.6404,
+        "f1_score": 0.6404,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 400,
+          "efSearch": 8
+        },
+        "timestamp": 1776982034.4782917
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 100,
+        "_iter": 15
+      },
+      "benchmark": {
+        "qps": 135.90973064656743,
+        "recall_at_10": 0.71597,
+        "latency_ms": 7.357824897766113,
+        "index_build_s": 312.7720127105713,
+        "precision": 0.71597,
+        "f1_score": 0.7159700000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "timestamp": 1776982425.801748
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "_iter": 16
+      },
+      "benchmark": {
+        "qps": 135.37154756729527,
+        "recall_at_10": 0.9202900000000002,
+        "latency_ms": 7.387076663970947,
+        "index_build_s": 249.0229823589325,
+        "precision": 0.9202900000000002,
+        "f1_score": 0.9202900000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "timestamp": 1776982754.4969423
+      },
+      "score": 135.37154756729527,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "k_neighbors": 500,
+        "_iter": 17
+      },
+      "benchmark": {
+        "qps": 39.123809617159026,
+        "recall_at_10": 0.58868,
+        "latency_ms": 25.55988309383392,
+        "index_build_s": 247.09162163734436,
+        "precision": 0.58868,
+        "f1_score": 0.58868,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 16
+        },
+        "timestamp": 1776983262.8185587
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "k_neighbors": 150,
+        "_iter": 18
+      },
+      "benchmark": {
+        "qps": 78.09224529923272,
+        "recall_at_10": 0.99546,
+        "latency_ms": 12.805368781089783,
+        "index_build_s": 465.5658712387085,
+        "precision": 0.99546,
+        "f1_score": 0.99546,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "timestamp": 1776983862.5588217
+      },
+      "score": 78.09224529923272,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "k_neighbors": 75,
+        "_iter": 19
+      },
+      "benchmark": {
+        "qps": 174.48441781960656,
+        "recall_at_10": 0.99841,
+        "latency_ms": 5.731170797348023,
+        "index_build_s": 492.6565771102905,
+        "precision": 0.99841,
+        "f1_score": 0.99841,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "timestamp": 1776984422.6478314
+      },
+      "score": 174.48441781960656,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 300,
+          "efSearch": 150
+        },
+        "k_neighbors": 500,
+        "_iter": 20
+      },
+      "benchmark": {
+        "qps": 13.625295699260159,
+        "recall_at_10": 0.9764300000000001,
+        "latency_ms": 73.39290258884431,
+        "index_build_s": 371.63891077041626,
+        "precision": 0.9764300000000001,
+        "f1_score": 0.9764300000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 300,
+          "efSearch": 150
+        },
+        "timestamp": 1776985544.6736965
+      },
+      "score": 13.625295699260159,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 10,
+        "_iter": 21
+      },
+      "benchmark": {
+        "qps": 770.9966990902366,
+        "recall_at_10": 0.99824,
+        "latency_ms": 1.2970224142074587,
+        "index_build_s": 331.88610792160034,
+        "precision": 0.99824,
+        "f1_score": 0.99824,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "timestamp": 1776985895.6173863
+      },
+      "score": 770.9966990902366,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 50,
+          "efSearch": 150
+        },
+        "k_neighbors": 10,
+        "_iter": 22
+      },
+      "benchmark": {
+        "qps": 716.2523257728936,
+        "recall_at_10": 0.98108,
+        "latency_ms": 1.3961560249328613,
+        "index_build_s": 259.6660385131836,
+        "precision": 0.98108,
+        "f1_score": 0.98108,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 50,
+          "efSearch": 150
+        },
+        "timestamp": 1776986174.0583062
+      },
+      "score": 716.2523257728936,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 23
+      },
+      "benchmark": {
+        "qps": 1160.4235709377847,
+        "recall_at_10": 0.9123899999999999,
+        "latency_ms": 0.861754298210144,
+        "index_build_s": 291.5890724658966,
+        "precision": 0.9123899999999999,
+        "f1_score": 0.9123899999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "timestamp": 1776986479.9014325
+      },
+      "score": 1160.4235709377847,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "k_neighbors": 10,
+        "_iter": 24
+      },
+      "benchmark": {
+        "qps": 1159.560972382581,
+        "recall_at_10": 0.9124700000000001,
+        "latency_ms": 0.8623953580856323,
+        "index_build_s": 292.2980365753174,
+        "precision": 0.9124700000000001,
+        "f1_score": 0.9124700000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "timestamp": 1776986785.9345355
+      },
+      "score": 1159.560972382581,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 100,
+          "efSearch": 100
+        },
+        "k_neighbors": 500,
+        "_iter": 25
+      },
+      "benchmark": {
+        "qps": 13.812625799214198,
+        "recall_at_10": 0.9837899999999999,
+        "latency_ms": 72.39753067493439,
+        "index_build_s": 249.1139829158783,
+        "precision": 0.9837899999999999,
+        "f1_score": 0.9837899999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 100,
+          "efSearch": 100
+        },
+        "timestamp": 1776987764.4555612
+      },
+      "score": 13.812625799214198,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 300,
+        "_iter": 26
+      },
+      "benchmark": {
+        "qps": 30.237643652974445,
+        "recall_at_10": 0.99341,
+        "latency_ms": 33.071360039711,
+        "index_build_s": 332.9629805088043,
+        "precision": 0.99341,
+        "f1_score": 0.99341,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "timestamp": 1776988438.0560558
+      },
+      "score": 30.237643652974445,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "k_neighbors": 10,
+        "_iter": 27
+      },
+      "benchmark": {
+        "qps": 1193.343005710162,
+        "recall_at_10": 0.8735200000000001,
+        "latency_ms": 0.8379820346832275,
+        "index_build_s": 333.84326362609863,
+        "precision": 0.8735200000000001,
+        "f1_score": 0.8735200000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 16
+        },
+        "timestamp": 1776988796.0002184
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "k_neighbors": 75,
+        "_iter": 28
+      },
+      "benchmark": {
+        "qps": 174.5353198679287,
+        "recall_at_10": 0.99829,
+        "latency_ms": 5.729499340057373,
+        "index_build_s": 491.25457191467285,
+        "precision": 0.99829,
+        "f1_score": 0.99829,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "timestamp": 1776989349.4209595
+      },
+      "score": 174.5353198679287,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 100,
+        "_iter": 29
+      },
+      "benchmark": {
+        "qps": 133.12736884037864,
+        "recall_at_10": 0.99021,
+        "latency_ms": 7.511603426933289,
+        "index_build_s": 322.71709084510803,
+        "precision": 0.99021,
+        "f1_score": 0.99021,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "timestamp": 1776989752.2299738
+      },
+      "score": 133.12736884037864,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 24
+        },
+        "k_neighbors": 75,
+        "_iter": 30
+      },
+      "benchmark": {
+        "qps": 185.93539683169809,
+        "recall_at_10": 0.79102,
+        "latency_ms": 5.378212094306946,
+        "index_build_s": 209.16530013084412,
+        "precision": 0.79102,
+        "f1_score": 0.7910200000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 24
+        },
+        "timestamp": 1776990020.697945
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 48
+        },
+        "k_neighbors": 500,
+        "_iter": 31
+      },
+      "benchmark": {
+        "qps": 14.507966072093003,
+        "recall_at_10": 0.8878400000000002,
+        "latency_ms": 68.92764947414398,
+        "index_build_s": 209.6068253517151,
+        "precision": 0.8878400000000002,
+        "f1_score": 0.8878400000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 48
+        },
+        "timestamp": 1776990925.2310402
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 300,
+        "_iter": 32
+      },
+      "benchmark": {
+        "qps": 30.284230484953593,
+        "recall_at_10": 0.99561,
+        "latency_ms": 33.02048571109772,
+        "index_build_s": 493.20815443992615,
+        "precision": 0.99561,
+        "f1_score": 0.99561,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "timestamp": 1776991755.5824866
+      },
+      "score": 30.284230484953593,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "_iter": 33
+      },
+      "benchmark": {
+        "qps": 289.4886271067925,
+        "recall_at_10": 0.8346400000000002,
+        "latency_ms": 3.4543671369552613,
+        "index_build_s": 209.62886095046997,
+        "precision": 0.8346400000000002,
+        "f1_score": 0.8346400000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 32
+        },
+        "timestamp": 1776992010.313187
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 300,
+          "efSearch": 500
+        },
+        "k_neighbors": 50,
+        "_iter": 34
+      },
+      "benchmark": {
+        "qps": 221.0729767193084,
+        "recall_at_10": 0.9993900000000001,
+        "latency_ms": 4.523393201828003,
+        "index_build_s": 403.8015911579132,
+        "precision": 0.9993900000000001,
+        "f1_score": 0.9993900000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 300,
+          "efSearch": 500
+        },
+        "timestamp": 1776992464.3942633
+      },
+      "score": 221.0729767193084,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "k_neighbors": 100,
+        "_iter": 35
+      },
+      "benchmark": {
+        "qps": 132.78433701603237,
+        "recall_at_10": 0.9106599999999998,
+        "latency_ms": 7.531008720397949,
+        "index_build_s": 291.5519766807556,
+        "precision": 0.9106599999999998,
+        "f1_score": 0.9106599999999997,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 150,
+          "efSearch": 24
+        },
+        "timestamp": 1776992837.3865032
+      },
+      "score": 132.78433701603237,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "k_neighbors": 75,
+        "_iter": 36
+      },
+      "benchmark": {
+        "qps": 180.2226507941006,
+        "recall_at_10": 0.79568,
+        "latency_ms": 5.548692107200623,
+        "index_build_s": 247.22205591201782,
+        "precision": 0.79568,
+        "f1_score": 0.7956800000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 200
+        },
+        "timestamp": 1776993145.1237657
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 500,
+        "_iter": 37
+      },
+      "benchmark": {
+        "qps": 14.235769006113529,
+        "recall_at_10": 0.9430400000000001,
+        "latency_ms": 70.24559049606323,
+        "index_build_s": 330.9318137168884,
+        "precision": 0.9430400000000001,
+        "f1_score": 0.9430400000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "timestamp": 1776994184.276878
+      },
+      "score": 14.235769006113529,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "k_neighbors": 150,
+        "_iter": 38
+      },
+      "benchmark": {
+        "qps": 76.8211837321193,
+        "recall_at_10": 0.9982200000000001,
+        "latency_ms": 13.017242789268494,
+        "index_build_s": 332.6947627067566,
+        "precision": 0.9982200000000001,
+        "f1_score": 0.9982200000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 200
+        },
+        "timestamp": 1776994653.432043
+      },
+      "score": 76.8211837321193,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 50,
+          "efSearch": 200
+        },
+        "k_neighbors": 300,
+        "_iter": 39
+      },
+      "benchmark": {
+        "qps": 30.442571958739574,
+        "recall_at_10": 0.76967,
+        "latency_ms": 32.84873569011688,
+        "index_build_s": 207.9800624847412,
+        "precision": 0.76967,
+        "f1_score": 0.76967,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 4,
+          "efConstruction": 50,
+          "efSearch": 200
+        },
+        "timestamp": 1776995195.1753812
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 300,
+          "efSearch": 200
+        },
+        "k_neighbors": 30,
+        "_iter": 40
+      },
+      "benchmark": {
+        "qps": 409.64970203025416,
+        "recall_at_10": 0.9973899999999998,
+        "latency_ms": 2.4411100387573246,
+        "index_build_s": 396.63469219207764,
+        "precision": 0.9973899999999998,
+        "f1_score": 0.9973899999999998,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 300,
+          "efSearch": 200
+        },
+        "timestamp": 1776995623.6730728
+      },
+      "score": 409.64970203025416,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "k_neighbors": 300,
+        "_iter": 41
+      },
+      "benchmark": {
+        "qps": 30.21585048221031,
+        "recall_at_10": 0.99829,
+        "latency_ms": 33.09521274566651,
+        "index_build_s": 494.1904208660126,
+        "precision": 0.99829,
+        "f1_score": 0.99829,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "timestamp": 1776996472.4267607
+      },
+      "score": 30.21585048221031,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 50,
+          "efSearch": 24
+        },
+        "k_neighbors": 500,
+        "_iter": 42
+      },
+      "benchmark": {
+        "qps": 16.99722232794736,
+        "recall_at_10": 0.83306,
+        "latency_ms": 58.83314230442047,
+        "index_build_s": 208.6707320213318,
+        "precision": 0.83306,
+        "f1_score": 0.83306,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 50,
+          "efSearch": 24
+        },
+        "timestamp": 1776997275.6960847
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 64
+        },
+        "k_neighbors": 200,
+        "_iter": 43
+      },
+      "benchmark": {
+        "qps": 53.95098030926672,
+        "recall_at_10": 0.98019,
+        "latency_ms": 18.535344386100768,
+        "index_build_s": 291.93840861320496,
+        "precision": 0.98019,
+        "f1_score": 0.98019,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 150,
+          "efSearch": 64
+        },
+        "timestamp": 1776997759.1918793
+      },
+      "score": 53.95098030926672,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 8
+        },
+        "k_neighbors": 10,
+        "_iter": 44
+      },
+      "benchmark": {
+        "qps": 1205.065332131037,
+        "recall_at_10": 0.7537,
+        "latency_ms": 0.829830527305603,
+        "index_build_s": 331.9456000328064,
+        "precision": 0.7537,
+        "f1_score": 0.7536999999999999,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 96,
+          "efConstruction": 200,
+          "efSearch": 8
+        },
+        "timestamp": 1776998104.7685115
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "k_neighbors": 20,
+        "_iter": 45
+      },
+      "benchmark": {
+        "qps": 626.5337780375017,
+        "recall_at_10": 0.9868000000000002,
+        "latency_ms": 1.59608314037323,
+        "index_build_s": 325.61355900764465,
+        "precision": 0.9868000000000002,
+        "f1_score": 0.9868000000000002,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 100
+        },
+        "timestamp": 1776998451.1525111
+      },
+      "score": 626.5337780375017,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 48
+        },
+        "k_neighbors": 10,
+        "_iter": 46
+      },
+      "benchmark": {
+        "qps": 1152.9005909987695,
+        "recall_at_10": 0.88721,
+        "latency_ms": 0.8673774719238282,
+        "index_build_s": 208.8708369731903,
+        "precision": 0.88721,
+        "f1_score": 0.88721,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 12,
+          "efConstruction": 50,
+          "efSearch": 48
+        },
+        "timestamp": 1776998673.4734805
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 50,
+          "efSearch": 500
+        },
+        "k_neighbors": 10,
+        "_iter": 47
+      },
+      "benchmark": {
+        "qps": 422.87888853140703,
+        "recall_at_10": 0.9993200000000001,
+        "latency_ms": 2.3647432565689086,
+        "index_build_s": 250.48435592651367,
+        "precision": 0.9993200000000001,
+        "f1_score": 0.9993200000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 50,
+          "efSearch": 500
+        },
+        "timestamp": 1776998952.8363051
+      },
+      "score": 422.87888853140703,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "_iter": 48
+      },
+      "benchmark": {
+        "qps": 79.07994643504395,
+        "recall_at_10": 0.74844,
+        "latency_ms": 12.64543092250824,
+        "index_build_s": 246.89810490608215,
+        "precision": 0.74844,
+        "f1_score": 0.74844,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 64
+        },
+        "timestamp": 1776999331.5189965
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 50,
+          "efSearch": 8
+        },
+        "k_neighbors": 30,
+        "_iter": 49
+      },
+      "benchmark": {
+        "qps": 487.8202417096225,
+        "recall_at_10": 0.632,
+        "latency_ms": 2.0499354362487794,
+        "index_build_s": 208.4009029865265,
+        "precision": 0.632,
+        "f1_score": 0.632,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 24,
+          "efConstruction": 50,
+          "efSearch": 8
+        },
+        "timestamp": 1776999567.338689
+      },
+      "score": 0.0,
+      "reasoning": "Baseline (Random)"
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 300,
+          "efSearch": 300
+        },
+        "k_neighbors": 100,
+        "_iter": 50
+      },
+      "benchmark": {
+        "qps": 126.79295068867751,
+        "recall_at_10": 0.9922200000000001,
+        "latency_ms": 7.886873793601991,
+        "index_build_s": 371.4722692966461,
+        "precision": 0.9922200000000001,
+        "f1_score": 0.9922200000000001,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 300,
+          "efSearch": 300
+        },
+        "timestamp": 1777000039.310871
+      },
+      "score": 126.79295068867751,
+      "reasoning": "Baseline (Random)"
+    }
+  ]
+}

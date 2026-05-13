@@ -1,0 +1,2499 @@
+==================================================
+HICO-DET LLM+QDS — standard threshold, seed=200
+  Seed: 200  Port: 55672
+  Threshold: raw mAP >= tau (unweighted)
+Job ID: 17826613  Node: gpub023.delta.ncsa.illinois.edu
+Started: Thu Apr 23 22:29:28 CDT 2026
+==================================================
+Usage:
+  apptainer [global options...] instance stop [stop options...] [instance]
+
+Run 'apptainer --help' for more detailed usage information.
+[VDMS] Ready on port 55672
+[Score] Constrained objective: Score = QPS  if raw mAP (standard) ≥ 0.150 else 0
+[QDS-ACS] Loading data to compute QDS tiers...
+[GEOM] SPM-VLAD-SIFT (1×1+2×2+1×3=8 cells, bbox-crop, PCA-512)  shape=(47776, 512)
+[OK] HICO-DET loaded: 47776 images
+     Geom  (47776, 512)  (SPM-VLAD-SIFT (1×1+2×2+1×3=8 cells, bbox-crop, PCA-512))
+     Deep  (47776, 1024)  (DINOv2 ViT-L/14-reg4 HOI-crop  1024-d)
+     Deep norms: 1.000000 ± 0.000000
+     HOI categories: 600
+     Images/HOI: min=6  max=1844  mean=151.1
+[OK] HOI queries built: 600 queries  (skipped 0 HOIs with < 6 images)
+     Relevant/query: min=5  max=1843  mean=150.1
+[Cache] HICO-DET loaded (CLIP ViT-L/14): clip_db=(47776, 768)  dinov2_db=(47776, 1024)  text_q=(600, 768)  queries=600
+[QDS] Computing per-class entropy (tau=0.01)...
+[QDS] weights range [1.000, 2.000]  QDS quartiles: Q25=0.1515 Q50=0.3104 Q75=0.4347
+[QDS-ACS] Tiers: Q1=150 Q2=150 Q3=150 Q4=150 queries
+[QDS-ACS] 300 hard queries (Q3+Q4) will use per-class exact numpy search.
+[QDS-ACS] Building per-class CLIP indices (one-time)...
+[OK] PMGD metadata loaded: 47776 images  (80 objects, 117 verbs)
+[OK] Per-class CLIP indices: 80 classes  sizes: min=23 max=2761 mean=604
+[QDS-ACS] Per-class indices ready. Q3/Q4 will use exact search; Q1/Q2 use VDMS.
+[CategoryFeedback] Loading data to compute per-class QDS scores...
+[CategoryFeedback] QDS range [-0.5713, 0.9738]  quartiles: Q25=0.1515 Q75=0.4347
+[CategoryFeedback] Enabled: LLM will receive per-QDS-quartile mAP each iteration.
+Starting hyperparameter_only optimization. Iterations: 50, Seed: 200
+
+================================================================================
+ITERATION 1/50 (HYPERPARAMETER_ONLY)
+================================================================================
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Exploration iteration 1: Test k=50 (highest QPS lever, ~295 QPS for VDMS-only queries). M=64 maximizes CLIP recall ceiling for Q1+Q2 unconstrained VDMS search. alpha per tier based on empirical slopes: Q3 has negative slope above 0.65 (keep at 0.65), Q4 benefits most from high alpha (0.85). n_refs=10 centroid stabilizes DINOv2 reference quality. constraint_strategy=none is forced for Q1+Q2 queries in ACS architecture. Expected combined QPS ~850, mAP ~0.25-0.27 (DINOv2 at high alpha should lift Q3/Q4 with exact numpy pool).
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85
+
+[Iter 1] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 1] Building CLIP_Set_1  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_1' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_1  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_1' indexed  (11.2s)
+[Iter 1] Index built in 11.2s
+[Iter 1] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 1] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.78ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.90ms/query
+  QPS:              526.7
+
+[Results iter 1]
+  Score (QPS [QDS-constrained]): 526.7098
+  mAP (plain):       0.1790
+  mAP (QDS-weighted): 0.1700  ← threshold check uses this (τ=0.150)
+  QPS:               526.71
+  P@10:              0.4587
+  nDCG@10:           0.5252
+
+================================================================================
+ITERATION 2/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 2)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+  engine:       FaissIVFFlat
+  params:       {'nlist': 128, 'nprobe': 4}
+  k_neighbors:  750
+  alpha:        Q1=0.60/Q2=0.75/Q3=0.70/Q4=0.55
+
+[Iter 2] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 128, 'nprobe': 4} k=750 alpha=Q1=0.60/Q2=0.75/Q3=0.70/Q4=0.55 n_refs=1 ref_strategy=diverse constraint=none
+[Iter 2] Building CLIP_Set_2  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_2' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_2  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_2' indexed  (17.1s)
+[Iter 2] Index built in 17.2s
+[Iter 2] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=750 candidates  k=750  alpha=0.70  constraint=none
+[Iter 2] Timing breakdown:
+  Index build:      17.2s  (one-time)
+  Query (Stage-1):  0.42ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.46ms/query  (DINOv2 numpy)
+  Total latency:    0.93ms/query
+  QPS:              1080.5
+
+[Results iter 2]
+  Score (QPS [QDS-constrained]): 0.0000
+  mAP (plain):       0.1477
+  mAP (QDS-weighted): 0.1567  ← threshold check uses this (τ=0.150)
+  QPS:               1080.47
+  P@10:              0.2007
+  nDCG@10:           0.2058
+
+================================================================================
+ITERATION 3/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 3)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Expecting value: line 1 column 1 (char 0)
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+LLM Error: Expecting value: line 1 column 1 (char 0)
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  50
+  alpha:        Q1=0.35/Q2=0.30/Q3=0.05/Q4=0.35
+
+[Iter 3] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=50 alpha=Q1=0.35/Q2=0.30/Q3=0.05/Q4=0.35 n_refs=1 ref_strategy=first constraint=none
+[Iter 3] Building CLIP_Set_3  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_3' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_3  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_3' indexed  (7.9s)
+[Iter 3] Index built in 7.9s
+[Iter 3] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.05  constraint=none
+[Iter 3] Timing breakdown:
+  Index build:      7.9s  (one-time)
+  Query (Stage-1):  5.96ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    6.08ms/query
+  QPS:              164.4
+
+[Results iter 3]
+  Score (QPS [QDS-constrained]): 0.0000
+  mAP (plain):       0.1362
+  mAP (QDS-weighted): 0.1290  ← threshold check uses this (τ=0.150)
+  QPS:               164.37
+  P@10:              0.3818
+  nDCG@10:           0.4143
+
+================================================================================
+ITERATION 4/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 4)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 32, 'efConstruction': 200, 'efSearch': 100}
+[LLM]   k=100  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=5
+[LLM]   Reasoning: Exploring M=32 with efSearch=100 and k=100 to balance QPS vs mAP. Using n_refs=5 with centroid ref strategy to test if fewer refs with centroid can maintain mAP while improving over iter01. Alpha values shifted slightly lower for Q4 given negative slope observations.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 32, 'efConstruction': 200, 'efSearch': 100}
+  k_neighbors:  100
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 4] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 32, 'efConstruction': 200, 'efSearch': 100} k=100 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=5 ref_strategy=centroid constraint=none
+[Iter 4] Building CLIP_Set_4  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_4' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_4  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_4' indexed  (11.2s)
+[Iter 4] Index built in 11.3s
+[Iter 4] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=100 candidates  k=100  alpha=0.65  constraint=none
+[Iter 4] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  3.67ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.16ms/query  (DINOv2 numpy)
+  Total latency:    3.87ms/query
+  QPS:              258.2
+
+[Results iter 4]
+  Score (QPS [QDS-constrained]): 258.1632
+  mAP (plain):       0.2272
+  mAP (QDS-weighted): 0.2185  ← threshold check uses this (τ=0.150)
+  QPS:               258.16
+  P@10:              0.4720
+  nDCG@10:           0.5490
+
+================================================================================
+ITERATION 5/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 5)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+LLM Error: Empty LLM response (content=None) — attempt 2/3, retrying…
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Reverting to best iter01 config but testing constraint_strategy=object (all 600 queries constrained to ~600-image pool per HOI). The original iter01 with constraint=none achieved Score=526.7. Using object constraint should increase QPS significantly by reducing search space from 47K to ~600 images per query while potentially maintaining mAP above τ=0.15. If mAP drops below τ, will revert to constraint=none but this tests the ACS theoretical ceiling.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85
+
+[Iter 5] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 5] Building CLIP_Set_5  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_5' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_5  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_5' indexed  (11.1s)
+[Iter 5] Index built in 11.2s
+[Iter 5] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 5] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.63ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.76ms/query
+  QPS:              568.4
+
+[Results iter 5]
+  Score (QPS [QDS-constrained]): 568.3787
+  mAP (plain):       0.1789
+  mAP (QDS-weighted): 0.1698  ← threshold check uses this (τ=0.150)
+  QPS:               568.38
+  P@10:              0.4583
+  nDCG@10:           0.5250
+
+================================================================================
+ITERATION 6/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 6)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Previous constraint=object attempts failed with refs=1 (iter03: mAP=0.1362). With refs=10 centroid, the DINOv2 reference is much more robust, which may compensate for reduced recall from constrained search. constraint=object reduces pool from 47K to ~600 images, which is still 12× larger than k=50, so recall loss should be minimal. This leverages the ACS finding that Q3+Q4 already bypass VDMS via numpy; only Q1+Q2 (300 queries) hit VDMS, so constrained search there can boost QPS significantly while maintaining mAP.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 100}
+[LLM]   k=100  alpha=Q1=0.70/Q2=0.70/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Increase k from 50→100 and efSearch 64→100 to improve CLIP recall ceiling. Reduce alpha slightly (0.70-0.80) to avoid DINOv2 overshoot at higher recall. k=100 should maintain QPS~140-150 while pushing mAP toward 0.20+ to create headroom above τ=0.15. ACS still routes Q3+Q4 to numpy exact search, preserving high QPS.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 100}
+  k_neighbors:  100
+  alpha:        Q1=0.70/Q2=0.70/Q3=0.65/Q4=0.80
+
+[Iter 6] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 100} k=100 alpha=Q1=0.70/Q2=0.70/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 6] Building CLIP_Set_6  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_6' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_6  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_6' indexed  (11.2s)
+[Iter 6] Index built in 11.3s
+[Iter 6] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=100 candidates  k=100  alpha=0.65  constraint=none
+[Iter 6] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  3.70ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.17ms/query  (DINOv2 numpy)
+  Total latency:    3.91ms/query
+  QPS:              255.6
+
+[Results iter 6]
+  Score (QPS [QDS-constrained]): 255.6164
+  mAP (plain):       0.2347
+  mAP (QDS-weighted): 0.2256  ← threshold check uses this (τ=0.150)
+  QPS:               255.62
+  P@10:              0.4910
+  nDCG@10:           0.5599
+
+================================================================================
+ITERATION 7/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 7)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Starting from best config (iter05: Score=568.3787). k=50 keeps VDMS QPS high (~590) with 300 Q1+Q2 queries. M=64 provides highest recall ceiling. efSearch=64 is efficient. Two targeted changes: (1) ref_strategy='centroid' instead of 'first' — selects refs closest to visual centroid, giving DINOv2 a more representative anchor (free improvement). (2) alpha_Q3=0.70 instead of 0.65 — empirical slope for Q3 shows peak at 0.65-0.70, pushing to 0.70 exploits DINOv2 reranking further for hard queries. constraint_strategy=none is forced for Q1+Q2 VDMS search.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85
+
+[Iter 7] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 7] Building CLIP_Set_7  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_7' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_7  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_7' indexed  (11.2s)
+[Iter 7] Index built in 11.2s
+[Iter 7] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.70  constraint=none
+[Iter 7] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.71ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.83ms/query
+  QPS:              545.2
+
+[Results iter 7]
+  Score (QPS [QDS-constrained]): 545.1546
+  mAP (plain):       0.1792
+  mAP (QDS-weighted): 0.1702  ← threshold check uses this (τ=0.150)
+  QPS:               545.15
+  P@10:              0.4597
+  nDCG@10:           0.5267
+
+================================================================================
+ITERATION 8/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 8)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Building on best iter05 (Score=568.38, constraint=object). Trying ref_strategy=centroid to improve DINOv2 reference quality vs 'first'. n_refs=10 with centroid gives better visual centroid estimation. alpha_Q3 increased to 0.70 (empirical slope -0.052 means Q3 may tolerate slightly higher than 0.65). All other params unchanged - this isolates the ref_strategy variable.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85
+
+[Iter 8] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 8] Building CLIP_Set_8  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_8' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_8  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_8' indexed  (11.3s)
+[Iter 8] Index built in 11.3s
+[Iter 8] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.70  constraint=none
+[Iter 8] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.67ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.80ms/query
+  QPS:              556.8
+
+[Results iter 8]
+  Score (QPS [QDS-constrained]): 556.8166
+  mAP (plain):       0.1792
+  mAP (QDS-weighted): 0.1702  ← threshold check uses this (τ=0.150)
+  QPS:               556.82
+  P@10:              0.4597
+  nDCG@10:           0.5267
+
+================================================================================
+ITERATION 9/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 9)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: iter05 with constraint_strategy=object achieved best Score=568.3787. This iteration repeats that config to establish baseline for further alpha/k exploration. Q3+Q4 already use numpy exact search; constraining Q1+Q2 to object category increases pool selectivity → higher QPS (~568 vs 545 with none). M=64 max recall, k=50 fast, refs=10 centroid stable.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissFlat  params={}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.70  n_refs=10
+[LLM]   Reasoning: FaissFlat provides exact search (maximal CLIP recall at any K). Using k=50 to match prior best QPS territory (~295 expected for flat). n_refs=10 centroid gives better DINOv2 reference quality. alpha_Q4 reduced from 0.85 to 0.70 to prevent overshooting with lower recall from reduced efSearch. constraint_strategy=none ensures no PMGD constraints with FaissFlat (all 47776 images searched).
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.70
+
+[Iter 9] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.70 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 9] Building CLIP_Set_9  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_9' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_9  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_9' indexed  (7.9s)
+[Iter 9] Index built in 8.0s
+[Iter 9] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 9] Timing breakdown:
+  Index build:      8.0s  (one-time)
+  Query (Stage-1):  5.98ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    6.10ms/query
+  QPS:              164.0
+
+[Results iter 9]
+  Score (QPS [QDS-constrained]): 163.9728
+  mAP (plain):       0.1840
+  mAP (QDS-weighted): 0.1744  ← threshold check uses this (τ=0.150)
+  QPS:               163.97
+  P@10:              0.4607
+  nDCG@10:           0.5292
+
+================================================================================
+ITERATION 10/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 10)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 150}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Iteration 10 exploration: Increase efSearch from 64→150 to improve CLIP recall for Q1+Q2 (VDMS) queries. efSearch has negligible QPS impact in batch mode. Higher efSearch directly increases the fraction of true nearest neighbors found, lifting the CLIP recall ceiling. At k=50 where mAP is near the boundary (~0.179), this efSearch boost should push mAP toward 0.19+ while maintaining QPS~560. Combined with ref_strategy='diverse' to capture HOI class visual diversity rather than centroid, this targets both Q3/Q4 numpy-tier mAP improvement and Q1/Q2 ANN-tier recall enhancement. Keep k=50 and M=64 as the optimal QPS configuration from iter05.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 150}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85
+
+[Iter 10] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 150} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85 n_refs=10 ref_strategy=diverse constraint=none
+[Iter 10] Building CLIP_Set_10  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_10' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_10  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_10' indexed  (11.2s)
+[Iter 10] Index built in 11.2s
+[Iter 10] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 10] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.70ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.82ms/query
+  QPS:              549.3
+
+[Results iter 10]
+  Score (QPS [QDS-constrained]): 549.2538
+  mAP (plain):       0.1813
+  mAP (QDS-weighted): 0.1721  ← threshold check uses this (τ=0.150)
+  QPS:               549.25
+  P@10:              0.4610
+  nDCG@10:           0.5167
+
+================================================================================
+ITERATION 11/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 11)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.85/Q2=0.85/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: ESCAPE STAGNATION: Push cs=object with params close to best iter05 (M=64, efS=64, k=50). Raise Q1/Q2 alpha to 0.85 (higher than iter08's 0.80) to test if constrained pool benefits more from DINOv2 at higher alpha. Keep Q3=0.65 (negative slope). Use ref_strategy=centroid (never tried - anchors DINOv2 to visual centroid of class rather than first-image bias). Expected: cs=object dramatically reduces search space for Q1+Q2 (47K→~600), potentially increasing QPS significantly if mAP stays above τ.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.85/Q2=0.85/Q3=0.65/Q4=0.85
+
+[Iter 11] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.85/Q2=0.85/Q3=0.65/Q4=0.85 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 11] Building CLIP_Set_11  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_11' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_11  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_11' indexed  (11.2s)
+[Iter 11] Index built in 11.3s
+[Iter 11] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 11] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.71ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.83ms/query
+  QPS:              545.9
+
+[Results iter 11]
+  Score (QPS [QDS-constrained]): 545.9201
+  mAP (plain):       0.1790
+  mAP (QDS-weighted): 0.1700  ← threshold check uses this (τ=0.150)
+  QPS:               545.92
+  P@10:              0.4590
+  nDCG@10:           0.5263
+
+================================================================================
+ITERATION 12/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 12)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Testing constraint_strategy='object' (pre-filter by primary_object_id) which gave 556.8 in iter08 — higher than 'none' at same k=50. This reduces VDMS search space from 47K to ~600 images per query, which should improve QPS while maintaining mAP since constrained pool is already near-exhaustive at k=50.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Stuck at 568. Max QPS from k=50. Trying slightly lower alpha (0.75 vs 0.80) for Q1/Q2 - prior runs showed 0.80 was already very high, and lower alpha may preserve more CLIP semantic signal. Q4 reduced to 0.80 from 0.85 to avoid overshooting. n_refs=10 centroid proven to stabilize mAP. constraint_strategy=none is forced for Q1+Q2 VDMS queries per architecture.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 12] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 12] Building CLIP_Set_12  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_12' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_12  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_12' indexed  (11.1s)
+[Iter 12] Index built in 11.2s
+[Iter 12] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 12] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.62ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.74ms/query
+  QPS:              574.6
+
+[Results iter 12]
+  Score (QPS [QDS-constrained]): 574.6185
+  mAP (plain):       0.1779
+  mAP (QDS-weighted): 0.1689  ← threshold check uses this (τ=0.150)
+  QPS:               574.62
+  P@10:              0.4565
+  nDCG@10:           0.5221
+
+================================================================================
+ITERATION 13/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 13)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 100}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Exploring higher efSearch=100 (increased from 64) to improve CLIP recall within top-50 candidates. Previous best used efSearch=64; higher efSearch may capture better candidates for DINOv2 to rerank, potentially lifting mAP. k=50 preserved for QPS, n_refs=10 centroid maintained for stable reference quality. Rule #7 requires changing parameter beyond alpha — efSearch is the chosen lever.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 100}
+  k_neighbors:  50
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 13] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 100} k=50 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 13] Building CLIP_Set_13  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_13' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_13  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_13' indexed  (11.2s)
+[Iter 13] Index built in 11.2s
+[Iter 13] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 13] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.68ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.80ms/query
+  QPS:              554.7
+
+[Results iter 13]
+  Score (QPS [QDS-constrained]): 554.7027
+  mAP (plain):       0.1780
+  mAP (QDS-weighted): 0.1690  ← threshold check uses this (τ=0.150)
+  QPS:               554.70
+  P@10:              0.4567
+  nDCG@10:           0.5222
+
+================================================================================
+ITERATION 14/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 14)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 200}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=3
+[LLM]   Reasoning: Exploration: efSearch=200 maximizes CLIP recall quality for Q1+Q2 VDMS queries (negligible QPS impact in batch mode). n_refs=3 centroid tested for first time — centroid averaging is closer to class visual center than diverse, and 3 refs reduces over-smoothing vs 10. Alpha Q4=0.80 (best iter12 used 0.80). M=64 and k=50 retained from best config. Expected: mAP improvement from higher efSearch (0.19-0.20 range) while maintaining QPS~570.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 200}
+  k_neighbors:  50
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 14] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 200} k=50 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 14] Building CLIP_Set_14  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_14' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_14  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_14' indexed  (11.3s)
+[Iter 14] Index built in 11.3s
+[Iter 14] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 14] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.63ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.76ms/query
+  QPS:              569.5
+
+[Results iter 14]
+  Score (QPS [QDS-constrained]): 569.4576
+  mAP (plain):       0.1655
+  mAP (QDS-weighted): 0.1569  ← threshold check uses this (τ=0.150)
+  QPS:               569.46
+  P@10:              0.4390
+  nDCG@10:           0.5014
+
+================================================================================
+ITERATION 15/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 15)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Exploring ref_strategy=centroid (never tested). Centroid selection picks references closest to visual class center - should provide more representative DINOv2 reference than iterative 'first'. Slight alpha_Q3 increase to 0.70 per recommendation. Retaining best-performing M=64, efSearch=64, k=50 baseline (Score=574.6185) to isolate ref_strategy impact. If centroid improves mAP, it validates better reference quality hypothesis.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 48, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Switching from centroid to diverse ref_strategy to better capture intra-class visual diversity for DINOv2 reranking. Reducing M from 64→48 trades some CLIP recall for index size but keeps efSearch=64 for search quality. alpha_Q4 reduced from 0.85→0.80 to avoid over-reliance on DINOv2 with diverse refs which may be noisier than centroid. Previous iterations show refs=10 helps mAP, and diverse selection was not yet tested in the optimal k=50 region.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 48, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.80
+
+[Iter 15] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 48, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=diverse constraint=none
+[Iter 15] Building CLIP_Set_15  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_15' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_15  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_15' indexed  (11.3s)
+[Iter 15] Index built in 11.3s
+[Iter 15] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 15] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.72ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.84ms/query
+  QPS:              543.2
+
+[Results iter 15]
+  Score (QPS [QDS-constrained]): 543.1504
+  mAP (plain):       0.1810
+  mAP (QDS-weighted): 0.1718  ← threshold check uses this (τ=0.150)
+  QPS:               543.15
+  P@10:              0.4613
+  nDCG@10:           0.5166
+
+================================================================================
+ITERATION 16/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 16)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: k=50 gives ~575 QPS (ACS routes Q3+Q4 to numpy, only 300 queries hit VDMS). M=64 maximizes recall ceiling within Q1+Q2 unconstrained VDMS search. Testing centroid ref_strategy - averages visual centroid of class images for more robust DINOv2 reference (vs 'first' in iter12). alpha_Q3=0.65 per negative slope above 0.70. alpha_Q4=0.85 (rarest HOIs rely most on DINOv2). n_refs=10 centroid should stabilize mAP above τ.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Keep M=64 (best recall ceiling). Slightly increase alpha_Q3 to 0.70 (measured slope -0.052 suggests slight room above 0.65 before negative returns). Maintain alpha_Q4=0.85 for hardest queries where DINOv2 visual anchoring is critical. k=50 remains optimal for QPS. n_refs=10 centroid provides stable reference. Previous iter12 with alpha_Q3=0.65 scored 574.6; this tests whether Q3 can improve further.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 128, 'nprobe': 8}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: EXPLORATION: Trying FaissIVFFlat (nlist=128, nprobe=8) — a fundamentally different index structure than HNSW. IVF partitions the 47K vectors into clusters; nprobe=8 visits ~8 clusters (6.3% of space). At k=50 this should give competitive QPS while potentially different recall characteristics than HNSW graph traversal. Alpha values kept near the best found (0.75/0.75/0.65/0.80) which showed Score=574.6. n_refs=10 centroid maintains visual reference quality. constraint_strategy=none (IVF doesn't support PMGD constraints).
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 128, 'nprobe': 8}
+  k_neighbors:  50
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 16] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 128, 'nprobe': 8} k=50 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 16] Building CLIP_Set_16  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_16' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_16  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_16' indexed  (17.7s)
+[Iter 16] Index built in 17.8s
+[Iter 16] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 16] Timing breakdown:
+  Index build:      17.8s  (one-time)
+  Query (Stage-1):  0.29ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.07ms/query  (DINOv2 numpy)
+  Total latency:    0.37ms/query
+  QPS:              2722.2
+
+[Results iter 16]
+  Score (QPS [QDS-constrained]): 0.0000
+  mAP (plain):       0.0505
+  mAP (QDS-weighted): 0.0534  ← threshold check uses this (τ=0.150)
+  QPS:               2722.22
+  P@10:              0.2272
+  nDCG@10:           0.2476
+
+================================================================================
+ITERATION 17/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 17)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Based on iter12 best (Score=574.6185), slightly increase alpha_Q3 from 0.65 to 0.70 to test if higher DINOv2 weight helps the harder Q3 tier. Keep other alphas at high values since Q1/Q2 need strong DINOv2 despite being 'easy' (they showed 0.0 AP in diagnosis, indicating text-visual gap). Using centroid ref_strategy instead of 'first' for better reference quality at no QPS cost.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.55/Q2=0.55/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Q1/Q2 have AP=0.0000 indicating DINOv2 is hurting easy queries. Lower alphas for Q1/Q2 to 0.55 reduce DINOv2 over-correction on queries where CLIP alone works well. Keep Q3=0.65/Q4=0.80 for harder queries where DINOv2 helps. n_refs=10 centroid provides stable reference. k=50 maintains high QPS.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.55/Q2=0.55/Q3=0.65/Q4=0.80
+
+[Iter 17] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.55/Q2=0.55/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 17] Building CLIP_Set_17  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_17' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_17  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_17' indexed  (11.2s)
+[Iter 17] Index built in 11.2s
+[Iter 17] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 17] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.67ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.79ms/query
+  QPS:              558.5
+
+[Results iter 17]
+  Score (QPS [QDS-constrained]): 558.5079
+  mAP (plain):       0.1722
+  mAP (QDS-weighted): 0.1637  ← threshold check uses this (τ=0.150)
+  QPS:               558.51
+  P@10:              0.4538
+  nDCG@10:           0.5103
+
+================================================================================
+ITERATION 18/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 18)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Stagnation detected (best=574.6, last=558.5). Trying ref_strategy='centroid' (instead of 'first') to improve DINOv2 reference quality at zero QPS cost. Also slightly increasing alpha_Q3 from 0.65 to 0.70 to test if higher DINOv2 weight helps Q3 (hard tier). Keeping k=50 and M=64 which gave best Score. If centroid doesn't help, next try diverse sampling.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: STAGNATION escape: constraint_strategy='object' has NOT been tried yet. This pre-filters to ~597 images per query, potentially allowing k=50 to achieve higher recall within the reduced pool. Q3+Q4 already use numpy exact search (~600 images), so 'object' constraint mimics that for Q1+Q2. This could boost mAP significantly while keeping similar QPS since k=50 is already small.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: STAGNATION ESCAPE: No improvement for 5 iterations. Try constraint_strategy='object' - filters 47K→~600 images by primary object, dramatically faster search. Combined with k=50 (already near-exhaustive for 600 pool), should maximize QPS. Keep alpha at proven 0.75/0.75/0.65/0.80 level from iter12 which achieved best Score=574.6185.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 18] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 18] Building CLIP_Set_18  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_18' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_18  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_18' indexed  (11.2s)
+[Iter 18] Index built in 11.2s
+[Iter 18] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 18] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.67ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.79ms/query
+  QPS:              558.2
+
+[Results iter 18]
+  Score (QPS [QDS-constrained]): 558.2137
+  mAP (plain):       0.1779
+  mAP (QDS-weighted): 0.1689  ← threshold check uses this (τ=0.150)
+  QPS:               558.21
+  P@10:              0.4567
+  nDCG@10:           0.5222
+
+================================================================================
+ITERATION 19/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 19)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissFlat  params={}
+[LLM]   k=100  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Switching to FaissFlat (exact brute-force) for higher recall ceiling vs HNSW approximation. k=100 increases pool coverage vs k=50. Maintaining high alphas (0.80/0.80/0.65/0.85) per tier guidance - Q3 peaks at 0.65-0.70, Q4 needs high alpha for hardest queries. This explores a completely different engine to escape HNSW stagnation at 574.6.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  100
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85
+
+[Iter 19] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=100 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 19] Building CLIP_Set_19  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_19' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_19  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_19' indexed  (7.9s)
+[Iter 19] Index built in 8.0s
+[Iter 19] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=100 candidates  k=100  alpha=0.65  constraint=none
+[Iter 19] Timing breakdown:
+  Index build:      8.0s  (one-time)
+  Query (Stage-1):  7.91ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.17ms/query  (DINOv2 numpy)
+  Total latency:    8.12ms/query
+  QPS:              123.2
+
+[Results iter 19]
+  Score (QPS [QDS-constrained]): 123.1735
+  mAP (plain):       0.2454
+  mAP (QDS-weighted): 0.2357  ← threshold check uses this (τ=0.150)
+  QPS:               123.17
+  P@10:              0.5015
+  nDCG@10:           0.5758
+
+================================================================================
+ITERATION 20/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 20)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Return to best-performing FaissHNSWFlat M=64 k=50 config. alpha_Q4 increased to 0.85 (from 0.80) - Q4 hardest tier benefits most from DINOv2 visual reranking. ref_strategy changed to centroid to stabilize DINOv2 reference vectors around class visual centroids (previously tried first). This targets the 574.6185 best score zone with targeted alpha_Q4 adjustment.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Return to proven HNSW M=64 k=50 zone (best Score=574.6). Increment alpha to Q1=Q2=0.80, Q4=0.85 (higher than best iter12). This slightly increases DINOv2 weight for Q1/Q2/Q4 while maintaining Q3=0.65 (empirically optimal per-slope). n_refs=10 centroid stabilizes reranking. constraint=none matches prior best configs.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Returning to best engine/params (M=64 efS=64) with tweaks: increase alpha_Q3 from 0.65 to 0.70 to capture more Q3 gains (empirically peaks 0.65-0.70). Keep k=50 for QPS~574. n_refs=10 centroid maintains mAP. Q1/Q2/Q4 stay at high alpha as in best iter12 (0.75→0.80 boost). Revert constraint_strategy=none since object constraint tested in iter18 gave lower Score (558.2 vs 574.6).
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+LLM Error: Extra data: line 13 column 2 (char 604)
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  200
+  alpha:        Q1=0.55/Q2=0.15/Q3=0.30/Q4=0.60
+
+[Iter 20] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=200 alpha=Q1=0.55/Q2=0.15/Q3=0.30/Q4=0.60 n_refs=10 ref_strategy=first constraint=none
+[Iter 20] Building CLIP_Set_20  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_20' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_20  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_20' indexed  (11.2s)
+[Iter 20] Index built in 11.3s
+[Iter 20] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=200 candidates  k=200  alpha=0.30  constraint=none
+[Iter 20] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  8.91ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.30ms/query  (DINOv2 numpy)
+  Total latency:    9.28ms/query
+  QPS:              107.8
+
+[Results iter 20]
+  Score (QPS [QDS-constrained]): 107.7596
+  mAP (plain):       0.2639
+  mAP (QDS-weighted): 0.2558  ← threshold check uses this (τ=0.150)
+  QPS:               107.76
+  P@10:              0.4585
+  nDCG@10:           0.5084
+
+================================================================================
+ITERATION 21/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 21)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: k=50 is confirmed as best QPS lever (~570 QPS). Last run failed due to low alpha (Q2=0.15, Q3=0.30, Q4=0.60). Return to best config's alpha baseline and incrementally increase Q1/Q2/Q4 to 0.80/0.80/0.85 (marginal improvement expected). Switch ref_strategy from 'first' to 'centroid' to anchor DINOv2 reference to visual centroid of each HOI class — free improvement, zero QPS cost. n_refs=10 centroid should stabilize mAP above τ=0.15 threshold.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.85/Q2=0.85/Q3=0.70/Q4=0.90  n_refs=10
+[LLM]   Reasoning: k=50 is proven optimal for QPS (best Score=574.6185 used it). M=64 efSearch=64 maximizes recall ceiling. Alpha slightly increased across all tiers to exploit DINOv2 correction potential — Q3 stays at 0.70 (negative slope beyond this). Q4 raised to 0.90 (max allowed) for hardest queries where DINOv2 is most critical. n_refs=10 with centroid reference is stable and costs nothing. This is a targeted alpha sweep around the best-known config.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.85/Q2=0.85/Q3=0.70/Q4=0.90
+
+[Iter 21] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.85/Q2=0.85/Q3=0.70/Q4=0.90 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 21] Building CLIP_Set_21  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_21' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_21  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_21' indexed  (11.2s)
+[Iter 21] Index built in 11.2s
+[Iter 21] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.70  constraint=none
+[Iter 21] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.69ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.81ms/query
+  QPS:              551.4
+
+[Results iter 21]
+  Score (QPS [QDS-constrained]): 551.4155
+  mAP (plain):       0.1794
+  mAP (QDS-weighted): 0.1704  ← threshold check uses this (τ=0.150)
+  QPS:               551.42
+  P@10:              0.4605
+  nDCG@10:           0.5282
+
+================================================================================
+ITERATION 22/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 22)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: STAGNATION ESCAPE: 9 iterations without beating best=574.6185. Change ref_strategy from default/first to 'centroid' — selects n_refs=10 images closest to visual centroid of each HOI class. This is a FREE improvement (zero QPS cost) that should stabilize DINOv2 reranking quality. Alpha profile kept at the best-known values from iter12 (Q1=0.75, Q2=0.75, Q3=0.65, Q4=0.80). If centroid improves mAP, we gain Score. If it doesn't help, we establish that diverse reference selection is not the bottleneck.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Using best engine (HNSW M=64 efS=64). Exploiting ref_strategy='centroid' (not yet tried at k=50) to improve DINOv2 reference quality — centroid anchors to visual core of each HOI class, reducing noise from outlier reference images. Raising Q3 alpha to 0.70 (peak region from empirical data) while maintaining Q4 at 0.85 for hardest queries. k=50 keeps QPS high (~295 VDMS portion + negligible numpy). constraint='object' used in best iter12 (Score=574.6) and confirmed superior to 'none' (iter21: 551.4).
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.70/Q2=0.70/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Iter 21 pushed alpha too high (0.85) and mAP dropped. Iter 12 (best=574.6185) used alpha=0.75/0.75/0.65/0.80. Trying a balanced reduction: Q1/Q2 from 0.75→0.70 (was over-weighted for easy queries), Q4 from 0.80→0.80 stays high (hardest tier needs DINOv2 most). Combined with ref_strategy='centroid' (untried) which selects reference images closest to the visual centroid — more reliable DINOv2 anchoring at zero QPS cost. k=50 M=64 efS=64 is the proven fast zone. If centroid helps, we capture mAP improvement from better DINOv2 signal without sacrificing QPS.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.70/Q2=0.70/Q3=0.65/Q4=0.80
+
+[Iter 22] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.70/Q2=0.70/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 22] Building CLIP_Set_22  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_22' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_22  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_22' indexed  (11.2s)
+[Iter 22] Index built in 11.3s
+[Iter 22] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 22] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.74ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.87ms/query
+  QPS:              533.6
+
+[Results iter 22]
+  Score (QPS [QDS-constrained]): 533.5801
+  mAP (plain):       0.1769
+  mAP (QDS-weighted): 0.1680  ← threshold check uses this (τ=0.150)
+  QPS:               533.58
+  P@10:              0.4557
+  nDCG@10:           0.5196
+
+================================================================================
+ITERATION 23/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 23)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: CRITICAL FIX: Q1+Q2 (300 queries) currently search full 47K with constraint='none', creating the QPS bottleneck. Switching to constraint_strategy='object' reduces the Q1+Q2 search space from 47K to ~600 images, potentially tripling QPS while maintaining mAP (Q3+Q4 already bypass VDMS via numpy). k=50 remains to maximize QPS; the constrained ~600 pool is already small enough that k=50 provides sufficient recall.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Using the exact config from iter12 which achieved the best Score=574.6185. Only changing ref_strategy from 'first' to 'centroid' to test if selecting DINOv2 reference images closest to the visual centroid improves reranking quality. Centroid strategy should provide a more robust reference for DINOv2 fusion by anchoring to the visual core of each HOI class, potentially pushing mAP slightly higher and thus Score higher. All other parameters (engine, M, efS, k, alpha values) remain identical to the proven best config.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Best score 574.62 used constraint='none'. Try constraint='object' to filter Q1+Q2 VDMS search to ~600 images per query (by primary object), which may improve QPS while maintaining mAP. The per-class numpy still handles Q3+Q4. This is a controlled test - only changing constraint_strategy to see if filtering by object helps Q1/Q2.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 128, 'nprobe': 32}
+  k_neighbors:  300
+  alpha:        Q1=0.60/Q2=0.25/Q3=0.65/Q4=0.55
+
+[Iter 23] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 128, 'nprobe': 32} k=300 alpha=Q1=0.60/Q2=0.25/Q3=0.65/Q4=0.55 n_refs=5 ref_strategy=diverse constraint=none
+[Iter 23] Building CLIP_Set_23  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_23' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_23  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_23' indexed  (17.2s)
+[Iter 23] Index built in 17.2s
+[Iter 23] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=300 candidates  k=300  alpha=0.65  constraint=none
+[Iter 23] Timing breakdown:
+  Index build:      17.2s  (one-time)
+  Query (Stage-1):  0.32ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.23ms/query  (DINOv2 numpy)
+  Total latency:    0.58ms/query
+  QPS:              1727.6
+
+[Results iter 23]
+  Score (QPS [QDS-constrained]): 0.0000
+  mAP (plain):       0.1363
+  mAP (QDS-weighted): 0.1443  ← threshold check uses this (τ=0.150)
+  QPS:               1727.64
+  P@10:              0.2528
+  nDCG@10:           0.2730
+
+================================================================================
+ITERATION 24/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 24)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: STAGNATION escape: switch to constraint_strategy='object' which reduces Q1+Q2 search space from 47K to ~600 images per query. This should boost QPS significantly while maintaining mAP. Keep k=50 and M=64 from best config. Adjust alpha_Q3 to 0.70 (still in optimal range for negative-slope tier). Q3+Q4 already use numpy exact search so constraint only affects Q1+Q2.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=100  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Increase k from 50 to 100 to improve recall for Q1/Q2 queries (which showed 0.0 AP in iter23). This doubles the candidate pool size and should help the VDMS ANN stage find more true positives for easy queries. M=64 with efS=64 remains optimal. Alpha values unchanged from best config (iter12). Expect QPS to drop to ~290 but mAP should improve for Q1/Q2.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  100
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 24] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=100 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 24] Building CLIP_Set_24  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_24' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_24  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_24' indexed  (11.3s)
+[Iter 24] Index built in 11.3s
+[Iter 24] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=100 candidates  k=100  alpha=0.65  constraint=none
+[Iter 24] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  3.59ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.17ms/query  (DINOv2 numpy)
+  Total latency:    3.80ms/query
+  QPS:              263.3
+
+[Results iter 24]
+  Score (QPS [QDS-constrained]): 263.2558
+  mAP (plain):       0.2363
+  mAP (QDS-weighted): 0.2271  ← threshold check uses this (τ=0.150)
+  QPS:               263.26
+  P@10:              0.4915
+  nDCG@10:           0.5627
+
+================================================================================
+ITERATION 25/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 25)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Best config (iter12, Score=574.6185) used k=50 M=64 efS=64 with alpha=0.75/0.75/0.65/0.80, n_refs=10, ref_strategy unspecified (defaults to 'first'). This iteration switches to 'centroid' ref_strategy (0 QPS cost) to anchor DINOv2 references at the visual centroid of each HOI class, improving reranking reliability. Also bumps alpha for Q1, Q2, Q4 by +0.05 since centroid reference is more representative, allowing slightly more DINOv2 weight to correct CLIP ordering. Q3 alpha stays at 0.65 (negative slope above 0.70 per empirical data). All other params unchanged — exploitation phase: refine around best zone.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+LLM Error: Unterminated string starting at: line 12 column 16 (char 288)
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=150  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: k=150 unexplored at best engine (M=64 efS=64). iter24 showed k=100 gives mAP=0.2363 but QPS=263 (Score=263). k=150 should deliver QPS~340 while maintaining mAP~0.23+ (target Score~400+). Combined with ref_strategy=centroid (not yet tried at k>50) which anchors DINOv2 to visual centroid for more stable reranking. Alpha Q4 raised to 0.80 (from 0.85 to avoid overshoot). Escape from k=50 plateau without jumping to k=200 (which scored only 108).
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  150
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 25] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=150 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 25] Building CLIP_Set_25  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_25' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_25  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_25' indexed  (11.2s)
+[Iter 25] Index built in 11.3s
+[Iter 25] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=150 candidates  k=150  alpha=0.65  constraint=none
+[Iter 25] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  6.07ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.23ms/query  (DINOv2 numpy)
+  Total latency:    6.36ms/query
+  QPS:              157.1
+
+[Results iter 25]
+  Score (QPS [QDS-constrained]): 157.1356
+  mAP (plain):       0.2746
+  mAP (QDS-weighted): 0.2654  ← threshold check uses this (τ=0.150)
+  QPS:               157.14
+  P@10:              0.5127
+  nDCG@10:           0.5858
+
+================================================================================
+ITERATION 26/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 26)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: k=50 is optimal for Score (QPS dominates). Iter12 with k=50 gave 574.6 score - the best in this session. Slight alpha adjustment: Q1/Q2 from 0.75→0.80 (more DINOv2 weight on easier queries), Q4 from 0.80→0.85 (maximize DINOv2 for hardest queries). Q3 stays at 0.65 per negative slope observation. n_refs=10 centroid maintains visual reference quality. constraint_strategy=none is forced for Q1+Q2 VDMS queries (ACS routes Q3+Q4 to numpy exact search).
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: EXPLOITATION: Keeping the best engine/k/alpha from iter12 (Score=574.6185). Changing ref_strategy from default 'first' to 'centroid' - computes visual centroid of all class images and picks n_refs closest to it. This provides a more representative DINOv2 reference at ZERO QPS cost. n_refs=10 with centroid should improve DINOv2 reranking quality, potentially boosting mAP further while maintaining same QPS ~575.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Iteration 25 showed k=150 too slow (QPS 157). Returning to k=50 which achieves QPS~570. Adding constraint_strategy='object' which filters 47K→~600 images per query for Q1+Q2, potentially boosting QPS further while maintaining mAP. Slightly increased alpha_Q3 from 0.65 to 0.70 given the constrained pool provides cleaner visual neighborhood. This tests a novel dimension (constraint) not yet explored in exploitation phase.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=200  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: k=200 expands the candidate pool significantly beyond k=50. Since Q1+Q2 queries use full 47K unconstrained search (no object constraint), a larger k improves recall. QPS will drop from ~574 to ~58, but mAP should increase substantially (similar to iter20 which achieved mAP=0.2639 at k=200). The target is to achieve mAP>0.28 while maintaining Score>300. This explores the larger-k region of the Pareto frontier not yet tested in exploitation phase.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  200
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 26] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=200 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 26] Building CLIP_Set_26  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_26' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_26  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_26' indexed  (11.2s)
+[Iter 26] Index built in 11.2s
+[Iter 26] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=200 candidates  k=200  alpha=0.65  constraint=none
+[Iter 26] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  8.85ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.29ms/query  (DINOv2 numpy)
+  Total latency:    9.21ms/query
+  QPS:              108.5
+
+[Results iter 26]
+  Score (QPS [QDS-constrained]): 108.5441
+  mAP (plain):       0.3027
+  mAP (QDS-weighted): 0.2941  ← threshold check uses this (τ=0.150)
+  QPS:               108.54
+  P@10:              0.5273
+  nDCG@10:           0.6023
+
+================================================================================
+ITERATION 27/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 27)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.70/Q4=0.85  n_refs=10
+[LLM]   Reasoning: Exploitation phase: return to best k=50 (highest QPS zone). Slightly increase alpha_Q3 from 0.65→0.70 to test if DINOv2 helps Q3 more (negative slope observed at 0.70+). Keep alpha_Q4 highest (0.85) as hardest tier needs most visual reranking. n_refs=10 centroid maintained. constraint_strategy=none is internally forced for ACS Q1+Q2.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: k=50 is the primary QPS lever — returns to the best-performing k value from iter12 (Score=574.6185). M=64 efSearch=64 maximizes CLIP recall within the unconstrained search. n_refs=10 centroid stabilizes DINOv2 reference quality at zero QPS cost — tested extensively and consistently beneficial. alpha_Q4 increased to 0.85 to exploit the improved reference for the hardest tier where DINOv2 visual matching is most critical for recovering mAP. Q1/Q2 stay at 0.75 (proven optimal for easy tiers). Q3 stays at 0.65 (negative slope above 0.65 in ablation data). Single-parameter change from best config to isolate the effect of higher Q4 alpha.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.85
+
+[Iter 27] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.85 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 27] Building CLIP_Set_27  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_27' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_27  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_27' indexed  (11.2s)
+[Iter 27] Index built in 11.2s
+[Iter 27] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 27] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  1.71ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.84ms/query
+  QPS:              544.1
+
+[Results iter 27]
+  Score (QPS [QDS-constrained]): 544.1202
+  mAP (plain):       0.1782
+  mAP (QDS-weighted): 0.1692  ← threshold check uses this (τ=0.150)
+  QPS:               544.12
+  P@10:              0.4573
+  nDCG@10:           0.5230
+
+================================================================================
+ITERATION 28/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 28)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90  n_refs=10
+[LLM]   Reasoning: Exploitation: raise Q1/Q2 alpha to 0.80 (positive slope +0.274/+0.176/unit suggests higher alpha helps these tiers). Raise Q4 to 0.90 (maximum in allowed list, Q4 relies heavily on DINOv2). Q3 stays at 0.65 (negative slope beyond 0.70). k=50 remains optimal for QPS. M=64 efS=64 is fixed as best engine config. mAP risk: Q4=0.90 may overshoot if reference is unrepresentative, but n_refs=10 stabilizes. Target: Score > 574.6185 through Q1+Q2 AP gains outweighing any Q4 AP drop.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90
+
+[Iter 28] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90 n_refs=10 ref_strategy=first constraint=none
+[Iter 28] Building CLIP_Set_28  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_28' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_28  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_28' indexed  (11.2s)
+[Iter 28] Index built in 11.3s
+[Iter 28] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 28] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.69ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.82ms/query
+  QPS:              550.6
+
+[Results iter 28]
+  Score (QPS [QDS-constrained]): 550.5898
+  mAP (plain):       0.1820
+  mAP (QDS-weighted): 0.1730  ← threshold check uses this (τ=0.150)
+  QPS:               550.59
+  P@10:              0.4743
+  nDCG@10:           0.5361
+
+================================================================================
+ITERATION 29/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 29)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: In Exploitation phase, refine ref_strategy from 'first' to 'centroid' to pick reference images closest to visual centroid of each HOI class. This should improve DINOv2 reranking quality without affecting QPS. Keep k=50 to maintain high QPS ~550. Alpha values at Q1/Q2=0.75 are already optimal per empirical slopes. n_refs=10 ensures stable reference vector.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: MANDATORY ESCAPE FROM STAGNATION (16 iters no improvement). constraint_strategy='object' is a NOVEL parameter dimension never tried — filters Q1+Q2 (300 queries) to ~600 images instead of full 47K pool, dramatically improving recall-per-scope. This targets the low mAP in Q3/Q4 (0.126/0.081) where constrained search helps most. Keep k=50 to maintain high QPS while exploiting the smaller pool for better precision. Use exact alpha from iter12 (best score holder).
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=100  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: STAGNATION: No improvement for 16 iterations. Breaking deadlocked config by applying constraint_strategy='object' which filters to ~600 images per query (vs 47K unconstrained). This unexplored dimension should boost QPS significantly while k=100 ensures near-exhaustive recall within the filtered pool. k=100 is 16% of constrained pool - adequate coverage. Keeping alpha close to best-performing values (0.75/0.75/0.65/0.80).
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  100
+  alpha:        Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80
+
+[Iter 29] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=100 alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 29] Building CLIP_Set_29  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_29' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_29  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_29' indexed  (11.2s)
+[Iter 29] Index built in 11.3s
+[Iter 29] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=100 candidates  k=100  alpha=0.65  constraint=none
+[Iter 29] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  3.61ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.16ms/query  (DINOv2 numpy)
+  Total latency:    3.82ms/query
+  QPS:              261.7
+
+[Results iter 29]
+  Score (QPS [QDS-constrained]): 261.6767
+  mAP (plain):       0.2363
+  mAP (QDS-weighted): 0.2271  ← threshold check uses this (τ=0.150)
+  QPS:               261.68
+  P@10:              0.4915
+  nDCG@10:           0.5629
+
+================================================================================
+ITERATION 30/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 30)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.60/Q4=0.85  n_refs=10
+[LLM]   Reasoning: k=50 gives highest QPS (~574). alpha_Q3 down to 0.60 tests if mAP improves at lower alpha (negative slope above 0.65 observed). Keep Q1/Q2=0.80 (high tier benefits from DINOv2). Keep Q4=0.85 for hardest queries. Ref centroid for stable references. constraint=none (matches best config).
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.60/Q4=0.85
+
+[Iter 30] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.60/Q4=0.85 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 30] Building CLIP_Set_30  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_30' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_30  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_30' indexed  (11.2s)
+[Iter 30] Index built in 11.3s
+[Iter 30] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.60  constraint=none
+[Iter 30] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.71ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.83ms/query
+  QPS:              545.5
+
+[Results iter 30]
+  Score (QPS [QDS-constrained]): 545.5371
+  mAP (plain):       0.1787
+  mAP (QDS-weighted): 0.1696  ← threshold check uses this (τ=0.150)
+  QPS:               545.54
+  P@10:              0.4592
+  nDCG@10:           0.5243
+
+================================================================================
+ITERATION 31/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 31)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: STAGNATION WARNING: No improvement for 18 iterations. Current best is 574.6 with k=50, alpha=0.75/0.75/0.65/0.80. The iteration 30 result (545.5) was with alpha=0.80/0.80/0.60/0.85 which slightly underperformed. Trying ref_strategy='centroid' instead of 'first' to get better DINOv2 reference vectors - this is a FREE parameter (zero QPS cost) that may lift mAP. Keeping k=50 to maintain QPS~550. The best alpha combo from earlier was 0.75/0.75/0.65/0.80 so reverting to that.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Stagnation for 18 iterations around Score~550-575. Try ref_strategy=centroid (instead of default first) to improve DINOv2 reference quality for free. n_refs=10 centroid selects images closest to the visual centroid of each HOI class, reducing anchoring on outlier images. This should improve mAP without affecting QPS. Keep k=50 and M=64 efS=64 fixed to maintain current QPS~550. Alpha unchanged from best iter12.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  1000
+  alpha:        Q1=0.75/Q2=0.90/Q3=0.45/Q4=0.20
+
+[Iter 31] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=1000 alpha=Q1=0.75/Q2=0.90/Q3=0.45/Q4=0.20 n_refs=1 ref_strategy=first constraint=none
+[Iter 31] Building CLIP_Set_31  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_31' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_31  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_31' indexed  (7.9s)
+[Iter 31] Index built in 8.0s
+[Iter 31] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=1000 candidates  k=1000  alpha=0.45  constraint=none
+[Iter 31] Timing breakdown:
+  Index build:      8.0s  (one-time)
+  Query (Stage-1):  120.65ms/query  (VDMS ANN)
+  Rerank (Stage-2): 1.19ms/query  (DINOv2 numpy)
+  Total latency:    122.12ms/query
+  QPS:              8.2
+
+[Results iter 31]
+  Score (QPS [QDS-constrained]): 8.1890
+  mAP (plain):       0.3080
+  mAP (QDS-weighted): 0.3053  ← threshold check uses this (τ=0.150)
+  QPS:               8.19
+  P@10:              0.3773
+  nDCG@10:           0.4043
+
+================================================================================
+ITERATION 32/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 32)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90  n_refs=10
+[LLM]   Reasoning: Current best Score=574.6185 uses k=50, alphaQ4=0.80. Based on empirical slopes, Q4 (hardest tier) benefits from higher alpha (slope +0.040). Trying alpha_Q4=0.90 to push DINOv2 reranking harder for hardest queries. All other params remain at best-known values. Q3 stays at 0.65 (negative slope above 0.70). M=64 and efS=64 maximize recall within the k=50 constraint.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90
+
+[Iter 32] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 32] Building CLIP_Set_32  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_32' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_32  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_32' indexed  (11.2s)
+[Iter 32] Index built in 11.3s
+[Iter 32] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 32] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.68ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.81ms/query
+  QPS:              553.1
+
+[Results iter 32]
+  Score (QPS [QDS-constrained]): 553.1127
+  mAP (plain):       0.1791
+  mAP (QDS-weighted): 0.1701  ← threshold check uses this (τ=0.150)
+  QPS:               553.11
+  P@10:              0.4590
+  nDCG@10:           0.5255
+
+================================================================================
+ITERATION 33/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 33)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Sticking to iter12 config which achieved best Score=574.6185. Ref_strategy changed from 'first' to 'centroid' to get more representative DINOv2 references (visual centroid of class), which should marginally improve mAP without affecting QPS. All other params remain optimal.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+LLM Error: Empty LLM response (content=None) — attempt 2/3, retrying…
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissHNSWFlat
+  params:       {'M': 32, 'efConstruction': 200, 'efSearch': 100}
+  k_neighbors:  500
+  alpha:        Q1=0.20/Q2=0.90/Q3=0.60/Q4=0.45
+
+[Iter 33] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 32, 'efConstruction': 200, 'efSearch': 100} k=500 alpha=Q1=0.20/Q2=0.90/Q3=0.60/Q4=0.45 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 33] Building CLIP_Set_33  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_33' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_33  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_33' indexed  (11.1s)
+[Iter 33] Index built in 11.2s
+[Iter 33] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=500 candidates  k=500  alpha=0.60  constraint=none
+[Iter 33] Timing breakdown:
+  Index build:      11.2s  (one-time)
+  Query (Stage-1):  34.80ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.66ms/query  (DINOv2 numpy)
+  Total latency:    35.61ms/query
+  QPS:              28.1
+
+[Results iter 33]
+  Score (QPS [QDS-constrained]): 28.0846
+  mAP (plain):       0.3179
+  mAP (QDS-weighted): 0.3146  ← threshold check uses this (τ=0.150)
+  QPS:               28.08
+  P@10:              0.4818
+  nDCG@10:           0.5509
+
+================================================================================
+ITERATION 34/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 34)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=100  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: constraint_strategy='object' is untried with the best HNSW config. This filters to ~597 images per query (1.2% of DB), dramatically faster than full 47K search. k=100 provides good recall within the constrained pool. n_refs=10 centroid stabilizes DINOv2 reference quality. alpha values follow empirical slopes: Q3 peaks at 0.65-0.70, others benefit from 0.70-0.85. This is the highest-impact untried dimension.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.85/Q2=0.85/Q3=0.65/Q4=0.90  n_refs=10
+[LLM]   Reasoning: EXPLOITATION: k=50 is the primary QPS lever (~295 QPS). Previous best used alpha=(0.75,0.75,0.65,0.80) at k=50. Increasing alpha slightly to (0.85,0.85,0.65,0.90) pushes DINOv2 reranking harder for Q1/Q2/Q4 where it helps most. Q3 keeps 0.65 per negative slope guidance. M=64 provides highest recall ceiling. n_refs=10 centroid maintains stable reference quality.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.85/Q2=0.85/Q3=0.65/Q4=0.90
+
+[Iter 34] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.85/Q2=0.85/Q3=0.65/Q4=0.90 n_refs=10 ref_strategy=centroid constraint=none
+[Iter 34] Building CLIP_Set_34  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_34' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_34  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_34' indexed  (11.1s)
+[Iter 34] Index built in 11.1s
+[Iter 34] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 34] Timing breakdown:
+  Index build:      11.1s  (one-time)
+  Query (Stage-1):  1.71ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.84ms/query
+  QPS:              542.6
+
+[Results iter 34]
+  Score (QPS [QDS-constrained]): 542.5891
+  mAP (plain):       0.1790
+  mAP (QDS-weighted): 0.1700  ← threshold check uses this (τ=0.150)
+  QPS:               542.59
+  P@10:              0.4590
+  nDCG@10:           0.5264
+
+================================================================================
+ITERATION 35/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 35)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=100  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: STAGNATION ESCAPE: No improvement for 22 iterations (best stuck at 574.6185). Trying k=100 (higher than best's k=50) to explore mAP-QPS tradeoff. Prior k=50 achieved max Score 574.6 with mAP=0.1779. k=100 gives higher mAP (~0.23-0.24 per iter24/29) but lower QPS (~260). This explores whether mAP improvement compensates QPS loss. Keeping alpha at known-good values and ref_strategy=centroid (tried first in this zone).
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: STAGNATION ESCAPE: 22 iterations without improvement from best 574.6185. Trying constraint_strategy='object' for Q1+Q2 (300 queries) - filters to ~600 images instead of full 47K, potentially doubling QPS. This dimension was never explored in any prior iteration. Keeping k=50, M=64, alpha at known-good values to isolate the constraint effect. Ref_strategy=centroid for better DINOv2 reference quality.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Reverting to the exact config from iter12 which achieved the best Score=574.6185. The last iteration increased alpha to 0.85/0.85/0.65/0.90 which degraded Score to 542.6 - too much DINOv2 weight is overriding CLIP's reliable semantic signal. Using proven best config: k=50 refs=10 M=64 efS=64 with alpha=(0.75,0.75,0.65,0.80). This balances QPS~575 with mAP~0.178.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  1000
+  alpha:        Q1=0.05/Q2=0.15/Q3=0.35/Q4=0.80
+
+[Iter 35] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=1000 alpha=Q1=0.05/Q2=0.15/Q3=0.35/Q4=0.80 n_refs=10 ref_strategy=first constraint=none
+[Iter 35] Building CLIP_Set_35  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_35' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_35  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_35' indexed  (7.9s)
+[Iter 35] Index built in 8.0s
+[Iter 35] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=1000 candidates  k=1000  alpha=0.35  constraint=none
+[Iter 35] Timing breakdown:
+  Index build:      8.0s  (one-time)
+  Query (Stage-1):  120.33ms/query  (VDMS ANN)
+  Rerank (Stage-2): 1.21ms/query  (DINOv2 numpy)
+  Total latency:    121.81ms/query
+  QPS:              8.2
+
+[Results iter 35]
+  Score (QPS [QDS-constrained]): 8.2098
+  mAP (plain):       0.3656
+  mAP (QDS-weighted): 0.3674  ← threshold check uses this (τ=0.150)
+  QPS:               8.21
+  P@10:              0.4757
+  nDCG@10:           0.5219
+
+================================================================================
+ITERATION 36/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 36)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90  n_refs=5
+[LLM]   Reasoning: Stagnation escape: test ref_strategy='diverse' (not yet tried in best zone) with n_refs=5. Diverse sampling spans visual diversity within each HOI class better than centroid, which should improve DINOv2 reranking reliability for Q4 (hardest tier with highest visual ambiguity). alpha_Q4=0.90 (highest allowed) to fully leverage improved reference quality — Q4 depends most on DINOv2. k=50 maintains QPS~570. All other params stay at best-known values.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissHNSWFlat
+  params:       {'M': 64, 'efConstruction': 200, 'efSearch': 64}
+  k_neighbors:  50
+  alpha:        Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90
+
+[Iter 36] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 64, 'efConstruction': 200, 'efSearch': 64} k=50 alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90 n_refs=5 ref_strategy=diverse constraint=none
+[Iter 36] Building CLIP_Set_36  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_36' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_36  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_36' indexed  (11.2s)
+[Iter 36] Index built in 11.3s
+[Iter 36] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.65  constraint=none
+[Iter 36] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.73ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.85ms/query
+  QPS:              539.2
+
+[Results iter 36]
+  Score (QPS [QDS-constrained]): 539.1986
+  mAP (plain):       0.1799
+  mAP (QDS-weighted): 0.1707  ← threshold check uses this (τ=0.150)
+  QPS:               539.20
+  P@10:              0.4555
+  nDCG@10:           0.5170
+
+================================================================================
+ITERATION 37/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 37)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=100  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: STAGNATION escape: Try constraint_strategy='object' for Q1+Q2 (the only 300 queries hitting VDMS). This reduces search pool from 47K to ~600 images per query. k=100 (vs k=50) is appropriate for the smaller pool (100/600 = 17% coverage). Expect significant QPS gain while maintaining mAP. If this improves Score, can scale k further. Alpha kept at iter12 best values.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissHNSWFlat
+  params:       {'M': 32, 'efConstruction': 200, 'efSearch': 500}
+  k_neighbors:  50
+  alpha:        Q1=0.65/Q2=0.75/Q3=0.35/Q4=0.30
+
+[Iter 37] backbone=CLIP ViT-L/14  engine=FaissHNSWFlat params={'M': 32, 'efConstruction': 200, 'efSearch': 500} k=50 alpha=Q1=0.65/Q2=0.75/Q3=0.35/Q4=0.30 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 37] Building CLIP_Set_37  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_37' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_37  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_37' indexed  (11.2s)
+[Iter 37] Index built in 11.3s
+[Iter 37] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=50 candidates  k=50  alpha=0.35  constraint=none
+[Iter 37] Timing breakdown:
+  Index build:      11.3s  (one-time)
+  Query (Stage-1):  1.74ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.10ms/query  (DINOv2 numpy)
+  Total latency:    1.87ms/query
+  QPS:              536.2
+
+[Results iter 37]
+  Score (QPS [QDS-constrained]): 536.1800
+  mAP (plain):       0.1585
+  mAP (QDS-weighted): 0.1496  ← threshold check uses this (τ=0.150)
+  QPS:               536.18
+  P@10:              0.4173
+  nDCG@10:           0.4675
+
+================================================================================
+ITERATION 38/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 38)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=100  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Exploring k=100 to test if higher recall within ~600-image constrained pool improves mAP enough to offset QPS loss. Using same alpha as iter12 baseline. k=100 should achieve ~145 QPS vs 574 at k=50. If mAP exceeds 0.20, Score may improve. n_refs=10 centroid maintains DINOv2 quality.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: Exact replication of iter12 which achieved best Score=574.6185. Halving k from 50 would boost QPS to ~590 but risks mAP collapse (current 0.1779 is already marginal). Raising alpha to 0.80/0.80/0.65/0.85 tested in iter34 and iter21 achieved slightly lower Score (542-551). Keeping best config unchanged to anchor baseline before testing constraint_strategy variations in next iterations.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.85/Q2=0.85/Q3=0.65/Q4=0.90  n_refs=10
+[LLM]   Reasoning: Pushing Q1/Q2 alpha to 0.85 (tested at iter11/21) and Q4 to max 0.90. This explores higher DINOv2 weight on Q1/Q2 which showed positive slope in prior runs. Q3 stays at 0.65 (negative slope above 0.70). k=50 remains for high QPS. Centroid ref_strategy provides stable reference. Iter38 is the last exploitation iteration - this is the final push to beat 574.6185 before potential phase transition.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: constraint_strategy='object' routes Q1+Q2 to ~600-image object-constrained pool, bypassing full 47K search. This should maintain QPS~570+ while improving mAP since pool aligns with query object. Keep k=50 and alpha from best config (iter12). Untested combination — novel exploration to escape stagnation at 574.6.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissFlat
+  params:       {}
+  k_neighbors:  200
+  alpha:        Q1=0.45/Q2=0.40/Q3=0.50/Q4=0.60
+
+[Iter 38] backbone=CLIP ViT-L/14  engine=FaissFlat params={} k=200 alpha=Q1=0.45/Q2=0.40/Q3=0.50/Q4=0.60 n_refs=5 ref_strategy=first constraint=none
+[Iter 38] Building CLIP_Set_38  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_38' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_38  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_38' indexed  (7.9s)
+[Iter 38] Index built in 7.9s
+[Iter 38] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=200 candidates  k=200  alpha=0.50  constraint=none
+[Iter 38] Timing breakdown:
+  Index build:      7.9s  (one-time)
+  Query (Stage-1):  13.10ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.29ms/query  (DINOv2 numpy)
+  Total latency:    13.46ms/query
+  QPS:              74.3
+
+[Results iter 38]
+  Score (QPS [QDS-constrained]): 74.2759
+  mAP (plain):       0.2719
+  mAP (QDS-weighted): 0.2641  ← threshold check uses this (τ=0.150)
+  QPS:               74.28
+  P@10:              0.4695
+  nDCG@10:           0.5227
+
+================================================================================
+ITERATION 39/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 39)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Extra data: line 13 column 2 (char 791)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.85  n_refs=10
+[LLM]   Reasoning: STAGNATION ESCAPE: Switch to constraint_strategy=object to reduce Q1+Q2 search space from 47K to ~600 images. This should dramatically boost QPS for the 300 Q1+Q2 queries while maintaining mAP. Using the proven k=50, refs=10, alpha config from best iter12. If mAP stays above τ=0.15 with object constraint, this breaks the 26-iter stagnation.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+LLM Error: Empty LLM response (content=None) — attempt 1/3, retrying…
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.75/Q2=0.75/Q3=0.65/Q4=0.80  n_refs=10
+[LLM]   Reasoning: ITER39 EXPLORATORY: Testing constraint_strategy='object' to reduce Q1+Q2 search space from 47K to ~600 images. This is a STRUCTURAL change not yet tried (all prior iters use 'none'). Combined with best k=50 & M=64 config. ACS will still route Q3+Q4 to numpy exact search. Expected: much higher QPS for Q1+Q2 with modest mAP trade-off from filtered search.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 3), retrying...
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 4), retrying...
+[Dedup] Falling back to random config after 4 duplicate attempts.
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  1000
+  alpha:        Q1=0.20/Q2=0.55/Q3=0.60/Q4=0.80
+
+[Iter 39] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=1000 alpha=Q1=0.20/Q2=0.55/Q3=0.60/Q4=0.80 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 39] Building CLIP_Set_39  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_39' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_39  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_39' indexed  (17.7s)
+[Iter 39] Index built in 17.7s
+[Iter 39] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=1000 candidates  k=1000  alpha=0.60  constraint=none
+[Iter 39] Timing breakdown:
+  Index build:      17.7s  (one-time)
+  Query (Stage-1):  0.48ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.55ms/query  (DINOv2 numpy)
+  Total latency:    1.08ms/query
+  QPS:              926.9
+
+[Results iter 39]
+  Score (QPS [QDS-constrained]): 926.9286
+  mAP (plain):       0.2039
+  mAP (QDS-weighted): 0.2169  ← threshold check uses this (τ=0.150)
+  QPS:               926.93
+  P@10:              0.2957
+  nDCG@10:           0.3355
+
+================================================================================
+ITERATION 40/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 40)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=1000  alpha=Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.80  n_refs=3
+[LLM]   Reasoning: Current best iter39 has Q1=0.20 Q2=0.55 but Q1/Q2 AP=0.0000 (they contribute zero to weighted mAP). Small upward adjustments to Q1=0.25 (+0.05) and Q2=0.60 (+0.05) may help DINOv2 reranking recover some signal from Q1/Q2 queries without risking the high-scoring Q3/Q4 tiers. Keep all other params identical to preserve the 926.9 Score baseline.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  1000
+  alpha:        Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.80
+
+[Iter 40] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=1000 alpha=Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.80 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 40] Building CLIP_Set_40  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_40' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_40  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_40' indexed  (16.9s)
+[Iter 40] Index built in 16.9s
+[Iter 40] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=1000 candidates  k=1000  alpha=0.60  constraint=none
+[Iter 40] Timing breakdown:
+  Index build:      16.9s  (one-time)
+  Query (Stage-1):  0.45ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.56ms/query  (DINOv2 numpy)
+  Total latency:    1.06ms/query
+  QPS:              940.1
+
+[Results iter 40]
+  Score (QPS [QDS-constrained]): 940.0675
+  mAP (plain):       0.2039
+  mAP (QDS-weighted): 0.2169  ← threshold check uses this (τ=0.150)
+  QPS:               940.07
+  P@10:              0.2957
+  nDCG@10:           0.3355
+
+================================================================================
+ITERATION 41/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 41)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=750  alpha=Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.80  n_refs=3
+[LLM]   Reasoning: Anti-collapse rule triggered: last 2 iterations changed only alpha. Must change k_neighbors (one step from 1000 to 750) to explore the parameter space. k=750 reduces QPS overhead while maintaining high recall for the ~600-image constrained pool (covers 125% of pool). ACS routes Q3+Q4 to numpy exact search, so k change only affects Q1+Q2 (300 VDMS queries). Keeping same alpha as best config (iter40).
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  750
+  alpha:        Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.80
+
+[Iter 41] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=750 alpha=Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.80 n_refs=3 ref_strategy=first constraint=none
+[Iter 41] Building CLIP_Set_41  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_41' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_41  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_41' indexed  (17.4s)
+[Iter 41] Index built in 17.5s
+[Iter 41] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=750 candidates  k=750  alpha=0.60  constraint=none
+[Iter 41] Timing breakdown:
+  Index build:      17.5s  (one-time)
+  Query (Stage-1):  0.48ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.51ms/query  (DINOv2 numpy)
+  Total latency:    1.04ms/query
+  QPS:              963.9
+
+[Results iter 41]
+  Score (QPS [QDS-constrained]): 963.8651
+  mAP (plain):       0.1817
+  mAP (QDS-weighted): 0.1931  ← threshold check uses this (τ=0.150)
+  QPS:               963.87
+  P@10:              0.2688
+  nDCG@10:           0.3035
+
+================================================================================
+ITERATION 42/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 42)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=750  alpha=Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.85  n_refs=3
+[LLM]   Reasoning: Fine-tuning iteration 42: Testing alpha_Q4 step from 0.80 to 0.85. Q4 (hardest tier) has highest impact from DINOv2 reranking. Keeping all other parameters fixed to isolate the effect. The best score (963.8651) used alpha_Q4=0.80, so trying the next step up to find the optimal balance.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  750
+  alpha:        Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.85
+
+[Iter 42] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=750 alpha=Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.85 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 42] Building CLIP_Set_42  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_42' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_42  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_42' indexed  (17.2s)
+[Iter 42] Index built in 17.2s
+[Iter 42] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=750 candidates  k=750  alpha=0.60  constraint=none
+[Iter 42] Timing breakdown:
+  Index build:      17.2s  (one-time)
+  Query (Stage-1):  0.44ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.46ms/query  (DINOv2 numpy)
+  Total latency:    0.94ms/query
+  QPS:              1065.9
+
+[Results iter 42]
+  Score (QPS [QDS-constrained]): 1065.9320
+  mAP (plain):       0.1890
+  mAP (QDS-weighted): 0.2008  ← threshold check uses this (τ=0.150)
+  QPS:               1065.93
+  P@10:              0.2895
+  nDCG@10:           0.3271
+
+================================================================================
+ITERATION 43/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 43)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=750  alpha=Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.90  n_refs=3
+[LLM]   Reasoning: Fine-tuning: increment alpha_Q4 from 0.85 to 0.90 (highest impact tier per diagnosis). Q4 hardest queries rely most on DINOv2 visual reranking; higher alpha may further improve their AP. Keeping k=750, refs=3, and other alphas constant to isolate the effect of this single parameter change.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  750
+  alpha:        Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.90
+
+[Iter 43] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=750 alpha=Q1=0.25/Q2=0.60/Q3=0.60/Q4=0.90 n_refs=3 ref_strategy=first constraint=none
+[Iter 43] Building CLIP_Set_43  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_43' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_43  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_43' indexed  (16.8s)
+[Iter 43] Index built in 16.8s
+[Iter 43] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=750 candidates  k=750  alpha=0.60  constraint=none
+[Iter 43] Timing breakdown:
+  Index build:      16.8s  (one-time)
+  Query (Stage-1):  0.51ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.46ms/query  (DINOv2 numpy)
+  Total latency:    1.02ms/query
+  QPS:              983.9
+
+[Results iter 43]
+  Score (QPS [QDS-constrained]): 983.8751
+  mAP (plain):       0.1814
+  mAP (QDS-weighted): 0.1928  ← threshold check uses this (τ=0.150)
+  QPS:               983.88
+  P@10:              0.2695
+  nDCG@10:           0.3040
+
+================================================================================
+ITERATION 44/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 44)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=500  alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.85  n_refs=3
+[LLM]   Reasoning: Fine-tuning around iter42 best: k=500 (vs 750) tests if smaller K can maintain mAP while gaining QPS. Slightly higher alpha_Q1 (0.30 vs 0.25) and alpha_Q3 (0.65 vs 0.60) to boost easy and hard query AP. alpha_Q4=0.85 retained (best from iter42). n_refs=3 centroid retained for stable reference. Scoring: expect QPS~1200-1300, target mAP≥0.18 to beat iter42 total.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  500
+  alpha:        Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.85
+
+[Iter 44] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=500 alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.85 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 44] Building CLIP_Set_44  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_44' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_44  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_44' indexed  (17.4s)
+[Iter 44] Index built in 17.5s
+[Iter 44] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=500 candidates  k=500  alpha=0.65  constraint=none
+[Iter 44] Timing breakdown:
+  Index build:      17.5s  (one-time)
+  Query (Stage-1):  0.42ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.34ms/query  (DINOv2 numpy)
+  Total latency:    0.80ms/query
+  QPS:              1248.9
+
+[Results iter 44]
+  Score (QPS [QDS-constrained]): 1248.9379
+  mAP (plain):       0.1646
+  mAP (QDS-weighted): 0.1748  ← threshold check uses this (τ=0.150)
+  QPS:               1248.94
+  P@10:              0.2777
+  nDCG@10:           0.3137
+
+================================================================================
+ITERATION 45/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 45)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=500  alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.90  n_refs=3
+[LLM]   Reasoning: Fine-tuning: alpha_Q4 one step up from 0.85 to 0.90. Q4 (hardest tier) showed highest AP=0.2811 and benefits most from DINOv2 visual reranking. Keeping k=500 for near-exhaustive recall within constrained ~600 image pool. All other params unchanged from best iteration 44 (Score=1248.9379).
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  500
+  alpha:        Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.90
+
+[Iter 45] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=500 alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.90 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 45] Building CLIP_Set_45  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_45' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_45  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_45' indexed  (17.4s)
+[Iter 45] Index built in 17.4s
+[Iter 45] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=500 candidates  k=500  alpha=0.65  constraint=none
+[Iter 45] Timing breakdown:
+  Index build:      17.4s  (one-time)
+  Query (Stage-1):  0.35ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.34ms/query  (DINOv2 numpy)
+  Total latency:    0.73ms/query
+  QPS:              1366.7
+
+[Results iter 45]
+  Score (QPS [QDS-constrained]): 1366.7422
+  mAP (plain):       0.1646
+  mAP (QDS-weighted): 0.1747  ← threshold check uses this (τ=0.150)
+  QPS:               1366.74
+  P@10:              0.2778
+  nDCG@10:           0.3140
+
+================================================================================
+ITERATION 46/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 46)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Unterminated string starting at: line 1 column 242 (char 241)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.80/Q2=0.80/Q3=0.65/Q4=0.90  n_refs=10
+[LLM]   Reasoning: Exploring HNSW after IVFFlat success. M=64 efS=64 maximizes recall. k=50 targets QPS>500. alpha_Q4=0.90 matches best config. n_refs=10 centroid improves reference quality. constraint=none as forced by ACS for Q1+Q2.
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=300  alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.90  n_refs=3
+[LLM]   Reasoning: Reduce k from 500 to 300 to test if QPS scales proportionally (expected ~820-900 QPS vs 1366). Previous k=500 gave best Score=1366.7 with mAP=0.1646. Lower k may maintain mAP due to constrained pool (~600 images) while gaining QPS. Alpha tiers kept at optimal values from iter45. This tests the k-QPS relationship in the ACS-constrained regime.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  300
+  alpha:        Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.90
+
+[Iter 46] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=300 alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.90 n_refs=3 ref_strategy=first constraint=none
+[Iter 46] Building CLIP_Set_46  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_46' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_46  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_46' indexed  (17.7s)
+[Iter 46] Index built in 17.7s
+[Iter 46] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=300 candidates  k=300  alpha=0.65  constraint=none
+[Iter 46] Timing breakdown:
+  Index build:      17.7s  (one-time)
+  Query (Stage-1):  0.36ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.24ms/query  (DINOv2 numpy)
+  Total latency:    0.62ms/query
+  QPS:              1605.8
+
+[Results iter 46]
+  Score (QPS [QDS-constrained]): 0.0000
+  mAP (plain):       0.1278
+  mAP (QDS-weighted): 0.1354  ← threshold check uses this (τ=0.150)
+  QPS:               1605.75
+  P@10:              0.2547
+  nDCG@10:           0.2793
+
+================================================================================
+ITERATION 47/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 47)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=500  alpha=Q1=0.40/Q2=0.65/Q3=0.65/Q4=0.90  n_refs=3
+[LLM]   Reasoning: iter47: Alpha sweep at best k=500. Based on empirical slopes: Q1 has highest positive slope (+0.274/unit) so pushing Q1 from 0.30→0.40 tests if higher alpha helps easier queries with constrained VDMS pool (~600 images). Q2 from 0.60→0.65 also positive (+0.176). Q3 stays at 0.65 (optimal range). Q4 stays at 0.90 (best seen). n_refs=3 already optimal. This explores the under-tested Q1 alpha range at constrained k=500.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  500
+  alpha:        Q1=0.40/Q2=0.65/Q3=0.65/Q4=0.90
+
+[Iter 47] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=500 alpha=Q1=0.40/Q2=0.65/Q3=0.65/Q4=0.90 n_refs=3 ref_strategy=centroid constraint=none
+[Iter 47] Building CLIP_Set_47  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_47' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_47  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_47' indexed  (17.5s)
+[Iter 47] Index built in 17.6s
+[Iter 47] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=500 candidates  k=500  alpha=0.65  constraint=none
+[Iter 47] Timing breakdown:
+  Index build:      17.6s  (one-time)
+  Query (Stage-1):  0.35ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.35ms/query  (DINOv2 numpy)
+  Total latency:    0.74ms/query
+  QPS:              1351.3
+
+[Results iter 47]
+  Score (QPS [QDS-constrained]): 1351.2519
+  mAP (plain):       0.1646
+  mAP (QDS-weighted): 0.1747  ← threshold check uses this (τ=0.150)
+  QPS:               1351.25
+  P@10:              0.2778
+  nDCG@10:           0.3140
+
+================================================================================
+ITERATION 48/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 48)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=500  alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.80  n_refs=3
+[LLM]   Reasoning: Fine-tuning alpha_Q4 from 0.90 to 0.80. At k=500 with FaissIVFFlat, the best score (1366.7422) used Q4=0.90. Trying slightly lower to see if it maintains mAP while potentially improving ranking precision. All other params remain at the optimal configuration from iter45.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  500
+  alpha:        Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.80
+
+[Iter 48] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=500 alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.80 n_refs=3 ref_strategy=first constraint=none
+[Iter 48] Building CLIP_Set_48  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_48' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_48  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_48' indexed  (17.3s)
+[Iter 48] Index built in 17.3s
+[Iter 48] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=500 candidates  k=500  alpha=0.65  constraint=none
+[Iter 48] Timing breakdown:
+  Index build:      17.3s  (one-time)
+  Query (Stage-1):  0.35ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.35ms/query  (DINOv2 numpy)
+  Total latency:    0.74ms/query
+  QPS:              1354.4
+
+[Results iter 48]
+  Score (QPS [QDS-constrained]): 1354.4234
+  mAP (plain):       0.1594
+  mAP (QDS-weighted): 0.1692  ← threshold check uses this (τ=0.150)
+  QPS:               1354.42
+  P@10:              0.2667
+  nDCG@10:           0.2963
+
+================================================================================
+ITERATION 49/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 49)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+LLM Error: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[Dedup] LLM repeated a tried config (attempt 1), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissHNSWFlat  params={'M': 64, 'efConstruction': 200, 'efSearch': 64}
+[LLM]   k=50  alpha=Q1=0.85/Q2=0.85/Q3=0.65/Q4=0.90  n_refs=10
+[LLM]   Reasoning: Fine-tuning: Iter45 showed alpha_Q4=0.90 achieves best Score (1366.74). Iter48 with Q4=0.80 scored 1354.4. Now trying higher alpha for Q1/Q2 (0.85 vs 0.30/0.60) to boost mAP toward τ=0.15 while maintaining QPS. k=50 balances speed (~550 QPS). M=64 maximizes recall. Using HNSW (supports constraint=none for Q1+Q2 unconstrained search).
+[LLM] ────────────────────────────────────────────────────
+
+[Dedup] LLM repeated a tried config (attempt 2), retrying...
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=500  alpha=Q1=0.30/Q2=0.60/Q3=0.70/Q4=0.90  n_refs=3
+[LLM]   Reasoning: Fine-tuning step: increase alpha_Q3 from 0.65 to 0.70 based on negative slope guidance. The empirical slope data shows Q3 peaks at 0.65-0.70. Previous iter45 with alpha_Q4=0.90 is best (Score=1366.7422). Small upward adjustment to Q3 explores the upper boundary of Q3 optimal range, while keeping Q4 at optimal 0.90.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  500
+  alpha:        Q1=0.30/Q2=0.60/Q3=0.70/Q4=0.90
+
+[Iter 49] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=500 alpha=Q1=0.30/Q2=0.60/Q3=0.70/Q4=0.90 n_refs=3 ref_strategy=first constraint=none
+[Iter 49] Building CLIP_Set_49  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_49' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_49  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_49' indexed  (17.3s)
+[Iter 49] Index built in 17.3s
+[Iter 49] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=500 candidates  k=500  alpha=0.70  constraint=none
+[Iter 49] Timing breakdown:
+  Index build:      17.3s  (one-time)
+  Query (Stage-1):  0.38ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.36ms/query  (DINOv2 numpy)
+  Total latency:    0.78ms/query
+  QPS:              1279.1
+
+[Results iter 49]
+  Score (QPS [QDS-constrained]): 1279.0937
+  mAP (plain):       0.1599
+  mAP (QDS-weighted): 0.1696  ← threshold check uses this (τ=0.150)
+  QPS:               1279.09
+  P@10:              0.2692
+  nDCG@10:           0.3004
+
+================================================================================
+ITERATION 50/50 (HYPERPARAMETER_ONLY)
+================================================================================
+[VDMS] Restarting for clean DB (iteration 50)...
+[VDMS] Ready on port 55672
+[VDMS] Restart complete.
+
+[LLM] ── Suggested config ──────────────────────────────
+[LLM]   engine=FaissIVFFlat  params={'nlist': 256, 'nprobe': 64}
+[LLM]   k=500  alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.85  n_refs=3
+[LLM]   Reasoning: iter45 best (Score=1366.7422) had alpha_Q4=0.90. iter49 tried Q4=0.90 → Score=1279. Lowering to 0.85 tested in iter48 gave 1354 (lower than 0.90). Try 0.85 to see if there's a sweet spot. Also try ref_strategy='centroid' or 'diverse' to improve DINOv2 reference quality for Q3+Q4 (the per-class numpy queries). Keep n_refs=3 for now. k=500 is already optimal. Engine params are fixed.
+[LLM] ────────────────────────────────────────────────────
+
+  engine:       FaissIVFFlat
+  params:       {'nlist': 256, 'nprobe': 64}
+  k_neighbors:  500
+  alpha:        Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.85
+
+[Iter 50] backbone=CLIP ViT-L/14  engine=FaissIVFFlat params={'nlist': 256, 'nprobe': 64} k=500 alpha=Q1=0.30/Q2=0.60/Q3=0.65/Q4=0.85 n_refs=3 ref_strategy=first constraint=none
+[Iter 50] Building CLIP_Set_50  (graph=no)...
+[OK] DescriptorSet 'CLIP_Set_50' created  dim=768  metric=L2
+Indexing 47,776 CLIP vectors  dim=768  set=CLIP_Set_50  (batch_properties=500)...
+  CLIP failures: 0/47776  (OK)
+[OK] 'CLIP_Set_50' indexed  (16.1s)
+[Iter 50] Index built in 16.1s
+[Iter 50] Running 600 queries...
+[TextDINO q0] HOI=motorcycle|race  CLIP=500 candidates  k=500  alpha=0.65  constraint=none
+[Iter 50] Timing breakdown:
+  Index build:      16.1s  (one-time)
+  Query (Stage-1):  0.38ms/query  (VDMS ANN)
+  Rerank (Stage-2): 0.35ms/query  (DINOv2 numpy)
+  Total latency:    0.77ms/query
+  QPS:              1300.0
+
+[Results iter 50]
+  Score (QPS [QDS-constrained]): 1300.0347
+  mAP (plain):       0.1594
+  mAP (QDS-weighted): 0.1692  ← threshold check uses this (τ=0.150)
+  QPS:               1300.03
+  P@10:              0.2662
+  nDCG@10:           0.2969
+
+================================================================================
+OPTIMIZATION COMPLETE
+================================================================================
+Best Score:  1366.7422
+Best mAP:    0.1646
+Best QPS:    1366.74
+Best Config: {'engine': 'FaissIVFFlat', 'params': {'nlist': 256, 'nprobe': 64}, 'n_refs': 3, 'ref_strategy': 'centroid', 'constraint_strategy': 'object', 'alpha_Q1': 0.3, 'alpha_Q2': 0.6, 'alpha_Q3': 0.65, 'alpha_Q4': 0.9, 'k_neighbors': 500, '_iter': 45}
+
+[OK] Results saved to /work/hdd/bdjd/vdms_workflow/semantic_vdms/FINAL_RESULTS/hico_det/results/llm_qds_standard_seed200.json
+Finished: Thu Apr 23 23:23:38 CDT 2026  Exit: 0
+Output: /work/hdd/bdjd/vdms_workflow/semantic_vdms/FINAL_RESULTS/hico_det/results/llm_qds_standard_seed200.json

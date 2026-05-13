@@ -1,0 +1,19 @@
+# Agentic_VDMS — Python dependencies
+# Tested with Python 3.12 on NCSA Delta (NVIDIA A40, CUDA 11.8)
+torch==2.7.1+cu118
+torchvision==0.22.1+cu118
+torchaudio==2.7.1+cu118
+clip==1.0
+open_clip_torch==3.2.0
+transformers==4.36.2
+faiss-cpu==1.13.2
+vdms==0.0.22
+optuna==4.8.0
+openai==2.15.0
+numpy==2.4.2
+scipy==1.17.0
+scikit-learn==1.8.0
+matplotlib==3.10.8
+pillow==11.3.0
+tqdm==4.67.1
+requests==2.32.5

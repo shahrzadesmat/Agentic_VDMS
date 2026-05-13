@@ -1,0 +1,1608 @@
+"""
+LLM-Guided FAISS Hyperparameter Optimizer for HICO-DET HOI Retrieval.
+
+Port of hico_agent_optimizer.py to FAISS (faiss-cpu) as a second ANN backend.
+Demonstrates that the LLM phase-conditioned optimization protocol is system-agnostic:
+same parameter space, same SIEVE objective, same 4 optimizers (LLM/Grid/Random/Optuna).
+
+Note: Milvus uses FAISS as its underlying ANN engine. This benchmark represents
+the core ANN performance of the FAISS/Milvus family of vector databases using
+FAISS directly (faiss-cpu), which avoids server-client overhead and gives a clean
+view of ANN index parameter effects.
+
+Key differences from VDMS:
+  - ANN backend: faiss-cpu (IndexHNSWFlat, IndexIVFFlat, IndexFlatIP)
+  - No server/container overhead — pure in-process index
+  - No BATCH_SIZE=50 constraint (no PMGD journal limit)
+  - Constraint strategies via numpy subset search (no scalar-filter overhead)
+  - mAP and DINOv2 reranking: identical numpy pipeline
+
+Usage:
+    python milvus_hico_optimizer.py \\
+        --dataset-dir /work/hdd/bdjd/vdms/datasets \\
+        --method hyperparameter_only \\
+        --iterations 50 \\
+        --seed 42 \\
+        --output milvus_hico_llm_s42.json
+
+Install: pip install faiss-cpu
+"""
+
+import sys
+import time
+import json
+import random
+import asyncio
+import re
+import os
+import argparse
+import numpy as np
+import optuna
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional
+from dataclasses import dataclass, field
+from dotenv import load_dotenv
+from scipy.special import log_softmax
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from vdtuner_ehvi import VDTunerOptimizer, KnobEncoder
+
+optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+try:
+    import faiss
+except ImportError:
+    print("ERROR: faiss not installed. Run: pip install faiss-cpu", file=sys.stderr)
+    sys.exit(1)
+
+load_dotenv()
+
+# ── Constrained-optimization threshold (SIEVE) ───────────────────────────────
+_MAP_THRESHOLD: float = 0.15   # set from --map-threshold at startup
+_FORCE_CONSTRAINT: Optional[str] = None  # if set, all configs use this constraint_strategy
+
+# ── QDS (Query Difficulty Stratification) globals ────────────────────────────
+_QDS_WEIGHTS:            Optional[np.ndarray] = None  # (n_queries,) weights in [1,2]
+_QDS_TIERS:              Optional[np.ndarray] = None  # (n_queries,) tier 1-4
+_QDS_STANDARD_THRESHOLD: bool = False  # if True: use raw mAP for threshold (not weighted)
+
+# ── ConditionB: multi-row indexing with all_verb_ids ─────────────────────────
+_USE_ALL_VERB_IDS: bool = False          # set by --use-all-verb-ids
+_ROW_TO_IMGID: Optional[np.ndarray] = None  # (n_rows,) maps expanded row idx → img_id
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DATA STRUCTURES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@dataclass
+class BenchmarkResult:
+    qps:             float
+    map_score:       float
+    latency_ms:      float
+    index_build_s:   float
+    precision_at_10: float
+    ndcg_at_10:      float
+    recall_at_10:    float
+    engine:          str
+    params:          Dict
+    k_neighbors:     int
+    alpha:           float
+    timestamp:       float
+    per_query_ap:    List[float] = field(default_factory=list)
+
+    def score(self) -> float:
+        if _QDS_WEIGHTS is not None and self.per_query_ap and not _QDS_STANDARD_THRESHOLD:
+            n = min(len(_QDS_WEIGHTS), len(self.per_query_ap))
+            w = _QDS_WEIGHTS[:n]
+            weighted_map = float(np.sum(w * np.array(self.per_query_ap[:n])) / np.sum(w))
+            if weighted_map < _MAP_THRESHOLD:
+                return 0.0
+        elif float(self.map_score) < _MAP_THRESHOLD:
+            return 0.0
+        return float(self.qps)
+
+
+@dataclass
+class IterationResult:
+    iteration:     int
+    config:        Dict
+    benchmark:     BenchmarkResult
+    llm_reasoning: str
+    search_method: str
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DATA LOADING (self-contained — no benchmark_hico_det import)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_DATA_CACHE: Dict = {}
+
+
+def _load_data(dataset_dir: str) -> Dict:
+    global _DATA_CACHE
+    if _DATA_CACHE:
+        return _DATA_CACHE
+
+    d = Path(dataset_dir) / "hico_det"
+    print("[Data] Loading HICO-DET embeddings…")
+    t0 = time.time()
+
+    clip_db  = np.load(str(d / "hico_clipvitl14_db.npy")).astype(np.float32)
+    dino_db  = np.load(str(d / "hico_dinov2.npy")).astype(np.float32)
+    text_all = np.load(str(d / "hico_clipvitl14_text_queries.npy")).astype(np.float32)
+
+    with open(d / "hico_clipvitl14_key_order.json") as f:
+        key_order = json.load(f)
+    text_q_map = {k: text_all[i] for i, k in enumerate(key_order)}
+
+    with open(d / "hico_hoi_index.json") as f:
+        hoi_index = json.load(f)
+
+    with open(d / "hico_gt.json") as f:
+        gt_list = json.load(f)
+
+    with open(d / "hico_metadata.json") as f:
+        metadata = json.load(f)
+
+    # Build per-image sets indexed by image id (int)
+    pos_hoi_per_img: Dict[int, set]  = {}
+    amb_hoi_per_img: Dict[int, set]  = {}
+    for entry in gt_list:
+        img_id = int(entry["id"])
+        pos_hoi_per_img[img_id] = {tuple(h) for h in entry.get("positive_hoi", [])}
+        amb_hoi_per_img[img_id] = {tuple(h) for h in entry.get("ambiguous_hoi", [])}
+
+    # Canonical HOI key list (600 classes)
+    hoi_keys = list(hoi_index.keys())
+
+    # rel_sets[i] = set of image IDs positive for hoi_keys[i]
+    # junk_sets[i] = set of image IDs ambiguous for hoi_keys[i]
+    rel_sets:  List[set] = []
+    junk_sets: List[set] = []
+    text_q:    List[np.ndarray] = []
+
+    for key in hoi_keys:
+        rel_sets.append(set(hoi_index[key]))
+        # HOI key format: "obj|verb" e.g. "motorcycle|ride"
+        parts = key.split("|", 1)
+        hoi_tuple = tuple(parts) if len(parts) == 2 else (key,)
+        junk = set()
+        for img_id, amb in amb_hoi_per_img.items():
+            if hoi_tuple in amb:
+                junk.add(img_id)
+        junk_sets.append(junk)
+        text_q.append(text_q_map.get(key, np.zeros(768, dtype=np.float32)))
+
+    text_q_arr = np.stack(text_q, axis=0)  # (600, 768)
+
+    # Per-image primary object/verb IDs for constraint filtering
+    # hico_metadata.json uses "img_id" (not "id")
+    primary_obj = {}   # img_id -> obj_id int
+    primary_verb = {}  # img_id -> verb_id int
+    for entry in metadata:
+        img_id = int(entry["img_id"])
+        primary_obj[img_id]  = int(entry.get("primary_object_id", -1))
+        primary_verb[img_id] = int(entry.get("primary_verb_id",   -1))
+
+    # Build HOI query object/verb IDs for constraint filtering
+    hoi_obj_ids  = []  # int per HOI class
+    hoi_verb_ids = []
+    with open(d / "hico_object_vocab.json") as f:
+        obj_vocab = json.load(f)  # {obj_name: obj_id}
+    with open(d / "hico_verb_vocab.json") as f:
+        verb_vocab = json.load(f)  # {verb_name: verb_id}
+
+    for key in hoi_keys:
+        parts = key.split("|", 1)
+        obj_name  = parts[0] if len(parts) == 2 else ""
+        verb_name = parts[1] if len(parts) == 2 else ""
+        hoi_obj_ids.append(obj_vocab.get(obj_name, -1))
+        hoi_verb_ids.append(verb_vocab.get(verb_name, -1))
+
+    # Precompute per-object and per-verb image index arrays for constraint filtering
+    # obj_id -> sorted array of row indices into clip_db
+    row_to_imgid: Optional[np.ndarray] = None
+
+    if _USE_ALL_VERB_IDS:
+        # ConditionB: expand clip_db to one row per (img_id, verb_id) pair.
+        # Build all_verb_ids map from metadata.
+        all_verb_ids_map: Dict[int, list] = {}
+        for entry in metadata:
+            img_id = int(entry["img_id"])
+            vids = entry.get("all_verb_ids", [entry.get("primary_verb_id", -1)])
+            all_verb_ids_map[img_id] = [int(v) for v in vids]
+
+        rows_list, row_imgids = [], []
+        obj_img_map: Dict[int, list] = {}
+        verb_img_map: Dict[int, list] = {}
+        for img_id in range(len(clip_db)):
+            o = primary_obj.get(img_id, -1)
+            for v in all_verb_ids_map.get(img_id, [primary_verb.get(img_id, -1)]):
+                row_idx = len(rows_list)
+                rows_list.append(clip_db[img_id])
+                row_imgids.append(img_id)
+                obj_img_map.setdefault(o, []).append(row_idx)
+                verb_img_map.setdefault(v, []).append(row_idx)
+        clip_db = np.stack(rows_list, axis=0).astype(np.float32)
+        row_to_imgid = np.array(row_imgids, dtype=np.int64)
+        obj_img_map  = {k: np.array(v, dtype=np.int64) for k, v in obj_img_map.items()}
+        verb_img_map = {k: np.array(v, dtype=np.int64) for k, v in verb_img_map.items()}
+        print(f"[ConditionB] Expanded clip_db: {len(rows_list)} rows "
+              f"({len(rows_list)/len(dino_db):.2f}× original)")
+    else:
+        obj_img_map: Dict[int, np.ndarray] = {}
+        verb_img_map: Dict[int, np.ndarray] = {}
+        for img_id in range(len(clip_db)):
+            o = primary_obj.get(img_id, -1)
+            v = primary_verb.get(img_id, -1)
+            obj_img_map.setdefault(o, []).append(img_id)
+            verb_img_map.setdefault(v, []).append(img_id)
+        obj_img_map  = {k: np.array(v) for k, v in obj_img_map.items()}
+        verb_img_map = {k: np.array(v) for k, v in verb_img_map.items()}
+
+    print(f"[Data] Loaded in {time.time()-t0:.1f}s  "
+          f"clip_db={clip_db.shape}  dino_db={dino_db.shape}  text_q={text_q_arr.shape}  "
+          f"n_classes={len(hoi_keys)}")
+
+    _DATA_CACHE = {
+        "clip_db":      clip_db,
+        "dino_db":      dino_db,
+        "text_q":       text_q_arr,
+        "hoi_keys":     hoi_keys,
+        "rel_sets":     rel_sets,
+        "junk_sets":    junk_sets,
+        "hoi_obj_ids":  hoi_obj_ids,
+        "hoi_verb_ids": hoi_verb_ids,
+        "obj_img_map":  obj_img_map,
+        "verb_img_map": verb_img_map,
+        "row_to_imgid": row_to_imgid,
+    }
+    return _DATA_CACHE
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# QDS WEIGHT COMPUTATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _compute_qds_weights(text_q: np.ndarray, clip_db: np.ndarray,
+                         rel_sets: List[set], hoi_keys: List[str],
+                         tau: float = 0.01) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute QDS = H_norm - CPR_norm per HOI class.
+    H_j   = entropy of CLIP similarity distribution (high = many distractors).
+    CPR_j = cosine similarity of text query to visual centroid of class j
+            (high = text aligns well with visual cluster).
+    QDS_j = H_j - CPR_j: high = hard query.
+    Returns (weights, tiers):
+      weights: w_j = 1 + QDS_norm in [1,2], shape (n_queries,)
+      tiers:   1-4 per query (Q1=easy … Q4=hardest), shape (n_queries,)
+    """
+    print("[QDS] Computing per-class entropy and CPR...")
+    # Entropy of similarity distribution
+    sim   = text_q @ clip_db.T                          # (n_q, n_db)
+    log_p = log_softmax(sim / tau, axis=1)
+    H     = -(np.exp(log_p) * log_p).sum(axis=1).astype(np.float32)  # (n_q,)
+
+    # CPR: cosine similarity between text query and visual centroid of class
+    cpr = np.zeros(len(hoi_keys), dtype=np.float32)
+    for j, rel in enumerate(rel_sets):
+        ids = sorted(rel)
+        if not ids:
+            continue
+        centroid = clip_db[ids].mean(axis=0)
+        norm = np.linalg.norm(centroid)
+        if norm > 1e-8:
+            cpr[j] = float(text_q[j] @ (centroid / norm))
+
+    H_n = (H   - H.min())   / (H.max()   - H.min()   + 1e-10)
+    C_n = (cpr - cpr.min()) / (cpr.max() - cpr.min() + 1e-10)
+
+    qds   = H_n - C_n
+    qds_n = (qds - qds.min()) / (qds.max() - qds.min() + 1e-10)
+    weights = (1.0 + qds_n).astype(np.float32)
+
+    q25, q50, q75 = np.percentile(qds, [25, 50, 75])
+    tiers = np.ones(len(hoi_keys), dtype=np.int32)
+    tiers[(qds > q25) & (qds <= q50)] = 2
+    tiers[(qds > q50) & (qds <= q75)] = 3
+    tiers[qds > q75] = 4
+
+    print(f"[QDS] weights [{weights.min():.3f}, {weights.max():.3f}]  "
+          f"Tiers: Q1={( tiers==1).sum()} Q2={(tiers==2).sum()} "
+          f"Q3={(tiers==3).sum()} Q4={(tiers==4).sum()}")
+    return weights, tiers
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# mAP COMPUTATION (Oxford-style)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _compute_ap(ranked_ids: List[int], rel_set: set, junk_set: set) -> float:
+    n_pos = len(rel_set)
+    if n_pos == 0:
+        return 0.0
+    ap = tp = fp = 0.0
+    for img_id in ranked_ids:
+        if img_id in junk_set:
+            continue
+        if img_id in rel_set:
+            tp += 1
+            ap += tp / (tp + fp)
+        else:
+            fp += 1
+    return ap / n_pos
+
+
+def _compute_map(all_ranked: List[List[int]], rel_sets: List[set],
+                 junk_sets: List[set]) -> Tuple[float, List[float]]:
+    aps = [_compute_ap(r, rel_sets[i], junk_sets[i]) for i, r in enumerate(all_ranked)]
+    return float(np.mean(aps)), aps
+
+
+def _compute_precision_at_k(ranked_ids: List[int], rel_set: set, k: int = 10) -> float:
+    top = ranked_ids[:k]
+    if not top:
+        return 0.0
+    return sum(1 for x in top if x in rel_set) / len(top)
+
+
+def _compute_ndcg_at_k(ranked_ids: List[int], rel_set: set, k: int = 10) -> float:
+    dcg = sum((1.0 / np.log2(i + 2)) for i, x in enumerate(ranked_ids[:k]) if x in rel_set)
+    ideal = sum(1.0 / np.log2(i + 2) for i in range(min(len(rel_set), k)))
+    return dcg / ideal if ideal > 0 else 0.0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DINOv2 REFERENCE BUILDING
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _build_dinov2_refs(dino_db: np.ndarray, rel_sets: List[set],
+                       n_refs: int, ref_strategy: str) -> np.ndarray:
+    """Build per-class DINOv2 reference vectors. Same logic as VDMS version."""
+    refs = []
+    for rel in rel_sets:
+        ids = sorted(rel)
+        if not ids:
+            refs.append(np.zeros(dino_db.shape[1], dtype=np.float32))
+            continue
+        vecs = dino_db[ids]
+        if n_refs == 1 or len(ids) == 1:
+            ref = vecs[0]
+        elif ref_strategy == "first":
+            ref = vecs[:n_refs].mean(axis=0)
+        elif ref_strategy == "centroid":
+            centroid = vecs.mean(axis=0)
+            dists = np.linalg.norm(vecs - centroid, axis=1)
+            closest = np.argsort(dists)[:n_refs]
+            ref = vecs[closest].mean(axis=0)
+        else:  # "diverse"
+            centroid = vecs.mean(axis=0)
+            dists = np.linalg.norm(vecs - centroid, axis=1)
+            selected = [int(np.argmin(dists))]
+            pool = set(range(len(vecs))) - {selected[0]}
+            while len(selected) < min(n_refs, len(ids)) and pool:
+                selected_vecs = vecs[selected]
+                d2 = np.min(np.linalg.norm(
+                    vecs[list(pool)][:, None] - selected_vecs[None], axis=2), axis=1)
+                farthest = list(pool)[int(np.argmax(d2))]
+                selected.append(farthest)
+                pool.discard(farthest)
+            ref = vecs[selected].mean(axis=0)
+        norm = np.linalg.norm(ref)
+        refs.append(ref / norm if norm > 1e-8 else ref)
+    return np.stack(refs, axis=0)  # (600, 1024)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FAISS INDEX + SEARCH
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_FAISS_INDEX = None
+_FAISS_CLIP_DB: Optional[np.ndarray] = None
+_FAISS_CURRENT_ENGINE: str = ""
+_FAISS_CURRENT_PARAMS: Dict = {}  # build-time params only (M/efConstruction/nlist)
+
+
+def _build_faiss_index(clip_db: np.ndarray, engine: str, params: Dict) -> float:
+    """Build faiss index. Returns build time (s)."""
+    global _FAISS_INDEX, _FAISS_CLIP_DB, _FAISS_CURRENT_ENGINE, _FAISS_CURRENT_PARAMS
+    d = clip_db.shape[1]
+    t0 = time.time()
+
+    if engine == "FaissFlat":
+        idx = faiss.IndexFlatIP(d)
+        idx.add(clip_db)
+
+    elif engine == "FaissHNSWFlat":
+        M = params.get("M", 32)
+        ef_constr = params.get("efConstruction", 200)
+        idx = faiss.IndexHNSWFlat(d, M, faiss.METRIC_INNER_PRODUCT)
+        idx.hnsw.efConstruction = ef_constr
+        idx.add(clip_db)
+
+    else:  # FaissIVFFlat
+        nlist = params.get("nlist", 128)
+        quantizer = faiss.IndexFlatIP(d)
+        idx = faiss.IndexIVFFlat(quantizer, d, nlist, faiss.METRIC_INNER_PRODUCT)
+        idx.train(clip_db)
+        idx.add(clip_db)
+
+    build_time = time.time() - t0
+    _FAISS_INDEX = idx
+    _FAISS_CLIP_DB = clip_db
+    _FAISS_CURRENT_ENGINE = engine
+    _FAISS_CURRENT_PARAMS = dict(params)
+    return build_time
+
+
+def _minmax_norm(x: np.ndarray) -> np.ndarray:
+    lo, hi = x.min(), x.max()
+    return (x - lo) / (hi - lo + 1e-8)
+
+
+def _search_faiss(query_vecs: np.ndarray, k: int, engine: str, params: Dict,
+                  constraint: str, query_obj_ids: List[int],
+                  query_verb_ids: List[int],
+                  obj_img_map: Dict[int, np.ndarray],
+                  verb_img_map: Dict[int, np.ndarray],
+                  per_query_constraint: Optional[np.ndarray] = None,
+                  ) -> Tuple[List[List[int]], List[List[float]], float]:
+    """
+    Search faiss index for all queries. Returns (ranked_ids, scores, avg_latency_ms).
+    For constrained strategies, numpy exact search on the filtered subset
+    (faster than full ANN for small pools of ~200-600 images).
+    """
+    global _FAISS_INDEX, _FAISS_CLIP_DB
+
+    # Set query-time parameters (no rebuild needed)
+    if engine == "FaissHNSWFlat":
+        _FAISS_INDEX.hnsw.efSearch = params.get("efSearch", 64)
+    elif engine == "FaissIVFFlat":
+        _FAISS_INDEX.nprobe = params.get("nprobe", 8)
+
+    all_ids: List[List[int]] = []
+    all_scores: List[List[float]] = []
+    t0 = time.time()
+
+    for qi in range(len(query_vecs)):
+        q = query_vecs[qi:qi+1]  # shape (1, d) for faiss
+        # QDS-ACS: per-query constraint override (Q3/Q4 forced to "object")
+        q_constraint = per_query_constraint[qi] if per_query_constraint is not None else constraint
+
+        if q_constraint == "none":
+            D, I = _FAISS_INDEX.search(q, k)
+            ids    = [int(x) for x in I[0] if x >= 0]
+            scores = [float(x) for x in D[0][:len(ids)]]
+
+        else:
+            # Pre-filter to matching images, then numpy exact dot product on subset.
+            # Subset sizes: object ~600, verb ~400, object_and_verb <200 images.
+            # Numpy is fast for these small pools and gives exact recall within the filter.
+            if q_constraint == "object":
+                obj_id = query_obj_ids[qi]
+                subset_ids = obj_img_map.get(obj_id, np.empty(0, dtype=np.int64))
+            elif q_constraint == "verb":
+                verb_id = query_verb_ids[qi]
+                subset_ids = verb_img_map.get(verb_id, np.empty(0, dtype=np.int64))
+            else:  # object_and_verb
+                obj_id  = query_obj_ids[qi]
+                verb_id = query_verb_ids[qi]
+                obj_set  = set(obj_img_map.get(obj_id,  np.empty(0, dtype=np.int64)).tolist())
+                verb_set = set(verb_img_map.get(verb_id, np.empty(0, dtype=np.int64)).tolist())
+                subset_ids = np.array(sorted(obj_set & verb_set), dtype=np.int64)
+
+            if len(subset_ids) == 0:
+                # Fallback: unconstrained search
+                D, I = _FAISS_INDEX.search(q, k)
+                ids    = [int(x) for x in I[0] if x >= 0]
+                scores = [float(x) for x in D[0][:len(ids)]]
+            else:
+                # Numpy exact IP on subset
+                subset_vecs = _FAISS_CLIP_DB[subset_ids]  # (pool, d)
+                sims = subset_vecs @ q[0]                  # (pool,)
+                actual_k = min(k, len(subset_ids))
+                top_local = np.argsort(-sims)[:actual_k]
+                ids    = subset_ids[top_local].tolist()
+                scores = sims[top_local].tolist()
+
+        all_ids.append(ids)
+        all_scores.append(scores)
+
+    elapsed_ms = (time.time() - t0) * 1000.0
+    avg_ms = elapsed_ms / max(len(query_vecs), 1)
+    return all_ids, all_scores, avg_ms
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BENCHMARK RUNNER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def run_benchmark(config: Dict, dataset_dir: str, iteration: int = 0) -> BenchmarkResult:
+    data        = _load_data(dataset_dir)
+    clip_db     = data["clip_db"]
+    dino_db     = data["dino_db"]
+    text_q      = data["text_q"]
+    rel_sets    = data["rel_sets"]
+    junk_sets   = data["junk_sets"]
+    hoi_obj_ids      = data["hoi_obj_ids"]
+    hoi_verb_ids     = data["hoi_verb_ids"]
+    obj_img_map      = data["obj_img_map"]
+    verb_img_map     = data["verb_img_map"]
+    row_to_imgid     = data.get("row_to_imgid", None)
+
+    engine     = config.get("engine", "FaissHNSWFlat")
+    params     = config.get("params", {})
+    k          = config.get("k_neighbors", 100)
+    alpha      = config.get("alpha", 0.30)
+    n_refs     = config.get("n_refs", 1)
+    ref_strat  = config.get("ref_strategy", "first")
+    constraint = _FORCE_CONSTRAINT if _FORCE_CONSTRAINT is not None else config.get("constraint_strategy", "none")
+
+    # QDS mode: per-tier alpha + ACS (Q3/Q4 → object constraint)
+    alpha_arr: Optional[np.ndarray] = None
+    if _QDS_TIERS is not None and "alpha_Q1" in config:
+        _defaults = [0.30, 0.40, 0.55, 0.70]
+        tier_alphas = {i: float(config.get(f"alpha_Q{i}", _defaults[i-1]))
+                       for i in range(1, 5)}
+        alpha_arr = np.array([tier_alphas[int(_QDS_TIERS[q])]
+                               for q in range(len(_QDS_TIERS))], dtype=np.float32)
+        alpha = float(np.mean(alpha_arr))  # scalar for BenchmarkResult
+
+    per_q_constraint: Optional[np.ndarray] = None
+    if _QDS_TIERS is not None:
+        per_q_constraint = np.where(_QDS_TIERS >= 3, "object", "none")
+
+    # Rebuild faiss index only when engine or index-build params change.
+    # efSearch/nprobe are query-time params — they never trigger a rebuild.
+    global _FAISS_CURRENT_ENGINE, _FAISS_CURRENT_PARAMS
+
+    def _build_key(eng, p):
+        if eng == "FaissHNSWFlat":
+            return (eng, p.get("M", 32), p.get("efConstruction", 200))
+        elif eng == "FaissIVFFlat":
+            return (eng, p.get("nlist", 128))
+        return (eng,)
+
+    needs_rebuild = (_build_key(engine, params) !=
+                     _build_key(_FAISS_CURRENT_ENGINE, _FAISS_CURRENT_PARAMS))
+    if needs_rebuild:
+        print(f"[FAISS] Building index: {engine} params={params}…")
+        build_s = _build_faiss_index(clip_db, engine, params)
+        print(f"[FAISS] Index built in {build_s:.1f}s")
+    else:
+        build_s = 0.0
+
+    # Build DINOv2 reference vectors
+    dino_refs = _build_dinov2_refs(dino_db, rel_sets, n_refs, ref_strat)
+
+    # Stage 1: FAISS ANN search (all 600 queries)
+    t_stage1 = time.time()
+    all_ids, all_scores, avg_clip_ms = _search_faiss(
+        text_q, k, engine, params, constraint,
+        hoi_obj_ids, hoi_verb_ids, obj_img_map, verb_img_map,
+        per_query_constraint=per_q_constraint)
+    stage1_s = time.time() - t_stage1
+
+    # ConditionB: map row indices → img_ids and deduplicate (keep best-scored per image)
+    if row_to_imgid is not None:
+        deduped_ids: List[List[int]] = []
+        deduped_scores: List[List[float]] = []
+        for qi in range(len(all_ids)):
+            seen_imgs: set = set()
+            uniq_ids, uniq_scores = [], []
+            for row_idx, sc in zip(all_ids[qi], all_scores[qi]):
+                img_id = int(row_to_imgid[row_idx])
+                if img_id not in seen_imgs:
+                    seen_imgs.add(img_id)
+                    uniq_ids.append(img_id)
+                    uniq_scores.append(sc)
+            deduped_ids.append(uniq_ids)
+            deduped_scores.append(uniq_scores)
+        all_ids, all_scores = deduped_ids, deduped_scores
+
+    # Stage 2: DINOv2 reranking (numpy, same as VDMS version)
+    all_ranked: List[List[int]] = []
+    t_stage2 = time.time()
+    for qi in range(len(text_q)):
+        cand_ids = all_ids[qi]
+        if not cand_ids:
+            all_ranked.append([])
+            continue
+
+        cand_ids_arr = np.array(cand_ids)
+        # FAISS IP scores: higher = better
+        clip_sims = np.array(all_scores[qi], dtype=np.float32)
+
+        q_alpha = float(alpha_arr[qi]) if alpha_arr is not None else alpha
+        if q_alpha > 0.0:
+            dino_cands = dino_db[cand_ids_arr]      # (k, 1024)
+            dino_sims  = dino_cands @ dino_refs[qi] # (k,)
+
+            # Normalize to [0,1] (higher=better), then convert to distance form
+            clip_norm = _minmax_norm(clip_sims)
+            dino_norm = _minmax_norm(dino_sims)
+
+            # Lower final_score = better (distance form, matches VDMS fusion formula)
+            final = (1 - q_alpha) * (1 - clip_norm) + q_alpha * (1 - dino_norm)
+            order = np.argsort(final)
+        else:
+            order = np.argsort(-clip_sims)  # higher sim = better
+
+        all_ranked.append(cand_ids_arr[order].tolist())
+
+    stage2_s = time.time() - t_stage2
+    avg_rerank_ms = stage2_s * 1000.0 / max(len(text_q), 1)
+
+    # Evaluate
+    map_score, per_query_ap = _compute_map(all_ranked, rel_sets, junk_sets)
+    p10  = np.mean([_compute_precision_at_k(r, rel_sets[i]) for i, r in enumerate(all_ranked)])
+    ndcg = np.mean([_compute_ndcg_at_k(r, rel_sets[i]) for i, r in enumerate(all_ranked)])
+    r10  = np.mean([
+        sum(1 for x in r[:10] if x in rel_sets[i]) / max(len(rel_sets[i]), 1)
+        for i, r in enumerate(all_ranked)
+    ])
+
+    total_query_time_s = stage1_s + stage2_s
+    n_queries = len(text_q)
+    qps = n_queries / total_query_time_s if total_query_time_s > 0 else 0.0
+    avg_latency_ms = total_query_time_s * 1000.0 / n_queries
+
+    return BenchmarkResult(
+        qps=qps, map_score=map_score, latency_ms=avg_latency_ms,
+        index_build_s=build_s, precision_at_10=float(p10),
+        ndcg_at_10=float(ndcg), recall_at_10=float(r10),
+        engine=engine, params=dict(params),
+        k_neighbors=k, alpha=alpha, timestamp=time.time(),
+        per_query_ap=per_query_ap,
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CONFIG PROVIDER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class ConfigProvider:
+    ENGINES = ["FaissFlat", "FaissHNSWFlat", "FaissIVFFlat"]
+
+    ENGINE_PARAMS = {
+        "FaissFlat": {},
+        "FaissHNSWFlat": {
+            "M":              [8, 16, 32, 48, 64],
+            "efConstruction": [200],
+            "efSearch":       [32, 64, 100, 150, 200, 300, 500],
+        },
+        "FaissIVFFlat": {
+            "nlist":  [64, 128, 256, 512],
+            "nprobe": [4, 8, 16, 32, 64],
+        },
+    }
+
+    K_NEIGHBORS_VALUES  = [50, 100, 150, 200, 300, 500, 750, 1000]
+    ALPHA_VALUES        = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40,
+                           0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90]
+    N_REFS_VALUES       = [1, 3, 5, 10]
+    REF_STRATEGY_VALUES = ["first", "centroid", "diverse"]
+    CONSTRAINT_STRATEGIES = ["none", "object", "verb", "object_and_verb"]
+
+    def __init__(self, seed: int = 42):
+        self.rng = np.random.RandomState(seed)
+        random.seed(seed)
+
+    def get_random_config(self) -> Dict:
+        engine = str(self.rng.choice(self.ENGINES))
+        params = {k: int(self.rng.choice(v))
+                  for k, v in self.ENGINE_PARAMS[engine].items()}
+        cfg = {
+            "engine":              engine,
+            "params":              params,
+            "k_neighbors":         int(self.rng.choice(self.K_NEIGHBORS_VALUES)),
+            "n_refs":              int(self.rng.choice(self.N_REFS_VALUES)),
+            "ref_strategy":        str(self.rng.choice(self.REF_STRATEGY_VALUES)),
+            "constraint_strategy": str(self.rng.choice(self.CONSTRAINT_STRATEGIES)),
+        }
+        if _QDS_TIERS is not None:
+            for t in range(1, 5):
+                cfg[f"alpha_Q{t}"] = float(self.rng.choice(self.ALPHA_VALUES))
+        else:
+            cfg["alpha"] = float(self.rng.choice(self.ALPHA_VALUES))
+        return cfg
+
+    def grid_search_configs(self) -> List[Dict]:
+        configs = []
+
+        def _gc(**kw):
+            kw.setdefault("constraint_strategy", "none")
+            kw.setdefault("n_refs", 1)
+            kw.setdefault("ref_strategy", "first")
+            return kw
+
+        # S1: Engine/M baselines (5) k=200, alpha=0.30
+        configs.append(_gc(engine="FaissFlat", params={}, k_neighbors=200, alpha=0.30))
+        configs.append(_gc(engine="FaissIVFFlat", params={"nlist": 128, "nprobe": 8},
+                           k_neighbors=200, alpha=0.30))
+        for M in [16, 32, 64]:
+            configs.append(_gc(engine="FaissHNSWFlat",
+                               params={"M": M, "efConstruction": 200, "efSearch": 200},
+                               k_neighbors=200, alpha=0.30))
+
+        # S2: k sweep (5) HNSW M=32 efS=200, alpha=0.30
+        for k in [50, 100, 150, 500, 1000]:
+            configs.append(_gc(engine="FaissHNSWFlat",
+                               params={"M": 32, "efConstruction": 200, "efSearch": 200},
+                               k_neighbors=k, alpha=0.30))
+
+        # S3: alpha sweep (4) — α=0.30/k=100 baseline already covered by S2 k=100
+        for a in [0.10, 0.50, 0.70, 0.90]:
+            configs.append(_gc(engine="FaissHNSWFlat",
+                               params={"M": 32, "efConstruction": 200, "efSearch": 200},
+                               k_neighbors=100, alpha=a))
+
+        # S4: n_refs sweep (3) — n_refs=1 baseline already covered by S2/S3 defaults
+        for nr in [3, 5, 10]:
+            configs.append(_gc(engine="FaissHNSWFlat",
+                               params={"M": 32, "efConstruction": 200, "efSearch": 200},
+                               k_neighbors=100, alpha=0.30, n_refs=nr))
+
+        # S5: ref_strategy sweep (2) — ref=first/n_refs=3 already covered by S4 n_refs=3
+        for rs in ["centroid", "diverse"]:
+            configs.append(_gc(engine="FaissHNSWFlat",
+                               params={"M": 32, "efConstruction": 200, "efSearch": 200},
+                               k_neighbors=100, alpha=0.30, n_refs=3, ref_strategy=rs))
+
+        # S6: efSearch sweep (4)
+        for efs in [32, 64, 100, 150]:
+            configs.append(_gc(engine="FaissHNSWFlat",
+                               params={"M": 32, "efConstruction": 200, "efSearch": efs},
+                               k_neighbors=100, alpha=0.30))
+
+        # S7: IVFFlat nprobe sweep (3)
+        for nprobe in [4, 16, 64]:
+            configs.append(_gc(engine="FaissIVFFlat",
+                               params={"nlist": 128, "nprobe": nprobe},
+                               k_neighbors=100, alpha=0.30))
+
+        # S8: IVFFlat nlist/nprobe sweep (10)
+        for nlist, nprobe in [(256, 4), (256, 8), (256, 16), (256, 32),
+                              (512, 4), (512, 8), (512, 16), (512, 32),
+                              (64, 4), (64, 8)]:
+            configs.append(_gc(engine="FaissIVFFlat",
+                               params={"nlist": nlist, "nprobe": nprobe},
+                               k_neighbors=100, alpha=0.30))
+
+        # S9: constraint_strategy sweep with good base config (4)
+        for cs in ["none", "object", "verb", "object_and_verb"]:
+            configs.append(_gc(engine="FaissHNSWFlat",
+                               params={"M": 32, "efConstruction": 200, "efSearch": 64},
+                               k_neighbors=100, alpha=0.50,
+                               n_refs=3, ref_strategy="centroid",
+                               constraint_strategy=cs))
+
+        # S10: k=50 high-QPS sweep across engines (5)
+        configs.append(_gc(engine="FaissHNSWFlat",
+                           params={"M": 32, "efConstruction": 200, "efSearch": 32},
+                           k_neighbors=50, alpha=0.50))
+        configs.append(_gc(engine="FaissHNSWFlat",
+                           params={"M": 32, "efConstruction": 200, "efSearch": 32},
+                           k_neighbors=50, alpha=0.70))
+        configs.append(_gc(engine="FaissIVFFlat",
+                           params={"nlist": 256, "nprobe": 4},
+                           k_neighbors=50, alpha=0.50))
+        configs.append(_gc(engine="FaissIVFFlat",
+                           params={"nlist": 512, "nprobe": 4},
+                           k_neighbors=50, alpha=0.70))
+        configs.append(_gc(engine="FaissIVFFlat",
+                           params={"nlist": 512, "nprobe": 4},
+                           k_neighbors=50, alpha=0.70,
+                           n_refs=5, ref_strategy="diverse",
+                           constraint_strategy="object"))
+
+        # S11: combined best-guess configs (5)
+        configs.append(_gc(engine="FaissHNSWFlat",
+                           params={"M": 32, "efConstruction": 200, "efSearch": 64},
+                           k_neighbors=100, alpha=0.70,
+                           n_refs=5, ref_strategy="centroid",
+                           constraint_strategy="object"))
+        configs.append(_gc(engine="FaissIVFFlat",
+                           params={"nlist": 256, "nprobe": 8},
+                           k_neighbors=100, alpha=0.70,
+                           n_refs=5, ref_strategy="centroid",
+                           constraint_strategy="object"))
+        configs.append(_gc(engine="FaissFlat", params={},
+                           k_neighbors=100, alpha=0.70,
+                           n_refs=5, ref_strategy="centroid",
+                           constraint_strategy="object"))
+        configs.append(_gc(engine="FaissIVFFlat",
+                           params={"nlist": 512, "nprobe": 8},
+                           k_neighbors=100, alpha=0.70,
+                           n_refs=5, ref_strategy="diverse",
+                           constraint_strategy="object"))
+        configs.append(_gc(engine="FaissHNSWFlat",
+                           params={"M": 16, "efConstruction": 200, "efSearch": 64},
+                           k_neighbors=50, alpha=0.70,
+                           n_refs=5, ref_strategy="diverse",
+                           constraint_strategy="object_and_verb"))
+
+        return configs[:50]  # cap at 50 iterations
+
+    def optuna_suggest(self, trial) -> Dict:
+        engine = trial.suggest_categorical("engine", self.ENGINES)
+        params = {}
+        if engine == "FaissHNSWFlat":
+            params = {
+                "M":              trial.suggest_categorical("M", self.ENGINE_PARAMS["FaissHNSWFlat"]["M"]),
+                "efConstruction": 200,
+                "efSearch":       trial.suggest_categorical("efSearch", self.ENGINE_PARAMS["FaissHNSWFlat"]["efSearch"]),
+            }
+        elif engine == "FaissIVFFlat":
+            params = {
+                "nlist":  trial.suggest_categorical("nlist",  self.ENGINE_PARAMS["FaissIVFFlat"]["nlist"]),
+                "nprobe": trial.suggest_categorical("nprobe", self.ENGINE_PARAMS["FaissIVFFlat"]["nprobe"]),
+            }
+        cfg = {
+            "engine":              engine,
+            "params":              params,
+            "k_neighbors":         trial.suggest_categorical("k", self.K_NEIGHBORS_VALUES),
+            "n_refs":              trial.suggest_categorical("n_refs", self.N_REFS_VALUES),
+            "ref_strategy":        trial.suggest_categorical("ref_strategy", self.REF_STRATEGY_VALUES),
+            "constraint_strategy": trial.suggest_categorical("constraint", self.CONSTRAINT_STRATEGIES),
+        }
+        if _QDS_TIERS is not None:
+            for t in range(1, 5):
+                cfg[f"alpha_Q{t}"] = trial.suggest_categorical(f"alpha_Q{t}", self.ALPHA_VALUES)
+        else:
+            cfg["alpha"] = trial.suggest_categorical("alpha", self.ALPHA_VALUES)
+        return cfg
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LLM AGENT
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class LLMAgent:
+    def __init__(self, api_key: str, base_url: str, model: str,
+                 t_exp_frac: float = 0.40, t_expl_frac: float = 0.75):
+        self.api_key    = api_key
+        self.base_url   = base_url
+        self.model      = model
+        self.t_exp_frac = t_exp_frac
+        self.t_expl_frac = t_expl_frac
+
+    async def query_llm(self, iteration: int, history: List[IterationResult],
+                        total_iterations: int,
+                        consecutive_alpha_only: int = 0,
+                        iters_since_improvement: int = 0) -> Tuple[Dict, str]:
+        import aiohttp
+
+        exp_end  = max(1, int(round(total_iterations * self.t_exp_frac)))
+        expl_end = max(exp_end + 1, int(round(total_iterations * self.t_expl_frac)))
+        phase = ("EXPLORATION" if iteration <= exp_end else
+                 "EXPLOITATION" if iteration <= expl_end else "FINE-TUNING")
+
+        current_best = max((r.benchmark.score() for r in history), default=0.0)
+
+        # Guidance based on last run
+        if history:
+            last = history[-1]
+            lm, lq, ls = last.benchmark.map_score, last.benchmark.qps, last.benchmark.score()
+            last_k = last.config.get("k_neighbors", 100)
+            if current_best == 0.0 and ls == 0.0:
+                guidance = (f"INFEASIBLE. mAP={lm:.4f} < τ={_MAP_THRESHOLD:.3f} → Score=0. "
+                            "Increase alpha to 0.90 to recover mAP at low k. "
+                            "TRUE HIGHEST QPS: M=8 efSearch=32 k=50 alpha=0.90 cs=none → ~7273 QPS. "
+                            "Safer fallback: k=100 alpha=0.70 n_refs=5 centroid cs=none efSearch=32.")
+            elif ls >= current_best * 0.98:
+                if phase == "FINE-TUNING":
+                    guidance = (f"EXCELLENT. Score={ls:.4f}. Fine-tune: change ONE param by ONE step: "
+                                f"alpha +/-0.05, OR k_neighbors one step, OR efSearch one step.")
+                else:
+                    guidance = (f"Near best so far (Score={ls:.4f}). Phase={phase}: do NOT fine-tune yet. "
+                                f"KEEP EXPLORING — try a structurally DIFFERENT region: "
+                                f"different engine, OR k={'50' if last_k == 100 else '100'}, "
+                                f"OR IVFFlat if not yet tried, OR different M. "
+                                f"TARGET: M=8 efSearch=32 k=50 alpha=0.90 cs=none → ~7273 QPS.")
+            elif lm >= 0.20 and lq < 100:
+                guidance = (f"mAP OK ({lm:.4f}) but QPS low ({lq:.1f}). "
+                            "Reduce k AND efSearch. TRUE highest QPS: M=8 efSearch=32 k=50 alpha=0.90 cs=none → ~7273 QPS. "
+                            "Do NOT add constraint=object at efSearch≤32 — it slows QPS.")
+            elif ls < current_best * 0.90:
+                last_engine = last.config.get("engine", "FaissHNSWFlat")
+                last_params = last.config.get("params", {})
+                guidance = (f"Score={ls:.4f} significantly below best={current_best:.4f}. "
+                            f"Last: {last_engine} k={last_k} params={last_params}. "
+                            f"Return closer to best config. Target: M=8 efSearch=32 k=50 alpha=0.90 cs=none.")
+            else:
+                guidance = (f"Score={ls:.4f}. mAP={lm:.4f} QPS={lq:.1f}. "
+                            "To gain QPS: reduce efSearch to 32 AND k to 50. Use alpha=0.90 to hold mAP. "
+                            "TRUE ceiling: M=8 efSearch=32 k=50 alpha=0.90 cs=none → ~7273 QPS. "
+                            "Do NOT use cs=object at efSearch≤32 — it is SLOWER.")
+        else:
+            guidance = ("First iteration. Start: FaissHNSWFlat M=8 efSearch=32 "
+                        "k=50 alpha=0.90 n_refs=10 ref_strategy=diverse cs=none. "
+                        "efSearch=32+k=50+cs=none is the highest-QPS config on this machine (~7273 QPS). "
+                        "Use alpha=0.90 to recover mAP at this aggressive low-k setting. "
+                        "k=50+efSearch=32+cs=none is the TRUE ceiling — do NOT start at k=100.")
+
+        _qds_mode = _QDS_TIERS is not None
+
+        def _alpha_str(cfg):
+            if _qds_mode and "alpha_Q1" in cfg:
+                return "/".join(f"Q{t}={cfg.get(f'alpha_Q{t}',0.3):.2f}" for t in range(1,5))
+            return f"{cfg.get('alpha',0.0):.2f}"
+
+        all_tried = "\n".join(
+            f"  iter{r.config.get('_iter','?'):02d}: {r.config['engine']} "
+            f"p={r.config.get('params',{})} k={r.config.get('k_neighbors',500)} "
+            f"a={_alpha_str(r.config)} refs={r.config.get('n_refs',1)} "
+            f"cs={r.config.get('constraint_strategy','none')} "
+            f"→ Score={r.benchmark.score():.4f} mAP={r.benchmark.map_score:.4f} QPS={r.benchmark.qps:.1f}"
+            for r in history
+        ) or "  (none yet)"
+
+        hist_json = json.dumps([{
+            "eng": h.config["engine"], "p": h.config.get("params", {}),
+            "k": h.config.get("k_neighbors", 500),
+            "a": ({f"Q{t}": round(h.config.get(f"alpha_Q{t}", 0.3), 2) for t in range(1, 5)}
+                  if _qds_mode and "alpha_Q1" in h.config
+                  else round(h.config.get("alpha", 0.0), 2)),
+            "refs": h.config.get("n_refs", 1),
+            "rs": h.config.get("ref_strategy", "first"),
+            "cs": h.config.get("constraint_strategy", "none"),
+            "sc": round(h.benchmark.score(), 4),
+            "map": round(h.benchmark.map_score, 4),
+            "qps": round(h.benchmark.qps, 1),
+        } for h in history[-5:]], indent=1)
+
+        # Anti-collapse rule text
+        if consecutive_alpha_only >= 2:
+            anti_collapse_rule = (
+                f"*** MANDATORY *** Your last {consecutive_alpha_only} consecutive iterations changed ONLY alpha "
+                f"(same engine/params/k/refs/cs). You MUST change engine, OR M/efSearch/nlist/nprobe, "
+                f"OR k_neighbors this iteration. Another alpha-only proposal will be rejected and retried.")
+        else:
+            anti_collapse_rule = (
+                f"[{consecutive_alpha_only} consecutive alpha-only iter(s). "
+                f"Change (engine/params/k) if this reaches 2.]")
+
+        # Stagnation rule text
+        if iters_since_improvement >= 5:
+            stagnation_rule = (
+                f"⚠ WARNING: No improvement for {iters_since_improvement} consecutive iterations "
+                f"(best stuck at {current_best:.4f}). MANDATORY: Escape current zone — "
+                f"try constraint_strategy='object' if not yet tried, OR completely different engine, "
+                f"OR k far from current best. Do NOT fine-tune around the stuck config.")
+        else:
+            stagnation_rule = f"[{iters_since_improvement} iter(s) without improvement — OK]"
+
+        # Untried alpha/refs hints (shown only in EXPLOITATION and FINE-TUNING)
+        untried_alpha_hint = ""
+        untried_refs_hint  = ""
+        if history and phase in ("EXPLOITATION", "FINE-TUNING"):
+            best_h      = max(history, key=lambda r: r.benchmark.score())
+            best_engine = best_h.config["engine"]
+            best_params = best_h.config.get("params", {})
+            best_k      = best_h.config.get("k_neighbors", 100)
+
+            if _qds_mode and "alpha_Q1" in best_h.config:
+                tried_q4 = {round(r.config.get("alpha_Q4", 0.3), 2)
+                             for r in history
+                             if r.config["engine"] == best_engine
+                             and r.config.get("params", {}) == best_params}
+                untried_q4 = [a for a in ConfigProvider.ALPHA_VALUES
+                              if round(a, 2) not in tried_q4]
+                if untried_q4 and phase == "FINE-TUNING":
+                    untried_alpha_hint = (
+                        f"\nUNTRIED alpha_Q4 at best engine "
+                        f"({best_engine} params={best_params} k={best_k}): {untried_q4}"
+                        f"\n  → alpha_Q4 has highest impact on hard queries.")
+                tried_k = {r.config.get("k_neighbors", 500)
+                            for r in history
+                            if r.config["engine"] == best_engine
+                            and r.config.get("params", {}) == best_params}
+                untried_k = [k for k in ConfigProvider.K_NEIGHBORS_VALUES if k not in tried_k]
+                if untried_k:
+                    untried_refs_hint = (
+                        f"\nUNTRIED k_neighbors at best engine "
+                        f"({best_engine} params={best_params}): {untried_k}")
+            else:
+                best_alpha = best_h.config.get("alpha", 0.0)
+                tried_alphas = {round(r.config.get("alpha", 0.0), 2)
+                                for r in history
+                                if r.config["engine"] == best_engine
+                                and r.config.get("k_neighbors", 100) == best_k
+                                and r.config.get("params", {}) == best_params}
+                untried_alphas = [a for a in ConfigProvider.ALPHA_VALUES
+                                  if round(a, 2) not in tried_alphas]
+                if untried_alphas and phase == "FINE-TUNING":
+                    untried_alpha_hint = (
+                        f"\nUNTRIED alpha values at best config "
+                        f"({best_engine} k={best_k} params={best_params}): {untried_alphas}"
+                        f"\n  → Valid next probes for alpha fine-tuning.")
+                tried_refs = {
+                    (r.config.get("n_refs", 1), r.config.get("ref_strategy", "first"))
+                    for r in history
+                    if r.config["engine"] == best_engine
+                    and r.config.get("k_neighbors", 100) == best_k
+                    and r.config.get("params", {}) == best_params
+                    and round(r.config.get("alpha", 0.0), 2) == round(best_alpha, 2)
+                }
+                all_refs_combos = [(n, s) for n in ConfigProvider.N_REFS_VALUES
+                                          for s in ConfigProvider.REF_STRATEGY_VALUES]
+                untried_refs_combos = [c for c in all_refs_combos if c not in tried_refs]
+                if untried_refs_combos:
+                    untried_refs_hint = (
+                        f"\nUNTRIED (n_refs, ref_strategy) combos at best config "
+                        f"({best_engine} k={best_k} alpha={best_alpha:.2f}): {untried_refs_combos}"
+                        f"\n  → FREE improvement — n_refs=5+centroid or n_refs=10+diverse are high-value probes.")
+
+        prompt = f"""You are an expert FAISS Optimization Engine for HOI Retrieval.
+Iteration: {iteration}/{total_iterations}. Phase: {phase}.
+
+SYSTEM: FAISS (faiss-cpu, in-process) with CLIP ViT-L/14 (768-d, IP metric) + DINOv2 reranking.
+Dataset: HICO-DET, 47,776 images, 600 HOI query classes.
+Note: FAISS is the ANN engine underlying Milvus. Results directly reflect core ANN performance.
+
+OBJECTIVE: maximize QPS subject to mAP ≥ τ={_MAP_THRESHOLD:.3f} (SIEVE-style).
+  Score = QPS if mAP ≥ τ else 0. Only configs above the mAP threshold contribute.
+
+TWO-STAGE PIPELINE:
+  Stage 1: FAISS ANN search — retrieve top-k candidates per query using CLIP text embedding.
+  Stage 2: DINOv2 reranking — fuse CLIP and DINOv2 similarity scores.
+    fusion: final_score = (1-alpha)*(1-clip_norm) + alpha*(1-dino_norm)  [lower=better]
+
+QPS PHYSICS (FAISS — critical differences from VDMS):
+  FAISS has NO server-client overhead, NO PMGD journal writes. Expect QPS in hundreds-thousands.
+
+  PRIMARY QPS LEVERS (tune these to control QPS):
+    k_neighbors:   Fewer candidates → faster Stage-1 ANN AND faster Stage-2 rerank.
+                   k=50→very high QPS, k=100→high, k=300+→slow. Halving k ~doubles QPS.
+    efSearch:      HNSW query-time parameter. The single most impactful QPS lever.
+                   Lower efSearch → fewer graph hops → faster search, lower CLIP recall.
+                   efSearch=32+k=50+cs=none → ~7273 QPS (TRUE HIGHEST — use alpha=0.90 to hold mAP).
+                   efSearch=32+k=100+cs=none → ~4580 QPS (second best).
+                   efSearch and k are BOTH primary levers — minimize BOTH together.
+    nprobe (IVF):  Like efSearch — lower nprobe → faster search, lower recall.
+                   nlist=512/nprobe=4/k=50 → ~4020 QPS (measured with cs=object).
+    constraint:    Pre-filtering to ~600 images via numpy exact search on object/verb subset.
+                   *** CRITICAL QPS WARNING ***
+                   constraint=object at efSearch=32: ~3560 QPS (SLOWER than cs=none=7273 at k=50).
+                   At efSearch≤32, HNSW visits only ~32 graph nodes on 47K images — this is
+                   FASTER than numpy exact on 600 images. Do NOT combine cs=object with efSearch≤32.
+                   constraint=object helps QPS only at efSearch≥64 (break-even point).
+                   Precision gain from constraint is real but independent of this QPS cost.
+
+  FREE PARAMETERS (no QPS cost):
+    n_refs, ref_strategy: DINOv2 reference building — pure numpy, negligible time.
+    alpha: DINOv2 fusion weight — only affects Stage-2 quality, not ANN speed.
+    M: Higher M = better recall ceiling, NO query-time QPS effect.
+
+  INDEX REBUILD NOTE: Only M or efConstruction changes require rebuilding the index.
+    Build times: FaissHNSWFlat M=32 ~26s, FaissIVFFlat nlist=128 ~3s, FaissFlat ~0.5s.
+    Changing efSearch, nprobe, k, alpha, n_refs, constraint → NO rebuild → fast iteration.
+
+MEASURED QPS BASELINES (empirically measured on this machine, HICO-DET 47K vectors):
+  FaissHNSWFlat M=8  efSearch=32  k=50  cs=none:   ~7273 QPS  ← TRUE HIGHEST (alpha=0.90 needed for mAP)
+  FaissHNSWFlat M=48 efSearch=32  k=50  cs=none:   ~5813 QPS
+  FaissHNSWFlat M=64 efSearch=32  k=50  cs=none:   ~5748 QPS
+  FaissHNSWFlat M=8  efSearch=32  k=100 cs=none:   ~5572 QPS
+  FaissHNSWFlat M=32 efSearch=32  k=100 cs=none:   ~4580 QPS  (OLD reference — not the ceiling)
+  FaissHNSWFlat M=64 efSearch=64  k=50  cs=none:   ~4094 QPS
+  FaissHNSWFlat M=32 efSearch=64  k=100 cs=none:   ~3620 QPS
+  FaissHNSWFlat M=32 efSearch=32  cs=object k=100: ~3560 QPS  ← SLOWER than cs=none at efSearch=32
+  FaissIVFFlat nlist=512 nprobe=4  k=50 cs=object: ~4020 QPS  ← best IVF measured
+  FaissIVFFlat nlist=128 nprobe=4  k=100 cs=none:  ~3520 QPS  (but mAP=0.14, infeasible)
+
+PARAMETER DEFINITIONS:
+  [A1] engine: FaissFlat | FaissHNSWFlat | FaissIVFFlat
+    FaissFlat:     Exact brute-force. Highest possible recall at any k. No ANN params.
+                   QPS ~500-2000 (limited by k). Use as mAP ceiling reference.
+    FaissHNSWFlat: Graph-based ANN. Tune M (build-time) + efSearch (query-time, real QPS lever).
+    FaissIVFFlat:  Cluster-based ANN. Tune nlist (build-time) + nprobe (query-time, real QPS lever).
+                   IVF with high nlist (256-512) + low nprobe → VERY high QPS.
+
+  [A2] M (HNSW only): [8, 16, 32, 48, 64]
+    Higher M = denser graph = higher recall ceiling. No query-time QPS effect.
+    Start M=32. Try M=16 (faster build, slightly lower recall ceiling).
+
+  [A3] efConstruction: FIXED at 200. Do not change.
+
+  [A4] efSearch (HNSW only): [32, 64, 100, 150, 200, 300, 500]  ← REAL QPS LEVER
+    Controls graph traversal depth. efSearch=32→fastest, efSearch=500→best recall.
+    JOINT OPTIMIZATION with k: (k=50, efSearch=32) → very high QPS, probe mAP.
+    For 47K vectors with M=32: efSearch=32-64 often sufficient for good recall.
+
+  [A5] nlist (IVF only): [64, 128, 256, 512]
+    More clusters = finer partitioning. nlist=256 with low nprobe → highest QPS.
+    Rule: nlist=sqrt(n)=218 ≈ 256 for n=47K. nprobe=nlist → exact (same as FaissFlat).
+
+  [A6] nprobe (IVF only): [4, 8, 16, 32, 64]  ← REAL QPS LEVER
+    QPS ∝ 1/nprobe. See measured baselines above for empirical nlist/nprobe QPS figures.
+
+  [B1] k_neighbors: [50, 100, 150, 200, 300, 500, 750, 1000]  ← PRIMARY QPS LEVER
+    Candidates retrieved from FAISS. Both Stage-1 (ANN) and Stage-2 (rerank) scale with k.
+    Start k=100. Probe k=50 (high QPS, mAP borderline).
+    With constraint=object (~600 images), k=150 is near-exhaustive.
+
+  [B2] {'alpha_Q1/Q2/Q3/Q4: each independently from ' + str(ConfigProvider.ALPHA_VALUES) + '  (FREE — no QPS cost)' if _QDS_TIERS is not None else 'alpha:   ' + str(ConfigProvider.ALPHA_VALUES) + '  (FREE — no QPS cost)'}
+    {'DINOv2 weight per query-difficulty tier (Q1=easy … Q4=hardest).' if _QDS_TIERS is not None else 'DINOv2 fusion weight — higher alpha means more visual appearance (DINOv2) vs text semantics (CLIP).'}
+    {'ACS: Q3+Q4 queries auto-routed to object-constraint search (small pool, fast+accurate).' if _QDS_TIERS is not None else ''}
+    {'Prior ablation (VDMS): alpha_Q4=0.85, alpha_Q1/Q2=0.75, alpha_Q3=0.65.' if _QDS_TIERS is not None else 'Prior ablation (VDMS): alpha=0.30 was best at k=500 efS=500 — NOT a universal optimum. At k=50-100 the optimal alpha is unknown — discover it.'}
+    {'Tune all four independently — hard queries (Q4) benefit most from DINOv2.' if _QDS_TIERS is not None else ''}
+
+  [B3] n_refs: [1, 3, 5, 10]  (FREE — pure numpy)
+    DINOv2 reference images per HOI class. n_refs=3-10 → better reference.
+    n_refs=3-5 is likely free improvement over n_refs=1.
+
+  [B4] ref_strategy: ["first", "centroid", "diverse"]  (FREE)
+    "centroid": picks images closest to class visual center → stable reference.
+    "diverse":  greedy farthest-point sampling → covers intra-class variation.
+    Prefer centroid at n_refs=3-5, diverse at n_refs=5-10.
+
+  [B5] constraint_strategy: ["none", "object", "verb", "object_and_verb"]
+    Pre-filter search to images matching HOI metadata (numpy exact search on subset):
+      "none"   → full 47K ANN search. Fastest at efSearch≤32. Use with low efSearch.
+      "object" → ~600 images/query. Slower than cs=none at efSearch≤32; similar at efSearch=64.
+                 Use with efSearch≥64 for QPS+precision benefit. NOT with efSearch=32.
+      "verb"   → ~400 images/query. High risk of missing secondary annotations.
+      "object_and_verb" → <200 images. Very small pool, high mAP risk.
+
+CROSS-PARAMETER INTERACTIONS:
+  M=8 + efSearch=32 + k=50 + alpha=0.90 + cs=none → ~7273 QPS ← TRUE CEILING (BEST observed)
+  M=8 + efSearch=32 + k=100 + cs=none             → ~5572 QPS
+  M=32 + efSearch=32 + k=100 + cs=none            → ~4580 QPS (NOT the ceiling)
+  efSearch ↓ + k ↓ + cs=none   → QPS ↑↑↑ (BOTH levers compound — minimize both simultaneously)
+  k=50 + efSearch=32 + alpha=0.90 → passes mAP threshold on 47K HICO-DET (empirically verified)
+  efSearch ↓ + cs=object        → QPS ↑ less (numpy on 600 images is slower than HNSW efSearch=32)
+  k ↓                           → mAP ↓ → compensate with alpha=0.85-0.90
+  efSearch ↓                    → CLIP recall ↓ → mAP ↓ → compensate with alpha ↑
+  nlist=512 + nprobe=4 + k=50 + cs=object → ~4020 QPS (best IVF path)
+  alpha ↑                       → mAP ↑ up to optimum, then ↓
+  n_refs ↑                      → better DINOv2 ref → safer to increase alpha
+
+RECOMMENDED EXPLORATION STRATEGY:
+  1. FaissHNSWFlat M=8 efSearch=32 k=50 alpha=0.90 n_refs=10 diverse cs=none  ← TRUE HIGHEST QPS
+  2. FaissHNSWFlat M=8 efSearch=32 k=50 alpha=0.85 n_refs=10 diverse cs=none  ← alpha sweep
+  3. FaissIVFFlat nlist=512 nprobe=4 k=50 alpha=0.70 n_refs=5 diverse cs=object
+  4. FaissHNSWFlat M=8 efSearch=32 k=100 alpha=0.90 n_refs=10 diverse cs=none  ← k=100 safety check
+  5. FaissFlat k=50 alpha=0.90 n_refs=10 diverse cs=none → mAP ceiling at k=50
+
+PHASE ({phase}):
+  EXPLORATION (1-{exp_end}): Diverse engine/k/efSearch/nprobe/alpha combos.
+    Priority: START at k=50+efSearch=32+alpha=0.90 (TRUE ceiling). Then sweep M and alpha.
+  EXPLOITATION ({exp_end+1}-{expl_end}): Narrow around best zone. Jointly tune k+efSearch+alpha.
+  FINE-TUNING ({expl_end+1}-{total_iterations}): Change ONE param by ONE step.
+
+DIAGNOSIS: {guidance}
+
+ALL CONFIGS TRIED (do NOT repeat exact combinations):
+{all_tried}
+{untried_alpha_hint}{untried_refs_hint}
+LAST 5 (detailed):
+{hist_json}
+
+DECISION RULES (apply in order):
+1. Read DIAGNOSIS — it tells you the single most important fix.
+2. Use CROSS-PARAMETER INTERACTIONS to avoid breaking other metrics.
+3. In EXPLORATION: try large jumps across engines/k/efSearch/alpha.
+4. In FINE-TUNING: change only ONE parameter by ONE step.
+5. alpha > 0.90 is outside the allowed list.
+6. Never repeat a config already in HISTORY.
+7. ANTI-COLLAPSE: {anti_collapse_rule}
+8. STAGNATION: {stagnation_rule}
+
+Respond with ONLY valid JSON (no markdown, no explanation):
+{'{"engine": "FaissHNSWFlat", "params": {"M": 8, "efConstruction": 200, "efSearch": 32}, "k_neighbors": 50, "alpha_Q1": 0.75, "alpha_Q2": 0.75, "alpha_Q3": 0.65, "alpha_Q4": 0.85, "n_refs": 10, "ref_strategy": "diverse", "constraint_strategy": "none", "reasoning": "one sentence"}' if _QDS_TIERS is not None else '{"engine": "FaissHNSWFlat", "params": {"M": 8, "efConstruction": 200, "efSearch": 32}, "k_neighbors": 50, "alpha": 0.90, "n_refs": 10, "ref_strategy": "diverse", "constraint_strategy": "none", "reasoning": "one sentence explaining the choice"}'}"""
+
+        headers = {"Authorization": f"Bearer {self.api_key}",
+                   "Content-Type": "application/json"}
+        # Start at 4096 — reasoning models burn ~700 tokens on chain-of-thought
+        # before outputting the JSON; 1024 is insufficient at late iterations.
+        max_tokens = 4096
+
+        for attempt in range(3):
+            try:
+                payload = {"model": self.model,
+                           "messages": [{"role": "user", "content": prompt}],
+                           "max_tokens": max_tokens, "temperature": 0.3}
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(
+                        f"{self.base_url}/chat/completions",
+                        headers=headers, json=payload, timeout=aiohttp.ClientTimeout(total=120)
+                    ) as resp:
+                        data = await resp.json()
+                if "choices" not in data:
+                    raise RuntimeError(f"API error response: {json.dumps(data)}")
+                choice = data["choices"][0]
+                # If the model was cut off mid-reasoning, double the budget and retry.
+                if choice.get("finish_reason") == "length":
+                    max_tokens = min(max_tokens * 2, 16384)
+                    print(f"[LLM] finish_reason=length on attempt {attempt+1}; "
+                          f"retrying with max_tokens={max_tokens}")
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                msg = choice["message"]
+                # MiniMax-M2.1 may return content=None when reasoning tokens are used;
+                # fall back to reasoning_content in that case.
+                content = msg.get("content") or msg.get("reasoning_content") or ""
+                if not content:
+                    raise RuntimeError(f"Empty content in response: {json.dumps(data)}")
+                content = content.strip()
+                # Strip markdown code fences if present
+                content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content, flags=re.MULTILINE).strip()
+                cfg = json.loads(content)
+                reasoning = cfg.pop("reasoning", "")
+                return cfg, reasoning
+            except Exception as e:
+                if attempt == 2:
+                    raise
+                await asyncio.sleep(2 ** attempt)
+
+        raise RuntimeError("LLM query failed after 3 attempts")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CONFIG SNAPPING (keep values in allowed lists)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _snap_config(cfg: Dict) -> Dict:
+    out = dict(cfg)
+    for f in ["engine", "params", "k_neighbors", "alpha", "n_refs",
+              "ref_strategy", "constraint_strategy"]:
+        if f not in out:
+            defaults = {"engine": "FaissHNSWFlat", "params": {},
+                        "k_neighbors": 100, "alpha": 0.30, "n_refs": 1,
+                        "ref_strategy": "first", "constraint_strategy": "none"}
+            out[f] = defaults[f]
+
+    if out["engine"] not in ConfigProvider.ENGINES:
+        out["engine"] = "FaissHNSWFlat"
+
+    def _nearest(val, choices):
+        return min(choices, key=lambda x: abs(x - val))
+
+    out["k_neighbors"] = _nearest(out.get("k_neighbors", 100), ConfigProvider.K_NEIGHBORS_VALUES)
+    out["n_refs"]      = _nearest(out.get("n_refs", 1),         ConfigProvider.N_REFS_VALUES)
+    # QDS mode: snap per-tier alphas; drop scalar alpha so it doesn't pollute saved configs
+    qds_mode = any(f"alpha_Q{t}" in out for t in range(1, 5))
+    if qds_mode:
+        for t in range(1, 5):
+            k_t = f"alpha_Q{t}"
+            if k_t in out:
+                out[k_t] = _nearest(float(out[k_t]), ConfigProvider.ALPHA_VALUES)
+        out.pop("alpha", None)
+    else:
+        out["alpha"] = _nearest(out.get("alpha", 0.30), ConfigProvider.ALPHA_VALUES)
+
+    if out.get("ref_strategy") not in ConfigProvider.REF_STRATEGY_VALUES:
+        out["ref_strategy"] = "first"
+    if out.get("constraint_strategy") not in ConfigProvider.CONSTRAINT_STRATEGIES:
+        out["constraint_strategy"] = "none"
+
+    engine = out["engine"]
+    params = dict(out.get("params", {}))
+    if engine == "FaissHNSWFlat":
+        allowed = ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]
+        params["M"]              = _nearest(params.get("M", 32),              allowed["M"])
+        params["efConstruction"] = 200
+        params["efSearch"]       = _nearest(params.get("efSearch", 200),      allowed["efSearch"])
+    elif engine == "FaissIVFFlat":
+        allowed = ConfigProvider.ENGINE_PARAMS["FaissIVFFlat"]
+        params["nlist"]  = _nearest(params.get("nlist", 128),  allowed["nlist"])
+        params["nprobe"] = _nearest(params.get("nprobe", 8),   allowed["nprobe"])
+    else:
+        params = {}
+    out["params"] = params
+    return out
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MAIN OPTIMIZER LOOP
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _config_key(cfg: Dict) -> str:
+    p = json.dumps(cfg.get("params", {}), sort_keys=True)
+    if "alpha_Q1" in cfg:
+        alpha_part = "|".join(f"Q{t}={cfg.get(f'alpha_Q{t}', 0.3):.2f}" for t in range(1, 5))
+    else:
+        alpha_part = str(cfg.get("alpha"))
+    return (f"{cfg.get('engine')}|{p}|{cfg.get('k_neighbors')}|"
+            f"{alpha_part}|{cfg.get('n_refs')}|"
+            f"{cfg.get('ref_strategy')}|{cfg.get('constraint_strategy')}")
+
+
+async def run_optimizer(args) -> List[IterationResult]:
+    global _MAP_THRESHOLD, _QDS_WEIGHTS, _QDS_TIERS, _QDS_STANDARD_THRESHOLD, _FORCE_CONSTRAINT
+    global _USE_ALL_VERB_IDS, _ROW_TO_IMGID
+    _MAP_THRESHOLD = args.map_threshold
+    _FORCE_CONSTRAINT = getattr(args, "force_constraint", None)
+    _USE_ALL_VERB_IDS = getattr(args, "use_all_verb_ids", False)
+    if _USE_ALL_VERB_IDS:
+        print("[ConditionB] --use-all-verb-ids enabled: expanding index to all verb annotations")
+
+    if getattr(args, "use_qds_objective", False):
+        data = _load_data(args.dataset_dir)
+        _QDS_WEIGHTS, _QDS_TIERS = _compute_qds_weights(
+            data["text_q"], data["clip_db"], data["rel_sets"], data["hoi_keys"])
+        _QDS_STANDARD_THRESHOLD = getattr(args, "qds_standard_threshold", False)
+        print(f"[QDS] Objective enabled.  standard_threshold={_QDS_STANDARD_THRESHOLD}")
+    else:
+        _QDS_WEIGHTS = None
+        _QDS_TIERS   = None
+
+    api_key  = os.getenv("OPENROUTER_API_KEY") or os.getenv("MINIMAX_API_KEY") or ""
+    base_url = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+    model    = os.getenv("LLM_MODEL", "minimax/minimax-m2.1")
+
+    provider = ConfigProvider(seed=args.seed)
+    results: List[IterationResult] = []
+    seen: set = set()
+
+    if args.method == "hyperparameter_only":
+        agent = LLMAgent(api_key, base_url, model,
+                         t_exp_frac=args.t_exp_frac, t_expl_frac=args.t_expl_frac)
+
+    if args.method == "hyperparameter_only":
+        consecutive_alpha_only = 0
+        iters_since_improvement = 0
+        best_score_ever = 0.0
+
+        for i in range(1, args.iterations + 1):
+            # Anti-collapse: count consecutive tail iterations that only changed alpha
+            consecutive_alpha_only = 0
+            if len(results) >= 2:
+                ref_cfg = results[-1].config
+                ref_struct = (ref_cfg.get("engine"),
+                              str(sorted(ref_cfg.get("params", {}).items())),
+                              ref_cfg.get("k_neighbors", 500),
+                              ref_cfg.get("n_refs", 1),
+                              ref_cfg.get("ref_strategy", "first"),
+                              ref_cfg.get("constraint_strategy", "none"))
+                for h in reversed(results):
+                    h_struct = (h.config.get("engine"),
+                                str(sorted(h.config.get("params", {}).items())),
+                                h.config.get("k_neighbors", 500),
+                                h.config.get("n_refs", 1),
+                                h.config.get("ref_strategy", "first"),
+                                h.config.get("constraint_strategy", "none"))
+                    if h_struct == ref_struct:
+                        consecutive_alpha_only += 1
+                    else:
+                        break
+
+            cfg, reasoning = await agent.query_llm(i, results, args.iterations,
+                                                   consecutive_alpha_only=consecutive_alpha_only,
+                                                   iters_since_improvement=iters_since_improvement)
+            cfg = _snap_config(cfg)
+            cfg["_iter"] = i
+
+            key = _config_key(cfg)
+            if key in seen:
+                for _att in range(5):
+                    cfg2, reasoning2 = await agent.query_llm(i, results, args.iterations,
+                                                             consecutive_alpha_only=consecutive_alpha_only,
+                                                             iters_since_improvement=iters_since_improvement)
+                    cfg2 = _snap_config(cfg2)
+                    cfg2["_iter"] = i
+                    k2 = _config_key(cfg2)
+                    if k2 not in seen:
+                        cfg, key, reasoning = cfg2, k2, reasoning2
+                        break
+                    print(f"[Dedup] LLM repeated config (attempt {_att+1}), retrying…")
+                else:
+                    # All 5 LLM retries produced duplicates — fall back to random
+                    fb = _snap_config(provider.get_random_config())
+                    fb["_iter"] = i
+                    fb_key = _config_key(fb)
+                    if fb_key not in seen:
+                        cfg, key, reasoning = fb, fb_key, "Fallback random (LLM repeated configs 5x)"
+                        print(f"[Dedup] Falling back to random after 5 duplicate LLM suggestions.")
+            seen.add(key)
+
+            print(f"\n[Iter {i}/{args.iterations}] LLM → {cfg}  | {reasoning}")
+            bm = run_benchmark(cfg, args.dataset_dir, iteration=i)
+            print(f"  Score={bm.score():.4f}  mAP={bm.map_score:.4f}  "
+                  f"QPS={bm.qps:.1f}  build={bm.index_build_s:.1f}s")
+            results.append(IterationResult(
+                iteration=i, config=cfg, benchmark=bm,
+                llm_reasoning=reasoning, search_method="LLM"))
+
+            if bm.score() > best_score_ever:
+                best_score_ever = bm.score()
+                iters_since_improvement = 0
+            else:
+                iters_since_improvement += 1
+
+    elif args.method == "grid":
+        configs = provider.grid_search_configs()[:args.iterations]
+        for i, cfg in enumerate(configs, 1):
+            cfg["_iter"] = i
+            print(f"\n[Iter {i}/{args.iterations}] Grid → {cfg}")
+            bm = run_benchmark(cfg, args.dataset_dir, iteration=i)
+            print(f"  Score={bm.score():.4f}  mAP={bm.map_score:.4f}  QPS={bm.qps:.1f}")
+            results.append(IterationResult(
+                iteration=i, config=cfg, benchmark=bm,
+                llm_reasoning="", search_method="grid"))
+
+    elif args.method == "random":
+        for i in range(1, args.iterations + 1):
+            cfg = provider.get_random_config()
+            cfg["_iter"] = i
+            key = _config_key(cfg)
+            retries = 0
+            while key in seen and retries < 20:
+                cfg = provider.get_random_config()
+                cfg["_iter"] = i
+                key = _config_key(cfg)
+                retries += 1
+            seen.add(key)
+            print(f"\n[Iter {i}/{args.iterations}] Random → {cfg}")
+            bm = run_benchmark(cfg, args.dataset_dir, iteration=i)
+            print(f"  Score={bm.score():.4f}  mAP={bm.map_score:.4f}  QPS={bm.qps:.1f}")
+            results.append(IterationResult(
+                iteration=i, config=cfg, benchmark=bm,
+                llm_reasoning="", search_method="random"))
+
+    elif args.method == "optuna":
+        dataset_dir = args.dataset_dir
+        _res_list = results
+
+        def _objective(trial):
+            cfg = provider.optuna_suggest(trial)
+            cfg["_iter"] = trial.number + 1
+            bm = run_benchmark(cfg, dataset_dir, iteration=trial.number + 1)
+            _res_list.append(IterationResult(
+                iteration=trial.number + 1, config=cfg, benchmark=bm,
+                llm_reasoning="", search_method="optuna"))
+            print(f"  [Optuna trial {trial.number+1}] Score={bm.score():.4f}  "
+                  f"mAP={bm.map_score:.4f}  QPS={bm.qps:.1f}")
+            return bm.score()
+
+        study = optuna.create_study(direction="maximize",
+                                    sampler=optuna.samplers.TPESampler(seed=args.seed))
+        study.optimize(_objective, n_trials=args.iterations)
+
+    elif args.method == "gp_bo":
+        dataset_dir = args.dataset_dir
+        _res_list = results
+
+        def _gp_objective(trial):
+            cfg = provider.optuna_suggest(trial)
+            cfg["_iter"] = trial.number + 1
+            bm = run_benchmark(cfg, dataset_dir, iteration=trial.number + 1)
+            _res_list.append(IterationResult(
+                iteration=trial.number + 1, config=cfg, benchmark=bm,
+                llm_reasoning="", search_method="gp_bo"))
+            print(f"  [GP-BO trial {trial.number+1}] Score={bm.score():.4f}  "
+                  f"mAP={bm.map_score:.4f}  QPS={bm.qps:.1f}")
+            return bm.score()
+
+        gp_study = optuna.create_study(direction="maximize",
+                                       sampler=optuna.samplers.GPSampler(seed=args.seed))
+        gp_study.optimize(_gp_objective, n_trials=args.iterations)
+
+    elif args.method == "vdtuner":
+        dataset_dir = args.dataset_dir
+        _encoder = KnobEncoder([
+            {"name": "M",        "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["M"]},
+            {"name": "efSearch", "type": "enum",
+             "values": ConfigProvider.ENGINE_PARAMS["FaissHNSWFlat"]["efSearch"]},
+            {"name": "k_neighbors", "type": "enum",
+             "values": ConfigProvider.K_NEIGHBORS_VALUES},
+            {"name": "alpha",    "type": "enum",
+             "values": ConfigProvider.ALPHA_VALUES},
+            {"name": "n_refs",   "type": "enum",
+             "values": ConfigProvider.N_REFS_VALUES},
+            {"name": "ref_strategy", "type": "enum",
+             "values": ConfigProvider.REF_STRATEGY_VALUES},
+        ])
+        vdtuner_opt = VDTunerOptimizer(_encoder, seed=args.seed)
+
+        for i in range(args.iterations):
+            cfg_partial = vdtuner_opt.ask()
+            cfg = {
+                "engine": "FaissHNSWFlat",
+                "params": {
+                    "M": cfg_partial["M"],
+                    "efConstruction": 200,
+                    "efSearch": cfg_partial["efSearch"],
+                },
+                "k_neighbors":  cfg_partial["k_neighbors"],
+                "alpha":        cfg_partial["alpha"],
+                "n_refs":       cfg_partial["n_refs"],
+                "ref_strategy": cfg_partial["ref_strategy"],
+                "constraint_strategy": "none",
+                "_iter": i + 1,
+            }
+            bm = run_benchmark(cfg, dataset_dir, iteration=i + 1)
+            vdtuner_opt.tell(cfg_partial, bm.map_score, bm.qps)
+            results.append(IterationResult(
+                iteration=i + 1, config=cfg, benchmark=bm,
+                llm_reasoning="", search_method="vdtuner"))
+            print(f"  [VDTuner iter {i+1}] Score={bm.score():.4f}  "
+                  f"mAP={bm.map_score:.4f}  QPS={bm.qps:.1f}")
+
+    return results
+
+
+def main():
+    parser = argparse.ArgumentParser(description="FAISS HICO-DET Optimizer (Milvus backend)")
+    parser.add_argument("--dataset-dir",    type=str, required=True)
+    parser.add_argument("--method",         type=str, default="hyperparameter_only",
+                        choices=["hyperparameter_only", "grid", "random", "optuna", "gp_bo", "vdtuner"])
+    parser.add_argument("--iterations",     type=int, default=50)
+    parser.add_argument("--seed",           type=int, default=42)
+    parser.add_argument("--map-threshold",  type=float, default=0.15)
+    parser.add_argument("--output",         type=str, default="milvus_hico_results.json")
+    parser.add_argument("--t-exp-frac",            type=float, default=0.40)
+    parser.add_argument("--t-expl-frac",           type=float, default=0.75)
+    parser.add_argument("--use-qds-objective",     action="store_true", default=False)
+    parser.add_argument("--qds-standard-threshold", action="store_true", default=False)
+    parser.add_argument("--use-all-verb-ids",       action="store_true", default=False,
+                        help="ConditionB: index one row per (img_id, verb_id) for all verb annotations")
+    parser.add_argument("--force-constraint",       type=str, default=None,
+                        choices=["none", "object", "verb", "object_and_verb"],
+                        help="Force all iterations to use this constraint_strategy")
+    args = parser.parse_args()
+
+    print("=" * 70)
+    print(f"FAISS HICO-DET Optimizer (Milvus backend)")
+    print(f"  Method:     {args.method}")
+    print(f"  Iterations: {args.iterations}")
+    print(f"  Seed:       {args.seed}")
+    print(f"  τ (mAP):    {args.map_threshold}")
+    if args.use_qds_objective:
+        print(f"  QDS:        ON  (standard_threshold={args.qds_standard_threshold})")
+    if args.use_all_verb_ids:
+        print(f"  ConditionB: ON  (all_verb_ids multi-row indexing)")
+    if args.force_constraint is not None:
+        print(f"  Force constraint: {args.force_constraint}")
+    print("=" * 70)
+
+    results = asyncio.run(run_optimizer(args))
+
+    if not results:
+        print("No results collected.")
+        return
+
+    best = max(results, key=lambda r: r.benchmark.score())
+    print(f"\n{'='*70}")
+    print(f"BEST: Score={best.benchmark.score():.4f}  mAP={best.benchmark.map_score:.4f}  "
+          f"QPS={best.benchmark.qps:.1f}")
+    print(f"  Config: {best.config}")
+
+    out = {
+        "method":        args.method,
+        "seed":          args.seed,
+        "iterations":    args.iterations,
+        "map_threshold": args.map_threshold,
+        "best_score":    best.benchmark.score(),
+        "best_map":      best.benchmark.map_score,
+        "best_qps":      best.benchmark.qps,
+        "best_config":   best.config,
+        "all_results":   [
+            {
+                "iteration":     r.iteration,
+                "config":        r.config,
+                "score":         r.benchmark.score(),
+                "map":           r.benchmark.map_score,
+                "qps":           r.benchmark.qps,
+                "latency_ms":    r.benchmark.latency_ms,
+                "index_build_s": r.benchmark.index_build_s,
+                "p10":           r.benchmark.precision_at_10,
+                "ndcg10":        r.benchmark.ndcg_at_10,
+                "recall10":      r.benchmark.recall_at_10,
+                "reasoning":     r.llm_reasoning,
+            }
+            for r in results
+        ],
+    }
+
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    with open(args.output, "w") as f:
+        json.dump(out, f, indent=2)
+    print(f"\nResults saved → {args.output}")
+
+
+if __name__ == "__main__":
+    main()

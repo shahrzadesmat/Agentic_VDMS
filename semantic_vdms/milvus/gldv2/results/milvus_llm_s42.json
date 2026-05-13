@@ -1,0 +1,1177 @@
+{
+  "method": "hyperparameter_only",
+  "seed": 42,
+  "iterations": 50,
+  "map_threshold": 0.15,
+  "best_score": 6200.058677965125,
+  "best_map": 0.15524685212964492,
+  "best_qps": 6200.058677965125,
+  "best_config": {
+    "engine": "FaissHNSWFlat",
+    "params": {
+      "M": 8,
+      "efConstruction": 100,
+      "efSearch": 32
+    },
+    "k_neighbors": 50,
+    "alpha": 0.84,
+    "n_refs": 1,
+    "ref_strategy": "first",
+    "n_aqe": 1,
+    "aqe_weight": 0.0,
+    "_iter": 29
+  },
+  "n_feasible": 43,
+  "all_results": [
+    {
+      "iteration": 1,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 64
+        },
+        "k_neighbors": 150,
+        "alpha": 0.1,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 1
+      },
+      "search_method": "llm",
+      "score": 0.0,
+      "map": 0.12868997748337874,
+      "qps": 2350.8046551735265,
+      "latency_ms": 0.42538625989158774
+    },
+    {
+      "iteration": 2,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 150
+        },
+        "k_neighbors": 200,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
+        "_iter": 2
+      },
+      "search_method": "llm",
+      "score": 871.9611881390853,
+      "map": 0.18946963175648493,
+      "qps": 871.9611881390853,
+      "latency_ms": 1.1468400355458153
+    },
+    {
+      "iteration": 3,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 200,
+        "alpha": 0.2,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 3
+      },
+      "search_method": "llm",
+      "score": 0.0,
+      "map": 0.1436311092643723,
+      "qps": 1814.0348290515617,
+      "latency_ms": 0.5512573319900553
+    },
+    {
+      "iteration": 4,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 300,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 4
+      },
+      "search_method": "llm",
+      "score": 1039.9099303984467,
+      "map": 0.19582538424962817,
+      "qps": 1039.9099303984467,
+      "latency_ms": 0.9616217431608188
+    },
+    {
+      "iteration": 5,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 200,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 5
+      },
+      "search_method": "llm",
+      "score": 1325.6949812289508,
+      "map": 0.18861843352124857,
+      "qps": 1325.6949812289508,
+      "latency_ms": 0.7543213289326751
+    },
+    {
+      "iteration": 6,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 150,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 6
+      },
+      "search_method": "llm",
+      "score": 1582.7191957004197,
+      "map": 0.1830609254915335,
+      "qps": 1582.7191957004197,
+      "latency_ms": 0.6318240169933984
+    },
+    {
+      "iteration": 7,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 100,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 7
+      },
+      "search_method": "llm",
+      "score": 1991.6710545906647,
+      "map": 0.17603324890588362,
+      "qps": 1991.6710545906647,
+      "latency_ms": 0.5020909440316808
+    },
+    {
+      "iteration": 8,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 100
+        },
+        "k_neighbors": 80,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.3,
+        "_iter": 8
+      },
+      "search_method": "llm",
+      "score": 2176.1677048804395,
+      "map": 0.1715972462694637,
+      "qps": 2176.1677048804395,
+      "latency_ms": 0.45952340794200913
+    },
+    {
+      "iteration": 9,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.3,
+        "_iter": 9
+      },
+      "search_method": "llm",
+      "score": 3130.479045605573,
+      "map": 0.15859700837101862,
+      "qps": 3130.479045605573,
+      "latency_ms": 0.319439927701722
+    },
+    {
+      "iteration": 10,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 64
+        },
+        "k_neighbors": 50,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 10
+      },
+      "search_method": "llm",
+      "score": 3922.335704221794,
+      "map": 0.15772109846346505,
+      "qps": 3922.335704221794,
+      "latency_ms": 0.25495013058766314
+    },
+    {
+      "iteration": 11,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 11
+      },
+      "search_method": "llm",
+      "score": 4953.978373673463,
+      "map": 0.15571589732138577,
+      "qps": 4953.978373673463,
+      "latency_ms": 0.2018579663799546
+    },
+    {
+      "iteration": 12,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 12
+      },
+      "search_method": "llm",
+      "score": 5272.652506402405,
+      "map": 0.15477149003260204,
+      "qps": 5272.652506402405,
+      "latency_ms": 0.1896578617281783
+    },
+    {
+      "iteration": 13,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 400,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 13
+      },
+      "search_method": "llm",
+      "score": 0.0,
+      "map": 0.13768891926013554,
+      "qps": 4264.534730058438,
+      "latency_ms": 0.2344921693219032
+    },
+    {
+      "iteration": 14,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 14
+      },
+      "search_method": "llm",
+      "score": 5462.687866626214,
+      "map": 0.15660719673841267,
+      "qps": 5462.687866626214,
+      "latency_ms": 0.1830600657433509
+    },
+    {
+      "iteration": 15,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.6,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 15
+      },
+      "search_method": "llm",
+      "score": 5581.548751351077,
+      "map": 0.15577133167645543,
+      "qps": 5581.548751351077,
+      "latency_ms": 0.1791617424747815
+    },
+    {
+      "iteration": 16,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 16
+      },
+      "search_method": "llm",
+      "score": 6061.652783342572,
+      "map": 0.1539530907258147,
+      "qps": 6061.652783342572,
+      "latency_ms": 0.16497150789434872
+    },
+    {
+      "iteration": 17,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.7,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 17
+      },
+      "search_method": "llm",
+      "score": 4412.637718541325,
+      "map": 0.1540591898328106,
+      "qps": 4412.637718541325,
+      "latency_ms": 0.2266218220902503
+    },
+    {
+      "iteration": 18,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 18
+      },
+      "search_method": "llm",
+      "score": 6178.935343494617,
+      "map": 0.1552810706915809,
+      "qps": 6178.935343494617,
+      "latency_ms": 0.1618401786729865
+    },
+    {
+      "iteration": 19,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 19
+      },
+      "search_method": "llm",
+      "score": 6145.99887862112,
+      "map": 0.15511655442254807,
+      "qps": 6145.99887862112,
+      "latency_ms": 0.16270748168837187
+    },
+    {
+      "iteration": 20,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 100,
+          "efSearch": 500
+        },
+        "k_neighbors": 750,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 5,
+        "aqe_weight": 0.3,
+        "_iter": 20
+      },
+      "search_method": "llm",
+      "score": 365.2967537409141,
+      "map": 0.22492477091844654,
+      "qps": 365.2967537409141,
+      "latency_ms": 2.737500374036304
+    },
+    {
+      "iteration": 21,
+      "config": {
+        "_iter": 21,
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0
+      },
+      "search_method": "llm",
+      "score": 6088.4162171961525,
+      "map": 0.15569334663018033,
+      "qps": 6088.4162171961525,
+      "latency_ms": 0.1642463268486138
+    },
+    {
+      "iteration": 22,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 22
+      },
+      "search_method": "llm",
+      "score": 0.0,
+      "map": 0.1470500938099556,
+      "qps": 6201.593319826657,
+      "latency_ms": 0.16124888370267262
+    },
+    {
+      "iteration": 23,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 23
+      },
+      "search_method": "llm",
+      "score": 6177.476363048135,
+      "map": 0.15569334663018033,
+      "qps": 6177.476363048135,
+      "latency_ms": 0.16187840166928177
+    },
+    {
+      "iteration": 24,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 24
+      },
+      "search_method": "llm",
+      "score": 6167.34701808904,
+      "map": 0.15569334663018033,
+      "qps": 6167.34701808904,
+      "latency_ms": 0.16214427322914793
+    },
+    {
+      "iteration": 25,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 25
+      },
+      "search_method": "llm",
+      "score": 5357.3585428215865,
+      "map": 0.15569334663018033,
+      "qps": 5357.3585428215865,
+      "latency_ms": 0.18665915152158644
+    },
+    {
+      "iteration": 26,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 26
+      },
+      "search_method": "llm",
+      "score": 988.6744977779002,
+      "map": 0.16003934596530836,
+      "qps": 988.6744977779002,
+      "latency_ms": 1.0114552385517726
+    },
+    {
+      "iteration": 27,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 27
+      },
+      "search_method": "llm",
+      "score": 6086.1938561868055,
+      "map": 0.15538693517038135,
+      "qps": 6086.1938561868055,
+      "latency_ms": 0.1643063010527456
+    },
+    {
+      "iteration": 28,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 28
+      },
+      "search_method": "llm",
+      "score": 6156.8745746757,
+      "map": 0.15490465576086224,
+      "qps": 6156.8745746757,
+      "latency_ms": 0.16242007009744433
+    },
+    {
+      "iteration": 29,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.84,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 29
+      },
+      "search_method": "llm",
+      "score": 6200.058677965125,
+      "map": 0.15524685212964492,
+      "qps": 6200.058677965125,
+      "latency_ms": 0.16128879611316882
+    },
+    {
+      "iteration": 30,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 400,
+          "efSearch": 200
+        },
+        "k_neighbors": 300,
+        "alpha": 0.1,
+        "n_refs": 3,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.5,
+        "_iter": 30
+      },
+      "search_method": "llm",
+      "score": 0.0,
+      "map": 0.12294996696730481,
+      "qps": 533.1249953981446,
+      "latency_ms": 1.8757327242801418
+    },
+    {
+      "iteration": 31,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.84,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 31
+      },
+      "search_method": "llm",
+      "score": 5982.317491639937,
+      "map": 0.1551721285624955,
+      "qps": 5982.317491639937,
+      "latency_ms": 0.1671592992845101
+    },
+    {
+      "iteration": 32,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 200,
+          "efSearch": 300
+        },
+        "k_neighbors": 200,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
+        "_iter": 32
+      },
+      "search_method": "llm",
+      "score": 983.1815799980608,
+      "map": 0.19825162436041777,
+      "qps": 983.1815799980608,
+      "latency_ms": 1.0171061178769973
+    },
+    {
+      "iteration": 33,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.84,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 33
+      },
+      "search_method": "llm",
+      "score": 6033.478052466143,
+      "map": 0.1559051350183806,
+      "qps": 6033.478052466143,
+      "latency_ms": 0.1657418807699577
+    },
+    {
+      "iteration": 34,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 34
+      },
+      "search_method": "llm",
+      "score": 3842.8359752292336,
+      "map": 0.17015241023385125,
+      "qps": 3842.8359752292336,
+      "latency_ms": 0.26022448172286294
+    },
+    {
+      "iteration": 35,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 35
+      },
+      "search_method": "llm",
+      "score": 6142.196278132244,
+      "map": 0.15554631539773195,
+      "qps": 6142.196278132244,
+      "latency_ms": 0.16280821301010037
+    },
+    {
+      "iteration": 36,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.85,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 36
+      },
+      "search_method": "llm",
+      "score": 6158.676249261927,
+      "map": 0.15604558519917835,
+      "qps": 6158.676249261927,
+      "latency_ms": 0.1623725553230441
+    },
+    {
+      "iteration": 37,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 37
+      },
+      "search_method": "llm",
+      "score": 3879.7710630153506,
+      "map": 0.16990224764360995,
+      "qps": 3879.7710630153506,
+      "latency_ms": 0.25774716697402295
+    },
+    {
+      "iteration": 38,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.86,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 38
+      },
+      "search_method": "llm",
+      "score": 6163.887015062923,
+      "map": 0.15619062533446101,
+      "qps": 6163.887015062923,
+      "latency_ms": 0.16223529041922125
+    },
+    {
+      "iteration": 39,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.75,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 39
+      },
+      "search_method": "llm",
+      "score": 6102.264190040747,
+      "map": 0.15540849573291032,
+      "qps": 6102.264190040747,
+      "latency_ms": 0.16387359984054092
+    },
+    {
+      "iteration": 40,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.5,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 40
+      },
+      "search_method": "llm",
+      "score": 0.0,
+      "map": 0.14740589538097798,
+      "qps": 6140.6510735251595,
+      "latency_ms": 0.16284918130447212
+    },
+    {
+      "iteration": 41,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 41
+      },
+      "search_method": "llm",
+      "score": 6160.623242537901,
+      "map": 0.15588262177930723,
+      "qps": 6160.623242537901,
+      "latency_ms": 0.16232123936669188
+    },
+    {
+      "iteration": 42,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.9,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 42
+      },
+      "search_method": "llm",
+      "score": 6117.0680872831745,
+      "map": 0.15588262177930723,
+      "qps": 6117.0680872831745,
+      "latency_ms": 0.1634770098568804
+    },
+    {
+      "iteration": 43,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.86,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 3,
+        "aqe_weight": 0.1,
+        "_iter": 43
+      },
+      "search_method": "llm",
+      "score": 4428.74505230375,
+      "map": 0.15616305272769884,
+      "qps": 4428.74505230375,
+      "latency_ms": 0.22579759913698777
+    },
+    {
+      "iteration": 44,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 100,
+        "alpha": 0.2,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "n_aqe": 5,
+        "aqe_weight": 0.5,
+        "_iter": 44
+      },
+      "search_method": "llm",
+      "score": 0.0,
+      "map": 0.13094651205193883,
+      "qps": 1159.5650699137507,
+      "latency_ms": 0.8623923106569438
+    },
+    {
+      "iteration": 45,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.86,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 45
+      },
+      "search_method": "llm",
+      "score": 5984.517567960367,
+      "map": 0.15509056168371835,
+      "qps": 5984.517567960367,
+      "latency_ms": 0.16709784684295248
+    },
+    {
+      "iteration": 46,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 48,
+          "efConstruction": 100,
+          "efSearch": 100
+        },
+        "k_neighbors": 300,
+        "alpha": 0.8,
+        "n_refs": 5,
+        "ref_strategy": "diverse",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 46
+      },
+      "search_method": "llm",
+      "score": 566.4472407198714,
+      "map": 0.16180015771780373,
+      "qps": 566.4472407198714,
+      "latency_ms": 1.7653894804556673
+    },
+    {
+      "iteration": 47,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 16,
+          "efConstruction": 100,
+          "efSearch": 150
+        },
+        "k_neighbors": 100,
+        "alpha": 0.8,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 3,
+        "aqe_weight": 0.2,
+        "_iter": 47
+      },
+      "search_method": "llm",
+      "score": 2111.9346069365065,
+      "map": 0.18260672551089752,
+      "qps": 2111.9346069365065,
+      "latency_ms": 0.47349950927247825
+    },
+    {
+      "iteration": 48,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 64,
+          "efConstruction": 200,
+          "efSearch": 150
+        },
+        "k_neighbors": 750,
+        "alpha": 0.7,
+        "n_refs": 10,
+        "ref_strategy": "diverse",
+        "n_aqe": 10,
+        "aqe_weight": 0.3,
+        "_iter": 48
+      },
+      "search_method": "llm",
+      "score": 99.82285020058296,
+      "map": 0.16892572211954507,
+      "qps": 99.82285020058296,
+      "latency_ms": 10.017746417685037
+    },
+    {
+      "iteration": 49,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 32,
+          "efConstruction": 200,
+          "efSearch": 32
+        },
+        "k_neighbors": 1000,
+        "alpha": 0.3,
+        "n_refs": 1,
+        "ref_strategy": "centroid",
+        "n_aqe": 10,
+        "aqe_weight": 0.2,
+        "_iter": 49
+      },
+      "search_method": "llm",
+      "score": 538.5165345802441,
+      "map": 0.18240999951974143,
+      "qps": 538.5165345802441,
+      "latency_ms": 1.856953196022973
+    },
+    {
+      "iteration": 50,
+      "config": {
+        "engine": "FaissHNSWFlat",
+        "params": {
+          "M": 8,
+          "efConstruction": 100,
+          "efSearch": 32
+        },
+        "k_neighbors": 50,
+        "alpha": 0.88,
+        "n_refs": 1,
+        "ref_strategy": "first",
+        "n_aqe": 1,
+        "aqe_weight": 0.0,
+        "_iter": 50
+      },
+      "search_method": "llm",
+      "score": 6063.6786641739445,
+      "map": 0.15507262403906014,
+      "qps": 6063.6786641739445,
+      "latency_ms": 0.16491639075604447
+    }
+  ]
+}
