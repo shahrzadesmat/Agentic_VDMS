@@ -1,6 +1,6 @@
 # Agentic VDMS — Supplementary Materials
 
-**Paper:** *LLM-Guided ANN Index Optimization for Efficient Human-Object Interaction Retrieval*
+**Paper:** *LLM-Guided ANN Index Optimization for Human-Object Interaction Retrieval*
 **Venue:** VLDB 2027 submission
 
 ![Optimization Framework](assets/workflow.png)
