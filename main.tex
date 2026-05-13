@@ -1469,6 +1469,51 @@ construction; the remaining $M$--$\mathit{efSearch}$ interaction is monotone
 and BO-tractable without joint history-conditioned reasoning.
 Notably, sample-efficiency rankings invert: Grid Search reaches its best Score at iteration~5 vs.\ iteration~31 for the LLM agent, confirming that architectural history confers no navigational advantage on the uncoupled 4-parameter space.
 
+% ══════════════════════════════════════════════════════════════════════════════
+\subsection{Cross-System Generalizability (Milvus)}
+\label{sec:milvus}
+% ══════════════════════════════════════════════════════════════════════════════
+
+To verify that results are not VDMS-specific, we replicate all five methods on
+Milvus~\cite{wang2021milvus} under identical protocols: 50 iterations, 3 seeds,
+same dataset splits and $\tau$ thresholds, zero code changes to the optimizer.
+Table~\ref{tab:milvus} reports 3-seed mean Scores; the LLM agent ranks first on
+all three datasets across all nine seeds.
+
+On HICO-DET the margin over VDTuner (the best non-LLM baseline on Milvus) is
+$+7.0\%$ (7272 vs.\ 6798).
+On GLDv2 the margin widens to $+13.3\%$ (6375 vs.\ 5624), consistent with the
+coupled two-stage space penalising marginal optimizers more severely when the
+feasibility cliff is sharp.
+GP-BO collapses on GLDv2 ($-70.5\%$ vs.\ LLM), replicating the same cliff
+failure observed on VDMS.
+On SIFT1M the gap compresses to $+5.8\%$ (41\,847 vs.\ 39\,540 vs.\ VDTuner),
+matching the complexity-proportional scaling seen on VDMS.
+
+\vspace{4pt}
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\captionof{table}{Cross-system results on Milvus (3-seed means, 50 iterations).
+HICO-DET: SIEVE ($\tau{=}0.15$);
+GLDv2: mAP${\times}$QPS;
+SIFT1M: Recall@10${\times}$QPS ($\tau{=}0.90$).}
+\label{tab:milvus}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{HICO-DET}$\uparrow$ & \textbf{GLDv2}$\uparrow$ & \textbf{SIFT1M}$\uparrow$ \\
+\midrule
+\textbf{LLM Agent (Ours)} & \textbf{7272} & \textbf{6375} & \textbf{41{,}847} \\
+VDTuner~\cite{yang2024vdtuner}          & 6798          & 5624          & 39{,}540 \\
+GP-BO~\cite{snoek2012bayesian}          & 5449          & 1882          & 35{,}051 \\
+Optuna~TPE~\cite{akiba2019optuna}       & 5368          & 4792          & 35{,}330 \\
+Random Search~\cite{bergstra2012random} & 4504          & 2632          & 31{,}134 \\
+\bottomrule
+\end{tabular}}
+\endgroup
+\vspace{5pt}
+
 \subsection{Ablation Study}
 \label{sec:ablation}
 \noindent\textbf{Parameter ablations ($\alpha$, $k$, $n_r$, engine).}
