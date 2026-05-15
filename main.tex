@@ -949,7 +949,7 @@ if a duplicate is detected, the LLM is re-queried up to four times with the same
 (a different response may arise from the model's sampling temperature);
 if all four attempts remain duplicates, a uniformly random fallback is applied,
 guaranteeing loop progress.
-Each LLM call consumes approximately 2{,}000--3{,}500 tokens (growing with history; for larger $N$, top-$k$ history retention is a natural mitigation); the full 50-iteration run costs fewer than 250{,}000 tokens (\textless\$0.20), negligible relative to the 6.5--7.5~h oracle cost.\looseness=-1
+Each LLM call consumes approximately 2{,}000--5{,}000 tokens (growing with history; for larger $N$, top-$k$ history retention is a natural mitigation); the full 50-iteration run costs fewer than 250{,}000 tokens (\textless\$0.20), negligible relative to the 6.5--7.5~h oracle cost.\looseness=-1
 
 \subsection{Phase-Aware Budget Partition}
 \label{sec:phases}
