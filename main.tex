@@ -957,7 +957,7 @@ Each LLM call consumes approximately 2{,}000--3{,}500 tokens (growing with histo
 The $N$-iteration budget is divided into three phases with boundaries
 \begin{align}
   t_{\mathrm{exp}}  &= \lfloor 0.40\,N \rfloor, \label{eq:texp}\\
-  t_{\mathrm{expl}} &= \lfloor 0.75\,N \rceil, \label{eq:texpl}
+  t_{\mathrm{expl}} &= \lceil 0.75\,N \rceil, \label{eq:texpl}
 \end{align}
 defining \textbf{Exploration} ($1 \leq t \leq t_{\mathrm{exp}}$),
 \textbf{Exploitation} ($t_{\mathrm{exp}} < t \leq t_{\mathrm{expl}}$),
@@ -1014,7 +1014,7 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
        $\mathrm{Score}^* \gets 0$;\enspace
        $\iota \gets 0$
 \State $t_{\mathrm{exp}} \gets \lfloor 0.40N \rfloor$;\enspace
-       $t_{\mathrm{expl}} \gets \lfloor 0.75N \rceil$
+       $t_{\mathrm{expl}} \gets \lceil 0.75N \rceil$
        \hfill\Comment{Eqs.~\eqref{eq:texp}--\eqref{eq:texpl}}
 \For{$t = 1, 2, \ldots, N$}
   \State $\phi_t \gets \mathrm{Phase}(t,\,t_{\mathrm{exp}},\,t_{\mathrm{expl}})$
