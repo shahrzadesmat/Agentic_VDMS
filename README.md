@@ -125,17 +125,18 @@ The **SIEVE score** = `best_qps` when `best_map >= τ` (τ = 0.15 for HICO-DET/G
 
 ---
 
-## Key Results (Table 2 in paper)
+## Key Results (Tables 2–4 in paper)
 
-| Method       | HICO-DET Score (QPS) | GLDv2 Score | SIFT1M Score |
-|--------------|----------------------|-------------|--------------|
-| LLM Agent    | **300.3** (±0.3)     | **276.3**   | **1175.0**   |
-| Optuna TPE   | 225.2                | 273.0       | 1163.5       |
-| GP-BO        | 199.3                | 77.6        | 471.4        |
-| Grid Search  | 183.0                | 273.0       | 1174.4       |
-| Random       | 111.4                | 256.0       | 1160.4       |
+| Method       | HICO-DET Score (QPS) | GLDv2 Score  | SIFT1M Score |
+|--------------|----------------------|--------------|--------------|
+| LLM Agent    | **300.3** (±0.3)     | 271.45       | **1184.5**   |
+| VDTuner      | 223.8                | **273.91**   | 1150.9       |
+| Optuna TPE   | 225.2                | 272.35       | 1160.7       |
+| Grid Search  | 183.0                | 272.98       | 1174.4       |
+| Random       | 111.4                | 265.47       | 1143.6       |
+| GP-BO        | 199.3                | 56.57        | 755.4        |
 
 Score = QPS if mAP ≥ τ, else 0 (SIEVE objective).
-HICO-DET means are over 3 seeds (42, 99, 200); GLDv2 and SIFT1M are seed 42.
+All scores are 3-seed means (seeds 42, 99, 200); Grid Search is 1 run (seed 42).
 
 Phase boundary sensitivity (t_exp/t_expl): all variants within ±0.53% of default, confirming robustness.
