@@ -154,21 +154,27 @@
 %% article.
 \begin{abstract}
 Retrieval systems underpin modern AI applications --- spanning visual search,
-recommendation engines, and multi-modal question answering at billion-scale.
+recommendation engines, and multi-modal question answering.
 Modern multi-stage retrieval systems require the joint optimization of highly coupled
 parameters, yet traditional hyperparameter optimization (HPO) methods ---
-including Bayesian TPE and Gaussian Process BO --- rely on an independence assumption
-that fundamentally prevents them from navigating these coupled configuration spaces.
-We address this limitation with a phase-aware LLM agent that operates as a
-feedback loop --- learning from its own optimization history to navigate the coupled
-parameter space across self-regulated exploration, exploitation, and fine-tuning phases.
-Evaluated on the HICO-DET human-object interaction retrieval benchmark using Intel VDMS (Visual Data Management System), our agent outperforms
-Optuna~TPE by $+33.3\%$ and GP-BO by $+50.7\%$ in accuracy-throughput score,
-delivering a $15.3\times$ throughput gain over UniIR.
+including Tree-structured Parzen Estimators (TPE) and Gaussian Process Bayesian Optimization ---
+rely on an independence assumption that fundamentally prevents them from
+navigating these coupled configuration spaces.
+We address this limitation with a phase-aware large language model (LLM) agent
+that conditions each proposal on its full optimization history, navigating the
+coupled parameter space across phase-partitioned exploration, exploitation, and
+fine-tuning stages.
+Evaluated on the HICO-DET human-object interaction retrieval benchmark using
+Intel VDMS (Visual Data Management System), our agent outperforms Optuna~TPE
+by $+33.3\%$ and VDTuner by $+34.2\%$ under SIEVE (a quality-constrained
+throughput metric), delivering a $15.3\times$ throughput gain over UniIR.
 Validation across three benchmarks confirms that the agent's advantage grows with
 the degree of parameter coupling: $+33.3\%$ on HICO-DET (high coupling),
-methods converge within $1\%$ on GLDv2 (moderate coupling) and within $3.6\%$ on SIFT1M (near-independent control).
-Cross-system validation on Milvus confirms the optimizer transfers across VDBMS platforms without modification.
+methods converge within $1\%$ on GLDv2 (moderate coupling) and within $3.6\%$
+on SIFT1M (near-independent control).
+Cross-system validation on Milvus confirms the optimizer ranks first on all three
+datasets without modification, demonstrating transferability across vector database
+management system (VDBMS) platforms.
 These results position our agent as the method of choice for retrieval systems
 where parameter coupling is the dominant source of optimization complexity.
 \end{abstract}
@@ -217,7 +223,7 @@ assistive robotics, and interactive multi-modal search.
 Closing this performance gap demands an optimizer that treats parameters
 jointly, not one that treats them as independent.
 
-Modern vector databases such as VDMS~\cite{remis2021vdms},
+Modern vector databases such as VDMS (Visual Data Management System)~\cite{remis2021vdms},
 Milvus~\cite{wang2021milvus}, and GaussDB-Vector~\cite{sun2025gaussdb} combine
 two stages: a fast ANN search followed by a reranking step.
 The parameters of each stage are tightly coupled: reducing retrieval search depth
@@ -230,7 +236,7 @@ node --- the difference between 8 and 300 queries per second.
 No existing method is designed to close this throughput gap.\looseness=-1
 
 On the \emph{LLM-guided configuration} side, GPTuner~\cite{lao2024gpttuner}
-and $\lambda$-Tune~\cite{giannakouris2025lambdatune} apply LLM guidance to
+and $\lambda$-Tune~\cite{giannakouris2025lambdatune} apply large language model (LLM) guidance to
 database knob tuning, but their knobs are mutually independent --- no
 cross-stage coupling exists.
 On the \emph{ANN index tuning} side, VDTuner~\cite{yang2024vdtuner},
@@ -251,14 +257,14 @@ large image corpus --- standard ANN benchmarks use synthetic vectors or
 image-to-image similarity, while HOI datasets have only been used for
 detection~\cite{kim2021hotr,zhang2021cdn,ning2023hoiclip,li2024dphoi}.
 Alongside the agent, we introduce the first such benchmark built from
-HICO-DET~\cite{chao2018hico}: its 600 verb--object categories map directly to
+HICO-DET~\cite{chao2018hico}: its 600 verb--object categories
+(e.g., \textit{ride horse}, \textit{hold umbrella}) map directly to
 natural language queries, and its 90{,}641 annotated positive pairs provide
 retrieval ground truth without additional labeling.\looseness=-1
 
 Under SIEVE, our joint quality-throughput optimization objective defined in
 Section~\ref{sec:metrics}, the agent achieves $\mathbf{+33.3\%}$ over
-Optuna~TPE, $\mathbf{+34.2\%}$ over VDTuner~\cite{yang2024vdtuner}, and
-$\mathbf{+50.7\%}$ over GP-BO~\cite{snoek2012bayesian} on HICO-DET.
+Optuna~TPE and $\mathbf{+34.2\%}$ over VDTuner~\cite{yang2024vdtuner} on HICO-DET.
 On simpler datasets --- GLDv2~\cite{weyand2020gld} (image-to-image) and
 SIFT1M~\cite{jegou2011pq} (pure ANN search) --- this advantage diminishes
 proportionally to the degree of parameter coupling, confirming that LLM-guided
@@ -275,10 +281,10 @@ three datasets.\looseness=-1
     a dependency that standard optimizers miss by treating parameters independently.
     On HICO-DET the agent achieves $\mathbf{+33.3\%}$ over Optuna~TPE,
     $\mathbf{+34.2\%}$ over VDTuner~\cite{yang2024vdtuner}, and
-    $\mathbf{+50.7\%}$ over GP-based BO~\cite{snoek2012bayesian}; gains diminish on
-    simpler datasets where this inter-parameter dependency is absent, and the optimizer
-    transfers to Milvus~\cite{wang2021milvus} without modification, confirming
-    that the improvement is structural, not incidental.
+    $\mathbf{+50.7\%}$ over GP-BO (Gaussian Process Bayesian Optimization)~\cite{snoek2012bayesian},
+    with gains diminishing on simpler datasets where this inter-parameter dependency is absent.
+    Cross-system transfer to Milvus~\cite{wang2021milvus} without modification confirms
+    the improvement is structural, not incidental.
 
   \item \textbf{First text-query HOI retrieval benchmark.}
     Existing ANN benchmarks use synthetic vectors or image-to-image similarity, neither
@@ -290,14 +296,15 @@ three datasets.\looseness=-1
     retrieval landscape that motivates our optimizer.
 
   \item \textbf{Single-index two-stage retrieval pipeline.}
-    We present a two-stage pipeline that pairs CLIP-based ANN search with DINOv2
-    reranking, gaining $\mathbf{+3.65}$\,pp mAP at under 1\% extra latency.
+    We present a two-stage pipeline that pairs Contrastive Language-Image
+    Pre-training (CLIP)-based ANN search with DINOv2 reranking, gaining
+    $\mathbf{+3.65}$\,pp mean Average Precision (mAP) at under 1\% extra latency.
     The design requires only a single ANN index, keeping the parameter space
     tractable for automated optimization while combining complementary visual
     and semantic cues.
 
   \item \textbf{Complexity-matched evaluation of when LLM reasoning pays off.}
-    We evaluate across three datasets of increasing simplicity ---
+    We evaluate across three datasets of decreasing complexity ---
     compositional HOI retrieval (HICO-DET), cross-domain landmark retrieval
     (GLDv2), and synthetic vector search (SIFT1M) --- and show that LLM-guided
     gains shrink as the search space becomes simpler, giving practitioners a
@@ -320,18 +327,18 @@ three datasets.\looseness=-1
 \subsection{Vision-Language Retrieval and HOI Detection}
 HOI detection has produced a series of strong transformer-based systems since
 HICO-DET~\cite{chao2018hico} established the 600-category verb--object benchmark.
-HOTR~\cite{kim2021hotr} introduced end-to-end interaction detection via encoder-decoder
-architectures, and CDN~\cite{zhang2021cdn} disentangles human-object pair detection from interaction
+Human-Object interaction TRansformer (HOTR)~\cite{kim2021hotr} introduced end-to-end interaction detection via encoder-decoder
+architectures, and Cascade Disentangling Network (CDN)~\cite{zhang2021cdn} disentangles human-object pair detection from interaction
 classification in a cascade, extracting complementary strengths of one-stage and two-stage paradigms.
-HOICLIP~\cite{ning2023hoiclip} showed that vision-language pre-training transfers
-interaction knowledge efficiently, while DPHoI~\cite{li2024dphoi} exploited disentangled
+HOI-CLIP (HOICLIP)~\cite{ning2023hoiclip} showed that vision-language pre-training transfers
+interaction knowledge efficiently, while Disentangled Pre-training for HOI (DPHoI)~\cite{li2024dphoi} exploited disentangled
 pre-training over interaction primitives.
 All operate in the detection paradigm --- predicting (person, object, interaction)
 triples from an image --- and the sole prior non-detection use of
 HICO-DET~\cite{kilickaya2021structured} employs spatial canvas composition with IoU
 matching rather than free-form text queries.
 Our novelty is specific to the intersection: general text-to-image retrieval benchmarks
-(COCO Captions, Flickr30k) use open-domain descriptive captions; scene-graph retrieval
+(COCO Captions~\cite{chen2015coco}, Flickr30k~\cite{young2014flickr}) use open-domain descriptive captions; scene-graph retrieval
 uses structured graph predicates; compositional image retrieval pairs images with
 text modifications --- none provides free-form verb--object text queries against a
 large HOI-annotated corpus with per-category retrieval ground truth, which is precisely
@@ -373,7 +380,7 @@ Across all these systems, index configuration is left to manual tuning or blind 
 automated optimization for multi-stage coupled parameter spaces remains an open problem.\looseness=-1
 
 \subsection{Hyperparameter Optimization}
-Standard HPO methods include random search~\cite{bergstra2012random}, which provides a
+Standard hyperparameter optimization (HPO) methods include random search~\cite{bergstra2012random}, which provides a
 strong baseline under bounded evaluation budgets; Bayesian optimization with Gaussian
 Process surrogates~\cite{snoek2012bayesian}, which applies acquisition functions to
 balance exploration and exploitation; and bandit-based scheduling such as
@@ -383,7 +390,7 @@ meta-learning over prior tasks to warm-start configuration search.
 Optuna~\cite{akiba2019optuna} implements Tree-structured Parzen Estimators for
 mixed-type spaces and serves as our strongest non-LLM baseline.\looseness=-1
 
-For DBMS tuning, OtterTune~\cite{vanaken2017ottertune} pioneered ML-guided knob
+For database management system (DBMS) tuning, OtterTune~\cite{vanaken2017ottertune} pioneered ML-guided knob
 selection via Gaussian Process regression over workload representations.
 VDTuner~\cite{yang2024vdtuner} extends this approach to multi-objective Bayesian
 optimization across seven index types in Milvus, improving over manual baselines but
@@ -432,7 +439,7 @@ optimum, as verified in Section~\ref{sec:ablation}.\looseness=-1
 HICO-DET~\cite{chao2018hico} contains 47{,}776 images (38{,}118 train / 9{,}658 test)
 annotated across 600 HOI categories with per-instance bounding boxes and interaction
 labels, where each category is a \emph{verb--object} pair drawn from 117 action verbs
-and 80 MS-COCO object classes.
+and 80 COCO object classes.
 Three structural properties make HICO-DET particularly challenging for ANN index
 configuration optimization.
 First, \emph{compositional fine-grained discrimination}: the 600 categories span
@@ -455,13 +462,10 @@ must be tuned jointly with the Stage-1 ANN configuration.\looseness=-1
 \subsection{Benchmark Construction}
 \noindent\textbf{Retrieval Corpus.}
 We use all 47{,}776 images as a single retrieval corpus.
-The original HICO-DET train/test split was designed for supervised detection training
-and carries no meaning for retrieval evaluation, where the task is to rank corpus images
-given a query, not to generalize across a detection train/test split.
-Merging both splits maximizes the positive-pair density needed for meaningful mAP
-computation across 600 categories; restricting evaluation to the 9{,}658-image test
-split alone would reduce per-category positive counts below the minimum threshold
-for reliable mAP computation across all 600 classes.
+The original train/test split was designed for supervised detection training and has
+no meaning for retrieval evaluation, where the task is to rank corpus images given a
+query; merging both splits maximizes the per-category positive density needed for
+reliable mAP computation across all 600 categories.
 CLIP ViT-L/14~\cite{radford2021clip} embeddings are pre-computed offline using the
 official OpenAI weights and stored in VDMS as a 768-dimensional L2 DescriptorSet
 of 47{,}776 vectors.\looseness=-1
@@ -492,7 +496,7 @@ per-category positive count is 5, so mAP is well-defined for all 600 queries.\lo
 
 \subsection{Evaluation Protocol}
 We evaluate retrieval quality using mean Average Precision (mAP),
-Precision@10, NDCG@10, and Recall@10 over all 600 queries.
+Precision@10, Normalized Discounted Cumulative Gain (NDCG)@10, and Recall@10 over all 600 queries.
 mAP is our primary metric: it rewards systems that rank relevant images
 higher in the retrieved list and is the standard metric for ranked retrieval
 with multiple relevant documents per query~\cite{manning2008ir}.
@@ -570,7 +574,7 @@ We set $N{=}50$ throughout, covering $0.05\%$ of $|\Theta|$.
 \multicolumn{4}{@{}l}{\textit{Stage 1 --- ANN retrieval}} \\
 \quad engine
   & ---
-  & Flat, HNSWFlat, IVFFlat
+  & FaissFlat, FaissHNSWFlat, FaissIVFFlat
   & 3  \\
 \quad conn.\ depth$^\dagger$\,(HNSW)
   & $M$
@@ -661,14 +665,14 @@ All $N$ CLIP ViT-L/14 image embeddings are pre-computed offline and stored in VD
 a 768-dimensional L2 DescriptorSet.
 At query time, $q_h$ is encoded by the frozen text encoder and submitted to VDMS
 as a \texttt{FindDescriptor} request.
-VDMS returns the top-$k$ candidate identifiers together with their L2 distances
-$\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$; the candidate pool is formally
+VDMS returns the top-$k$ candidate identifiers together with their squared L2 distances
+$\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2^2$; the candidate pool is formally
 \begin{equation}
-  \mathcal{T}_k(q_h) \;=\; \bigl\{j \in [N] :\,\|\mathbf{c}_j - \mathbf{q}_c\|_2
+  \mathcal{T}_k(q_h) \;=\; \bigl\{j \in [N] :\,\|\mathbf{c}_j - \mathbf{q}_c\|_2^2
     \leq \delta^{(k)}\bigr\} ,
   \label{eq:stage1}
 \end{equation}
-where $\delta^{(k)}$ denotes the $k$-th smallest L2 distance from $\mathbf{q}_c$ to
+where $\delta^{(k)}$ denotes the $k$-th smallest squared L2 distance from $\mathbf{q}_c$ to
 any corpus embedding.
 For FaissFlat, Eq.~\eqref{eq:stage1} is satisfied exactly; for FaissHNSWFlat and
 FaissIVFFlat, VDMS returns a high-recall approximation whose tightness is governed
@@ -710,8 +714,8 @@ of a selected subset $\mathcal{S}_h \subseteq \mathcal{I}_h$:
   \label{eq:refvec}
 \end{equation}
 where $n_r = |\mathcal{S}_h| \in \{1, 3, 5, 10\}$.
-For $n_r{=}1$ (the default), $\mathbf{r}_h$ is the DINOv2 embedding of the first image
-in the HOI category.
+For $n_r{=}1$ (the default), $\mathbf{r}_h$ is the DINOv2 embedding of a single image
+from the HOI category.
 For $n_r{>}1$, three strategies populate $\mathcal{S}_h$:
 \textbf{first} takes the initial $n_r$ images in dataset order;
 \textbf{centroid} selects the $n_r$ images nearest to the DINOv2 class mean
@@ -721,7 +725,7 @@ anchoring $\mathbf{r}_h$ at the visual core of the class;
 Reference construction requires ${<}1$\,ms per class and does not contribute to
 $T_{\mathrm{total}}$ in Eq.~\eqref{eq:qps}.\looseness=-1
 
-CLIP distances $\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2$ and DINOv2 distances
+CLIP squared L2 distances $\delta_j^c = \|\mathbf{c}_j - \mathbf{q}_c\|_2^2$ and DINOv2 L2 distances
 $\delta_j^d = \|\mathbf{d}_j - \mathbf{r}_h\|_2$ operate at different absolute scales;
 both are min-max normalized within $\mathcal{T}_k(q_h)$ onto $[0,\,1]$:
 \begin{equation}
@@ -809,7 +813,7 @@ translates directly to higher expected recall at any fixed $k$, and therefore to
 higher mAP.
 This result formally justifies the design choice of text queries for Stage~1 and
 additionally motivates the $n_r{>}1$ reference aggregation in Stage~2: averaging
-$n_r$ class embeddings reduces the expected $L_2$ centroid bias of $\mathbf{r}_h$
+$n_r$ randomly drawn class embeddings reduces the expected $L_2$ centroid bias of $\mathbf{r}_h$
 by $O(1/\sqrt{n_r})$ relative to a single reference image.
 Section~\ref{sec:experiments} confirms this empirically: text queries outperform
 single-image reference queries by $+2.32$\,pp mAP on HICO-DET, consistent with
@@ -956,8 +960,8 @@ Each LLM call consumes approximately 2{,}000--5{,}000 tokens (growing with histo
 
 The $N$-iteration budget is divided into three phases with boundaries
 \begin{align}
-  t_{\mathrm{exp}}  &= \lfloor 0.40\,N \rfloor, \label{eq:texp}\\
-  t_{\mathrm{expl}} &= \lceil 0.75\,N \rceil, \label{eq:texpl}
+  t_{\mathrm{exp}}  &= \operatorname{round}(0.40\,N), \label{eq:texp}\\
+  t_{\mathrm{expl}} &= \operatorname{round}(0.75\,N), \label{eq:texpl}
 \end{align}
 defining \textbf{Exploration} ($1 \leq t \leq t_{\mathrm{exp}}$),
 \textbf{Exploitation} ($t_{\mathrm{exp}} < t \leq t_{\mathrm{expl}}$),
@@ -1008,13 +1012,14 @@ Algorithm~\ref{alg:agent} gives the complete procedure.
 \caption{LLM-Guided ANN Optimizer}
 \label{alg:agent}
 \begin{algorithmic}[1]
+\setlength{\itemsep}{-1.5pt}
 \Require Configuration space $\Theta$; oracle $\mathcal{O}$; budget $N$
 \Ensure Best configuration $\theta^*$ and history $\mathcal{H}_N$
 \State $\mathcal{H}_0 \gets \emptyset$;\enspace
        $\mathrm{Score}^* \gets 0$;\enspace
        $\iota \gets 0$
-\State $t_{\mathrm{exp}} \gets \lfloor 0.40N \rfloor$;\enspace
-       $t_{\mathrm{expl}} \gets \lceil 0.75N \rceil$
+\State $t_{\mathrm{exp}} \gets \operatorname{round}(0.40N)$;\enspace
+       $t_{\mathrm{expl}} \gets \operatorname{round}(0.75N)$
        \hfill\Comment{Eqs.~\eqref{eq:texp}--\eqref{eq:texpl}}
 \For{$t = 1, 2, \ldots, N$}
   \State $\phi_t \gets \mathrm{Phase}(t,\,t_{\mathrm{exp}},\,t_{\mathrm{expl}})$
@@ -1069,8 +1074,9 @@ We therefore optionally upweight structurally hard queries via a Query Difficult
 For query $j$: \emph{gallery entropy} $H_j{=}{-}\sum_i p_{ji}\log p_{ji}$
 ($p_{ji}{=}\mathrm{softmax}(\mathbf{f}_{q_j}^\top\mathbf{f}_{d_i}/\beta)$, $\beta{=}0.01$) measures
 the spread of CLIP mass over the gallery;
-\emph{centroid displacement} $\mathrm{CPR}_j{=}\|\mathbf{f}_{q_j}{-}\boldsymbol{\mu}_j\|^2/\sigma_j^2$
-measures how far the text query lies from its HOI-class centroid.
+\emph{centroid proximity} $\mathrm{CPR}_j{=}\mathbf{f}_{q_j}^\top\hat{\boldsymbol{\mu}}_j$
+(cosine similarity to the unit-normalised visual centroid $\hat{\boldsymbol{\mu}}_j$)
+measures how well the text query aligns with its HOI-class centroid.
 We define $\mathrm{QDS}_j{=}\tilde{H}_j{-}\widetilde{\mathrm{CPR}}_j$ (min-max
 normalised), weight $w_j{=}1{+}\widetilde{\mathrm{QDS}}_j{\in}[1,2]$, and replace the standard
 mAP with $\mathrm{QDS\text{-}mAP}{=}\sum_j w_j\mathrm{AP}_j/\sum_j w_j$ as the
@@ -1081,7 +1087,7 @@ admits per-query difficulty decomposition; GLDv2 (landmark-instance ground truth
 and SIFT1M (exact $k$-NN ground truth) provide no analogous categorical difficulty
 signal and retain their standard objectives.
 The LLM Agent + QDS best configuration uses FaissIVFFlat ($\mathit{nlist}{=}128$,
-$k{=}500$), achieving $1{,}357.6$ QPS.
+$k{=}500$), achieving $1{,}362.0$ QPS on average (3-seed mean).
 This throughput is specific to HICO-DET's 47{,}776-image corpus: at this scale
 VDMS scans all $\mathit{nlist}$ Voronoi cells during IVFFlat search regardless of
 $\mathit{nprobe}$, making IVFFlat equivalent to an exact flat scan over the
@@ -1110,8 +1116,8 @@ image-to-image retrieval benchmark with 762{,}000 gallery images and 1{,}129 que
 images from the retrieval challenge evaluation split, spanning global landmarks, providing
 a $16\times$ larger corpus for cross-domain generalization evaluation.
 \textbf{SIFT1M}~\cite{jegou2011pq}: a standard ANN benchmark of one million
-128-dimensional SIFT feature vectors with 10{,}000 queries and exact ground-truth
-10-nearest neighbors, providing a complexity-matched control --- the index space
+128-dimensional SIFT feature vectors with 10{,}000 queries and exact nearest-neighbor
+ground truth (evaluated at Recall@10), providing a complexity-matched control --- the index space
 reduces to a single-stage HNSW problem with no cross-stage coupling --- to test
 whether the LLM's advantage is specific to coupled search spaces.
 For HICO-DET, image embeddings are 768-dimensional CLIP ViT-L/14 vectors.
@@ -1212,19 +1218,21 @@ by conditioning each proposal on the full history of observed outcomes.\loosenes
 % ── Figure: Convergence curves ────────────────────────────────────────────────
 \begin{figure}[t]
   \centering
+  \vspace{-10pt}
   \includegraphics[width=\columnwidth]{figures/convergence_hico_det.pdf}
   \Description{Convergence curves showing best SIEVE Score (QPS if mAP≥τ, τ=0.15) vs.\ iteration
     for five optimizer methods on HICO-DET over 50 iterations. LLM Agent outpaces all baselines
     by iteration 4, reaching a final mean score of 300.3; Optuna~TPE and GP-BO plateau at
     225.2 and 199.3; Grid and Random Search plateau below 184.}
-  \caption{Best SIEVE Score vs.\ iteration on HICO-DET (mean $\pm 1\sigma$; 3 seeds except Grid).}
+  \vspace{-12pt}
+  \caption{SIEVE Score vs.\ iteration on HICO-DET ($\pm 1\sigma$; 3 seeds except Grid).}
   \label{fig:convergence}
 \end{figure}
 
 % ── Table 2: Optimizer comparison ─────────────────────────────────────────────
 \begin{table*}[t]
 \centering
-\caption{ANN optimizer comparison on HICO-DET (50~iters, 3-seed means; Grid: 1~run). $^\P$\texttt{GPSampler+EI}~\cite{snoek2012bayesian}; $^\S$difficulty-weighted; $^\dagger$corpus-scale artifact (see Section~\ref{sec:qds_def}).}
+\caption{ANN optimizer comparison on HICO-DET (50~iters, 3-seed means; Grid: 1~run). $^\P$\texttt{GPSampler+EI}~\cite{snoek2012bayesian}; $^\S$difficulty-weighted; $^\dagger$corpus-scale artifact (see Section~\ref{sec:qds_def}); $^{\ddagger}$SIEVE Score\,$=\,0$ (mAP\,$<\tau{=}0.15$); raw QPS\,$=\,19.67$\,/\,$19.46$ respectively.}
 \label{tab:optimizer}
 \vspace{3pt}
 \small
@@ -1233,8 +1241,8 @@ by conditioning each proposal on the full history of observed outcomes.\loosenes
 \toprule
 \textbf{Method} & \textbf{Score (QPS)}$\uparrow$ & \textbf{mAP}$\uparrow$ & \textbf{P@10}$\uparrow$ & \textbf{Iters$\to$Best} \\
 \midrule
-UniIR CLIP-SF Large, image-only~\cite{wei2024uniir} & 19.67          & 0.095 & 0.448 & --- \\
-UniIR CLIP-SF Large, multi-modal~\cite{wei2024uniir} & 19.46          & 0.089 & 0.442 & --- \\
+UniIR CLIP-SF Large, image-only~\cite{wei2024uniir} & 0$^{\ddagger}$  & 0.095 & 0.448 & --- \\
+UniIR CLIP-SF Large, multi-modal~\cite{wei2024uniir} & 0$^{\ddagger}$  & 0.089 & 0.442 & --- \\
 Grid Search                               & 183.0          & 0.178 & 0.508 & 41/50 \\
 Random Search~\cite{bergstra2012random}   & 111.4          & 0.179 & 0.455 & 29/50 \\
 Optuna~TPE~\cite{akiba2019optuna}         & 225.2          & 0.164 & 0.465 & 41/50 \\
@@ -1249,7 +1257,7 @@ VDTuner~\cite{yang2024vdtuner}            & 223.8          & 0.172 & 0.479 & 24/
 
 \begin{table*}[t]
 \centering
-\caption{System efficiency on HICO-DET (47{,}776 images, 600 queries).}
+\caption{System efficiency on HICO-DET (47{,}776 images, 600 queries; best-configuration per representative seed; 3-seed mean Scores in Table~\ref{tab:optimizer}).}
 \label{tab:efficiency}
 \vspace{3pt}
 \small
@@ -1419,6 +1427,7 @@ are accessible to all methods, and the LLM's history-conditioned reasoning confe
 systematic advantage --- consistent with the complexity-proportional prediction.\looseness=-1
 
 % ══════════════════════════════════════════════════════════════════════════════
+\vspace{-4pt}
 \subsection{Complexity-Matched Validation: SIFT1M}
 \label{sec:sift1m}
 % ══════════════════════════════════════════════════════════════════════════════
@@ -1429,7 +1438,7 @@ We evaluate five methods (LLM Agent, Optuna~TPE, Grid, Random, and GP-BO) under 
 % ── Table: SIFT1M optimizer comparison ─────────────────────────────────────────
 \begin{table}[t]
 \centering
-\caption{Optimizer comparison on SIFT1M (1M vectors, 10{,}000 queries, 50 iterations, 3-seed means; Grid: 1~run; Score\,$=$\,QPS if Recall@10\,$\geq 0.90$).}
+\caption{Optimizer comparison on SIFT1M (1M vectors, 10K queries, 50 iters, 3-seed means; Grid: 1~run; Score\,$=$\,QPS if Recall@10\,$\geq 0.90$).}
 \label{tab:sift1m}
 \resizebox{\columnwidth}{!}{%
 \small
@@ -1532,6 +1541,7 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
 
 \begin{figure}[!h]
   \centering
+  \vspace{-14pt}
   \includegraphics[width=\columnwidth]{figures/convergence_ablation.pdf}
   \Description{Ablation convergence curves. Without history conditioning the agent
     stagnates completely after iteration 5, gaining only 0.1 Score points over the
@@ -1539,7 +1549,7 @@ primary effect of history conditioning is \emph{not} a marginal Score improvemen
     improves from 296.0 at iteration 10 to 300.3 at iteration 50, reaching 299+
     on all 3 seeds. Without phase structure the agent still learns (+1.3 gain)
     and reaches 299+ on 3/3 seeds but converges later.}
-  \vspace{-8pt}
+  \vspace{-12pt}
   \caption{Ablation: BSF convergence (left) and per-seed final Score at $N{=}50$ (right).}
   \label{fig:ablation_convergence}
 \end{figure}
@@ -1583,6 +1593,7 @@ GPT-4o-mini (seed~42, Score\,$=$\,\textbf{297.44}) and Llama-3.3-70B (Score\,$=$
 To assess sensitivity to the phase-boundary thresholds $(t_{\mathrm{exp}},t_{\mathrm{expl}})$, we ran two additional configurations at seed~42: equal-thirds ($0.33/0.66$, Score\,$=$\,299.73) and late-exploitation ($0.50/0.80$, Score\,$=$\,302.12), versus the default ($0.40/0.75$, Score\,$=$\,300.54).
 All three fall within $\pm$0.53\% of the default, confirming that the optimizer is insensitive to moderate boundary shifts and that the phase-structure benefit reported above holds across schedule variants.\looseness=-1
 
+\vspace{-5pt}
 \section{Conclusion and Outlook}
 \label{sec:conclusion}
 
@@ -1596,11 +1607,13 @@ LLM agent (Exploration $\to$ Exploitation $\to$ Fine-tuning) that navigates
 coupling by conditioning each proposal on the full accumulated optimization history.\looseness=-1
 
 On HICO-DET the agent outperforms the best non-LLM baseline by $+33.3\%$ and achieves 3/3-seed
-reproducibility (vs.\ 1/3 for Optuna~TPE and GP-BO); on GLDv2 and SIFT1M performance converges (all adaptive methods within $1\%$ and $3.6\%$ respectively),
+reproducibility (vs.\ 1/3 for Optuna~TPE and GP-BO); on GLDv2 and SIFT1M performance converges (adaptive methods except GP-BO within $1\%$ and $3.6\%$ respectively),
 confirming that \emph{LLM optimization advantage scales with configuration-space coupling complexity}.
-Future work targets billion-scale deployment with hardware-profile telemetry
-and multi-tenant settings with per-workload history conditioning.\looseness=-1
+Future work includes scaling to billion-vector corpora and extending the
+phase-aware framework to multi-objective settings where latency, throughput,
+and quality targets are jointly negotiated.\looseness=-1
 
+\vspace{-4pt}
 \begin{acks}
 This work used NCSA Delta GPU at NCSA through allocation CIS240646 from the Advanced Cyberinfrastructure
 Coordination Ecosystem: Services \& Support (ACCESS)
