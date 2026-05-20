@@ -1257,7 +1257,7 @@ VDTuner~\cite{yang2024vdtuner}            & 223.8          & 0.172 & 0.479 & 24/
 
 \begin{table*}[t]
 \centering
-\caption{System efficiency on HICO-DET (47{,}776 images, 600 queries; best-configuration per representative seed; 3-seed mean Scores in Table~\ref{tab:optimizer}).}
+\caption{System efficiency on HICO-DET (47{,}776 images, 600 queries; best-configuration per representative seed; 3-seed mean Scores in Table~\ref{tab:optimizer}). $^\S$difficulty-weighted; $^\dagger$corpus-scale artifact (see Section~\ref{sec:qds_def}).}
 \label{tab:efficiency}
 \vspace{3pt}
 \small
@@ -1282,7 +1282,7 @@ Random Search~\cite{bergstra2012random} & HNSW $M{=}8$ & 100 &  11.7 &  6.95 & 0
 Optuna~TPE~\cite{akiba2019optuna} & HNSW $M{=}16$   &  50 &  13.3 &  3.19 & 0.11 &  3.33 &  300.7 \\
 VDTuner~\cite{yang2024vdtuner}   & HNSW $M{=}64$   &  50 &  13.4 &  3.23 & 0.08 &  3.35 &  298.9 \\
 \textbf{LLM Agent (Ours)}    & HNSW $M{=}64$        &  50 &  12.6 &  3.21 & 0.08 &  3.33 & \textbf{300.5} \\
-\textbf{LLM Agent + QDS (Ours)} & IVFFlat $nl{=}128$ & 500 &  17.2 &  0.35 & 0.34 &  0.74 & \textbf{1357.6} \\
+\textbf{LLM Agent + QDS (Ours)}$^{\S\dagger}$ & IVFFlat $nl{=}128$ & 500 &  17.2 &  0.35 & 0.34 &  0.74 & \textbf{1357.6} \\
 \bottomrule
 \end{tabular}
 \end{table*}
