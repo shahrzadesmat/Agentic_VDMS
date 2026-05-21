@@ -19,8 +19,9 @@
 │   │   ├── hico_agent_optimizer.py      # Main LLM agent optimizer (all methods)
 │   │   ├── benchmark_hico_det.py        # Standalone benchmark harness
 │   │   ├── centroid_bias_validation.py  # Text-query centroid geometry proof
-│   │   ├── extract_hico_det.py          # HICO-DET dataset preparation
-│   │   ├── extract_hico_text_queries.py # HOI text query construction
+│   │   ├── extract_hico_det.py          # HICO-DET dataset preparation (images, SIFT, DINOv2)
+│   │   ├── extract_hico_text_queries.py # MobileCLIP-S2 HOI text embeddings
+│   │   ├── extract_hico_clip_features.py # CLIP image+text embeddings (MobileCLIP-S2 & ViT-L/14)
 │   │   └── run_hico_system_baselines.py # UniIR / FaissFlat baselines
 │   ├── gldv2/
 │   │   ├── gldv2_agent_optimizer.py     # GLDv2 optimizer (cross-domain)
@@ -102,8 +103,17 @@ pip install -r requirements.txt
 
 ### Data preparation (HICO-DET)
 ```bash
+# 1. Extract images, SIFT, DINOv2 features, and ground truth
 python src/hico_det/extract_hico_det.py --data-dir /path/to/hico_det
+
+# 2. Extract MobileCLIP-S2 text embeddings (hico_clip_text_queries.npy)
 python src/hico_det/extract_hico_text_queries.py --data-dir /path/to/hico_det
+
+# 3. Extract CLIP image + text embeddings for both backbones
+#    Produces: hico_clip.npy (MobileCLIP-S2, 512-d)
+#              hico_clipvitl14_db.npy (ViT-L/14, 768-d)
+#              hico_clipvitl14_text_queries.npy (ViT-L/14, 768-d)
+python src/hico_det/extract_hico_clip_features.py --dataset-dir /path/to/hico_det
 ```
 
 ---
