@@ -62,6 +62,7 @@
 │   │   ├── optuna/seed{42,99,200}.json
 │   │   ├── random/seed{42,99,200}.json
 │   │   ├── grid/seed42.json
+│   │   ├── vdtuner/seed{42,99,200}.json
 │   │   ├── ablations/no_history_seed{42,99,200}.json
 │   │   ├── ablations/no_phases_seed{42,99,200}.json
 │   │   ├── ablations/no_history_no_phases_seed{42,99,200}.json
@@ -71,8 +72,8 @@
 │   │   ├── backbone/llama_seed42.json
 │   │   ├── system_baselines.json           # UniIR / FaissFlat system baselines
 │   │   └── system_baselines_full.json      # Extended baselines with per-query detail
-│   ├── gldv2/{llm,gpbo,optuna,random,grid,vdtuner}/seed{42,99,200}.json
-│   └── sift1m/{llm,gpbo,optuna,random,grid,vdtuner}/seed{42,99,200}.json
+│   ├── gldv2/{llm,gpbo,optuna,random,vdtuner}/seed{42,99,200}.json + grid/seed42.json
+│   └── sift1m/{llm,gpbo,optuna,random,vdtuner}/seed{42,99,200}.json + grid/seed42.json
 │
 ├── analysis/
 │   ├── coupling_metric.py       # Quantifies parameter coupling across datasets (supports Section 5)
@@ -272,7 +273,7 @@ The **SIEVE score** = `best_qps` when the quality metric ≥ τ (τ = 0.15 for H
 
 | Method       | HICO-DET Score (QPS) | GLDv2 Score  | SIFT1M Score |
 |--------------|----------------------|--------------|--------------|
-| LLM Agent    | **300.3** (±0.3)     | 271.45       | **1184.5**   |
+| LLM Agent    | **300.3** (±0.4)     | 271.45       | **1184.5**   |
 | VDTuner      | 223.8                | **273.91**   | 1150.9       |
 | Optuna TPE   | 225.2                | 272.35       | 1160.7       |
 | Grid Search  | 183.0                | 272.98       | 1174.4       |

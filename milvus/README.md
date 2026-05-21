@@ -33,4 +33,4 @@ sbatch milvus/hico_det/run_milvus_llm_s42.sh
 ## Notes
 
 - **`milvus_qds_s42.json`** — A single-seed run of the QDS (Query Difficulty-weighted Scoring) objective variant on Milvus, included for completeness. Not reported separately in the paper tables.
-- Milvus result JSONs use a flat schema (`best_score`, `best_map`, `best_qps`, `best_config`) rather than the nested `summary` / `results` structure used in the VDMS results.
+- Milvus result JSONs use a flat schema (`method`, `seed`, `iterations`, `map_threshold`, `best_score`, `best_map`, `best_qps`, `best_config`, `all_results`) rather than the nested `summary` / `results` structure used in the VDMS results.
