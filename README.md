@@ -294,21 +294,17 @@ Phase boundary sensitivity (t_exp/t_expl): all variants within ±0.53% of defaul
 If you use this work, please cite:
 
 ```bibtex
-@article{esmat2027llm,
+@misc{esmat2027llm,
   author    = {Shahrzad Esmat and
                Chaunt{\'{e}} W. Lacewell and
                Sameh Gobriel and
                Nilesh Jain and
                Ali Jannesari},
   title     = {LLM-Guided {ANN} Index Optimization for Human-Object Interaction Retrieval},
-  journal   = {Proceedings of the VLDB Endowment},
-  volume    = {20},
-  number    = {1},
-  pages     = {XXX--XXX},
+  note      = {Under review at PVLDB Vol. 20},
   year      = {2027},
-  doi       = {XX.XX/XXX.XX},
   url       = {https://github.com/shahrzadesmat/Agentic_VDMS}
 }
 ```
 
-> **Note:** DOI and page numbers will be updated upon final publication.
+> **Note:** This entry will be updated to `@article` with journal/volume/doi fields upon acceptance.
