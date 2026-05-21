@@ -77,15 +77,15 @@
 │   ├── coupling_metric.py       # Quantifies parameter coupling across datasets (supports Section 5)
 │   └── tau_sensitivity.py       # Re-scores all runs at multiple τ thresholds (SIEVE sensitivity)
 │
-├── semantic_vdms/
-│   ├── milvus/                  # Milvus replication: all methods × 3 datasets × 3 seeds
-│   │   ├── hico_det/{results/,run_milvus_*.sh}
-│   │   ├── gldv2/{results/,run_milvus_*.sh}
-│   │   └── sift1m/{results/,run_milvus_*.sh}
-│   └── supplementary/           # Alternate src/ and experiment scripts (older versions)
-│       ├── src/                 # (older code versions — canonical code is in top-level src/)
-│       ├── experiments/         # (points to canonical results/ in repo root)
-│       └── requirements.txt
+├── milvus/                      # Milvus replication: all methods × 3 datasets × 3 seeds
+│   ├── hico_det/{results/,run_milvus_*.sh}
+│   ├── gldv2/{results/,run_milvus_*.sh}
+│   └── sift1m/{results/,run_milvus_*.sh}
+│
+├── supplementary/               # Alternate src/ and experiment scripts (older versions)
+│   ├── src/                     # (older code versions — canonical code is in top-level src/)
+│   ├── experiments/             # (points to canonical results/ in repo root)
+│   └── requirements.txt
 │
 └── requirements.txt
 ```
