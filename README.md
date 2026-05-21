@@ -17,6 +17,7 @@
 ├── src/                         # Python source code
 │   ├── hico_det/
 │   │   ├── hico_agent_optimizer.py      # Main LLM agent optimizer (all methods)
+│   │   ├── benchmark_hico_det.py        # Standalone benchmark harness
 │   │   ├── centroid_bias_validation.py  # Text-query centroid geometry proof
 │   │   ├── extract_hico_det.py          # HICO-DET dataset preparation
 │   │   ├── extract_hico_text_queries.py # HOI text query construction
@@ -24,9 +25,15 @@
 │   ├── gldv2/
 │   │   ├── gldv2_agent_optimizer.py     # GLDv2 optimizer (cross-domain)
 │   │   ├── extract_gldv2_features.py    # CLIP + DINOv2 feature extraction
+│   │   ├── benchmark_gldv2.py           # Standalone benchmark harness
 │   │   └── run_gldv2_system_baselines.py
-│   └── sift1m/
-│       └── sift1m_agent_optimizer.py    # SIFT1M optimizer (pure ANN)
+│   ├── sift1m/
+│   │   └── sift1m_agent_optimizer.py    # SIFT1M optimizer (pure ANN)
+│   ├── milvus/
+│   │   ├── milvus_hico_optimizer.py     # LLM/baseline optimizers on Milvus (HICO-DET)
+│   │   ├── milvus_gldv2_optimizer.py    # LLM/baseline optimizers on Milvus (GLDv2)
+│   │   └── milvus_sift1m_optimizer.py   # LLM/baseline optimizers on Milvus (SIFT1M)
+│   └── vdtuner_ehvi.py                  # VDTuner baseline (EHVI multi-objective)
 │
 ├── experiments/                 # SLURM scripts to reproduce every run
 │   ├── hico_det/
@@ -40,11 +47,12 @@
 │   │   ├── run_ablation_no_history_no_phases_seed{42,99,200}.sh
 │   │   ├── run_qds_seed{42,99,200}.sh         # Query Difficulty-weighted objective
 │   │   ├── run_backbone_gpt4omini_seed42.sh   # GPT-4o-mini backbone ablation
-│   │   └── run_backbone_llama_seed42.sh       # Llama-3.3-70B backbone ablation
+│   │   ├── run_backbone_llama_seed42.sh       # Llama-3.3-70B backbone ablation
+│   │   └── no_threshold/                      # Exploratory runs without SIEVE threshold
 │   ├── gldv2/
-│   │   └── run_{llm,gpbo,optuna,random,grid}_seed42.sh
+│   │   └── run_{llm,gpbo,optuna,random,grid,vdtuner}_seed{42,99,200}.sh
 │   └── sift1m/
-│       └── run_{llm,gpbo,optuna,random,grid}_seed42.sh
+│       └── run_{llm,gpbo,optuna,random,grid,vdtuner}_seed{42,99,200}.sh
 │
 ├── results/                     # Canonical JSON result files
 │   ├── hico_det/
@@ -56,12 +64,29 @@
 │   │   ├── ablations/no_history_seed{42,99,200}.json
 │   │   ├── ablations/no_phases_seed{42,99,200}.json
 │   │   ├── ablations/no_history_no_phases_seed{42,99,200}.json
+│   │   ├── ablations/phase_boundary_{A,B}_seed42.json  # Phase schedule sensitivity
 │   │   ├── qds/seed{42,99,200}.json
 │   │   ├── backbone/gpt4o_mini_seed42.json
 │   │   ├── backbone/llama_seed42.json
-│   │   └── system_baselines.json
-│   ├── gldv2/{llm,gpbo,optuna,random,grid}/seed42.json
-│   └── sift1m/{llm,gpbo,optuna,random,grid}/seed42.json
+│   │   ├── system_baselines.json           # UniIR / FaissFlat system baselines
+│   │   └── system_baselines_full.json      # Extended baselines with per-query detail
+│   ├── gldv2/{llm,gpbo,optuna,random,grid,vdtuner}/seed{42,99,200}.json
+│   └── sift1m/{llm,gpbo,optuna,random,grid,vdtuner}/seed{42,99,200}.json
+│
+├── analysis/
+│   ├── coupling_metric.py       # Quantifies parameter coupling across datasets (supports Section 5)
+│   └── tau_sensitivity.py       # Re-scores all runs at multiple τ thresholds (SIEVE sensitivity)
+│
+├── semantic_vdms/
+│   ├── milvus/                  # Milvus replication: all methods × 3 datasets × 3 seeds
+│   │   ├── hico_det/{results/,run_milvus_*.sh}
+│   │   ├── gldv2/{results/,run_milvus_*.sh}
+│   │   └── sift1m/{results/,run_milvus_*.sh}
+│   └── supplementary/           # Self-contained copy of src/, experiments/, results/
+│       ├── src/                 # (mirrors top-level src/ — use for isolated reproduction)
+│       ├── experiments/
+│       ├── results/
+│       └── requirements.txt
 │
 └── requirements.txt
 ```
