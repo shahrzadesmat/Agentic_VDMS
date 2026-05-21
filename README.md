@@ -82,11 +82,6 @@
 │   ├── gldv2/{results/,run_milvus_*.sh}
 │   └── sift1m/{results/,run_milvus_*.sh}
 │
-├── supplementary/               # Alternate src/ and experiment scripts (older versions)
-│   ├── src/                     # (older code versions — canonical code is in top-level src/)
-│   ├── experiments/             # (points to canonical results/ in repo root)
-│   └── requirements.txt
-│
 └── requirements.txt
 ```
 
