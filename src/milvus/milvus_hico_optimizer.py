@@ -19,7 +19,7 @@ Key differences from VDMS:
 
 Usage:
     python milvus_hico_optimizer.py \\
-        --dataset-dir /work/hdd/bdjd/vdms/datasets \\
+        --dataset-dir /path/to/datasets \\
         --method hyperparameter_only \\
         --iterations 50 \\
         --seed 42 \\

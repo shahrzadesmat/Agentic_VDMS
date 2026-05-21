@@ -152,7 +152,7 @@ def run(dataset_dir: str, backbone: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract CLIP features for HICO-DET")
     parser.add_argument(
-        "--dataset-dir", default="/work/hdd/bdjd/vdms/datasets/hico_det",
+        "--dataset-dir", default="/path/to/datasets/hico_det",
         help="Directory produced by extract_hico_det.py"
     )
     parser.add_argument(

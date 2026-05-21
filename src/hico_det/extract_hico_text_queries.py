@@ -26,7 +26,7 @@ The benchmark aligns by key lookup, not array index, so filtering is irrelevant.
 
 Usage:
   python extract_hico_text_queries.py
-  python extract_hico_text_queries.py --dataset-dir /work/hdd/bdjd/vdms/datasets/hico_det
+  python extract_hico_text_queries.py --dataset-dir /path/to/datasets/hico_det
 """
 
 import argparse
@@ -123,7 +123,7 @@ def extract_text_queries(dataset_dir: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract MobileCLIP-S2 text queries for HICO-DET")
-    parser.add_argument("--dataset-dir", default="/work/hdd/bdjd/vdms/datasets/hico_det",
+    parser.add_argument("--dataset-dir", default="/path/to/datasets/hico_det",
                         help="Path to hico_det dataset directory")
     args = parser.parse_args()
     extract_text_queries(args.dataset_dir)

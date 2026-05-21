@@ -12,12 +12,12 @@
 # ── USER CONFIG ─────────────────────────────────────────────────────────────
 # Edit the four variables below to match your environment before submitting.
 # Also update --account and --partition in the #SBATCH header above.
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+BASE_DIR="/path/to/Agentic_VDMS"  # root of semantic_vdms/
+DATASET_DIR="/path/to/datasets"              # dataset root
+CONTAINER="/path/to/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/path/to/venv/bin/python"       # Python interpreter
 # ─────────────────────────────────────────────────────────────────────────────
-RESULTS_ROOT="/work/hdd/bdjd/Agentic_VDMS/results"          # canonical results dir (repo root)
+RESULTS_ROOT="/path/to/Agentic_VDMS/results"          # canonical results dir (repo root)
 
 # GLDv2 VDTuner (EHVI multi-objective BO) — 50 iterations, seed=42
 
@@ -32,7 +32,7 @@ echo "===== GLDv2 VDTuner seed=42 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"
 
 mkdir -p "$(dirname "$OUTPUT")"
-cd "/work/hdd/bdjd/vdms_workflow/src/gldv2"
+cd "/path/to/Agentic_VDMS/src/gldv2"
 
 for f in gldv2_clip.npy gldv2_dinov2.npy gldv2_ids.json \
           gldv2_query_clip.npy gldv2_query_dinov2.npy gldv2_query_ids.json \

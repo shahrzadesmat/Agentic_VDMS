@@ -28,7 +28,7 @@ Agent tunes jointly (index-level only — no Stage-2 fusion):
 Usage:
     python sift1m_agent_optimizer.py \\
         --port 55595 \\
-        --dataset-dir /work/hdd/bdjd/vdms/datasets \\
+        --dataset-dir /path/to/datasets \\
         --method hyperparameter_only \\
         --iterations 30 \\
         --output sift1m/sift1m_llm_results.json

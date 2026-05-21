@@ -12,9 +12,9 @@
 # ── USER CONFIG ─────────────────────────────────────────────────────────────
 # Edit these variables to match your environment before submitting.
 # Also update --account and --partition in the #SBATCH header above.
-PYTHON=/work/hdd/bdjd/vdms_code/venv/bin/python         # Python interpreter
-SRC_ROOT=/work/hdd/bdjd/vdms_workflow/src                # repo src/ directory
-DATASET=/work/hdd/bdjd/vdms/datasets                     # dataset root
+PYTHON=/path/to/venv/bin/python         # Python interpreter
+SRC_ROOT=/path/to/Agentic_VDMS/src                # repo src/ directory
+DATASET=/path/to/datasets                     # dataset root
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
@@ -24,12 +24,12 @@ export LLM_MODEL="minimax/minimax-m2.1"
 
 echo "=== Milvus GLDV2 vdtuner seed=42 ===" && date
 
-/work/hdd/bdjd/vdms_code/venv/bin/python $SRC_ROOT/milvus/milvus_gldv2_optimizer.py \
+/path/to/venv/bin/python $SRC_ROOT/milvus/milvus_gldv2_optimizer.py \
     --dataset-dir $DATASET \
     --method      vdtuner \
     --iterations  50 \
     --seed        42 \
     --map-threshold 0.15 \
-    --output      /work/hdd/bdjd/vdms_workflow/semantic_vdms/milvus/gldv2/results/milvus_vdtuner_s42.json
+    --output      /path/to/Agentic_VDMS/milvus/gldv2/results/milvus_vdtuner_s42.json
 
 echo "=== Done ===" && date

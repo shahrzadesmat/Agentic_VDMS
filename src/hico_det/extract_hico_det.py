@@ -61,7 +61,7 @@ Outputs (saved to output_dir):
                          (precomputed for fast GT lookup during benchmark)
 
 Usage:
-    python extract_hico_det.py [--output-dir /work/hdd/bdjd/vdms/datasets/hico_det]
+    python extract_hico_det.py [--output-dir /path/to/datasets/hico_det]
                                 [--no-sift]      (skip SIFT, do CLIP only)
                                 [--no-clip]      (skip CLIP, do SIFT only)
                                 [--sift-only]    (recompute VLAD-SIFT from existing images,
@@ -949,7 +949,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract HICO-DET SIFT+CLIP features")
     parser.add_argument(
         "--output-dir",
-        default="/work/hdd/bdjd/vdms/datasets/hico_det",
+        default="/path/to/datasets/hico_det",
         help="Output directory for images, features, and GT"
     )
     parser.add_argument("--no-sift",   action="store_true", help="Skip SIFT extraction")

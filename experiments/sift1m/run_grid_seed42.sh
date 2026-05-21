@@ -12,10 +12,10 @@
 # ── USER CONFIG ─────────────────────────────────────────────────────────────
 # Edit the four variables below to match your environment before submitting.
 # Also update --account and --partition in the #SBATCH header above.
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+BASE_DIR="/path/to/Agentic_VDMS"  # root of semantic_vdms/
+DATASET_DIR="/path/to/datasets"              # dataset root
+CONTAINER="/path/to/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/path/to/venv/bin/python"       # Python interpreter
 # ─────────────────────────────────────────────────────────────────────────────
 
 # SIFT1M Grid Baseline — RERUN with constrained score (QPS if Recall@10 ≥ 0.90 else 0).

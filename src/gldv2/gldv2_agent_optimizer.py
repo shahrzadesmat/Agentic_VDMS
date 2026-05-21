@@ -27,7 +27,7 @@ Agent tunes jointly:
 Usage:
     python gldv2_agent_optimizer.py \\
         --port 55596 \\
-        --dataset-dir /work/hdd/bdjd/vdms/datasets \\
+        --dataset-dir /path/to/datasets \\
         --method hyperparameter_only \\
         --iterations 30 \\
         --output gldv2_llm_results.json
@@ -1377,7 +1377,7 @@ def main():
         description="LLM-Guided VDMS Optimizer for GLDv2 Landmark Retrieval")
     parser.add_argument("--port", type=int, default=55596)
     parser.add_argument("--dataset-dir", type=Path, required=True,
-                        help="Root dataset dir (e.g. /work/hdd/bdjd/vdms/datasets)")
+                        help="Root dataset dir (e.g. /path/to/datasets)")
     parser.add_argument("--method",
                         choices=["hyperparameter_only", "random", "grid", "optuna", "gp_bo", "vdtuner"],
                         required=True)

@@ -26,7 +26,7 @@ unique set name (CLIP_Set_{iteration}) to avoid conflicts without restarting VDM
 Usage:
     python hico_agent_optimizer.py \\
         --port 55575 \\
-        --dataset-dir /work/hdd/bdjd/vdms/datasets \\
+        --dataset-dir /path/to/datasets \\
         --method hyperparameter_only \\
         --iterations 30 \\
         --output hico_agent_results.json
@@ -1955,7 +1955,7 @@ def main():
         description="LLM-Guided VDMS Optimizer for HICO-DET HOI Retrieval")
     parser.add_argument("--port", type=int, default=55575)
     parser.add_argument("--dataset-dir", type=Path, required=True,
-                        help="Root dataset dir (e.g. /work/hdd/bdjd/vdms/datasets)")
+                        help="Root dataset dir (e.g. /path/to/datasets)")
     parser.add_argument("--method",
                         choices=["hyperparameter_only", "random", "grid", "optuna", "gp_bo", "vdtuner"],
                         required=True)

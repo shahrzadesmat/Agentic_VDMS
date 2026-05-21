@@ -3,7 +3,7 @@ GLDv2 Index Feature Extraction — CLIP ViT-L/14 + DINOv2 ViT-L/14-reg4
 =======================================================================
 
 Reads 762K index images from 100 repacked tar archives:
-  /work/hdd/bdjd/gldv2/index/images_NNN.repacked.tar  (N=000..099)
+  /path/to/gldv2/index/images_NNN.repacked.tar  (N=000..099)
 
 Images are NOT extracted to disk (tarfile streaming) to stay within inode limits.
 
@@ -26,15 +26,15 @@ Finalize does a single np.vstack of all per-tar files → gldv2_clip.npy.
 Usage:
     # Extract index image features (DB):
     python extract_gldv2_features.py \\
-        [--index-dir /work/hdd/bdjd/gldv2/index] \\
-        [--output-dir /work/hdd/bdjd/vdms/datasets/gldv2] \\
+        [--index-dir /path/to/gldv2/index] \\
+        [--output-dir /path/to/datasets/gldv2] \\
         [--clip-batch 256] [--dinov2-batch 32] \\
         [--no-clip] [--no-dinov2]
 
     # Extract query image features (requires gldv2_queries.json from compute_gldv2_gt.py):
     python extract_gldv2_features.py --extract-queries \\
-        [--gldv2-dir /work/hdd/bdjd/gldv2] \\
-        [--output-dir /work/hdd/bdjd/vdms/datasets/gldv2]
+        [--gldv2-dir /path/to/gldv2] \\
+        [--output-dir /path/to/datasets/gldv2]
 
 Runtime estimate (A40 40GB):
   Index: CLIP 762K @ ~1000 img/s = ~12 min | DINOv2 762K @ ~50 img/s = ~4.2 h
@@ -520,11 +520,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Extract GLDv2 features (CLIP ViT-L/14 + DINOv2 ViT-L/14-reg4)"
     )
-    parser.add_argument("--index-dir",   default="/work/hdd/bdjd/gldv2/index",
+    parser.add_argument("--index-dir",   default="/path/to/gldv2/index",
                         help="Directory containing images_NNN.repacked.tar files")
-    parser.add_argument("--output-dir",  default="/work/hdd/bdjd/vdms/datasets/gldv2",
+    parser.add_argument("--output-dir",  default="/path/to/datasets/gldv2",
                         help="Where to save .npy feature files")
-    parser.add_argument("--gldv2-dir",   default="/work/hdd/bdjd/gldv2",
+    parser.add_argument("--gldv2-dir",   default="/path/to/gldv2",
                         help="GLDv2 root dir (used by --extract-queries)")
     parser.add_argument("--clip-batch",  type=int, default=256)
     parser.add_argument("--dinov2-batch", type=int, default=32)

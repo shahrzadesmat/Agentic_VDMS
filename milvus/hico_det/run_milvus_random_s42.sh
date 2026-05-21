@@ -14,11 +14,11 @@
 # ── USER CONFIG ─────────────────────────────────────────────────────────────
 # Edit these variables to match your environment before submitting.
 # Also update --account and --partition in the #SBATCH header above.
-PYTHON=/work/hdd/bdjd/vdms_code/venv/bin/python         # Python interpreter
-SRC_ROOT=/work/hdd/bdjd/vdms_workflow/src                # repo src/ directory
-DATASET=/work/hdd/bdjd/vdms/datasets                     # dataset root
+PYTHON=/path/to/venv/bin/python         # Python interpreter
+SRC_ROOT=/path/to/Agentic_VDMS/src                # repo src/ directory
+DATASET=/path/to/datasets                     # dataset root
 # ─────────────────────────────────────────────────────────────────────────────
-RESULTS=/work/hdd/bdjd/vdms_workflow/semantic_vdms/milvus/hico_det/results
+RESULTS=/path/to/Agentic_VDMS/milvus/hico_det/results
 
 set -euo pipefail
 export PYTHONUNBUFFERED=1

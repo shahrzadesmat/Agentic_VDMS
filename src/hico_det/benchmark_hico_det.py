@@ -30,7 +30,7 @@ PropertyTypeMismatch on the deep DescriptorSet.)
 
 Usage:
     python benchmark_hico_det.py <port> <dataset_dir>
-    python benchmark_hico_det.py 55570 /work/hdd/bdjd/vdms/datasets
+    python benchmark_hico_det.py 55570 /path/to/datasets
 """
 
 import sys

@@ -32,7 +32,7 @@ import os
 import numpy as np
 from scipy.stats import spearmanr
 
-BASE = "/work/hdd/bdjd/Agentic_VDMS/results"
+BASE = "/path/to/Agentic_VDMS/results"
 
 # ── file manifest ─────────────────────────────────────────────────────────────
 

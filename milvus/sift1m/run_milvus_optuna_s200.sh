@@ -12,9 +12,9 @@
 # ── USER CONFIG ─────────────────────────────────────────────────────────────
 # Edit these variables to match your environment before submitting.
 # Also update --account and --partition in the #SBATCH header above.
-PYTHON=/work/hdd/bdjd/vdms_code/venv/bin/python         # Python interpreter
-SRC_ROOT=/work/hdd/bdjd/vdms_workflow/src                # repo src/ directory
-DATASET=/work/hdd/bdjd/vdms/datasets                     # dataset root
+PYTHON=/path/to/venv/bin/python         # Python interpreter
+SRC_ROOT=/path/to/Agentic_VDMS/src                # repo src/ directory
+DATASET=/path/to/datasets                     # dataset root
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
@@ -24,12 +24,12 @@ export LLM_MODEL="minimax/minimax-m2.1"
 
 echo "=== Milvus SIFT1M optuna seed=200 ===" && date
 
-/work/hdd/bdjd/vdms_code/venv/bin/python $SRC_ROOT/milvus/milvus_sift1m_optimizer.py \
+/path/to/venv/bin/python $SRC_ROOT/milvus/milvus_sift1m_optimizer.py \
     --dataset-dir $DATASET \
     --method      optuna \
     --iterations  50 \
     --seed        200 \
     --recall-threshold 0.90 \
-    --output      /work/hdd/bdjd/vdms_workflow/semantic_vdms/milvus/sift1m/results/milvus_optuna_s200.json
+    --output      /path/to/Agentic_VDMS/milvus/sift1m/results/milvus_optuna_s200.json
 
 echo "=== Done ===" && date

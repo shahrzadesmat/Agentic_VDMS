@@ -17,7 +17,7 @@ import numpy as np
 
 # ── file paths ────────────────────────────────────────────────────────────────
 
-BASE = "/work/hdd/bdjd/Agentic_VDMS/results"
+BASE = "/path/to/Agentic_VDMS/results"
 
 HICO_FILES = {
     "LLM Agent": [

@@ -13,7 +13,7 @@ Configs:
 All use FaissFlat (exact, no approximation) and n_refs=1, ref_strategy=first.
 
 Usage:
-    python run_gldv2_system_baselines.py --port 55598 --dataset-dir /work/hdd/bdjd/vdms/datasets
+    python run_gldv2_system_baselines.py --port 55598 --dataset-dir /path/to/datasets
 """
 
 import argparse
