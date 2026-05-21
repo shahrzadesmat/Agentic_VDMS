@@ -42,18 +42,20 @@
 │   │   ├── run_gpbo_seed{42,99,200}.sh        # GP-BO baseline
 │   │   ├── run_optuna_seed{42,99,200}.sh      # Optuna TPE baseline
 │   │   ├── run_random_seed{42,99,200}.sh      # Random Search baseline
-│   │   ├── run_grid.sh                        # Grid Search (1 run)
+│   │   ├── run_vdtuner_seed{42,99,200}.sh     # VDTuner baseline
+│   │   ├── run_grid.sh                        # Grid Search (1 run, seed 42)
 │   │   ├── run_ablation_no_history_seed{42,99,200}.sh
 │   │   ├── run_ablation_no_phases_seed{42,99,200}.sh
 │   │   ├── run_ablation_no_history_no_phases_seed{42,99,200}.sh
 │   │   ├── run_qds_seed{42,99,200}.sh         # Query Difficulty-weighted objective
+│   │   ├── run_phase_boundary_{A,B}_seed42.sh # Phase schedule sensitivity
 │   │   ├── run_backbone_gpt4omini_seed42.sh   # GPT-4o-mini backbone ablation
 │   │   ├── run_backbone_llama_seed42.sh       # Llama-3.3-70B backbone ablation
 │   │   └── no_threshold/                      # Exploratory runs without SIEVE threshold
 │   ├── gldv2/
-│   │   └── run_{llm,gpbo,optuna,random,grid,vdtuner}_seed{42,99,200}.sh
+│   │   └── run_{llm,gpbo,optuna,random,vdtuner}_seed{42,99,200}.sh + run_grid_seed42.sh
 │   └── sift1m/
-│       └── run_{llm,gpbo,optuna,random,grid,vdtuner}_seed{42,99,200}.sh
+│       └── run_{llm,gpbo,optuna,random,vdtuner}_seed{42,99,200}.sh + run_grid_seed42.sh
 │
 ├── results/                     # Canonical JSON result files
 │   ├── hico_det/

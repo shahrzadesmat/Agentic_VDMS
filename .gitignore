@@ -10,6 +10,14 @@ __pycache__/
 *.out
 slurm-*.out
 
+# Paper source files (not part of the code artifact)
+main.tex
+sample.bib
+acmart.cls
+ACM-Reference-Format.bst
+compile.sh
+figures/
+
 # ConditionB (all_verb_ids) — dropped from paper per mentor decision
 semantic_vdms/supplementary/experiments/hico_det/conditionB/
 semantic_vdms/supplementary/results/hico_det_condB/
