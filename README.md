@@ -106,8 +106,20 @@
 ### Prerequisites
 - Python 3.12
 - NVIDIA GPU (tested on A40, CUDA 11.8)
-- [Intel VDMS](https://github.com/IntelLabs/vdms) (via Apptainer container)
+- [Apptainer](https://apptainer.org/) (for the VDMS container)
 - OpenRouter API key (for LLM agent runs)
+
+### VDMS container
+
+All experiments run VDMS inside an Apptainer container. Build the `.sif` image from the [Intel VDMS](https://github.com/IntelLabs/vdms) source:
+
+```bash
+git clone https://github.com/IntelLabs/vdms.git
+cd vdms
+apptainer build vdms_latest.sif docker://intellabs/vdms:latest
+```
+
+Then set `CONTAINER=/path/to/vdms_latest.sif` in each SLURM script's USER CONFIG block.
 
 ### Install dependencies
 ```bash
@@ -138,11 +150,13 @@ python src/gldv2/extract_gldv2_features.py \
     --index-dir /path/to/gldv2/index \
     --output-dir /path/to/datasets/gldv2
 
-# Extract query features (run compute_gldv2_gt.py first to produce gldv2_queries.json)
+# Extract query features (requires gldv2_queries.json — see note below)
 python src/gldv2/extract_gldv2_features.py --extract-queries \
     --gldv2-dir /path/to/gldv2 \
     --output-dir /path/to/datasets/gldv2
 ```
+
+> **Note:** Query extraction requires `gldv2_queries.json` (produced by `compute_gldv2_gt.py`). This script is not yet in the repo; contact the authors for the ground-truth preparation script or build `gldv2_queries.json` from the [GLDv2 retrieval split](https://github.com/cvdfoundation/google-landmark).
 
 ### Data preparation (SIFT1M)
 Download [`sift.tar.gz`](http://corpus-texmex.irisa.fr/) from the INRIA Texmex corpus and extract into `$DATASET_DIR/sift/`:
@@ -162,12 +176,72 @@ Set your OpenRouter API key before running any LLM experiment:
 export OPENROUTER_API_KEY="your-key-here"
 ```
 
-Submit a SLURM job (example — LLM agent on HICO-DET, seed 42):
+### Via SLURM (recommended)
+
+Edit the four variables in the `USER CONFIG` block at the top of each script, then submit:
 ```bash
 sbatch experiments/hico_det/run_llm_seed42.sh
 ```
 
 Each script writes its result JSON to a path specified by `OUTPUT` inside the script. To reproduce the exact paper numbers, run all three seeds and average the `best_score` field from each output JSON.
+
+### Direct Python execution (no SLURM)
+
+Start VDMS manually, then invoke the optimizer directly:
+```bash
+# 1. Start VDMS container (adjust paths to match your environment)
+DB_ROOT=/tmp/vdms_db && mkdir -p $DB_ROOT
+printf '{"port":55630,"db_root_path":"/db","max_simultaneous_clients":100}' > /tmp/vdms.json
+apptainer instance start --bind $DB_ROOT:/db vdms_latest.sif vdms_inst
+apptainer exec instance://vdms_inst /vdms/build/vdms -cfg /tmp/vdms.json &
+sleep 5  # wait for VDMS to become ready
+
+# 2. Run the optimizer (example: LLM agent on HICO-DET, seed 42)
+python src/hico_det/hico_agent_optimizer.py \
+    --port 55630 \
+    --dataset-dir /path/to/datasets \
+    --method hyperparameter_only \
+    --iterations 50 \
+    --seed 42 \
+    --model "minimax/minimax-m2.1" \
+    --patience 0 \
+    --clip-backbone vitl14 \
+    --output results/hico_det/llm/seed42.json
+
+# 3. Stop VDMS when done
+apptainer instance stop vdms_inst
+```
+
+Available `--method` values: `hyperparameter_only` (LLM), `gpbo`, `optuna`, `random`, `grid`, `vdtuner`.
+
+### Reproducing system baselines (UniIR / FaissFlat)
+
+`results/hico_det/system_baselines.json` was produced by `run_hico_system_baselines.py`:
+```bash
+# Requires VDMS running on --port (start as shown above)
+python src/hico_det/run_hico_system_baselines.py \
+    --port 55630 \
+    --dataset-dir /path/to/datasets \
+    --output results/hico_det/system_baselines.json
+```
+
+---
+
+## Running the Analysis Scripts
+
+The `analysis/` scripts re-process the canonical result JSONs in `results/` — no new experiments needed.
+
+```bash
+# SIEVE threshold sensitivity (Table 5 in paper)
+# Prints one table per dataset showing Score at multiple τ values
+python analysis/tau_sensitivity.py
+
+# Parameter coupling metric (Section 5 in paper)
+# Prints Spearman rho and feasibility rates across datasets
+python analysis/coupling_metric.py
+```
+
+> **Note:** Both scripts have a hardcoded `BASE` path at the top (currently set to the cluster path). If you clone the repo to a different location, update the `BASE` variable in each script to point to your local `results/` directory.
 
 ---
 
