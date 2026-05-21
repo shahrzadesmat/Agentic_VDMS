@@ -9,7 +9,7 @@ All five optimizer methods (LLM Agent, Optuna TPE, GP-BO, Random Search, VDTuner
 ```
 milvus/
 ├── hico_det/
-│   ├── results/          # JSON results (same schema as top-level results/)
+│   ├── results/          # JSON results (flat schema — see Notes)
 │   │   ├── milvus_{method}_s{seed}.json   # main comparison (5 methods × 3 seeds)
 │   │   ├── milvus_grid.json               # Grid Search (1 run)
 │   │   └── milvus_qds_s42.json            # QDS objective variant (seed 42 only)
@@ -24,13 +24,28 @@ milvus/
 
 ## Running
 
-Each script follows the same USER CONFIG pattern as `experiments/`. Edit `BASE_DIR`, `DATASET_DIR`, `CONTAINER`, and `PYTHON` at the top, then submit:
+Each script has a `USER CONFIG` block at the top with three variables. Edit them to match your environment before submitting:
 
 ```bash
 sbatch milvus/hico_det/run_milvus_llm_s42.sh
 ```
 
+| Variable | Description |
+|----------|-------------|
+| `PYTHON` | Path to Python interpreter |
+| `SRC_ROOT` | Path to the repo `src/` directory |
+| `DATASET` | Dataset root directory |
+
+No `CONTAINER` variable is needed — Milvus is pip-installed, not containerized.
+
 ## Notes
 
 - **`milvus_qds_s42.json`** — A single-seed run of the QDS (Query Difficulty-weighted Scoring) objective variant on Milvus, included for completeness. Not reported separately in the paper tables.
-- Milvus result JSONs use a flat schema (`method`, `seed`, `iterations`, `map_threshold`, `best_score`, `best_map`, `best_qps`, `best_config`, `all_results`) rather than the nested `summary` / `results` structure used in the VDMS results.
+- Milvus result JSONs use a **flat schema** (not the nested `summary` / `results` structure used in VDMS results). The schema varies slightly by dataset:
+
+| Dataset | Keys |
+|---------|------|
+| HICO-DET / GLDv2 | `method`, `seed`, `iterations`, `map_threshold`, `best_score`, `best_map`, `best_qps`, `best_config`, `all_results` |
+| SIFT1M | `method`, `seed`, `iterations`, `recall_threshold`, `best_score`, `best_recall`, `best_qps`, `best_config`, `n_feasible`, `all_results` |
+
+> GLDv2 also includes `n_feasible`; HICO-DET does not.
