@@ -21,13 +21,14 @@ DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
 CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
 PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
 # ─────────────────────────────────────────────────────────────────────────────
+RESULTS_ROOT="/work/hdd/bdjd/Agentic_VDMS/results"          # canonical results dir (repo root)
 
 SEED=99
 PORT=55701
 INSTANCE="vdms_hico_vdt_s99_${SLURM_JOB_ID}"
 DB_ROOT="/tmp/vdms_hico_vdt_s99_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_hico_vdt_s99_${SLURM_JOB_ID}.json"
-OUTPUT="${BASE_DIR}/supplementary/results/hico_det/vdtuner/seed99.json"
+OUTPUT="${RESULTS_ROOT}/hico_det/vdtuner/seed99.json"
 
 echo "===== HICO-DET VDTuner seed=42 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"

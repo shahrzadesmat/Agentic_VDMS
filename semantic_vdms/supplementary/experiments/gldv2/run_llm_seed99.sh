@@ -23,7 +23,7 @@ CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
 PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
 DB_ROOT="/tmp/vdms_gldv2_llm_s99_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_gldv2_llm_s99_${SLURM_JOB_ID}.json"
-OUTPUT="${BASE_DIR}/supplementary/results/gldv2/llm/seed99.json"
+OUTPUT="${RESULTS_ROOT}/gldv2/llm/seed99.json"
 
 echo "===== GLDv2 llm seed=99 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"

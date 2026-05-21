@@ -17,6 +17,7 @@ DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
 CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
 PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
 # ─────────────────────────────────────────────────────────────────────────────
+RESULTS_ROOT="/work/hdd/bdjd/Agentic_VDMS/results"          # canonical results dir (repo root)
 
 # GLDv2 VDTuner (EHVI multi-objective BO) — 50 iterations, seed=42
 
@@ -25,7 +26,7 @@ PORT=55704
 INSTANCE="vdms_gldv2_vdt_s99_${SLURM_JOB_ID}"
 DB_ROOT="/tmp/vdms_gldv2_vdt_s99_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_gldv2_vdt_s99_${SLURM_JOB_ID}.json"
-OUTPUT="${BASE_DIR}/supplementary/results/gldv2/vdtuner/seed99.json"
+OUTPUT="${RESULTS_ROOT}/gldv2/vdtuner/seed99.json"
 
 echo "===== GLDv2 VDTuner seed=42 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"

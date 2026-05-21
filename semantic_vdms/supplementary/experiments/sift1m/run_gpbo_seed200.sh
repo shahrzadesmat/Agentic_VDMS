@@ -25,7 +25,7 @@ DB_ROOT="/tmp/vdms_sift1m_gpbo_s200_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_sift1m_gpbo_s200_${SLURM_JOB_ID}.json"
 SNAP_KEY_FILE="/tmp/vdms_snap_key_sift1m_gpbo_s200_${SLURM_JOB_ID}.txt"
 VDMS_PARAMS_FILE="/tmp/vdms_params_sift1m_gpbo_s200_${SLURM_JOB_ID}.json"
-OUTPUT="${BASE_DIR}/supplementary/results/sift1m/gpbo/seed200.json"
+OUTPUT="${RESULTS_ROOT}/sift1m/gpbo/seed200.json"
 export SNAP_KEY_FILE VDMS_PARAMS_FILE
 
 echo "===== SIFT1M gpbo seed=200 ====="

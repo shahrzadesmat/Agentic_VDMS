@@ -82,10 +82,9 @@
 │   │   ├── hico_det/{results/,run_milvus_*.sh}
 │   │   ├── gldv2/{results/,run_milvus_*.sh}
 │   │   └── sift1m/{results/,run_milvus_*.sh}
-│   └── supplementary/           # Self-contained copy of src/, experiments/, results/
-│       ├── src/                 # (mirrors top-level src/ — use for isolated reproduction)
-│       ├── experiments/
-│       ├── results/
+│   └── supplementary/           # Alternate src/ and experiment scripts (older versions)
+│       ├── src/                 # (older code versions — canonical code is in top-level src/)
+│       ├── experiments/         # (points to canonical results/ in repo root)
 │       └── requirements.txt
 │
 └── requirements.txt

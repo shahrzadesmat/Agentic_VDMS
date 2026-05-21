@@ -21,13 +21,14 @@ DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
 CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
 PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
 # ─────────────────────────────────────────────────────────────────────────────
+RESULTS_ROOT="/work/hdd/bdjd/Agentic_VDMS/results"          # canonical results dir (repo root)
 
 SEED=200
 PORT=55685
 INSTANCE="vdms_gldv2_llm_s200_${SLURM_JOB_ID}"
 DB_ROOT="/tmp/vdms_gldv2_llm_s200_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_gldv2_llm_s200_${SLURM_JOB_ID}.json"
-OUTPUT="${BASE_DIR}/supplementary/results/gldv2/llm/seed200.json"
+OUTPUT="${RESULTS_ROOT}/gldv2/llm/seed200.json"
 
 echo "===== GLDv2 llm seed=200 ====="
 echo "Job: ${SLURM_JOB_ID}  Node: $(hostname)  Started: $(date)"
