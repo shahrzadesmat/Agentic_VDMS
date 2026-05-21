@@ -141,7 +141,7 @@ Each JSON result file contains:
 {
   "summary": {
     "best_score": 300.5,
-    "best_map": 0.160,
+    "best_map": 0.160,      // "best_recall" for SIFT1M (Recall@10, not mAP)
     "best_qps": 300.5,
     "best_config": { ... },
     "iterations_used": 50
@@ -150,7 +150,9 @@ Each JSON result file contains:
 }
 ```
 
-The **SIEVE score** = `best_qps` when `best_map >= τ` (τ = 0.15 for HICO-DET/GLDv2, τ = 0.90 for SIFT1M), else 0. All canonical results in `results/` already meet the threshold.
+> **Note:** SIFT1M summaries use `best_recall` (Recall@10) in place of `best_map`. Per-iteration records in `results[]` always use `benchmark.recall_at_10` (SIFT1M) or `benchmark.map_score` (HICO-DET/GLDv2).
+
+The **SIEVE score** = `best_qps` when the quality metric ≥ τ (τ = 0.15 for HICO-DET/GLDv2, τ = 0.90 for SIFT1M), else 0. All canonical results in `results/` already meet the threshold.
 
 ---
 
