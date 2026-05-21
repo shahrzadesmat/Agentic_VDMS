@@ -235,7 +235,7 @@ The `analysis/` scripts re-process the canonical result JSONs in `results/` — 
 
 ```bash
 # SIEVE threshold sensitivity (Table 5 in paper)
-# Prints one table per dataset showing Score at multiple τ values
+# Covers HICO-DET and SIFT1M; prints Score at multiple τ values for each
 python analysis/tau_sensitivity.py
 
 # Parameter coupling metric (Section 5 in paper)
