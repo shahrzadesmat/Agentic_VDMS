@@ -4,7 +4,7 @@
 **Authors:** Shahrzad Esmat, Chaunté W. Lacewell, Sameh Gobriel, Nilesh Jain, Ali Jannesari
 **Venue:** Under review at PVLDB Vol. 20, 2027
 
-<img src="assets/workflow.png" alt="Optimization Framework"><br>
+<img src="assets/workflow_fig.png" alt="Optimization Framework"><br>
 <em>Five optimizer methods propose VDMS configurations over N=50 iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive SIEVE score feedback; Grid and Random Search do not.</em>
 
 ---
