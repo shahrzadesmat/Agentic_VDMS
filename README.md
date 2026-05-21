@@ -52,7 +52,7 @@
 │   │   ├── run_phase_boundary_{A,B}_seed42.sh # Phase schedule sensitivity
 │   │   ├── run_backbone_gpt4omini_seed42.sh   # GPT-4o-mini backbone ablation
 │   │   ├── run_backbone_llama_seed42.sh       # Llama-3.3-70B backbone ablation
-│   │   └── no_threshold/                      # Exploratory runs without SIEVE threshold
+│   │   └── no_threshold/                      # Exploratory runs with --no-threshold (Score = QPS, no mAP gate)
 │   ├── gldv2/
 │   │   └── run_{llm,gpbo,optuna,random,vdtuner}_seed{42,99,200}.sh + run_grid_seed42.sh
 │   └── sift1m/
@@ -213,6 +213,10 @@ apptainer instance stop vdms_inst
 ```
 
 Available `--method` values: `hyperparameter_only` (LLM), `gpbo`, `optuna`, `random`, `grid`, `vdtuner`.
+
+### `no_threshold/` exploratory scripts
+
+The scripts in `experiments/hico_det/no_threshold/` run with `--no-threshold`, meaning Score = QPS with no mAP quality gate. These were used during development to understand raw optimizer behavior without the SIEVE constraint. Their output JSONs are not included in `results/` because these runs are not reported in the paper.
 
 ### Reproducing system baselines (UniIR / FaissFlat)
 
