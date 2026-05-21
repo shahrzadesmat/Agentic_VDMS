@@ -1,15 +1,23 @@
 #!/bin/bash
 #SBATCH --job-name=gldv2_agent
-#SBATCH --account=bdjd-delta-gpu
-#SBATCH --partition=gpuA40x4
+#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --partition=YOUR_PARTITION
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=0
 #SBATCH --exclusive
 #SBATCH --time=06:00:00
-#SBATCH --exclude=gpub066,gpub088
-#SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/gldv2/gldv2_llm_%j.log
-#SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/gldv2/gldv2_llm_%j.err
+#SBATCH --output=slurm_%j.log
+#SBATCH --error=slurm_%j.err
+
+# ── USER CONFIG ─────────────────────────────────────────────────────────────
+# Edit the four variables below to match your environment before submitting.
+# Also update --account and --partition in the #SBATCH header above.
+BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
+DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
+CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+# ─────────────────────────────────────────────────────────────────────────────
 
 # LLM/Grid/Random/Optuna optimizer — GLDv2 Landmark Retrieval
 # Usage: sbatch run_gldv2_agent.sh [method]
@@ -22,10 +30,6 @@ scontrol update JobId=$SLURM_JOB_ID JobName="gldv2_${METHOD}" 2>/dev/null
 SEED=42
 PORT=55596
 INSTANCE="vdms_gldv2_agent"
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
 DB_ROOT="/tmp/vdms_gldv2_agent_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_gldv2_agent_${SLURM_JOB_ID}.json"
 OUTPUT="gldv2/gldv2_${METHOD}_seed${SEED}_results_${SLURM_JOB_ID}.json"

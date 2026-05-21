@@ -1,24 +1,28 @@
 #!/bin/bash
 #SBATCH --job-name=gldv2_vdt_s99
-#SBATCH --account=bdjd-delta-gpu
-#SBATCH --partition=gpuA40x4
+#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --partition=YOUR_PARTITION
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=48:00:00
-#SBATCH --exclude=gpub066,gpub088
-#SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/gldv2/gldv2_vdt_s99_%j.log
-#SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/gldv2/gldv2_vdt_s99_%j.err
+#SBATCH --output=slurm_%j.log
+#SBATCH --error=slurm_%j.err
+
+# ── USER CONFIG ─────────────────────────────────────────────────────────────
+# Edit the four variables below to match your environment before submitting.
+# Also update --account and --partition in the #SBATCH header above.
+BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
+DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
+CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+# ─────────────────────────────────────────────────────────────────────────────
 
 # GLDv2 VDTuner (EHVI multi-objective BO) — 50 iterations, seed=42
 
 SEED=99
 PORT=55704
 INSTANCE="vdms_gldv2_vdt_s99_${SLURM_JOB_ID}"
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
 DB_ROOT="/tmp/vdms_gldv2_vdt_s99_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_gldv2_vdt_s99_${SLURM_JOB_ID}.json"
 OUTPUT="${BASE_DIR}/supplementary/results/gldv2/vdtuner/seed99.json"

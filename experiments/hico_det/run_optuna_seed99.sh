@@ -1,26 +1,30 @@
 #!/bin/bash
 #SBATCH --job-name=hico_opt_r_s99
-#SBATCH --account=bdjd-delta-gpu
-#SBATCH --partition=gpuA40x4
+#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --partition=YOUR_PARTITION
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
-#SBATCH --exclude=gpub066,gpub088
 #SBATCH --output=hico_det/hico_opt_r_s99_%j.log
 #SBATCH --error=hico_det/hico_opt_r_s99_%j.err
 
 export OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-YOUR_KEY_HERE}"
 
+# ── USER CONFIG ─────────────────────────────────────────────────────────────
+# Edit the four variables below to match your environment before submitting.
+# Also update --account and --partition in the #SBATCH header above.
+BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
+DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
+CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+# ─────────────────────────────────────────────────────────────────────────────
+
 PORT=55635
 INSTANCE="vdms_opt_r_s99_${SLURM_JOB_ID}"
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
 DB_ROOT="/tmp/vdms_opt_r_s99_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_opt_r_s99_${SLURM_JOB_ID}.json"
-FINAL_RESULTS="/work/hdd/bdjd/vdms_workflow/semantic_vdms/FINAL_RESULTS/hico_det/results"
+FINAL_RESULTS="${BASE_DIR}/FINAL_RESULTS/hico_det/results"
 OUTPUT="${FINAL_RESULTS}/optuna_seed99.json"
 
 echo "===== Optuna TPE rerun seed=99 ====="

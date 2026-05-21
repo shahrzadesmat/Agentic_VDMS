@@ -1,26 +1,31 @@
 #!/bin/bash
 #SBATCH --job-name=nt_qds_rand_s42
-#SBATCH --account=bdjd-delta-gpu
-#SBATCH --partition=gpuA40x4-interactive
+#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --partition=YOUR_PARTITION
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --gres=gpu:1
 #SBATCH --time=01:00:00
-#SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/hico_det/no_threshold/logs/nt_qds_rand_s42_%j.log
-#SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/hico_det/no_threshold/logs/nt_qds_rand_s42_%j.err
+#SBATCH --output=slurm_%j.log
+#SBATCH --error=slurm_%j.err
+
+# ── USER CONFIG ─────────────────────────────────────────────────────────────
+# Edit the four variables below to match your environment before submitting.
+# Also update --account and --partition in the #SBATCH header above.
+BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
+DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
+CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+# ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 export PYTHONUNBUFFERED=1
 
 PORT=55674
 INSTANCE="vdms_nothresh_nt_qds_rand_s42_${SLURM_JOB_ID}"
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"
 SRC="/work/hdd/bdjd/vdms_workflow/src/hico_det"
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
 DB_ROOT="/tmp/vdms_nothresh_nt_qds_rand_s42_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_nothresh_nt_qds_rand_s42_${SLURM_JOB_ID}.json"
 RESULTS="${BASE_DIR}/hico_det/no_threshold/results"

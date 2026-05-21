@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=hico_llm2_r_s42
-#SBATCH --account=bdjd-delta-gpu
-#SBATCH --partition=gpuA40x4
+#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --partition=YOUR_PARTITION
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
@@ -11,15 +11,20 @@
 
 export OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-YOUR_KEY_HERE}"
 
+# ── USER CONFIG ─────────────────────────────────────────────────────────────
+# Edit the four variables below to match your environment before submitting.
+# Also update --account and --partition in the #SBATCH header above.
+BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
+DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
+CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+# ─────────────────────────────────────────────────────────────────────────────
+
 PORT=55650
 INSTANCE="vdms_llm2_r_s42_${SLURM_JOB_ID}"
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
 DB_ROOT="/tmp/vdms_llm2_r_s42_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_llm2_r_s42_${SLURM_JOB_ID}.json"
-FINAL_RESULTS="/work/hdd/bdjd/vdms_workflow/semantic_vdms/FINAL_RESULTS/hico_det/results"
+FINAL_RESULTS="${BASE_DIR}/FINAL_RESULTS/hico_det/results"
 OUTPUT="${FINAL_RESULTS}/llm2_seed42.json"
 
 echo "===== LLM2 GPT-4o-mini CLEAN rerun seed=42 (post-SIEVE + all bug fixes) ====="

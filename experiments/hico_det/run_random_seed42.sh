@@ -1,26 +1,30 @@
 #!/bin/bash
 #SBATCH --job-name=hico_rand_r_s42
-#SBATCH --account=bdjd-delta-gpu
-#SBATCH --partition=gpuA40x4-interactive
+#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --partition=YOUR_PARTITION
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=0
 #SBATCH --time=00:59:00
-#SBATCH --exclude=gpub066,gpub088
 #SBATCH --output=hico_det/hico_rand_r_s42_%j.log
 #SBATCH --error=hico_det/hico_rand_r_s42_%j.err
 
 export OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-YOUR_KEY_HERE}"
 
+# ── USER CONFIG ─────────────────────────────────────────────────────────────
+# Edit the four variables below to match your environment before submitting.
+# Also update --account and --partition in the #SBATCH header above.
+BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
+DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
+CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+# ─────────────────────────────────────────────────────────────────────────────
+
 PORT=55637
 INSTANCE="vdms_rand_r_s42_${SLURM_JOB_ID}"
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
 DB_ROOT="/tmp/vdms_rand_r_s42_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_rand_r_s42_${SLURM_JOB_ID}.json"
-FINAL_RESULTS="/work/hdd/bdjd/vdms_workflow/semantic_vdms/FINAL_RESULTS/hico_det/results"
+FINAL_RESULTS="${BASE_DIR}/FINAL_RESULTS/hico_det/results"
 OUTPUT="${FINAL_RESULTS}/random_seed42.json"
 
 echo "===== Random search rerun seed=42 ====="

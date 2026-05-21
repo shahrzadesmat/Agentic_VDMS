@@ -1,25 +1,30 @@
 #!/bin/bash
 #SBATCH --job-name=sift1m_llm_r
-#SBATCH --account=bdjd-delta-gpu
-#SBATCH --partition=gpuA40x4
+#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --partition=YOUR_PARTITION
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=64G
 #SBATCH --time=10:00:00
-#SBATCH --output=/work/hdd/bdjd/vdms_workflow/semantic_vdms/sift1m/sift1m_llm_rerun_%j.log
-#SBATCH --error=/work/hdd/bdjd/vdms_workflow/semantic_vdms/sift1m/sift1m_llm_rerun_%j.err
+#SBATCH --output=slurm_%j.log
+#SBATCH --error=slurm_%j.err
 
 # SIFT1M LLM Agent — RERUN with constrained score (QPS if Recall@10 >= 0.90 else 0).
 
 export OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-YOUR_KEY_HERE}"
 
+# ── USER CONFIG ─────────────────────────────────────────────────────────────
+# Edit the four variables below to match your environment before submitting.
+# Also update --account and --partition in the #SBATCH header above.
+BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"  # root of semantic_vdms/
+DATASET_DIR="/work/hdd/bdjd/vdms/datasets"              # dataset root
+CONTAINER="/work/hdd/bdjd/vdms_latest.sif"              # Apptainer .sif image
+PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"       # Python interpreter
+# ─────────────────────────────────────────────────────────────────────────────
+
 SEED=42
 PORT=55663
 INSTANCE="vdms_sift1m_llm_r_${SLURM_JOB_ID}"
-BASE_DIR="/work/hdd/bdjd/vdms_workflow/semantic_vdms"
-DATASET_DIR="/work/hdd/bdjd/vdms/datasets"
-CONTAINER="/work/hdd/bdjd/vdms_latest.sif"
-PYTHON="/work/hdd/bdjd/vdms_code/venv/bin/python"
 DB_ROOT="/tmp/vdms_sift1m_llm_r_${SLURM_JOB_ID}"
 VDMS_CFG="/tmp/vdms_sift1m_llm_r_${SLURM_JOB_ID}.json"
 SNAP_KEY_FILE="/tmp/vdms_snap_key_sift1m_llm_r_${SLURM_JOB_ID}.txt"
