@@ -2,7 +2,7 @@
 
 **Paper:** *LLM-Guided ANN Index Optimization for Human-Object Interaction Retrieval*
 **Authors:** Shahrzad Esmat, Chaunté W. Lacewell, Sameh Gobriel, Nilesh Jain, Ali Jannesari
-**Venue:** PVLDB, Vol. 20, 2027
+**Venue:** Under review at PVLDB Vol. 20, 2027
 
 ![Optimization Framework](assets/workflow.png)
 
