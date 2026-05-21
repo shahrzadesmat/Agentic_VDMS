@@ -1,7 +1,8 @@
 # Agentic VDMS — Supplementary Materials
 
 **Paper:** *LLM-Guided ANN Index Optimization for Human-Object Interaction Retrieval*
-**Venue:** VLDB 2027 submission
+**Authors:** Shahrzad Esmat, Chaunté W. Lacewell, Sameh Gobriel, Nilesh Jain, Ali Jannesari
+**Venue:** PVLDB, Vol. 20, 2027
 
 ![Optimization Framework](assets/workflow.png)
 
@@ -90,6 +91,16 @@
 
 ---
 
+## Datasets
+
+| Dataset | Scale | Source |
+|---------|-------|--------|
+| HICO-DET | 47,776 images, 600 HOI categories | [zhimeng/hico_det on Hugging Face](https://huggingface.co/datasets/zhimeng/hico_det) — auto-downloaded by `extract_hico_det.py` |
+| GLDv2 | 762K gallery images, 1,129 queries | [Google Landmarks Dataset v2](https://github.com/cvdfoundation/google-landmark) — download the 100 index tar archives + query images |
+| SIFT1M | 1M vectors, 128-d | [INRIA Texmex corpus](http://corpus-texmex.irisa.fr/) — download `sift.tar.gz` and place extracted files under `$DATASET_DIR/sift/` |
+
+---
+
 ## Setup
 
 ### Prerequisites
@@ -106,10 +117,11 @@ pip install -r requirements.txt
 ### Data preparation (HICO-DET)
 ```bash
 # 1. Extract images, SIFT, DINOv2 features, and ground truth
-python src/hico_det/extract_hico_det.py --data-dir /path/to/hico_det
+#    Dataset is auto-downloaded from HuggingFace (zhimeng/hico_det)
+python src/hico_det/extract_hico_det.py --output-dir /path/to/hico_det
 
 # 2. Extract MobileCLIP-S2 text embeddings (hico_clip_text_queries.npy)
-python src/hico_det/extract_hico_text_queries.py --data-dir /path/to/hico_det
+python src/hico_det/extract_hico_text_queries.py --dataset-dir /path/to/hico_det
 
 # 3. Extract CLIP image + text embeddings for both backbones
 #    Produces: hico_clip.npy (MobileCLIP-S2, 512-d)
@@ -117,6 +129,29 @@ python src/hico_det/extract_hico_text_queries.py --data-dir /path/to/hico_det
 #              hico_clipvitl14_text_queries.npy (ViT-L/14, 768-d)
 python src/hico_det/extract_hico_clip_features.py --dataset-dir /path/to/hico_det
 ```
+
+### Data preparation (GLDv2)
+Download the 100 index tar archives from [Google Landmarks Dataset v2](https://github.com/cvdfoundation/google-landmark) and the query images. Then extract CLIP ViT-L/14 + DINOv2 features (~4–5 h on A40):
+```bash
+# Extract index image features (762K images, streamed — no disk extraction needed)
+python src/gldv2/extract_gldv2_features.py \
+    --index-dir /path/to/gldv2/index \
+    --output-dir /path/to/datasets/gldv2
+
+# Extract query features (run compute_gldv2_gt.py first to produce gldv2_queries.json)
+python src/gldv2/extract_gldv2_features.py --extract-queries \
+    --gldv2-dir /path/to/gldv2 \
+    --output-dir /path/to/datasets/gldv2
+```
+
+### Data preparation (SIFT1M)
+Download [`sift.tar.gz`](http://corpus-texmex.irisa.fr/) from the INRIA Texmex corpus and extract into `$DATASET_DIR/sift/`:
+```bash
+wget ftp://ftp.irisa.fr/local/texmex/corpus/sift.tar.gz
+tar -xzf sift.tar.gz -C /path/to/datasets/
+# Expected files: sift/sift_base.fvecs  sift/sift_query.fvecs  sift/sift_groundtruth.ivecs
+```
+No feature extraction script is needed — the SIFT1M optimizer reads `.fvecs` files directly.
 
 ---
 
@@ -173,3 +208,29 @@ Score = QPS if mAP ≥ τ, else 0 (SIEVE objective).
 All scores are 3-seed means (seeds 42, 99, 200); Grid Search is 1 run (seed 42).
 
 Phase boundary sensitivity (t_exp/t_expl): all variants within ±0.53% of default, confirming robustness.
+
+---
+
+## Citation
+
+If you use this work, please cite:
+
+```bibtex
+@article{esmat2027llm,
+  author    = {Shahrzad Esmat and
+               Chaunt{\'{e}} W. Lacewell and
+               Sameh Gobriel and
+               Nilesh Jain and
+               Ali Jannesari},
+  title     = {LLM-Guided {ANN} Index Optimization for Human-Object Interaction Retrieval},
+  journal   = {Proceedings of the VLDB Endowment},
+  volume    = {20},
+  number    = {1},
+  pages     = {XXX--XXX},
+  year      = {2027},
+  doi       = {XX.XX/XXX.XX},
+  url       = {https://github.com/shahrzadesmat/Agentic_VDMS}
+}
+```
+
+> **Note:** DOI and page numbers will be updated upon final publication.
