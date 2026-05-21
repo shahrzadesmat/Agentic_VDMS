@@ -5,7 +5,6 @@
 **Venue:** Under review at PVLDB Vol. 20, 2027
 
 ![Optimization Framework](assets/workflow.png)
-
 *Five optimizer methods propose VDMS configurations over N=50 iterations. Adaptive methods (LLM Agent, Optuna TPE, GP-BO) receive SIEVE score feedback; Grid and Random Search do not.*
 
 ---
