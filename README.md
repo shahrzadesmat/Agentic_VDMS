@@ -33,6 +33,9 @@
 │   │   ├── milvus_gldv2_optimizer.py    # LLM/baseline optimizers on Milvus (GLDv2)
 │   │   └── milvus_sift1m_optimizer.py   # LLM/baseline optimizers on Milvus (SIFT1M)
 │   └── vdtuner_ehvi.py                  # VDTuner baseline (EHVI multi-objective)
+│   ├── hico_det/hico_agent_optimizer_eci.py    # ECI constrained-BO baseline
+│   ├── hico_det/hico_agent_optimizer_nsga2.py  # NSGA-II evolutionary baseline
+│   └── hico_det/hico_agent_optimizer_ghint.py  # g(H)/hints component ablation
 │
 ├── experiments/                 # SLURM scripts to reproduce every run
 │   ├── hico_det/
@@ -48,6 +51,8 @@
 │   │   ├── run_qds_seed{42,99,200}.sh         # Query Difficulty-weighted objective
 │   │   ├── run_phase_boundary_{A,B}_seed42.sh # Phase schedule sensitivity
 │   │   ├── run_backbone_gpt4omini_seed42.sh   # GPT-4o-mini backbone ablation
+│   │   ├── baselines_2026-07/                 # ECI, NSGA-II, g(H)/hints ablation
+│   │   │                                      #   + smoke tests (no VDMS/API needed)
 │   │   ├── run_backbone_llama_seed42.sh       # Llama-3.3-70B backbone ablation
 │   │   └── no_threshold/                      # Exploratory runs with --no-threshold (Score = QPS, no mAP gate)
 │   ├── gldv2/
