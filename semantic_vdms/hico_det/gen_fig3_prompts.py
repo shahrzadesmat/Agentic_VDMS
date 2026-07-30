@@ -6,6 +6,9 @@ Box heights are computed from actual text content — no dead space.
 """
 import matplotlib
 matplotlib.use("Agg")
+# TrueType, not Type 3 -- Type 3 fonts are flagged by venue checkers.
+matplotlib.rcParams["pdf.fonttype"] = 42
+matplotlib.rcParams["ps.fonttype"] = 42
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
 
@@ -26,7 +29,7 @@ CGN = '#1B5E20'
 CBR = '#4E342E'
 
 # ── Figure & layout constants ─────────────────────────────────────────
-FW, FH = 7.4, 8.0   # inches (bbox_inches='tight' crops)
+FW, FH = 7.4, 6.10  # inches; FH hugs content (axes fills canvas, so tight cannot crop)
 fig = plt.figure(figsize=(FW, FH))
 ax  = fig.add_axes([0, 0, 1, 1])
 ax.set_xlim(0, FW); ax.set_ylim(0, FH); ax.axis('off')
@@ -217,7 +220,7 @@ iy += HD_H
 # ── Outer "LLM User Message" box ─────────────────────────────────────
 OPAD  = 0.09
 O_BOT = sec_bot - OPAD
-O_TOP = iy + OPAD + 0.20
+O_TOP = iy + OPAD + 0.03
 O_H   = O_TOP - O_BOT
 rbox(BX, O_BOT, BW, O_H, 'white', ec='#444', lw=1.05, r=0.12, z=1)
 ax.text(BX + 0.20, O_TOP - 0.01,
@@ -232,7 +235,7 @@ A0_TOP = O_TOP + 0.22
 arr(FW/2, A0_TOP, FW/2, A0_BOT)
 
 # ── HOI QUERY BOXES ───────────────────────────────────────────────────
-QW, QH = 1.90, 0.68
+QW, QH = 1.90, 0.50
 QY   = A0_TOP
 QGAP = 0.16
 total_qw = 3*QW + 2*QGAP
@@ -245,12 +248,12 @@ for i, (title, l1, l2) in enumerate([
 ]):
     qx = qs_x + i*(QW + QGAP)
     rbox(qx, QY, QW, QH, CQ, ec='#90CAF9', lw=0.65, r=0.08, z=3)
-    ax.text(qx+QW/2, QY+QH-0.10, title,
+    ax.text(qx+QW/2, QY+QH-0.07, title,
             ha='center', va='top', fontsize=7.5, fontweight='bold', color=CDG, zorder=4)
-    ax.text(qx+QW/2, QY+QH/2+0.02, l1,
+    ax.text(qx+QW/2, QY+QH/2-0.01, l1,
             ha='center', va='center', fontsize=7, fontfamily='monospace', color=CDG, zorder=4)
     if l2:
-        ax.text(qx+QW/2, QY+0.10, l2,
+        ax.text(qx+QW/2, QY+0.07, l2,
                 ha='center', va='center', fontsize=7, fontfamily='monospace', color=CDG, zorder=4)
 
 # ── Save ─────────────────────────────────────────────────────────────
